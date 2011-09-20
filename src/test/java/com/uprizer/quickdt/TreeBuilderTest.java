@@ -21,7 +21,6 @@ public class TreeBuilderTest {
 		final TreeBuilder tb = new TreeBuilder();
 		final Node tree = tb.buildTree(instances, 100, 1.0);
 		System.out.println("Tree size: " + tree.size());
-		tree.dump(System.out);
 
 	}
 
@@ -33,7 +32,6 @@ public class TreeBuilderTest {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
 			final Instance instance = Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height);
-			System.out.println(instance);
 			instances.add(instance);
 		}
 		{

@@ -81,3 +81,23 @@ This is what the output might look like:
 	    [output=underweight, depth=2, exampleCount=5, probability=1.0]
 	height not in [69.0, 80.0, 81.0, 78.0, 74.0, 83.0]
 	  [output=overweight, depth=1, exampleCount=11, probability=1.0]
+	
+How do I build QuickDT?
+-----------------------
+
+QuickDT is built using [Apache Maven](http://maven.apache.org/) so if you don't have that, you should grab it.  You'll also
+need [git](http://git-scm.com/).
+
+First, grab the code from github:
+
+	$ git clone git@github.com:sanity/quickdt.git
+
+Next, build a jar file:
+
+	$ cd quickdt
+	$ mvn assembly:assembly
+
+If all goes well, you'll find a file called something like quickdt-0.0.1-SNAPSHOT-jar-with-dependencies.jar in the target/ directory.
+Just add this to your classpath and you're off to the races!
+
+As QuickDT is still under very active development, it is not yet available via any public repositories.
