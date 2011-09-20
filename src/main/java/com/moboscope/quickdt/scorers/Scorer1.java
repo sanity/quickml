@@ -8,6 +8,10 @@ import com.moboscope.quickdt.TreeBuilder.Scorer;
 
 public class Scorer1 implements Scorer {
 
+	/*
+	 * The best scorer so far, fast with small trees
+	 */
+
 	public double scoreSplit(final int aTtl, final Map<Serializable, Integer> a, final int bTtl,
 			final Map<Serializable, Integer> b) {
 		double score = 0;

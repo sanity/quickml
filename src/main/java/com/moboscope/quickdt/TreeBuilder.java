@@ -69,11 +69,21 @@ public class TreeBuilder {
 
 		final Instance sampleInstance = Iterables.get(trainingData, 0);
 
+		boolean smallTrainingSet = true;
+		int tsCount = 0;
+		for (final Instance i : trainingData) {
+			tsCount++;
+			if (tsCount > 20) {
+				smallTrainingSet = false;
+				break;
+			}
+		}
+
 		Branch bestNode = null;
 		double bestScore = 0;
 		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
 			Pair<? extends Branch, Double> thisPair;
-			if (e.getValue() instanceof Number) {
+			if (!smallTrainingSet && e.getValue() instanceof Number) {
 				thisPair = createOrdinalNode(e.getKey(), trainingData, splits.get(e.getKey()));
 			} else {
 				thisPair = createNominalNode(e.getKey(), trainingData);
@@ -84,13 +94,8 @@ public class TreeBuilder {
 			}
 		}
 
-		if (bestNode == null) {
-			final StringBuilder sb = new StringBuilder();
-			for (final Instance i : trainingData) {
-				sb.append(i.toString());
-			}
+		if (bestNode == null)
 			return thisLeaf;
-		}
 
 		bestNode.trueChild = buildTree(Lists.newLinkedList(Iterables.filter(trainingData, bestNode.getInPredicate())),
 				depth + 1, maxDepth, minProbability, splits);

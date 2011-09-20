@@ -25,7 +25,7 @@ public class TreeBuilderTest {
 
 	}
 
-	@Test(enabled = false)
+	@Test()
 	public void multiScorerBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
 
@@ -48,11 +48,6 @@ public class TreeBuilderTest {
 			final TreeBuilder tb = new TreeBuilder(new Scorer3());
 			final Node tree = tb.buildTree(instances, 100, 1.0);
 			System.out.println("Scorer3 tree size: " + tree.size());
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer4());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
-			System.out.println("Scorer4 tree size: " + tree.size());
 		}
 		{
 			final TreeBuilder tb = new TreeBuilder(new CorrectClassificationProbScorer());

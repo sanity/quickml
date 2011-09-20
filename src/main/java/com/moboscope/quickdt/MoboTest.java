@@ -6,7 +6,9 @@ import java.util.zip.GZIPInputStream;
 
 import org.json.simple.*;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
+import com.moboscope.quickdt.TreeBuilder.Scorer;
+import com.moboscope.quickdt.scorers.Scorer1;
 
 public class MoboTest {
 
@@ -34,13 +36,15 @@ public class MoboTest {
 
 		System.out.println("Read " + instances.size() + " instances");
 
-		final TreeBuilder tb = new TreeBuilder();
+		for (final Scorer scorer : Sets.newHashSet(new Scorer1())) {
+			final TreeBuilder tb = new TreeBuilder(scorer);
 
-		final long startTime = System.currentTimeMillis();
-		final Node tree = tb.buildTree(instances, 100, 1.0);
-		System.out.println("Build time: " + (System.currentTimeMillis() - startTime));
-
-		tree.dump(System.out);
+			final long startTime = System.currentTimeMillis();
+			final Node tree = tb.buildTree(instances, 100, 1.0);
+			System.out.println(scorer.getClass().getSimpleName() + " build time "
+					+ (System.currentTimeMillis() - startTime) + ", size: " + tree.size() + " mean depth: "
+					+ tree.meanDepth());
+		}
 	}
 
 }

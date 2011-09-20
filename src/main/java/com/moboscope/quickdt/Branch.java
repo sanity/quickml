@@ -62,5 +62,11 @@ public abstract class Branch extends Node {
 	}
 
 	public abstract String toNotString();
+
+	@Override
+	protected void calcMeanDepth(final LeafDepthStats stats) {
+		trueChild.calcMeanDepth(stats);
+		falseChild.calcMeanDepth(stats);
+	}
 }
 

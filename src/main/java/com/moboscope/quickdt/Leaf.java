@@ -49,4 +49,10 @@ public class Leaf extends Node {
 		return 1;
 	}
 
+	@Override
+	protected void calcMeanDepth(final LeafDepthStats stats) {
+		stats.ttlDepth += label.depth * label.exampleCount;
+		stats.ttlSamples += label.exampleCount;
+	}
+
 }
