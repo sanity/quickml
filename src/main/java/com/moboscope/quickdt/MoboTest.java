@@ -37,10 +37,10 @@ public class MoboTest {
 		final TreeBuilder tb = new TreeBuilder();
 
 		final long startTime = System.currentTimeMillis();
-		final Node tree = tb.buildTree(instances, 10, 1.0);
+		final Node tree = tb.buildTree(instances, 100, 1.0);
 		System.out.println("Build time: " + (System.currentTimeMillis() - startTime));
 
-		// tree.dump(System.out);
+		tree.dump(System.out);
 	}
 
 }
