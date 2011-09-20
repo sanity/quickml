@@ -34,8 +34,9 @@ How do I use QuickDT?
 ---------------------
 
 First, let's create some data.  Let's say we know someone's height, weight, and gender, and we want to create a decision tree
-that tells us whether they are underweight, healthy, or overweight.  Each "instance" is a training example.  Instance.create() is
-a helper method that makes it easier to create Instances.
+that tells us whether they are underweight, healthy, or overweight.  Each "instance" is a training example.  `"height", 55` is
+an "attribute" of the instance, and "overweight", "healthy", and "underweight" are all "outputs".  
+Instance.create() is a helper method that makes it easier to create Instances.
 
 	import com.moboscope.quickdt.*;
 
@@ -110,7 +111,24 @@ As QuickDT is still under very active development, it is not yet available via a
 Under the hood
 --------------
 
+**Split scoring formula**
 Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
 variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/scorers/Scorer1.java).
-The basic idea is that the best split is the one with the greatest differences in the proportions of the outcomes in each of the two
-subsets created by the split, multiplied by the size of the smaller set.  In tests this performed better than Gini impurity.
+So far as I know its a novel approach.  
+
+The basic idea is that the best split is the one with the greatest differences in the 
+proportions of the outcomes in each of the two subsets created by the split, multiplied by the size of the smaller set.  In tests 
+this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement Scorer
+and pass it to the TreeBuilder constructor.
+
+**Finding the best nominal branch**
+The algorithm I came up with for proposing a nominal branch may also be novel:
+
+Given a nominal attribute (ie. one where the values are strings), we start by scoring the splits produced by a set of size one, 
+testing each value in turn.
+
+We take the best of these, and then try adding another value to this set, again, trying each of the remaining values in turn and
+scoring them.
+
+We keep adding to the set until adding a new value results in a lower score than the set has without it.  Once that happens we
+terminate, and that's our set.
