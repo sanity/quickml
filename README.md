@@ -38,6 +38,7 @@ that tells us whether they are underweight, healthy, or overweight.  Each "insta
 an "attribute" of the instance, and "overweight", "healthy", and "underweight" are all "outputs".  
 Instance.create() is a helper method that makes it easier to create Instances.
 
+```java
 	import com.moboscope.quickdt.*;
 
 	final Set<Instance> instances = Sets.newHashSet();
@@ -47,6 +48,7 @@ Instance.create() is a helper method that makes it easier to create Instances.
 	instances.add(Instance.create("underweight", "height", 74, "weight", 143, "gender", "male"));
 	instances.add(Instance.create("overweight", "height", 49, "weight", 144, "gender", "female"));
 	instances.add(Instance.create("healthy", "height", 83, "weight", 223, "gender", "male"));
+```
 
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
 of data, *"nominal"*, like "male", "female", and *"ordinal"*, numbers.  These can be integers, or floating point numbers.
@@ -58,6 +60,7 @@ Next we create a TreeBuilder, and use it to build a tree using this data:
 
 That's it!  So, let's say that we have a new person and we'd like to use our decision tree to tell us if they are healthy:
 
+```java
 	Label label = tree.getLabel(Attributes.create("height", 62, "weight", 201, "gender", "female"));
 	if (label.output.equals("healthy")) {
 		System.out.println("They are healthy!");
@@ -66,10 +69,13 @@ That's it!  So, let's say that we have a new person and we'd like to use our dec
 	} else {
 		System.out.println("They are overweight!");
 	}
+```
 
 Its as simple as that!  But what if you wanted to see what the tree looks like?  That's easy too:
 
+```java
 	tree.dump(System.out);
+```
 
 This is what the output might look like:
 
