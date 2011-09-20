@@ -55,8 +55,10 @@ of data, *"nominal"*, like "male", "female", and *"ordinal"*, numbers.  These ca
 
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
+```java
 	TreeBuilder treeBuilder = new TreeBuilder();
 	Node tree = treeBuilder.buildTree(instances);
+```
 
 That's it!  So, let's say that we have a new person and we'd like to use our decision tree to tell us if they are healthy:
 
