@@ -21,7 +21,7 @@ Prior to starting work on QuickDT, I found two Java decision tree learning libra
 
 [jaDTi](http://www.run.montefiore.ulg.ac.be/~francois/software/jaDTi/) is the first,
 it works, its fast, but its API is horrible, it doesn't take advantage of Generics, and forces you to use Vectors (which have been out
-of fashion for some years now).  Its last release was in 2004.
+of fashion for some years now).  Its last release was in 2004, and it shows.
 
 [Weka](http://www.cs.waikato.ac.nz/ml/weka/) is actually a suite of learning algorithms, which include Decision Tree algorithms.  Its
 API is marginally better than jaDTi, but still quite ugly by today's standards.  Worse, it seems to be a memory hog, and had various
@@ -107,6 +107,13 @@ If all goes well, you'll find a file called something like quickdt-0.0.1-SNAPSHO
 Just add this to your classpath and you're off to the races!
 
 As QuickDT is still under very active development, it is not yet available via any public repositories.
+
+Benchmarking
+------------
+
+I've done limited benchmarking, but by way of example QuickDT is able to build a tree with 100% recall on a test set with
+8,500 instances, where each instance contains 46 attributes, a mixture of nominal and ordinal.  On my several-years-old
+MacBook Pro laptop it required only 8 seconds to produce a well-balanced tree with over 500 nodes.
 
 Under the hood
 --------------
