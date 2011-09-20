@@ -29,10 +29,12 @@ public class TreeBuilderTest {
 	public void multiScorerBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
 
-		for (int x = 0; x < 100; x++) {
+		for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
-			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
+			final Instance instance = Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height);
+			System.out.println(instance);
+			instances.add(instance);
 		}
 		{
 			final TreeBuilder tb = new TreeBuilder(new Scorer1());

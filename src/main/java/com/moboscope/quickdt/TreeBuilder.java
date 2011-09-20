@@ -25,6 +25,10 @@ public class TreeBuilder {
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 
+	public Node buildTree(final Iterable<Instance> trainingData) {
+		return buildTree(trainingData, Integer.MAX_VALUE, 1.0);
+	}
+
 	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
 		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
 
