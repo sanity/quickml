@@ -79,7 +79,7 @@ Its as simple as that!  But what if you wanted to see what the tree looks like? 
 	tree.dump(System.out);
 ```
 
-This is what the output might look like:
+This is what the output might look like for a larger dataset:
 
 	height in [69.0, 80.0, 81.0, 78.0, 74.0, 83.0]
 	  gender in [male]
