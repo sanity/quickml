@@ -119,6 +119,7 @@ Under the hood
 --------------
 
 **Split scoring formula**
+
 Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
 variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/scorers/Scorer1.java).
 So far as I know its a novel approach.  
@@ -129,6 +130,7 @@ this performed better than Gini impurity, and various other approaches I tried. 
 and pass it to the TreeBuilder constructor.
 
 **Finding the best nominal branch**
+
 The algorithm I came up with for proposing a nominal branch may also be novel:
 
 Given a nominal attribute (ie. one where the values are strings), we start by scoring the splits produced by a set of size one, 
