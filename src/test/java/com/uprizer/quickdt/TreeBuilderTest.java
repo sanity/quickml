@@ -50,7 +50,7 @@ public class TreeBuilderTest {
 			System.out.println("Scorer3 tree size: " + tree.size());
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new CorrectClassificationProbScorer());
+			final TreeBuilder tb = new TreeBuilder(new GiniImpurityScorer());
 			final Node tree = tb.buildTree(instances, 100, 1.0);
 			System.out.println("CorrectClassificationProbScorer tree size: " + tree.size());
 		}

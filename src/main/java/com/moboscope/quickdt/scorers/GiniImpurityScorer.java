@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import com.moboscope.quickdt.TreeBuilder.Scorer;
 
-public class CorrectClassificationProbScorer implements Scorer {
+public class GiniImpurityScorer implements Scorer {
 
 	public double scoreSplit(final int aTtl, final Map<Serializable, Integer> a, final int bTtl,
 			final Map<Serializable, Integer> b) {

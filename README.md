@@ -17,7 +17,7 @@ QuickDT is a Java Decision Tree Learning library designed to be flexible, easy t
 What are the alternatives?
 --------------------------
 
-I've found two Java decision tree learning libraries.  
+Prior to starting work on QuickDT, I found two Java decision tree learning libraries.  
 
 [jaDTi](http://www.run.montefiore.ulg.ac.be/~francois/software/jaDTi/) is the first,
 it works, its fast, but its API is horrible, it doesn't take advantage of Generics, and forces you to use Vectors (which have been out
@@ -47,7 +47,8 @@ a helper method that makes it easier to create Instances.
 	instances.add(Instance.create("overweight", "height", 49, "weight", 144, "gender", "female"));
 	instances.add(Instance.create("healthy", "height", 83, "weight", 223, "gender", "male"));
 
-In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.
+In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
+of data, *"nominal"*, like "male", "female", and *"ordinal"*, numbers.  These can be integers, or floating point numbers.
 
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
@@ -81,7 +82,11 @@ This is what the output might look like:
 	    [output=underweight, depth=2, exampleCount=5, probability=1.0]
 	height not in [69.0, 80.0, 81.0, 78.0, 74.0, 83.0]
 	  [output=overweight, depth=1, exampleCount=11, probability=1.0]
-	
+
+Note that there are two types of decisions, depending on whether its an ordinal or nominal field.  If its ordinal, then
+QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will
+be a test to see if the value is or isn't a member of a set.
+
 How do I build QuickDT?
 -----------------------
 
@@ -101,3 +106,11 @@ If all goes well, you'll find a file called something like quickdt-0.0.1-SNAPSHO
 Just add this to your classpath and you're off to the races!
 
 As QuickDT is still under very active development, it is not yet available via any public repositories.
+
+Under the hood
+--------------
+
+Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
+variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/scorers/Scorer1.java).
+The basic idea is that the best split is the one with the greatest differences in the proportions of the outcomes in each of the two
+subsets created by the split, multiplied by the size of the smaller set.  In tests this performed better than Gini impurity.
