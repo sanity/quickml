@@ -14,4 +14,8 @@ public class Attributes extends HashMap<String, Serializable> {
 		}
 		return a;
 	}
+
+	public Instance classification(final Serializable cls) {
+		return new Instance(this, cls);
+	}
 }

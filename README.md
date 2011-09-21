@@ -37,18 +37,18 @@ How do I use QuickDT?
 First, we'll create some data.  Let's say we know someone's height, weight, and gender, and we want to create a decision tree
 that tells us whether they are underweight, healthy, or overweight.  Each "instance" is a training example.  `"height", 55` is
 an "attribute" of the instance, and "overweight", "healthy", and "underweight" are all "classifications".  
-Instance.create() is a helper method that makes it easier to create Instances.
+Attributes.create() is a helper method that makes it easier to create Instances.
 
 ```java
 	import com.moboscope.quickdt.*;
 
 	final Set<Instance> instances = Sets.newHashSet();
 	// A male weighing 168lb that is 55 inches tall, they are overweight
-	instances.add(Instance.create("overweight", "height", 55, "weight", 168, "gender", "male"));
-	instances.add(Instance.create("healthy", "height", 75, "weight", 168, "gender", "female"));
-	instances.add(Instance.create("underweight", "height", 74, "weight", 143, "gender", "male"));
-	instances.add(Instance.create("overweight", "height", 49, "weight", 144, "gender", "female"));
-	instances.add(Instance.create("healthy", "height", 83, "weight", 223, "gender", "male"));
+	instances.add(Attributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
+	instances.add(Attributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
+	instances.add(Attributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
+	instances.add(Attributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
+	instances.add(Attributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
 ```
 
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
