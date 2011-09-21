@@ -133,7 +133,7 @@ This is what the output might look like for a larger dataset:
 	        [classification=overweight, depth=4, exampleCount=9657, probability=1.0]
 
 Note that there are two types of decisions, depending on whether its an ordinal or nominal field.  If its ordinal, then
-QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) ithttp://www.sonatype.com/Support/Books/Repository-Management-with-Nexus will
+QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will
 be a test to see if the value is or isn't a member of a set.
 
 How do I build QuickDT?
