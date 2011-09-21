@@ -30,11 +30,7 @@ public class TreeBuilder {
 	}
 
 	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
-		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-
-		final Map<String, double[]> splits = createOrdinalSplits(trainingData, rsm);
-
-		return buildTree(trainingData, 0, maxDepth, minProbability, splits);
+		return buildTree(trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData));
 	}
 
 
@@ -57,8 +53,8 @@ public class TreeBuilder {
 		return split;
 	}
 
-	private Map<String, double[]> createOrdinalSplits(final Iterable<Instance> trainingData,
-			final Map<String, ReservoirSampler<Double>> rsm) {
+	private Map<String, double[]> createOrdinalSplits(final Iterable<Instance> trainingData) {
+		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
 		for (final Instance i : trainingData) {
 			for (final Entry<String, Serializable> e : i.attributes.entrySet()) {
 				if (e.getValue() instanceof Number) {
@@ -89,21 +85,6 @@ public class TreeBuilder {
 			splits.put(e.getKey(), split);
 		}
 		return splits;
-	}
-
-	protected Map<Serializable, Integer> add(final Map<Serializable, Integer> a, final Map<Serializable, Integer> b) {
-		if (b == null)
-			return Maps.newHashMap(a);
-		final Map<Serializable, Integer> ret = Maps.newHashMap();
-		ret.putAll(a);
-		for (final Entry<Serializable, Integer> e : b.entrySet()) {
-			Integer ac = ret.get(e.getKey());
-			if (ac == null) {
-				ac = 0;
-			}
-			ret.put(e.getKey(), e.getValue() + ac);
-		}
-		return ret;
 	}
 
 	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
