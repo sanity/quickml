@@ -135,7 +135,7 @@ Note that there are two types of decisions, depending on whether its an ordinal 
 QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will
 be a test to see if the value is or isn't a member of a set.
 
-How do I build QuickDT?classification
+How do I build QuickDT?
 -----------------------
 
 QuickDT is built using [Apache Maven](http://maven.apache.org/) so if you don't have that, you should grab it.  You'll also
