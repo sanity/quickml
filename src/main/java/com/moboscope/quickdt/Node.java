@@ -68,7 +68,7 @@ public abstract class Node implements Serializable {
 		/**
 		 * What label was assigned by this leaf?
 		 */
-		public Serializable output;
+		public Serializable classification;
 
 		/**
 		 * What is the probability that this classification is correct based on
@@ -76,8 +76,8 @@ public abstract class Node implements Serializable {
 		 */
 		public double probability;
 
-		public Label(final Serializable output, final int depth, final int exampleCount, final double probability) {
-			this.output = output;
+		public Label(final Serializable classification, final int depth, final int exampleCount, final double probability) {
+			this.classification = classification;
 			this.depth = depth;
 			this.exampleCount = exampleCount;
 			this.probability = probability;
@@ -86,8 +86,8 @@ public abstract class Node implements Serializable {
 		@Override
 		public String toString() {
 			final StringBuilder builder = new StringBuilder();
-			builder.append("[output=");
-			builder.append(output);
+			builder.append("[classification=");
+			builder.append(classification);
 			builder.append(", depth=");
 			builder.append(depth);
 			builder.append(", exampleCount=");

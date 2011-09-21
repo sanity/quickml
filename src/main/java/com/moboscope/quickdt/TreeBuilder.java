@@ -19,7 +19,7 @@ public class TreeBuilder {
 		final Map<Serializable, Integer> outcomeCounts = Maps.newHashMap();
 		int ttl = 0;
 		for (final Instance instance : instances) {
-			final Serializable value = instance.output;
+			final Serializable value = instance.classification;
 			Integer c = outcomeCounts.get(value);
 			if (c == null) {
 				c = 0;
@@ -306,21 +306,21 @@ public class TreeBuilder {
 		final Map<Serializable, Integer> allMap = Maps.newHashMap();
 		for (final Instance i : instances) {
 			final Serializable value = i.attributes.get(attribute);
-			Integer allC = allMap.get(i.output);
+			Integer allC = allMap.get(i.classification);
 			if (allC == null) {
 				allC = 0;
 			}
-			allMap.put(i.output, allC + 1);
-			Map<Serializable, Integer> outputMap = perValueMap.get(value);
-			if (outputMap == null) {
-				outputMap = Maps.newHashMap();
-				perValueMap.put(value, outputMap);
+			allMap.put(i.classification, allC + 1);
+			Map<Serializable, Integer> classificationMap = perValueMap.get(value);
+			if (classificationMap == null) {
+				classificationMap = Maps.newHashMap();
+				perValueMap.put(value, classificationMap);
 			}
-			Integer count = outputMap.get(i.output);
+			Integer count = classificationMap.get(i.classification);
 			if (count == null) {
 				count = 0;
 			}
-			outputMap.put(i.output, count + 1);
+			classificationMap.put(i.classification, count + 1);
 		}
 		return Pair.with(allMap, perValueMap);
 	}

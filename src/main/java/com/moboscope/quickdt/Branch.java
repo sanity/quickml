@@ -51,7 +51,7 @@ public abstract class Branch extends Node {
 			cl = falseChild.getLabel(attributes);
 		}
 
-		return new Label(cl.output, cl.depth + 1, cl.exampleCount, cl.probability);
+		return new Label(cl.classification, cl.depth + 1, cl.exampleCount, cl.probability);
 	}
 
 	@Override
