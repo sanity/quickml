@@ -43,15 +43,11 @@ public abstract class Branch extends Node {
 	}
 
 	@Override
-	public Label getLabel(final Attributes attributes) {
-		final Label cl;
-		if (decide(attributes)) {
-			cl = trueChild.getLabel(attributes);
-		} else {
-			cl = falseChild.getLabel(attributes);
-		}
-
-		return new Label(cl.classification, cl.depth + 1, cl.exampleCount, cl.probability);
+	public Leaf getLeaf(final Attributes attributes) {
+		if (decide(attributes))
+			return trueChild.getLeaf(attributes);
+		else
+			return falseChild.getLeaf(attributes);
 	}
 
 	@Override

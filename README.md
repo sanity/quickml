@@ -63,10 +63,10 @@ Next we create a TreeBuilder, and use it to build a tree using this data:
 That's it!  So, let's say that we have a new person and we'd like to use our decision tree to tell us if they are healthy:
 
 ```java
-	Label label = tree.getLabel(Attributes.create("height", 62, "weight", 201, "gender", "female"));
-	if (label.classification.equals("healthy")) {
+	Leaf leaf = tree.getLeaf(Attributes.create("height", 62, "weight", 201, "gender", "female"));
+	if (leaf.classification.equals("healthy")) {
 		System.out.println("They are healthy!");
-	} else if (label.classification.equals("underweight")) {
+	} else if (leaf.classification.equals("underweight")) {
 		System.out.println("They are underweight!");
 	} else {
 		System.out.println("They are overweight!");

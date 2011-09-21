@@ -20,7 +20,7 @@ public abstract class Node implements Serializable {
 	 * @param attributes
 	 * @return
 	 */
-	public abstract Label getLabel(Attributes attributes);
+	public abstract Leaf getLeaf(Attributes attributes);
 
 	/**
 	 * Does this tree achieve full recall on the training set?
@@ -49,56 +49,6 @@ public abstract class Node implements Serializable {
 	public abstract int size();
 
 	protected abstract void calcMeanDepth(LeafDepthStats stats);
-
-	public static class Label implements Serializable {
-		private static final long serialVersionUID = -4063175796311033721L;
-
-		/**
-		 * How deep in the tree is this label? A lower number typically
-		 * indicates a more confident classification.
-		 */
-		public int depth;
-
-		/**
-		 * How many training examples matched this leaf? A higher number
-		 * indicates a more confident classification.
-		 */
-		public final int exampleCount;
-
-		/**
-		 * What label was assigned by this leaf?
-		 */
-		public Serializable classification;
-
-		/**
-		 * What is the probability that this classification is correct based on
-		 * the training data?
-		 */
-		public double probability;
-
-		public Label(final Serializable classification, final int depth, final int exampleCount, final double probability) {
-			this.classification = classification;
-			this.depth = depth;
-			this.exampleCount = exampleCount;
-			this.probability = probability;
-		}
-
-		@Override
-		public String toString() {
-			final StringBuilder builder = new StringBuilder();
-			builder.append("[classification=");
-			builder.append(classification);
-			builder.append(", depth=");
-			builder.append(depth);
-			builder.append(", exampleCount=");
-			builder.append(exampleCount);
-			builder.append(", probability=");
-			builder.append(probability);
-			builder.append("]");
-			return builder.toString();
-		}
-
-	}
 
 	protected static class LeafDepthStats {
 		int ttlDepth = 0;

@@ -56,7 +56,7 @@ public class TreeBuilder {
 	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
 			final double minProbability, final Map<String, double[]> splits) {
 		final Leaf thisLeaf = new Leaf(trainingData, depth);
-		if (depth == maxDepth || thisLeaf.label.probability >= minProbability)
+		if (depth == maxDepth || thisLeaf.probability >= minProbability)
 			return thisLeaf;
 
 		final Instance sampleInstance = Iterables.get(trainingData, 0);
