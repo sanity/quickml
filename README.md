@@ -81,16 +81,55 @@ Its as simple as that!  But what if you wanted to see what the tree looks like? 
 
 This is what the output might look like for a larger dataset:
 
-	height in [69.0, 80.0, 81.0, 78.0, 74.0, 83.0]
-	  gender in [male]
-	    weight in [133.0]
-	      [output=underweight, depth=3, exampleCount=1, probability=1.0]
-	    weight not in [133.0]
-	      [output=healthy, depth=3, exampleCount=3, probability=1.0]
-	  gender not in [male]
-	    [output=underweight, depth=2, exampleCount=5, probability=1.0]
-	height not in [69.0, 80.0, 81.0, 78.0, 74.0, 83.0]
-	  [output=overweight, depth=1, exampleCount=11, probability=1.0]
+	height > 66.0
+	  weight > 174.0
+	    height > 72.0
+	      weight > 193.0
+	        [output=healthy, depth=4, exampleCount=9880, probability=0.5719635627530364]
+	      weight <= 193.0
+	        [output=healthy, depth=4, exampleCount=5231, probability=0.7056012234754349]
+	    height <= 72.0
+	      weight > 193.0
+	        [output=overweight, depth=4, exampleCount=5514, probability=1.0]
+	      weight <= 193.0
+	        [output=overweight, depth=4, exampleCount=2864, probability=0.8837290502793296]
+	  weight <= 174.0
+	    height > 72.0
+	      weight > 157.0
+	        [output=underweight, depth=4, exampleCount=4810, probability=0.6498960498960499]
+	      weight <= 157.0
+	        weight > 139.0
+	          [output=underweight, depth=5, exampleCount=5032, probability=0.9600556438791733]
+	        weight <= 139.0
+	          [output=underweight, depth=5, exampleCount=5664, probability=1.0]
+	    height <= 72.0
+	      weight > 139.0
+	        weight > 157.0
+	          [output=healthy, depth=5, exampleCount=2582, probability=0.7153369481022464]
+	        weight <= 157.0
+	          [output=healthy, depth=5, exampleCount=2672, probability=0.8944610778443114]
+	      weight <= 139.0
+	        [output=underweight, depth=4, exampleCount=3041, probability=0.8122328181519237]
+	height <= 66.0
+	  weight > 174.0
+	    [output=overweight, depth=2, exampleCount=26366, probability=1.0]
+	  weight <= 174.0
+	    height > 60.0
+	      weight > 139.0
+	        weight > 157.0
+	          [output=overweight, depth=5, exampleCount=2568, probability=1.0]
+	        weight <= 157.0
+	          [output=overweight, depth=5, exampleCount=2802, probability=0.6912919343326196]
+	      weight <= 139.0
+	        [output=healthy, depth=4, exampleCount=3113, probability=0.8801798907805974]
+	    height <= 60.0
+	      height > 54.0
+	        weight > 139.0
+	          [output=overweight, depth=5, exampleCount=5178, probability=1.0]
+	        weight <= 139.0
+	          [output=overweight, depth=5, exampleCount=3026, probability=0.8978849966953073]
+	      height <= 54.0
+	        [output=overweight, depth=4, exampleCount=9657, probability=1.0]
 
 Note that there are two types of decisions, depending on whether its an ordinal or nominal field.  If its ordinal, then
 QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will

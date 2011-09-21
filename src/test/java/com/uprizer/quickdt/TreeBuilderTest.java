@@ -13,13 +13,14 @@ public class TreeBuilderTest {
 	public void simpleBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
 
-		for (int x = 0; x < 20; x++) {
+		for (int x = 0; x < 100000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
 		final TreeBuilder tb = new TreeBuilder();
 		final Node tree = tb.buildTree(instances, 100, 1.0);
+		tree.dump(System.out);
 		System.out.println("Tree size: " + tree.size());
 
 	}
