@@ -173,7 +173,7 @@ So far as I know its a novel approach.
 
 The basic idea is that the best split is the one with the greatest differences in the 
 proportions of the outcomes in each of the two subsets created by the split, multiplied by the size of the smaller set.  In tests 
-this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement Scorer
+this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/Scorer.java)
 and pass it to the TreeBuilder constructor.
 
 **Finding the best nominal branch**
