@@ -10,14 +10,14 @@ import com.google.common.collect.*;
 import com.moboscope.quickdt.TreeBuilder.Scorer;
 import com.moboscope.quickdt.scorers.Scorer1;
 
-public class MoboTest {
+public class Benchmarks {
 
 	/**
 	 * @param args
 	 */
 	public static void main(final String[] args) throws Exception {
 		final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(new FileInputStream(
-				new File("/Users/ian/data/moboscope/training-20110919.txt.gz"))))));
+				new File(new File(System.getProperty("user.dir")), "testdata/mobo1.txt.gz"))))));
 
 		final List<Instance> instances = Lists.newLinkedList();
 
