@@ -15,7 +15,7 @@ public class TreeBuilder {
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 
-	public static Pair<Integer, Map<Serializable, Integer>> calcOutcomeCounts(final Iterable<Instance> instances) {
+	protected static Pair<Integer, Map<Serializable, Integer>> calcOutcomeCounts(final Iterable<Instance> instances) {
 		final Map<Serializable, Integer> outcomeCounts = Maps.newHashMap();
 		int ttl = 0;
 		for (final Instance instance : instances) {
@@ -52,86 +52,6 @@ public class TreeBuilder {
 		return buildTree(trainingData, 0, maxDepth, minProbability, splits);
 	}
 
-
-	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
-			final double minProbability, final Map<String, double[]> splits) {
-		final Leaf thisLeaf = new Leaf(trainingData, depth);
-		if (depth == maxDepth || thisLeaf.probability >= minProbability)
-			return thisLeaf;
-
-		final Instance sampleInstance = Iterables.get(trainingData, 0);
-
-		boolean smallTrainingSet = true;
-		int tsCount = 0;
-		for (final Instance i : trainingData) {
-			tsCount++;
-			if (tsCount > 20) {
-				smallTrainingSet = false;
-				break;
-			}
-		}
-
-		Branch bestNode = null;
-		double bestScore = 0;
-		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
-			Pair<? extends Branch, Double> thisPair = null;
-
-			if (!smallTrainingSet && e.getValue() instanceof Number) {
-				thisPair = createOrdinalNode(e.getKey(), trainingData, splits.get(e.getKey()));
-			}
-
-			if (thisPair == null || thisPair.getValue1() == 0) {
-				thisPair = createNominalNode(e.getKey(), trainingData);
-			}
-			if (thisPair.getValue1() > bestScore) {
-				bestScore = thisPair.getValue1();
-				bestNode = thisPair.getValue0();
-			}
-		}
-
-		// If we were unable to find a useful branch, return the leaf
-		if (bestNode == null)
-			// Its a bad sign when this happens, normally something to debug
-			return thisLeaf;
-
-		double[] oldSplit = null;
-
-		final LinkedList<Instance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
-				bestNode.getInPredicate()));
-		final LinkedList<Instance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
-				bestNode.getOutPredicate()));
-
-		// We want to temporarily replace the split for an attribute for
-		// descendants of an ordinal branch, first the true split
-		if (bestNode instanceof OrdinalBranch) {
-			final OrdinalBranch ob = (OrdinalBranch) bestNode;
-			oldSplit = splits.get(ob.attribute);
-			splits.put(ob.attribute, createOrdinalSplit(trueTrainingSet, ob.attribute));
-		}
-
-		// Recurse down the true branch
-		bestNode.trueChild = buildTree(trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
-
-		// And now replace the old split if this is an OrdinalBranch
-		if (bestNode instanceof OrdinalBranch) {
-			final OrdinalBranch ob = (OrdinalBranch) bestNode;
-			splits.put(ob.attribute, createOrdinalSplit(falseTrainingSet, ob.attribute));
-		}
-
-		// Recurse down the false branch
-		bestNode.falseChild = buildTree(
-				falseTrainingSet, depth + 1,
-				maxDepth,
-				minProbability, splits);
-
-		// And now replace the original split if this is an OrdinalBranch
-		if (bestNode instanceof OrdinalBranch) {
-			final OrdinalBranch ob = (OrdinalBranch) bestNode;
-			splits.put(ob.attribute, oldSplit);
-		}
-
-		return bestNode;
-	}
 
 	public Pair<? extends Branch, Double> createNominalNode(final String attribute,
 			final Iterable<Instance> instances) {
@@ -253,6 +173,86 @@ public class TreeBuilder {
 			ret.put(e.getKey(), e.getValue() + ac);
 		}
 		return ret;
+	}
+
+	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
+			final double minProbability, final Map<String, double[]> splits) {
+		final Leaf thisLeaf = new Leaf(trainingData, depth);
+		if (depth == maxDepth || thisLeaf.probability >= minProbability)
+			return thisLeaf;
+
+		final Instance sampleInstance = Iterables.get(trainingData, 0);
+
+		boolean smallTrainingSet = true;
+		int tsCount = 0;
+		for (final Instance i : trainingData) {
+			tsCount++;
+			if (tsCount > 20) {
+				smallTrainingSet = false;
+				break;
+			}
+		}
+
+		Branch bestNode = null;
+		double bestScore = 0;
+		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
+			Pair<? extends Branch, Double> thisPair = null;
+
+			if (!smallTrainingSet && e.getValue() instanceof Number) {
+				thisPair = createOrdinalNode(e.getKey(), trainingData, splits.get(e.getKey()));
+			}
+
+			if (thisPair == null || thisPair.getValue1() == 0) {
+				thisPair = createNominalNode(e.getKey(), trainingData);
+			}
+			if (thisPair.getValue1() > bestScore) {
+				bestScore = thisPair.getValue1();
+				bestNode = thisPair.getValue0();
+			}
+		}
+
+		// If we were unable to find a useful branch, return the leaf
+		if (bestNode == null)
+			// Its a bad sign when this happens, normally something to debug
+			return thisLeaf;
+
+		double[] oldSplit = null;
+
+		final LinkedList<Instance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+				bestNode.getInPredicate()));
+		final LinkedList<Instance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+				bestNode.getOutPredicate()));
+
+		// We want to temporarily replace the split for an attribute for
+		// descendants of an ordinal branch, first the true split
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			oldSplit = splits.get(ob.attribute);
+			splits.put(ob.attribute, createOrdinalSplit(trueTrainingSet, ob.attribute));
+		}
+
+		// Recurse down the true branch
+		bestNode.trueChild = buildTree(trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
+
+		// And now replace the old split if this is an OrdinalBranch
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			splits.put(ob.attribute, createOrdinalSplit(falseTrainingSet, ob.attribute));
+		}
+
+		// Recurse down the false branch
+		bestNode.falseChild = buildTree(
+				falseTrainingSet, depth + 1,
+				maxDepth,
+				minProbability, splits);
+
+		// And now replace the original split if this is an OrdinalBranch
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			splits.put(ob.attribute, oldSplit);
+		}
+
+		return bestNode;
 	}
 
 	protected Pair<? extends Branch, Double> createOrdinalNode(final String attribute,
