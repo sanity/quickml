@@ -13,7 +13,7 @@ on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedi
 
 QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was written by
 [Ian Clarke](http://blog.locut.us/) to scratch an itch during his work on [Moboscope](http://moboscope.com/).  The initial public release
-was on 2010-09-21.
+was on 2011-09-21.
 
 What are the alternatives?
 --------------------------
