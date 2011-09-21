@@ -1,8 +1,6 @@
 Quick Decision Tree Learner
 ===========================
 
-By [Ian Clarke](http://blog.locut.us/)
-
 License
 -------
 
@@ -10,9 +8,12 @@ QuickDT is released under the GNU Lesser General Public License version 3.
 
 What is it?
 -----------
-If you are unfamiliar with Decision Tree Learning, read all about it on [Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
+If you are unfamiliar with Decision Tree Learning, it's the process of building a decision tree to categorize things, based
+on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
 
-QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.
+QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was written by
+[Ian Clarke](http://blog.locut.us/) to scratch an itch during his work on [Moboscope](http://moboscope.com/).  The initial public release
+was on 2010-09-21.
 
 What are the alternatives?
 --------------------------
@@ -132,7 +133,7 @@ This is what the output might look like for a larger dataset:
 	        [classification=overweight, depth=4, exampleCount=9657, probability=1.0]
 
 Note that there are two types of decisions, depending on whether its an ordinal or nominal field.  If its ordinal, then
-QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will
+QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) ithttp://www.sonatype.com/Support/Books/Repository-Management-with-Nexus will
 be a test to see if the value is or isn't a member of a set.
 
 How do I build QuickDT?
@@ -153,7 +154,8 @@ Next, build a jar file:
 If all goes well, you'll find a file called something like quickdt-0.0.1-SNAPSHOT-jar-with-dependencies.jar in the target/ directory.
 Just add this to your classpath and you're off to the races!
 
-As QuickDT is still under very active development, it is not yet available via any public repositories.
+As QuickDT is still under very active development, it is not yet available via any public Maven repositories.  Once I'm committing
+less frequently I'll do a point release and get it into a Maven repo.
 
 Benchmarking
 ------------
