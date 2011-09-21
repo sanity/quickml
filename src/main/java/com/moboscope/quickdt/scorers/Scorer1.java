@@ -21,8 +21,9 @@ public class Scorer1 implements Scorer {
 	 * would get a high score because all of the proportions on that side would
 	 * be 0.
 	 * 
-	 * So, we multiply the score by the size of the smallest side, which seems
-	 * to provide the bias we want against unequal splits.
+	 * So, we multiply the score by the size of the smallest side, which
+	 * experimentally seems to provide an adequate bias against one-sided
+	 * splits.
 	 */
 
 	public double scoreSplit(final int aTtl, final Map<Serializable, Integer> a, final int bTtl,
