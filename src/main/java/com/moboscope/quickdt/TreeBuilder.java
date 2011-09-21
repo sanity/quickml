@@ -53,60 +53,6 @@ public class TreeBuilder {
 	}
 
 
-	public Pair<? extends Branch, Double> createNominalNode(final String attribute,
-			final Iterable<Instance> instances) {
-		final Set<Serializable> values = Sets.newHashSet();
-		for (final Instance instance : instances) {
-			values.add(instance.attributes.get(attribute));
-		}
-		double score = 0;
-		final Set<Serializable> bestSoFar = Sets.newHashSet();
-
-		Map<Serializable, Integer> inMap = Maps.newHashMap();
-		final Pair<Map<Serializable, Integer>, Map<Serializable, Map<Serializable, Integer>>> valueOutcomeCountsPair = getValueOutcomeCounts(
-				attribute, instances);
-		Map<Serializable, Integer> outMap = valueOutcomeCountsPair.getValue0();
-		final Map<Serializable, Map<Serializable, Integer>> valueOutcomeCounts = valueOutcomeCountsPair.getValue1();
-
-		while (true) {
-			double bestScore = 0;
-			Serializable bestVal = null;
-			for (final Serializable testVal : values) {
-				final Map<Serializable, Integer> testValOutcomeCounts = valueOutcomeCounts.get(testVal);
-				final Map<Serializable, Integer> testInMap = add(inMap, testValOutcomeCounts);
-				final Map<Serializable, Integer> testOutMap = subtract(outMap, testValOutcomeCounts);
-
-				// TODO: Pre-calculate these
-				int inTtl = 0, outTtl = 0;
-				for (final int v : testInMap.values()) {
-					inTtl += v;
-				}
-				for (final int v : testOutMap.values()) {
-					outTtl += v;
-				}
-
-				final double thisScore = scorer.scoreSplit(inTtl, testInMap, outTtl, testOutMap);
-
-				if (thisScore > bestScore) {
-					bestScore = thisScore;
-					bestVal = testVal;
-				}
-			}
-			if (bestScore > score) {
-				score = bestScore;
-				bestSoFar.add(bestVal);
-				values.remove(bestVal);
-				final Map<Serializable, Integer> bestValOutcomeCounts = valueOutcomeCounts.get(bestVal);
-				inMap = add(inMap, bestValOutcomeCounts);
-				outMap = subtract(outMap, bestValOutcomeCounts);
-			} else {
-				break;
-			}
-		}
-
-		return Pair.with(new NominalBranch(attribute, bestSoFar), score);
-	}
-
 	private double[] createOrdinalSplit(final Iterable<Instance> trainingData, final String attribute) {
 		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
 		for (final Instance i : trainingData) {
@@ -187,7 +133,7 @@ public class TreeBuilder {
 		int tsCount = 0;
 		for (final Instance i : trainingData) {
 			tsCount++;
-			if (tsCount > 20) {
+			if (tsCount > 10) {
 				smallTrainingSet = false;
 				break;
 			}
@@ -253,6 +199,60 @@ public class TreeBuilder {
 		}
 
 		return bestNode;
+	}
+
+	protected Pair<? extends Branch, Double> createNominalNode(final String attribute,
+			final Iterable<Instance> instances) {
+		final Set<Serializable> values = Sets.newHashSet();
+		for (final Instance instance : instances) {
+			values.add(instance.attributes.get(attribute));
+		}
+		double score = 0;
+		final Set<Serializable> bestSoFar = Sets.newHashSet();
+
+		Map<Serializable, Integer> inMap = Maps.newHashMap();
+		final Pair<Map<Serializable, Integer>, Map<Serializable, Map<Serializable, Integer>>> valueOutcomeCountsPair = getValueOutcomeCounts(
+				attribute, instances);
+		Map<Serializable, Integer> outMap = valueOutcomeCountsPair.getValue0();
+		final Map<Serializable, Map<Serializable, Integer>> valueOutcomeCounts = valueOutcomeCountsPair.getValue1();
+
+		while (true) {
+			double bestScore = 0;
+			Serializable bestVal = null;
+			for (final Serializable testVal : values) {
+				final Map<Serializable, Integer> testValOutcomeCounts = valueOutcomeCounts.get(testVal);
+				final Map<Serializable, Integer> testInMap = add(inMap, testValOutcomeCounts);
+				final Map<Serializable, Integer> testOutMap = subtract(outMap, testValOutcomeCounts);
+
+				// TODO: Pre-calculate these
+				int inTtl = 0, outTtl = 0;
+				for (final int v : testInMap.values()) {
+					inTtl += v;
+				}
+				for (final int v : testOutMap.values()) {
+					outTtl += v;
+				}
+
+				final double thisScore = scorer.scoreSplit(inTtl, testInMap, outTtl, testOutMap);
+
+				if (thisScore > bestScore) {
+					bestScore = thisScore;
+					bestVal = testVal;
+				}
+			}
+			if (bestScore > score) {
+				score = bestScore;
+				bestSoFar.add(bestVal);
+				values.remove(bestVal);
+				final Map<Serializable, Integer> bestValOutcomeCounts = valueOutcomeCounts.get(bestVal);
+				inMap = add(inMap, bestValOutcomeCounts);
+				outMap = subtract(outMap, bestValOutcomeCounts);
+			} else {
+				break;
+			}
+		}
+
+		return Pair.with(new NominalBranch(attribute, bestSoFar), score);
 	}
 
 	protected Pair<? extends Branch, Double> createOrdinalNode(final String attribute,
