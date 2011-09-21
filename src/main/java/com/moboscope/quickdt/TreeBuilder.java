@@ -195,22 +195,22 @@ public class TreeBuilder {
 		double score = 0;
 		final Set<Serializable> bestSoFar = Sets.newHashSet();
 
-		ClassificationCounter inMap = new ClassificationCounter();
+		ClassificationCounter inCounts = new ClassificationCounter();
 		final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
 				.countAllByAttributeValues(instances, attribute);
-		ClassificationCounter outMap = valueOutcomeCountsPair.getValue0();
+		ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0();
 		final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1();
 
 		while (true) {
 			double bestScore = 0;
 			Serializable bestVal = null;
 			for (final Serializable testVal : values) {
-				final ClassificationCounter testValOutcomeCounts = valueOutcomeCounts.get(testVal);
-				final ClassificationCounter testInMap = inMap.add(testValOutcomeCounts);
-				final ClassificationCounter testOutMap = outMap.subtract(testValOutcomeCounts);
+				final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
+				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
+				final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
 
-				final double thisScore = scorer.scoreSplit(testInMap, testOutMap);
+				final double thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
 
 				if (thisScore > bestScore) {
 					bestScore = thisScore;
@@ -222,8 +222,8 @@ public class TreeBuilder {
 				bestSoFar.add(bestVal);
 				values.remove(bestVal);
 				final ClassificationCounter bestValOutcomeCounts = valueOutcomeCounts.get(bestVal);
-				inMap = inMap.add(bestValOutcomeCounts);
-				outMap = outMap.subtract(bestValOutcomeCounts);
+				inCounts = inCounts.add(bestValOutcomeCounts);
+				outCounts = outCounts.subtract(bestValOutcomeCounts);
 			} else {
 				break;
 			}
@@ -261,10 +261,10 @@ public class TreeBuilder {
 					return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
 				}
 			});
-			final ClassificationCounter inOutcomeCounts = ClassificationCounter.countAll(inSet);
-			final ClassificationCounter outOutcomeCounts = ClassificationCounter.countAll(outSet);
+			final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
+			final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
-			final double thisScore = scorer.scoreSplit(inOutcomeCounts, outOutcomeCounts);
+			final double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
 
 			if (thisScore > bestScore) {
 				bestScore = thisScore;
@@ -273,31 +273,5 @@ public class TreeBuilder {
 		}
 
 		return Pair.with(new OrdinalBranch(attribute, bestThreshold), bestScore);
-	}
-
-	protected Pair<Map<Serializable, Integer>, Map<Serializable, Map<Serializable, Integer>>> getValueOutcomeCounts(
-			final String attribute,
-			final Iterable<Instance> instances) {
-		final Map<Serializable, Map<Serializable, Integer>> perValueMap = Maps.newHashMap();
-		final Map<Serializable, Integer> allMap = Maps.newHashMap();
-		for (final Instance i : instances) {
-			final Serializable value = i.attributes.get(attribute);
-			Integer allC = allMap.get(i.classification);
-			if (allC == null) {
-				allC = 0;
-			}
-			allMap.put(i.classification, allC + 1);
-			Map<Serializable, Integer> classificationMap = perValueMap.get(value);
-			if (classificationMap == null) {
-				classificationMap = Maps.newHashMap();
-				perValueMap.put(value, classificationMap);
-			}
-			Integer count = classificationMap.get(i.classification);
-			if (count == null) {
-				count = 0;
-			}
-			classificationMap.put(i.classification, count + 1);
-		}
-		return Pair.with(allMap, perValueMap);
 	}
 }
