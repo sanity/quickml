@@ -7,7 +7,6 @@ import java.util.zip.GZIPInputStream;
 import org.json.simple.*;
 
 import com.google.common.collect.*;
-import com.moboscope.quickdt.TreeBuilder.Scorer;
 import com.moboscope.quickdt.scorers.Scorer1;
 
 public class Benchmarks {

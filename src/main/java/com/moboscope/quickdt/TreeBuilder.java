@@ -339,9 +339,4 @@ public class TreeBuilder {
 		}
 		return ret;
 	}
-
-	public static interface Scorer {
-		public double scoreSplit(final int aTtl, final Map<Serializable, Integer> a, final int bTtl,
-				final Map<Serializable, Integer> b);
-	}
 }

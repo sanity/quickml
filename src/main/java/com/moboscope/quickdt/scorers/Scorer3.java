@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import com.google.common.collect.Sets;
-import com.moboscope.quickdt.TreeBuilder.Scorer;
+import com.moboscope.quickdt.Scorer;
 
 public class Scorer3 implements Scorer {
 

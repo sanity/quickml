@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.moboscope.quickdt.TreeBuilder.Scorer;
+import com.moboscope.quickdt.Scorer;
 
 public class GiniImpurityScorer implements Scorer {
 
