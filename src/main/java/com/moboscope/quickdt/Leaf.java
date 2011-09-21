@@ -1,11 +1,8 @@
 package com.moboscope.quickdt;
 
 import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
 
 import org.javatuples.Pair;
-
 
 public class Leaf extends Node {
 	private static final long serialVersionUID = -5617660873196498754L;
@@ -34,27 +31,21 @@ public class Leaf extends Node {
 	public double probability;
 
 	public Leaf(final Iterable<Instance> instances, final int depth) {
-		final Pair<Integer, Map<Serializable, Integer>> outcomeCounts = TreeBuilder.calcOutcomeCounts(instances);
-		if (outcomeCounts.getValue1().size() == 1) {
-			classification = outcomeCounts.getValue1().keySet().iterator().next();
+		final ClassificationCounter outcomeCounts = ClassificationCounter.countAll(instances);
+		if (outcomeCounts.getTotal() == 1) {
+			classification = outcomeCounts.allClassifications().iterator().next();
 			this.depth = depth;
-			exampleCount = outcomeCounts.getValue0();
+			exampleCount = outcomeCounts.getTotal();
 			probability = 1;
 		} else {
 			// Determine best label
-			Entry<Serializable, Integer> best = null;
+			final Pair<Serializable, Integer> best = outcomeCounts.mostPopular();
 
-			for (final Entry<Serializable, Integer> e : outcomeCounts.getValue1().entrySet()) {
-				if (best == null || e.getValue() > best.getValue()) {
-					best = e;
-				}
-			}
-
-			classification = best.getKey();
+			classification = best.getValue0();
 			this.depth = depth;
-			exampleCount = outcomeCounts.getValue0();
-			probability = (double) best.getValue()
-					/ (double) outcomeCounts.getValue0();
+			exampleCount = outcomeCounts.getTotal();
+			probability = (double) best.getValue1()
+					/ (double) outcomeCounts.getTotal();
 		}
 	}
 

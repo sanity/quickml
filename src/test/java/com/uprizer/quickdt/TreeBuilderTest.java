@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 
 import com.moboscope.quickdt.*;
-import com.moboscope.quickdt.scorers.*;
+import com.moboscope.quickdt.scorers.Scorer1;
 
 public class TreeBuilderTest {
 	@Test
@@ -43,21 +43,6 @@ public class TreeBuilderTest {
 			final TreeBuilder tb = new TreeBuilder(new Scorer1());
 			final Node tree = tb.buildTree(instances, 100, 1.0);
 			System.out.println("Scorer1 tree size: " + tree.size());
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer2());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
-			System.out.println("Scorer2 tree size: " + tree.size());
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer3());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
-			System.out.println("Scorer3 tree size: " + tree.size());
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new GiniImpurityScorer());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
-			System.out.println("CorrectClassificationProbScorer tree size: " + tree.size());
 		}
 	}
 
