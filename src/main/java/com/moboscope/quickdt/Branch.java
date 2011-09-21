@@ -6,6 +6,8 @@ import com.google.common.base.Predicate;
 
 
 public abstract class Branch extends Node {
+	private static final long serialVersionUID = 8290012786245422175L;
+
 	public Node trueChild, falseChild;
 
 	protected abstract boolean decide(Attributes attributes);
@@ -13,6 +15,11 @@ public abstract class Branch extends Node {
 	@Override
 	public int size() {
 		return 1 + trueChild.size() + falseChild.size();
+	}
+
+	@Override
+	public boolean fullRecall() {
+		return trueChild.fullRecall() && falseChild.fullRecall();
 	}
 
 	public Predicate<Instance> getInPredicate() {

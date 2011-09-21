@@ -2,6 +2,7 @@ package com.uprizer.quickdt;
 
 import java.util.Set;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 
@@ -12,20 +13,23 @@ public class TreeBuilderTest {
 	@Test
 	public void simpleBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
-
-		for (int x = 0; x < 100000; x++) {
+		for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
 		final TreeBuilder tb = new TreeBuilder();
+		final long startTime = System.currentTimeMillis();
 		final Node tree = tb.buildTree(instances, 100, 1.0);
-		tree.dump(System.out);
-		System.out.println("Tree size: " + tree.size());
 
+		Assert.assertTrue(tree.fullRecall(), "Confirm that the tree achieves full recall on the training set");
+		Assert.assertTrue(tree.size() < 400, "Tree size should be less than 350 nodes");
+		Assert.assertTrue(tree.meanDepth() < 6, "Mean depth should be less than 6");
+		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,
+				"Building this tree should take far less than 20 seconds");
 	}
 
-	@Test()
+	@Test(enabled = false)
 	public void multiScorerBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
 

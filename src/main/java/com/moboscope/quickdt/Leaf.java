@@ -55,4 +55,9 @@ public class Leaf extends Node {
 		stats.ttlSamples += label.exampleCount;
 	}
 
+	@Override
+	public boolean fullRecall() {
+		return label.probability == 1.0;
+	}
+
 }

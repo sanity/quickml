@@ -23,6 +23,13 @@ public abstract class Node implements Serializable {
 	public abstract Label getLabel(Attributes attributes);
 
 	/**
+	 * Does this tree achieve full recall on the training set?
+	 * 
+	 * @return
+	 */
+	public abstract boolean fullRecall();
+
+	/**
 	 * Return the mean depth of leaves in the tree. A lower number generally
 	 * indicates that the decision tree learner has done a better job.
 	 * 

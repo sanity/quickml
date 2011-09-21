@@ -13,6 +13,23 @@ import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 
 public class TreeBuilder {
 
+	public static final int ORDINAL_TEST_SPLITS = 5;
+
+	public static Pair<Integer, Map<Serializable, Integer>> calcOutcomeCounts(final Iterable<Instance> instances) {
+		final Map<Serializable, Integer> outcomeCounts = Maps.newHashMap();
+		int ttl = 0;
+		for (final Instance instance : instances) {
+			final Serializable value = instance.output;
+			Integer c = outcomeCounts.get(value);
+			if (c == null) {
+				c = 0;
+			}
+			outcomeCounts.put(value, c + 1);
+			ttl++;
+		}
+		return Pair.with(ttl, outcomeCounts);
+	}
+
 	Scorer scorer;
 
 	public TreeBuilder() {
@@ -23,8 +40,6 @@ public class TreeBuilder {
 		this.scorer = scorer;
 	}
 
-	public static final int ORDINAL_TEST_SPLITS = 5;
-
 	public Node buildTree(final Iterable<Instance> trainingData) {
 		return buildTree(trainingData, Integer.MAX_VALUE, 1.0);
 	}
@@ -32,40 +47,13 @@ public class TreeBuilder {
 	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
 		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
 
-		for (final Instance i : trainingData) {
-			for (final Entry<String, Serializable> e : i.attributes.entrySet()) {
-				if (e.getValue() instanceof Number) {
-					ReservoirSampler<Double> rs = rsm.get(e.getKey());
-					if (rs == null) {
-						rs = new ReservoirSampler<Double>(1000);
-						rsm.put(e.getKey(), rs);
-					}
-					rs.addSample(((Number) e.getValue()).doubleValue());
-				}
-			}
-		}
-
-		final Map<String, double[]> splits = Maps.newHashMap();
-
-		for (final Entry<String, ReservoirSampler<Double>> e : rsm.entrySet()) {
-			final ArrayList<Double> al = Lists.newArrayList();
-			for (final Double d : e.getValue().getSamples()) {
-				al.add(d);
-			}
-			Collections.sort(al);
-
-			final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-			for (int x = 0; x < split.length; x++) {
-				split[x] = al.get((x + 1) * al.size() / (split.length + 2));
-			}
-
-			splits.put(e.getKey(), split);
-		}
+		final Map<String, double[]> splits = createOrdinalSplits(trainingData, rsm);
 
 		return buildTree(trainingData, 0, maxDepth, minProbability, splits);
 	}
 
-	public Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
+
+	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
 			final double minProbability, final Map<String, double[]> splits) {
 		final Leaf thisLeaf = new Leaf(trainingData, depth);
 		if (depth == maxDepth || thisLeaf.label.probability >= minProbability)
@@ -86,10 +74,13 @@ public class TreeBuilder {
 		Branch bestNode = null;
 		double bestScore = 0;
 		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
-			Pair<? extends Branch, Double> thisPair;
+			Pair<? extends Branch, Double> thisPair = null;
+
 			if (!smallTrainingSet && e.getValue() instanceof Number) {
 				thisPair = createOrdinalNode(e.getKey(), trainingData, splits.get(e.getKey()));
-			} else {
+			}
+
+			if (thisPair == null || thisPair.getValue1() == 0) {
 				thisPair = createNominalNode(e.getKey(), trainingData);
 			}
 			if (thisPair.getValue1() > bestScore) {
@@ -98,117 +89,48 @@ public class TreeBuilder {
 			}
 		}
 
+		// If we were unable to find a useful branch, return the leaf
 		if (bestNode == null)
+			// Its a bad sign when this happens, normally something to debug
 			return thisLeaf;
 
-		bestNode.trueChild = buildTree(Lists.newLinkedList(Iterables.filter(trainingData, bestNode.getInPredicate())),
-				depth + 1, maxDepth, minProbability, splits);
+		double[] oldSplit = null;
 
+		final LinkedList<Instance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+				bestNode.getInPredicate()));
+		final LinkedList<Instance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+				bestNode.getOutPredicate()));
+
+		// We want to temporarily replace the split for an attribute for
+		// descendants of an ordinal branch, first the true split
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			oldSplit = splits.get(ob.attribute);
+			splits.put(ob.attribute, createOrdinalSplit(trueTrainingSet, ob.attribute));
+		}
+
+		// Recurse down the true branch
+		bestNode.trueChild = buildTree(trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
+
+		// And now replace the old split if this is an OrdinalBranch
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			splits.put(ob.attribute, createOrdinalSplit(falseTrainingSet, ob.attribute));
+		}
+
+		// Recurse down the false branch
 		bestNode.falseChild = buildTree(
-				Lists.newLinkedList(Iterables.filter(trainingData, bestNode.getOutPredicate())), depth + 1,
+				falseTrainingSet, depth + 1,
 				maxDepth,
 				minProbability, splits);
 
+		// And now replace the original split if this is an OrdinalBranch
+		if (bestNode instanceof OrdinalBranch) {
+			final OrdinalBranch ob = (OrdinalBranch) bestNode;
+			splits.put(ob.attribute, oldSplit);
+		}
+
 		return bestNode;
-	}
-
-	public Pair<? extends Branch, Double> createOrdinalNode(final String attribute, final Iterable<Instance> instances,
-			final double[] splits) {
-
-		double bestScore = 0;
-		double bestThreshold = 0;
-
-		double lastThreshold = Double.MIN_VALUE;
-		for (final double threshold : splits) {
-			// Sometimes we can get a few thresholds the same, avoid wasted
-			// effort when we do
-			if (threshold == lastThreshold) {
-				continue;
-			}
-			lastThreshold = threshold;
-			final Iterable<Instance> inSet = Iterables.filter(instances, new Predicate<Instance>() {
-
-				@Override
-				public boolean apply(final Instance input) {
-					return ((Number) input.attributes.get(attribute)).doubleValue() > threshold;
-				}
-			});
-			final Iterable<Instance> outSet = Iterables.filter(instances, new Predicate<Instance>() {
-
-				@Override
-				public boolean apply(final Instance input) {
-					return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
-				}
-			});
-			final Pair<Integer, Map<Serializable, Integer>> inOutcomeCounts = calcOutcomeCounts(inSet);
-			final Pair<Integer, Map<Serializable, Integer>> outOutcomeCounts = calcOutcomeCounts(outSet);
-
-			final double thisScore = scorer.scoreSplit(inOutcomeCounts.getValue0(), inOutcomeCounts.getValue1(),
-					outOutcomeCounts.getValue0(), outOutcomeCounts.getValue1());
-
-			if (thisScore > bestScore) {
-				bestScore = thisScore;
-				bestThreshold = threshold;
-			}
-		}
-
-		return Pair.with(new OrdinalBranch(attribute, bestThreshold), bestScore);
-	}
-
-	protected Map<Serializable, Integer> add(final Map<Serializable, Integer> a, final Map<Serializable, Integer> b) {
-		if (b == null)
-			return Maps.newHashMap(a);
-		final Map<Serializable, Integer> ret = Maps.newHashMap();
-		ret.putAll(a);
-		for (final Entry<Serializable, Integer> e : b.entrySet()) {
-			Integer ac = ret.get(e.getKey());
-			if (ac == null) {
-				ac = 0;
-			}
-			ret.put(e.getKey(), e.getValue() + ac);
-		}
-		return ret;
-	}
-
-	protected Map<Serializable, Integer> subtract(final Map<Serializable, Integer> from,
-			final Map<Serializable, Integer> by) {
-		if (by == null)
-			return Maps.newHashMap(from);
-		final Map<Serializable, Integer> ret = Maps.newHashMap();
-		for (final Entry<Serializable, Integer> e : from.entrySet()) {
-			Integer v = by.get(e.getKey());
-			if (v == null) {
-				v = 0;
-			}
-			ret.put(e.getKey(), e.getValue()-v);
-		}
-		return ret;
-	}
-
-	protected Pair<Map<Serializable, Integer>, Map<Serializable, Map<Serializable, Integer>>> getValueOutcomeCounts(
-			final String attribute,
-			final Iterable<Instance> instances) {
-		final Map<Serializable, Map<Serializable, Integer>> perValueMap = Maps.newHashMap();
-		final Map<Serializable, Integer> allMap = Maps.newHashMap();
-		for (final Instance i : instances) {
-			final Serializable value = i.attributes.get(attribute);
-			Integer allC = allMap.get(i.output);
-			if (allC == null) {
-				allC = 0;
-			}
-			allMap.put(i.output, allC + 1);
-			Map<Serializable, Integer> outputMap = perValueMap.get(value);
-			if (outputMap == null) {
-				outputMap = Maps.newHashMap();
-				perValueMap.put(value, outputMap);
-			}
-			Integer count = outputMap.get(i.output);
-			if (count == null) {
-				count = 0;
-			}
-			outputMap.put(i.output, count + 1);
-		}
-		return Pair.with(allMap, perValueMap);
 	}
 
 	public Pair<? extends Branch, Double> createNominalNode(final String attribute,
@@ -265,19 +187,157 @@ public class TreeBuilder {
 		return Pair.with(new NominalBranch(attribute, bestSoFar), score);
 	}
 
-	public static Pair<Integer, Map<Serializable, Integer>> calcOutcomeCounts(final Iterable<Instance> instances) {
-		final Map<Serializable, Integer> outcomeCounts = Maps.newHashMap();
-		int ttl = 0;
-		for (final Instance instance : instances) {
-			final Serializable value = instance.output;
-			Integer c = outcomeCounts.get(value);
-			if (c == null) {
-				c = 0;
-			}
-			outcomeCounts.put(value, c + 1);
-			ttl++;
+	private double[] createOrdinalSplit(final Iterable<Instance> trainingData, final String attribute) {
+		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
+		for (final Instance i : trainingData) {
+			rs.addSample(((Number) i.attributes.get(attribute)).doubleValue());
 		}
-		return Pair.with(ttl, outcomeCounts);
+		final ArrayList<Double> al = Lists.newArrayList();
+		for (final Double d : rs.getSamples()) {
+			al.add(d);
+		}
+		Collections.sort(al);
+
+		final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
+		for (int x = 0; x < split.length; x++) {
+			split[x] = al.get((x + 1) * al.size() / (split.length + 2));
+		}
+
+		return split;
+	}
+
+	private Map<String, double[]> createOrdinalSplits(final Iterable<Instance> trainingData,
+			final Map<String, ReservoirSampler<Double>> rsm) {
+		for (final Instance i : trainingData) {
+			for (final Entry<String, Serializable> e : i.attributes.entrySet()) {
+				if (e.getValue() instanceof Number) {
+					ReservoirSampler<Double> rs = rsm.get(e.getKey());
+					if (rs == null) {
+						rs = new ReservoirSampler<Double>(1000);
+						rsm.put(e.getKey(), rs);
+					}
+					rs.addSample(((Number) e.getValue()).doubleValue());
+				}
+			}
+		}
+
+		final Map<String, double[]> splits = Maps.newHashMap();
+
+		for (final Entry<String, ReservoirSampler<Double>> e : rsm.entrySet()) {
+			final ArrayList<Double> al = Lists.newArrayList();
+			for (final Double d : e.getValue().getSamples()) {
+				al.add(d);
+			}
+			Collections.sort(al);
+
+			final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
+			for (int x = 0; x < split.length; x++) {
+				split[x] = al.get((x + 1) * al.size() / (split.length + 2));
+			}
+
+			splits.put(e.getKey(), split);
+		}
+		return splits;
+	}
+
+	protected Map<Serializable, Integer> add(final Map<Serializable, Integer> a, final Map<Serializable, Integer> b) {
+		if (b == null)
+			return Maps.newHashMap(a);
+		final Map<Serializable, Integer> ret = Maps.newHashMap();
+		ret.putAll(a);
+		for (final Entry<Serializable, Integer> e : b.entrySet()) {
+			Integer ac = ret.get(e.getKey());
+			if (ac == null) {
+				ac = 0;
+			}
+			ret.put(e.getKey(), e.getValue() + ac);
+		}
+		return ret;
+	}
+
+	protected Pair<? extends Branch, Double> createOrdinalNode(final String attribute,
+			final Iterable<Instance> instances,
+			final double[] splits) {
+
+		double bestScore = 0;
+		double bestThreshold = 0;
+
+		double lastThreshold = Double.MIN_VALUE;
+		for (final double threshold : splits) {
+			// Sometimes we can get a few thresholds the same, avoid wasted
+			// effort when we do
+			if (threshold == lastThreshold) {
+				continue;
+			}
+			lastThreshold = threshold;
+			final Iterable<Instance> inSet = Iterables.filter(instances, new Predicate<Instance>() {
+
+				@Override
+				public boolean apply(final Instance input) {
+					return ((Number) input.attributes.get(attribute)).doubleValue() > threshold;
+				}
+			});
+			final Iterable<Instance> outSet = Iterables.filter(instances, new Predicate<Instance>() {
+
+				@Override
+				public boolean apply(final Instance input) {
+					return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
+				}
+			});
+			final Pair<Integer, Map<Serializable, Integer>> inOutcomeCounts = calcOutcomeCounts(inSet);
+			final Pair<Integer, Map<Serializable, Integer>> outOutcomeCounts = calcOutcomeCounts(outSet);
+
+			final double thisScore = scorer.scoreSplit(inOutcomeCounts.getValue0(), inOutcomeCounts.getValue1(),
+					outOutcomeCounts.getValue0(), outOutcomeCounts.getValue1());
+
+			if (thisScore > bestScore) {
+				bestScore = thisScore;
+				bestThreshold = threshold;
+			}
+		}
+
+		return Pair.with(new OrdinalBranch(attribute, bestThreshold), bestScore);
+	}
+
+	protected Pair<Map<Serializable, Integer>, Map<Serializable, Map<Serializable, Integer>>> getValueOutcomeCounts(
+			final String attribute,
+			final Iterable<Instance> instances) {
+		final Map<Serializable, Map<Serializable, Integer>> perValueMap = Maps.newHashMap();
+		final Map<Serializable, Integer> allMap = Maps.newHashMap();
+		for (final Instance i : instances) {
+			final Serializable value = i.attributes.get(attribute);
+			Integer allC = allMap.get(i.output);
+			if (allC == null) {
+				allC = 0;
+			}
+			allMap.put(i.output, allC + 1);
+			Map<Serializable, Integer> outputMap = perValueMap.get(value);
+			if (outputMap == null) {
+				outputMap = Maps.newHashMap();
+				perValueMap.put(value, outputMap);
+			}
+			Integer count = outputMap.get(i.output);
+			if (count == null) {
+				count = 0;
+			}
+			outputMap.put(i.output, count + 1);
+		}
+		return Pair.with(allMap, perValueMap);
+	}
+
+	protected Map<Serializable, Integer> subtract(final Map<Serializable, Integer> from,
+			final Map<Serializable, Integer> by) {
+		if (by == null)
+			return Maps.newHashMap(from);
+		final Map<Serializable, Integer> ret = Maps.newHashMap();
+		for (final Entry<Serializable, Integer> e : from.entrySet()) {
+			Integer v = by.get(e.getKey());
+			if (v == null) {
+				v = 0;
+			}
+			ret.put(e.getKey(), e.getValue()-v);
+		}
+		return ret;
 	}
 
 	public static interface Scorer {
