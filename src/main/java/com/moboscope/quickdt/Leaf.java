@@ -31,21 +31,21 @@ public class Leaf extends Node {
 	public double probability;
 
 	public Leaf(final Iterable<Instance> instances, final int depth) {
-		final ClassificationCounter outcomeCounts = ClassificationCounter.countAll(instances);
-		if (outcomeCounts.getTotal() == 1) {
-			classification = outcomeCounts.allClassifications().iterator().next();
+		final ClassificationCounter classificationCounts = ClassificationCounter.countAll(instances);
+		if (classificationCounts.getTotal() == 1) {
+			classification = classificationCounts.allClassifications().iterator().next();
 			this.depth = depth;
-			exampleCount = outcomeCounts.getTotal();
+			exampleCount = classificationCounts.getTotal();
 			probability = 1;
 		} else {
 			// Determine best label
-			final Pair<Serializable, Integer> best = outcomeCounts.mostPopular();
+			final Pair<Serializable, Integer> best = classificationCounts.mostPopular();
 
 			classification = best.getValue0();
 			this.depth = depth;
-			exampleCount = outcomeCounts.getTotal();
+			exampleCount = classificationCounts.getTotal();
 			probability = (double) best.getValue1()
-					/ (double) outcomeCounts.getTotal();
+					/ (double) classificationCounts.getTotal();
 		}
 	}
 

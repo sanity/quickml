@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.google.common.collect.Sets;
 import com.moboscope.quickdt.*;
 
-public class Scorer1 implements Scorer {
+public final class Scorer1 implements Scorer {
 
 	/*
 	 * The general idea here is that a good split is one where the proportions

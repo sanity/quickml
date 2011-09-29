@@ -3,7 +3,7 @@ package com.moboscope.quickdt;
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class Attributes extends HashMap<String, Serializable> {
+public final class Attributes extends HashMap<String, Serializable> {
 
 	private static final long serialVersionUID = 5737931426134041728L;
 

@@ -8,7 +8,13 @@ import com.google.common.base.Predicate;
 public abstract class Branch extends Node {
 	private static final long serialVersionUID = 8290012786245422175L;
 
+	public final String attribute;
+
 	public Node trueChild, falseChild;
+
+	public Branch(final String attribute) {
+		this.attribute = attribute;
+	}
 
 	protected abstract boolean decide(Attributes attributes);
 

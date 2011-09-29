@@ -11,7 +11,7 @@ import com.google.common.collect.*;
 import com.moboscope.quickdt.scorers.Scorer1;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 
-public class TreeBuilder {
+public final class TreeBuilder {
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 

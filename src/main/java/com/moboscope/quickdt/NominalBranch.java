@@ -5,11 +5,10 @@ import java.util.Set;
 
 public final class NominalBranch extends Branch {
 	private static final long serialVersionUID = -1723969623146234761L;
-	public final String attribute;
 	public final Set<Serializable> inSet;
 
 	public NominalBranch(final String attribute, final Set<Serializable> inSet) {
-		this.attribute = attribute;
+		super(attribute);
 		this.inSet = inSet;
 
 	}
