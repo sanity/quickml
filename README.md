@@ -54,8 +54,7 @@ Attributes.create() is some syntactic sugar that makes it easier to create Insta
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
 of data, *"nominal"*, like "male", "female", and *"ordinal"*, numbers.  These can be integers, or floating point numbers.
 
-**Note:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, ordinal
-or nominal, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
+**WARNING:** *Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, ordinal or nominal, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.*
 
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
