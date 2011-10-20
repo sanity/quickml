@@ -52,7 +52,15 @@ Attributes.create() is some syntactic sugar that makes it easier to create Insta
 ```
 
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
-of data, *"nominal"*, like "male", "female", and *"ordinal"*, numbers.  These can be integers, or floating point numbers.
+of data:
+
+* nominal
+These values are categories, for example the attribute "gender" in the example above has possible values "male" and "female".
+It is ok for an attribute to have hundreds of possible values, but thousands or tens of thousands may slow down the tree
+building process significantly.
+* ordinal
+Numbers like 1.3, -25, or 3.1415.  These can be integers, or floating point numbers, positive or negative.  Values like Double.NaN, 
+Double.POSITIVE_INFINITY and other non-real numbers aren't supported and will probably result in an exception or unexpected behavior.
 
 **WARNING:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, ordinal or 
 nominal, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
