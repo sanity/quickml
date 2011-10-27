@@ -6,8 +6,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 
-import com.moboscope.quickdt.*;
-import com.moboscope.quickdt.scorers.Scorer1;
+import quickdt.*;
+import quickdt.scorers.Scorer1;
+
 
 public class TreeBuilderTest {
 	@Test

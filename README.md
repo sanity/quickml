@@ -58,12 +58,13 @@ of data:
 
 These values are categories, for example the attribute "gender" in the example above has possible values "male" and "female".
 It is ok for an attribute to have hundreds of possible values, but thousands or tens of thousands may slow down the tree
-building process significantly.
+building process significantly.  Values don't have to be strings, they can be almost any object type that isn't a number.
 
 * ordinal
 
-Numbers like 1.3, -25, or 3.1415.  These can be integers, or floating point numbers, positive or negative.  Values like Double.NaN, 
-Double.POSITIVE_INFINITY and other non-real numbers aren't supported and will probably result in an exception or unexpected behavior.
+Numbers like 1.3, -25, or 3.1415.  These can be integers, or floating point numbers, positive or negative, any object that
+implements the java.lang.Number class.  Values like Double.NaN, Double.POSITIVE_INFINITY and other non-real numbers aren't 
+supported and will probably result in an exception or unexpected behavior.
 
 **WARNING:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, ordinal or 
 nominal, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
