@@ -12,8 +12,7 @@ If you are unfamiliar with Decision Tree Learning, it's the process of building 
 on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
 
 QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was written by
-[Ian Clarke](http://blog.locut.us/) to scratch an itch during his work on [Moboscope](http://moboscope.com/).  The initial public release
-was on 2011-09-21.
+[Ian Clarke](http://blog.locut.us/).  The initial public release was on 2011-09-21.
 
 What are the alternatives?
 --------------------------
@@ -40,7 +39,7 @@ an "attribute" of the instance, and "overweight", "healthy", and "underweight" a
 Attributes.create() is some syntactic sugar that makes it easier to create Instances (although it's easy even without it).
 
 ```java
-	import com.moboscope.quickdt.*;
+	import quickdt.*;
 
 	final Set<Instance> instances = Sets.newHashSet();
 	// A male weighing 168lb that is 55 inches tall, they are overweight
@@ -185,12 +184,12 @@ Under the hood
 **Split scoring formula**
 
 Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
-variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/scorers/Scorer1.java).
+variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/scorers/Scorer1.java).
 So far as I know its a novel approach.  
 
 The basic idea is that the best split is the one with the greatest differences in the 
 proportions of the outcomes in each of the two subsets created by the split, multiplied by the size of the smaller set.  In tests 
-this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/com/moboscope/quickdt/Scorer.java)
+this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/Scorer.java)
 and pass it to the TreeBuilder constructor.
 
 **Finding the best nominal branch**
