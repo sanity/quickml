@@ -30,7 +30,7 @@ other minor annoyances that made it unsuitable for use on Google App Engine, whi
 Both of these libraries have the annoying limitation that you must pre-process your dataset to determine what values can be contained 
 in nominal fields.
 
-How do I install QuickDT
+How do I install QuickDT?
 ------------------------
 
 QuickDT is distributed using Maven.  To use it in your project just add this repository to your pom.xml file:
