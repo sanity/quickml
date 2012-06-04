@@ -188,6 +188,10 @@ public final class TreeBuilder {
 			Serializable bestVal = null;
 			for (final Serializable testVal : values) {
 				final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
+				if (testValCounts == null) { // Also a kludge, figure out why
+												// this would happen
+					continue;
+				}
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
 				final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
@@ -233,14 +237,24 @@ public final class TreeBuilder {
 
 				@Override
 				public boolean apply(final Instance input) {
-					return ((Number) input.attributes.get(attribute)).doubleValue() > threshold;
+					try {
+						return ((Number) input.attributes.get(attribute)).doubleValue() > threshold;
+					} catch (final ClassCastException e) { // Kludge, need to
+						// handle better
+						return false;
+					}
 				}
 			});
 			final Iterable<Instance> outSet = Iterables.filter(instances, new Predicate<Instance>() {
 
 				@Override
 				public boolean apply(final Instance input) {
-					return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
+					try {
+						return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
+					} catch (final ClassCastException e) { // Kludge, need to
+						// handle better
+						return false;
+					}
 				}
 			});
 			final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);

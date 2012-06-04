@@ -30,11 +30,34 @@ other minor annoyances that made it unsuitable for use on Google App Engine, whi
 Both of these libraries have the annoying limitation that you must pre-process your dataset to determine what values can be contained 
 in nominal fields.
 
+How do I install QuickDT
+------------------------
+
+QuickDT is distributed using Maven.  To use it in your project just add this repository to your pom.xml file:
+
+```xml
+		<repository>
+			<id>sanity-maven-repo</id>
+			<name>Sanity's Maven repository on GitHub</name>
+			<url>http://sanity.github.com/maven-repo/repository/</url>
+		</repository>
+```
+
+And this dependency:
+
+```xml
+		<dependency>
+			<groupId>quickdt</groupId>
+			<artifactId>quickdt</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+```
+
 How do I use QuickDT?
 ---------------------
 
-First, we'll create some data.  Let's say we know someone's height, weight, and gender, and we want to create a decision tree
-that tells us whether they are underweight, healthy, or overweight.  Each "instance" is a training example.  `"height", 55` is
+Now that it's installed, we'll create some data.  Let's say we know someone's height, weight, and gender, and we want to create a 
+decision tree that tells us whether they are underweight, healthy, or overweight.  Each "instance" is a training example.  `"height", 55` is
 an "attribute" of the instance, and "overweight", "healthy", and "underweight" are all "classifications".  
 Attributes.create() is some syntactic sugar that makes it easier to create Instances (although it's easy even without it).
 

@@ -4,7 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
+	<distributionManagement>
+		<repository>
+			<id>gh-pages</id>
+			<url>file:///Users/ian/Documents/maven-repo/repository</url>
+		</repository>
+	</distributionManagement>
 	<repositories>
 		<repository>
 			<id>sensearray-freetools</id>
