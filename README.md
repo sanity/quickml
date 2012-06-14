@@ -189,10 +189,6 @@ Next, build a jar file:
 	$ mvn assembly:assembly
 
 If all goes well, you'll find a file called something like quickdt-0.0.1-SNAPSHOT-jar-with-dependencies.jar in the target/ directory.
-Just add this to your classpath and you're off to the races!
-
-As QuickDT is still under very active development, it is not yet available via any public Maven repositories.  Once I'm committing
-less frequently I'll do a point release and get it into a Maven repo.
 
 Benchmarking
 ------------
