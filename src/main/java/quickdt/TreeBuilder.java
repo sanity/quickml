@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
+
 import org.javatuples.Pair;
 
 import quickdt.scorers.Scorer1;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 
 public final class TreeBuilder {
@@ -48,7 +49,7 @@ public final class TreeBuilder {
 
 		final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
 		for (int x = 0; x < split.length; x++) {
-			split[x] = al.get((x + 1) * al.size() / (split.length + 2));
+			split[x] = al.get((x + 1) * al.size() / (split.length + 1));
 		}
 
 		return split;
@@ -189,7 +190,7 @@ public final class TreeBuilder {
 			for (final Serializable testVal : values) {
 				final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
 				if (testValCounts == null) { // Also a kludge, figure out why
-												// this would happen
+					// this would happen
 					continue;
 				}
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
