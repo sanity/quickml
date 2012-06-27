@@ -25,11 +25,11 @@ of fashion for some years now).  Its last release was in 2004, and it shows.
 
 [Weka](http://www.cs.waikato.ac.nz/ml/weka/) is actually a suite of learning algorithms, which include Decision Tree algorithms.  Its
 API is marginally better than jaDTi, but still quite ugly by today's standards.  Worse, it seems to be a memory hog, and had various
-other minor annoyances that made it unsuitable for use on Google App Engine, which is what I needed.  
+other minor annoyances that made it unsuitable for use on Google App Engine, which is what I needed.
 
 Both of these libraries are unfortunately released under the GNU General Public License, which means that you can't use them in your
-project without "infecting" them with the GPL too.  QuickDT is under the less restrictive GNU Lesser General Public License, which
-I believe is more appropriate for libraries.
+project without being forced to release your entire codebase as open source.    QuickDT is under the GNU Lesser General Public License
+which doesn't have this requirement.
 
 How do I install QuickDT?
 ------------------------
