@@ -56,7 +56,7 @@ public class Benchmarks {
                 }
             }
             System.out.println("accuracy: " + (double)correctlyClassified/test.size());
-            
+
             for (int i = 2; i <= 20; i++) {
                 BaggedTree baggedTreeBuilder = new BaggedTree(tb, i);
                 baggedTreeBuilder.build(train);
@@ -64,7 +64,7 @@ public class Benchmarks {
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {
                     BaggingResult baggingResult = baggedTreeBuilder.predict(testInstance.attributes);
-                    String result = (String)baggingResult.classification;
+                    String result = (String)baggingResult.getClassification().getValue0();
                     if (result.equals(testInstance.classification)) {
                         correctlyClassified++;
                     }
