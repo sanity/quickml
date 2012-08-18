@@ -1,4 +1,4 @@
-package quickdt;
+package quickdt.bagging;
 
 import java.io.Serializable;
 import java.util.Collections;

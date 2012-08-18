@@ -6,6 +6,8 @@ import java.util.zip.GZIPInputStream;
 
 import org.json.simple.*;
 
+import quickdt.bagging.BaggedTree;
+import quickdt.bagging.BaggingResult;
 import quickdt.scorers.Scorer1;
 
 import com.google.common.collect.*;

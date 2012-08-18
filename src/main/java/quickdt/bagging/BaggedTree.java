@@ -1,7 +1,14 @@
-package quickdt;
+package quickdt.bagging;
 
 import java.io.Serializable;
 import java.util.List;
+
+import quickdt.Attributes;
+import quickdt.Instance;
+import quickdt.Leaf;
+import quickdt.Misc;
+import quickdt.Node;
+import quickdt.TreeBuilder;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
