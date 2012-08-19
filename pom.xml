@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<distributionManagement>
 		<repository>
 			<id>gh-pages</id>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.uprizer.sensearray</groupId>
 			<artifactId>freetools</artifactId>
-			<version>1.7</version>
+			<version>1.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -34,19 +34,19 @@
 		<dependency>
 			<groupId>org.javatuples</groupId>
 			<artifactId>javatuples</artifactId>
-			<version>1.1</version>
+			<version>1.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>6.2.1</version>
+			<version>6.7</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<version>1.1</version>
+			<version>1.1.1</version>
 		</dependency>
 	</dependencies>
 
