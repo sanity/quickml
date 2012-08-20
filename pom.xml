@@ -13,11 +13,9 @@
 	</distributionManagement>
 	<repositories>
 		<repository>
-			<id>sensearray-freetools</id>
-			<url>http://freetools.sensearray.com/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
+			<id>sanity-maven-repo</id>
+			<name>Sanity's Maven repository on GitHub</name>
+			<url>http://sanity.github.com/maven-repo/repository/</url>
 		</repository>
 	</repositories>
 	<dependencies>
