@@ -60,19 +60,21 @@ public class Benchmarks {
             System.out.println("accuracy: " + (double)correctlyClassified/test.size());
 
             for (int i = 2; i <= 20; i++) {
-                BaggedTree baggedTreeBuilder = new BaggedTree(tb, i);
-                baggedTreeBuilder.build(train);
+                BaggedTree baggedTree = BaggedTree.build(tb, i, train);
                 
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {
-                    BaggingResult baggingResult = baggedTreeBuilder.predict(testInstance.attributes);
+                    BaggingResult baggingResult = baggedTree.predict(testInstance.attributes);
                     String result = (String)baggingResult.getClassification().getValue0();
                     if (result.equals(testInstance.classification)) {
                         correctlyClassified++;
                     }
                 }
                 System.out.println("accuracy with "+ i +" trees: " + (double)correctlyClassified/test.size());
+                //ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("baggedTree.ser")));
+                //out.writeObject(baggedTree);
             }
+                
         }
         
         

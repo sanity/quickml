@@ -10,6 +10,7 @@ import quickdt.Misc;
 import quickdt.Node;
 import quickdt.TreeBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
@@ -26,50 +27,68 @@ import com.google.common.collect.Multiset;
  * 
  * @author Philipp Katz
  */
-public class BaggedTree {
+public class BaggedTree implements Serializable {
+
+    private static final long serialVersionUID = 8996197519632788949L;
 
     /** Default number of trees to grow. */
     public static final int DEFAULT_TREE_COUNT = 10;
 
-    private final TreeBuilder treeBuilder;
-    private final int numTrees;
     private final List<Node> trees;
 
-    /**
-     * <p>
-     * Create a new {@link BaggedTree} with the specified {@link TreeBuilder}
-     * and {@value #DEFAULT_TREE_COUNT} decision trees.
-     * </p>
-     * 
-     * @param treeBuilder
-     */
-    public BaggedTree(TreeBuilder treeBuilder) {
-	this(treeBuilder, DEFAULT_TREE_COUNT);
+    private BaggedTree(List<Node> trees) {
+	this.trees = trees;
     }
 
     /**
      * <p>
-     * Create a new {@link BaggedTree} with the specified {@link TreeBuilder}
-     * and the specified number of decision trees.
+     * Factory method for creating a new {@link BaggedTree} with the specified
+     * {@link TreeBuilder} and and the specified number of decision trees from
+     * the provided training data.
      * </p>
      * 
      * @param treeBuilder
+     *            The tree builder for building the decision trees, not
+     *            <code>null</code>.
      * @param numTrees
+     *            The number of trees to create, greater than zero.
+     * @param training
+     *            The training instances, not <code>null</code>.
      */
-    public BaggedTree(TreeBuilder treeBuilder, int numTrees) {
-	this.trees = Lists.newArrayList();
-	this.treeBuilder = treeBuilder;
-	this.numTrees = numTrees;
-    }
+    public static BaggedTree build(TreeBuilder builder, int numTrees,
+	    Iterable<Instance> training) {
+	Preconditions.checkNotNull(builder);
+	Preconditions.checkArgument(numTrees > 0,
+		"numTrees must be greater than zero");
+	Preconditions.checkNotNull(training);
 
-    public void build(Iterable<Instance> trainingData) {
+	List<Node> trees = Lists.newArrayList();
 	for (int i = 0; i < numTrees; i++) {
 	    // System.out.println("building tree " + (i + 1) + " of " +
 	    // numTrees);
-	    List<Instance> sampling = getBootstrapSampling(trainingData);
-	    Node node = treeBuilder.buildTree(sampling);
+	    List<Instance> sampling = getBootstrapSampling(training);
+	    Node node = builder.buildTree(sampling);
 	    trees.add(node);
 	}
+	return new BaggedTree(trees);
+    }
+
+    /**
+     * <p>
+     * Factory method for creating a new {@link BaggedTree} with the specified
+     * {@link TreeBuilder} and {@value #DEFAULT_TREE_COUNT} decision trees from
+     * the provided training data.
+     * </p>
+     * 
+     * @param builder
+     *            The tree builder for building the decision trees, not
+     *            <code>null</code>.
+     * @param training
+     *            The training instances, not <code>null</code>.
+     */
+    public static BaggedTree build(TreeBuilder builder,
+	    Iterable<Instance> training) {
+	return build(builder, DEFAULT_TREE_COUNT, training);
     }
 
     /**
@@ -82,6 +101,8 @@ public class BaggedTree {
      * @return
      */
     public BaggingResult predict(Attributes attributes) {
+	Preconditions.checkNotNull(attributes);
+
 	Multiset<Serializable> results = HashMultiset.create();
 	for (Node tree : trees) {
 	    Leaf leaf = tree.getLeaf(attributes);
@@ -99,7 +120,8 @@ public class BaggedTree {
      * @param trainingData
      * @return
      */
-    private List<Instance> getBootstrapSampling(Iterable<Instance> trainingData) {
+    private static List<Instance> getBootstrapSampling(
+	    Iterable<Instance> trainingData) {
 	List<Instance> allInstances = Lists.newArrayList(trainingData);
 	List<Instance> sampling = Lists.newArrayList();
 	for (int i = 0; i < allInstances.size(); i++) {
@@ -107,6 +129,17 @@ public class BaggedTree {
 	    sampling.add(allInstances.get(sample));
 	}
 	return sampling;
+    }
+
+    /**
+     * <p>
+     * Get a {@link List} of all trees.
+     * </p>
+     * 
+     * @return
+     */
+    public List<Node> getTrees() {
+	return trees;
     }
 
 }
