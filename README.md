@@ -198,6 +198,24 @@ I've done limited benchmarking, but by way of example QuickDT is able to build a
 8,500 instances, where each instance contains 46 attributes, a mixture of nominal and ordinal.  On my several-years-old
 MacBook Pro laptop it required only 8 seconds to produce a well-balanced tree with over 500 nodes.
 
+Bagging
+-------
+
+QuickDT contains a simple implementation of a bagging predictor combining multiple decision trees. The idea behind bagging is to create a random bootstrap sample of the training data to grow multiple trees. Prediction is done by letting all the trees vote and taking the winner class as the final classification result. For more information see [Bagging Predictors](http://www.stat.berkeley.edu/tech-reports/421.pdf) (Leo Breiman, 1994). With the included test data set "mobo1", the classification accuracy can be increased from 86 percent up to 92 percent. A further advantage of the Bagging mechanism is the ability to provide classification with confidence values, allowing a ranking of the classified instances. The bagging was contributed by [Philipp Katz](http://philippkatz.de/).
+
+Usage of the bagging is quite straight forward:
+
+
+```java
+	import quickdt.*;
+	import quickdt.bagging.*;
+
+	BaggedTree baggedTree = BaggedTree.build(tb, i, train);
+	BaggingResult baggingResult = baggedTree.predict(testInstance.attributes);
+	System.out.println("Assigned classes and their probabilities: " + 
+		baggingResult.getAllClassifications());
+```
+
 Under the hood
 --------------
 
