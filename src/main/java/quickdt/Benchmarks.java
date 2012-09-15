@@ -18,23 +18,8 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(new FileInputStream(
-                new File(new File(System.getProperty("user.dir")), "testdata/mobo1.txt.gz"))))));
-
-        final List<Instance> instances = Lists.newLinkedList();
-
-        int count = 0;
-        while (true) {
-            count++;
-            final String line = br.readLine();
-            if (line == null) {
-                break;
-            }
-            final JSONObject jo = (JSONObject) JSONValue.parse(line);
-            final Attributes a = new Attributes();
-            a.putAll((JSONObject) jo.get("attributes"));
-            instances.add(new Instance(a, (String) jo.get("output")));
-        }
+        // final List<Instance> instances = readMobo();
+        final List<Instance> instances = readDiabetes();
         
         final List<Instance> train = instances.subList(0, instances.size() / 2);
         final List<Instance> test = instances.subList(instances.size() / 2 + 1, instances.size() - 1);
@@ -79,6 +64,43 @@ public class Benchmarks {
         
         
         
+    }
+
+    private static List<Instance> readDiabetes() throws IOException {
+	BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("testdata/diabetesDataset.txt")));
+	List<Instance> instances = Lists.newLinkedList();
+	String line;
+	while ((line = br.readLine()) != null) {
+	    String[] split = line.split(" ");
+	    Attributes a = new Attributes();
+	    for (int i = 0 ; i < 8; i++) {
+		a.put(String.valueOf(i), Double.valueOf(split[i]));
+	    }
+	    instances.add(new Instance(a, split[8]));
+	}
+	return instances;
+    }
+
+    public static List<Instance> readMobo() throws IOException,
+	    FileNotFoundException {
+	final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(new FileInputStream(
+                new File(new File(System.getProperty("user.dir")), "testdata/mobo1.txt.gz"))))));
+
+        final List<Instance> instances = Lists.newLinkedList();
+
+        int count = 0;
+        while (true) {
+            count++;
+            final String line = br.readLine();
+            if (line == null) {
+                break;
+            }
+            final JSONObject jo = (JSONObject) JSONValue.parse(line);
+            final Attributes a = new Attributes();
+            a.putAll((JSONObject) jo.get("attributes"));
+            instances.add(new Instance(a, (String) jo.get("output")));
+        }
+	return instances;
     }
 
 }
