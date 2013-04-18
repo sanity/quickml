@@ -31,10 +31,10 @@ public class BaggingResult {
      * Get the winner class of the bagging, i.e. the class with the must votes.
      * The returned {@link Pair} contains the winner class and the percentage of
      * votes for this class (which can be considered as confidence for the
-     * classification).
+     * getBestClassification).
      * </p>
      * 
-     * @return {@link Pair} with classification and probability (0,1].
+     * @return {@link Pair} with getBestClassification and probability (0,1].
      */
     public Pair<Serializable, Double> getClassification() {
 	Serializable winner = null;
@@ -60,7 +60,7 @@ public class BaggingResult {
      * which have a probability of zero are not included in the result.
      * </p>
      * 
-     * @return {@link List} of {@link Pair}s with classification and probability (0,1].
+     * @return {@link List} of {@link Pair}s with getBestClassification and probability (0,1].
      */
     public List<Pair<Serializable, Double>> getAllClassifications() {
 

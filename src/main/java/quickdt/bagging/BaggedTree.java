@@ -1,19 +1,13 @@
 package quickdt.bagging;
 
-import java.io.Serializable;
-import java.util.List;
-
-import quickdt.Attributes;
-import quickdt.Instance;
-import quickdt.Leaf;
-import quickdt.Misc;
-import quickdt.Node;
-import quickdt.TreeBuilder;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
+import quickdt.*;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -47,7 +41,7 @@ public class BaggedTree implements Serializable {
      * the provided training data.
      * </p>
      * 
-     * @param treeBuilder
+     * @param builder
      *            The tree builder for building the decision trees, not
      *            <code>null</code>.
      * @param numTrees
@@ -93,7 +87,7 @@ public class BaggedTree implements Serializable {
 
     /**
      * <p>
-     * Predict classification for the supplied attributes by letting all
+     * Predict getBestClassification for the supplied attributes by letting all
      * decision trees vote.
      * </p>
      * 
@@ -106,10 +100,22 @@ public class BaggedTree implements Serializable {
 	Multiset<Serializable> results = HashMultiset.create();
 	for (Node tree : trees) {
 	    Leaf leaf = tree.getLeaf(attributes);
-	    results.add(leaf.classification);
+	    results.add(leaf.getBestClassification());
 	}
 	return new BaggingResult(results);
     }
+
+    public double getProbability(Attributes attributes, Serializable classification) {
+        int count = 0;
+        double prob = 0;
+        for (Node tree : trees) {
+            prob += tree.getLeaf(attributes).getProbability(classification);
+            count ++;
+        }
+
+        return prob / count;
+    }
+
 
     /**
      * <p>
@@ -121,7 +127,7 @@ public class BaggedTree implements Serializable {
      * @return
      */
     private static List<Instance> getBootstrapSampling(
-	    Iterable<Instance> trainingData) {
+	    Iterable <Instance> trainingData) {
 	List<Instance> allInstances = Lists.newArrayList(trainingData);
 	List<Instance> sampling = Lists.newArrayList();
 	for (int i = 0; i < allInstances.size(); i++) {

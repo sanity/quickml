@@ -1,12 +1,13 @@
 package quickdt;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.Map.Entry;
-
+import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 
-import com.google.common.collect.Maps;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class ClassificationCounter {
 	private final Map<Serializable, Integer> counts = Maps.newHashMap();
@@ -31,6 +32,11 @@ public class ClassificationCounter {
 		}
 		return Pair.with(totals, result);
 	}
+
+    public Map<Serializable, Integer> getCounts() {
+        return Collections.unmodifiableMap(counts);
+    }
+
 
 	public static ClassificationCounter countAll(final Iterable<Instance> instances) {
 		final ClassificationCounter result = new ClassificationCounter();

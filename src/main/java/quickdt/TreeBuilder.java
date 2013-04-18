@@ -1,17 +1,17 @@
 package quickdt;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import org.javatuples.Pair;
+import quickdt.scorers.Scorer1;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-
-import org.javatuples.Pair;
-
-import quickdt.scorers.Scorer1;
-
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 
 public final class TreeBuilder {
 
@@ -32,7 +32,7 @@ public final class TreeBuilder {
 	}
 
 	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
-		return buildTree(trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData));
+		return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData));
 	}
 
 
@@ -89,10 +89,10 @@ public final class TreeBuilder {
 		return splits;
 	}
 
-	protected Node buildTree(final Iterable<Instance> trainingData, final int depth, final int maxDepth,
+	protected Node buildTree(Node parent, final Iterable<Instance> trainingData, final int depth, final int maxDepth,
 			final double minProbability, final Map<String, double[]> splits) {
-		final Leaf thisLeaf = new Leaf(trainingData, depth);
-		if (depth == maxDepth || thisLeaf.probability >= minProbability)
+		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
+		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
 
 		final Instance sampleInstance = Iterables.get(trainingData, 0);
@@ -113,11 +113,11 @@ public final class TreeBuilder {
 			Pair<? extends Branch, Double> thisPair = null;
 
 			if (!smallTrainingSet && e.getValue() instanceof Number) {
-				thisPair = createOrdinalNode(e.getKey(), trainingData, splits.get(e.getKey()));
+				thisPair = createOrdinalNode(parent, e.getKey(), trainingData, splits.get(e.getKey()));
 			}
 
 			if (thisPair == null || thisPair.getValue1() == 0) {
-				thisPair = createNominalNode(e.getKey(), trainingData);
+				thisPair = createNominalNode(parent, e.getKey(), trainingData);
 			}
 			if (thisPair.getValue1() > bestScore) {
 				bestScore = thisPair.getValue1();
@@ -146,7 +146,7 @@ public final class TreeBuilder {
 		}
 
 		// Recurse down the true branch
-		bestNode.trueChild = buildTree(trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
+		bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
 
 		// And now replace the old split if this is an OrdinalBranch
 		if (bestNode instanceof OrdinalBranch) {
@@ -155,7 +155,7 @@ public final class TreeBuilder {
 		}
 
 		// Recurse down the false branch
-		bestNode.falseChild = buildTree(
+		bestNode.falseChild = buildTree(bestNode,
 				falseTrainingSet, depth + 1,
 				maxDepth,
 				minProbability, splits);
@@ -169,7 +169,7 @@ public final class TreeBuilder {
 		return bestNode;
 	}
 
-	protected Pair<? extends Branch, Double> createNominalNode(final String attribute,
+	protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
 			final Iterable<Instance> instances) {
 		final Set<Serializable> values = Sets.newHashSet();
 		for (final Instance instance : instances) {
@@ -216,10 +216,10 @@ public final class TreeBuilder {
 			}
 		}
 
-		return Pair.with(new NominalBranch(attribute, bestSoFar), score);
+		return Pair.with(new NominalBranch(parent, attribute, bestSoFar), score);
 	}
 
-	protected Pair<? extends Branch, Double> createOrdinalNode(final String attribute,
+	protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
 			final Iterable<Instance> instances,
 			final double[] splits) {
 
@@ -269,6 +269,6 @@ public final class TreeBuilder {
 			}
 		}
 
-		return Pair.with(new OrdinalBranch(attribute, bestThreshold), bestScore);
+		return Pair.with(new OrdinalBranch(parent, attribute, bestThreshold), bestScore);
 	}
 }

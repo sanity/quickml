@@ -5,8 +5,8 @@ public final class OrdinalBranch extends Branch {
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-	public OrdinalBranch(final String attribute, final double threshold) {
-		super(attribute);
+	public OrdinalBranch(Node parent, final String attribute, final double threshold) {
+		super(parent, attribute);
 		this.threshold = threshold;
 
 	}

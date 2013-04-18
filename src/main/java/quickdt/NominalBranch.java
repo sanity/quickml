@@ -7,8 +7,8 @@ public final class NominalBranch extends Branch {
 	private static final long serialVersionUID = -1723969623146234761L;
 	public final Set<Serializable> inSet;
 
-	public NominalBranch(final String attribute, final Set<Serializable> inSet) {
-		super(attribute);
+	public NominalBranch(Node parent, final String attribute, final Set<Serializable> inSet) {
+		super(parent, attribute);
 		this.inSet = inSet;
 
 	}

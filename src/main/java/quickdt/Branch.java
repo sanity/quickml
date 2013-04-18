@@ -1,8 +1,8 @@
 package quickdt;
 
-import java.io.PrintStream;
-
 import com.google.common.base.Predicate;
+
+import java.io.PrintStream;
 
 
 public abstract class Branch extends Node {
@@ -12,8 +12,9 @@ public abstract class Branch extends Node {
 
 	public Node trueChild, falseChild;
 
-	public Branch(final String attribute) {
-		this.attribute = attribute;
+	public Branch(Node parent, final String attribute) {
+		super(parent);
+        this.attribute = attribute;
 	}
 
 	protected abstract boolean decide(Attributes attributes);

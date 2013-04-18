@@ -10,10 +10,10 @@ public interface Scorer {
 	 * 
 	 * @param a
 	 *            A count of the number of classifications with a given
-	 *            classification in split a
+	 *            getBestClassification in split a
 	 * @param b
 	 *            A count of the number of classifications with a given
-	 *            classification in split b
+	 *            getBestClassification in split b
 	 * @return A score, where a higher value indicates a better split. A value
 	 *         of 0 being the lowest, and indicating no value.
 	 */

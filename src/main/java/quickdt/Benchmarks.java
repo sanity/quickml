@@ -1,16 +1,19 @@
 package quickdt;
 
-import java.io.*;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
-import org.json.simple.*;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import quickdt.bagging.BaggedTree;
 import quickdt.bagging.BaggingResult;
 import quickdt.scorers.Scorer1;
 
-import com.google.common.collect.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class Benchmarks {
 
@@ -52,7 +55,7 @@ public class Benchmarks {
             
             int correctlyClassified = 0;
             for (Instance testInstance : test) {
-                String result = (String)tree.getLeaf(testInstance.attributes).classification;
+                String result = (String)tree.getLeaf(testInstance.attributes).getBestClassification();
                 if (result.equals(testInstance.classification)) {
                     correctlyClassified++;
                 }
