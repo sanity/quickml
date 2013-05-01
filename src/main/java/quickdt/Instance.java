@@ -29,7 +29,7 @@ public class Instance {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("[attributes=");
 		builder.append(attributes);
-		builder.append(", getBestClassification=");
+		builder.append(", classification=");
 		builder.append(classification);
 		builder.append("]");
 		return builder.toString();

@@ -1,13 +1,15 @@
 package com.uprizer.quickdt;
 
-import java.util.Set;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-
-import quickdt.*;
+import quickdt.Instance;
+import quickdt.Misc;
+import quickdt.Node;
+import quickdt.TreeBuilder;
 import quickdt.scorers.Scorer1;
+
+import java.util.Set;
 
 
 public class TreeBuilderTest {
@@ -21,7 +23,7 @@ public class TreeBuilderTest {
 		}
 		final TreeBuilder tb = new TreeBuilder();
 		final long startTime = System.currentTimeMillis();
-		final Node tree = tb.buildTree(instances, 100, 1.0);
+		final Node tree = tb.buildTree(instances, 100, 1.0, java.util.Collections.<String>emptySet(), 1);
 
 		Assert.assertTrue(tree.fullRecall(), "Confirm that the tree achieves full recall on the training set");
 		Assert.assertTrue(tree.size() < 400, "Tree size should be less than 350 nodes");
@@ -42,7 +44,7 @@ public class TreeBuilderTest {
 		}
 		{
 			final TreeBuilder tb = new TreeBuilder(new Scorer1());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
+			final Node tree = tb.buildTree(instances, 100, 1.0, java.util.Collections.<String>emptySet(), 1);
 			System.out.println("Scorer1 tree size: " + tree.size());
 		}
 	}

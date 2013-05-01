@@ -46,7 +46,7 @@ public class Leaf extends Node {
      */
 
     public Serializable getBestClassification() {
-        return getBestClassificationEntry().getValue();
+        return getBestClassificationEntry().getKey();
     }
 
     public double getBestClassificationProbability() {

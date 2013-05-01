@@ -18,8 +18,9 @@ public final class TreeBuilder {
 	public static final int ORDINAL_TEST_SPLITS = 5;
 
 	Scorer scorer;
+    private Set<String> excludeAttributeFromTopLevel;
 
-	public TreeBuilder() {
+    public TreeBuilder() {
 		this(new Scorer1());
 	}
 
@@ -28,11 +29,12 @@ public final class TreeBuilder {
 	}
 
 	public Node buildTree(final Iterable<Instance> trainingData) {
-		return buildTree(trainingData, Integer.MAX_VALUE, 1.0);
+		return buildTree(trainingData, Integer.MAX_VALUE, 1.0, Collections.<String>emptySet(), 1);
 	}
 
-	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
-		return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData));
+	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
+        this.excludeAttributeFromTopLevel = excludeAttributeFromTopLevel;
+        return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData), excludeAttributeFromTopLevel, excludeAttributeDepth);
 	}
 
 
@@ -90,7 +92,7 @@ public final class TreeBuilder {
 	}
 
 	protected Node buildTree(Node parent, final Iterable<Instance> trainingData, final int depth, final int maxDepth,
-			final double minProbability, final Map<String, double[]> splits) {
+			final double minProbability, final Map<String, double[]> splits, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
@@ -110,6 +112,10 @@ public final class TreeBuilder {
 		Branch bestNode = null;
 		double bestScore = 0;
 		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
+            if (depth <= excludeAttributeDepth && excludeAttributeFromTopLevel.contains(e.getKey())) {
+                continue;
+            }
+
 			Pair<? extends Branch, Double> thisPair = null;
 
 			if (!smallTrainingSet && e.getValue() instanceof Number) {
@@ -146,7 +152,7 @@ public final class TreeBuilder {
 		}
 
 		// Recurse down the true branch
-		bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, maxDepth, minProbability, splits);
+		bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, maxDepth, minProbability, splits, excludeAttributeFromTopLevel, excludeAttributeDepth);
 
 		// And now replace the old split if this is an OrdinalBranch
 		if (bestNode instanceof OrdinalBranch) {
@@ -158,7 +164,7 @@ public final class TreeBuilder {
 		bestNode.falseChild = buildTree(bestNode,
 				falseTrainingSet, depth + 1,
 				maxDepth,
-				minProbability, splits);
+				minProbability, splits, excludeAttributeFromTopLevel, excludeAttributeDepth);
 
 		// And now replace the original split if this is an OrdinalBranch
 		if (bestNode instanceof OrdinalBranch) {
@@ -271,4 +277,6 @@ public final class TreeBuilder {
 
 		return Pair.with(new OrdinalBranch(parent, attribute, bestThreshold), bestScore);
 	}
+
+
 }
