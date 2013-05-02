@@ -32,7 +32,11 @@ public final class TreeBuilder {
 		return buildTree(trainingData, Integer.MAX_VALUE, 1.0, Collections.<String>emptySet(), 1);
 	}
 
-	public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
+    public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, int excludeAttributeDepth) {
+        return buildTree(trainingData, maxDepth, minProbability, Collections.<String> emptySet(), excludeAttributeDepth);
+    }
+
+    public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
         this.excludeAttributeFromTopLevel = excludeAttributeFromTopLevel;
         return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData), excludeAttributeFromTopLevel, excludeAttributeDepth);
 	}
