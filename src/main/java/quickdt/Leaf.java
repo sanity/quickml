@@ -97,4 +97,12 @@ public class Leaf extends Node {
         return getBestClassificationProbability() == 1.0;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Serializable key : getClassifications()) {
+            builder.append(key+"="+this.getProbability(key)+" ");
+        }
+        return builder.toString();
+    }
 }
