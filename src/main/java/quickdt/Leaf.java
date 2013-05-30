@@ -7,23 +7,22 @@ import java.util.Set;
 
 public class Leaf extends Node {
 	private static final long serialVersionUID = -5617660873196498754L;
-
 	/**
 	 * How deep in the tree is this label? A lower number typically indicates a
 	 * more confident getBestClassification.
 	 */
 	public final int depth;
-
 	/**
 	 * How many training examples matched this leaf? A higher number indicates a
 	 * more confident getBestClassification.
 	 */
 	public final int exampleCount;
-
     /**
      * The actual getBestClassification counts
      */
-    private final ClassificationCounter classificationCounts;
+    public final ClassificationCounter classificationCounts;
+
+    protected transient volatile Map.Entry<Serializable, Integer> bestClassificationEntry = null;
 
     public Leaf(Node parent, final Iterable<Instance> instances, final int depth) {
 		super(parent);
@@ -31,14 +30,6 @@ public class Leaf extends Node {
          exampleCount = classificationCounts.getTotal();
          this.depth = depth;
 	}
-
-    public Set<Serializable> getClassifications() {
-        return classificationCounts.getCounts().keySet();
-    }
-
-    public double getProbability(Serializable classification) {
-        return (double) classificationCounts.getCount(classification) / (double) exampleCount;
-    }
 
     /**
      *
@@ -49,12 +40,6 @@ public class Leaf extends Node {
         return getBestClassificationEntry().getKey();
     }
 
-    public double getBestClassificationProbability() {
-        return (double) getBestClassificationEntry().getValue() / (double) this.exampleCount;
-    }
-
-
-    protected volatile Map.Entry<Serializable, Integer> bestClassificationEntry = null;
     protected synchronized Map.Entry<Serializable, Integer> getBestClassificationEntry() {
         if (bestClassificationEntry != null) return bestClassificationEntry;
 
@@ -67,24 +52,12 @@ public class Leaf extends Node {
         return bestClassificationEntry;
     }
 
-
 	@Override
 	public void dump(final int indent, final PrintStream ps) {
 		for (int x = 0; x < indent; x++) {
 			ps.print(' ');
 		}
 		ps.println(this);
-	}
-
-	@Override
-	public int size() {
-		return 1;
-	}
-
-	@Override
-	protected void calcMeanDepth(final LeafDepthStats stats) {
-		stats.ttlDepth += depth * exampleCount;
-		stats.ttlSamples += exampleCount;
 	}
 
 	@Override
@@ -97,6 +70,21 @@ public class Leaf extends Node {
         return getBestClassificationProbability() == 1.0;
     }
 
+	@Override
+	public int size() {
+		return 1;
+	}
+
+	@Override
+	protected void calcMeanDepth(final LeafDepthStats stats) {
+		stats.ttlDepth += depth * exampleCount;
+		stats.ttlSamples += exampleCount;
+	}
+
+    public double getBestClassificationProbability() {
+        return (double) getBestClassificationEntry().getValue() / (double) this.exampleCount;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -104,5 +92,13 @@ public class Leaf extends Node {
             builder.append(key+"="+this.getProbability(key)+" ");
         }
         return builder.toString();
+    }
+
+    public double getProbability(Serializable classification) {
+        return (double) classificationCounts.getCount(classification) / (double) exampleCount;
+    }
+
+    public Set<Serializable> getClassifications() {
+        return classificationCounts.getCounts().keySet();
     }
 }
