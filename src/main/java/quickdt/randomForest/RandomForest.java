@@ -17,7 +17,7 @@ import java.util.Map;
  * Time: 4:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForest {
+public class RandomForest implements Serializable {
     public final List<Node> trees;
 
     protected RandomForest(List<Node> trees) {
