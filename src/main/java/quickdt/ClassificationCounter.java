@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class ClassificationCounter {
+public class ClassificationCounter implements Serializable {
 	private final Map<Serializable, Integer> counts = Maps.newHashMap();
 
 	private int total = 0;
