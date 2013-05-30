@@ -1,5 +1,7 @@
 package quickdt;
 
+import com.google.common.collect.Sets;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -9,7 +11,7 @@ public final class NominalBranch extends Branch {
 
 	public NominalBranch(Node parent, final String attribute, final Set<Serializable> inSet) {
 		super(parent, attribute);
-		this.inSet = inSet;
+		this.inSet = Sets.newHashSet(inSet);
 
 	}
 
