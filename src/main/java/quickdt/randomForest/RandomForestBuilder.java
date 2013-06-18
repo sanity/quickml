@@ -35,11 +35,15 @@ public class RandomForestBuilder {
     }
 
     public RandomForest buildRandomForest(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
+        return buildRandomForest(trainingData, maxDepth, minProbability, 1);
+    }
+
+    public RandomForest buildRandomForest(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, int attributeExcludeDepth) {
         List<Node> trees = Lists.newArrayListWithCapacity(numTrees);
 
         Set<String> excludeAttributes = Sets.newHashSet();
         for (int treeIx = 0; treeIx < numTrees; treeIx++) {
-            Node tree = treeBuilder.buildTree(trainingData, maxDepth, minProbability, excludeAttributes, 1);
+            Node tree = treeBuilder.buildTree(trainingData, maxDepth, minProbability, excludeAttributes, attributeExcludeDepth);
             if (tree instanceof Branch) {
                 Branch branch = (Branch) tree;
                 excludeAttributes.add(branch.attribute);
