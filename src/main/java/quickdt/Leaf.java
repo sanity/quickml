@@ -16,13 +16,13 @@ public class Leaf extends Node {
 	 * How many training examples matched this leaf? A higher number indicates a
 	 * more confident getBestClassification.
 	 */
-	public final int exampleCount;
+	public final double exampleCount;
     /**
      * The actual getBestClassification counts
      */
     public final ClassificationCounter classificationCounts;
 
-    protected transient volatile Map.Entry<Serializable, Integer> bestClassificationEntry = null;
+    protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
     public Leaf(Node parent, final Iterable<Instance> instances, final int depth) {
 		super(parent);
@@ -40,10 +40,10 @@ public class Leaf extends Node {
         return getBestClassificationEntry().getKey();
     }
 
-    protected synchronized Map.Entry<Serializable, Integer> getBestClassificationEntry() {
+    protected synchronized Map.Entry<Serializable, Double> getBestClassificationEntry() {
         if (bestClassificationEntry != null) return bestClassificationEntry;
 
-        for (Map.Entry<Serializable, Integer> e : classificationCounts.getCounts().entrySet()) {
+        for (Map.Entry<Serializable, Double> e : classificationCounts.getCounts().entrySet()) {
             if (bestClassificationEntry == null || e.getValue() > bestClassificationEntry.getValue()) {
                 bestClassificationEntry = e;
             }
