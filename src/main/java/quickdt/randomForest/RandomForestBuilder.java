@@ -2,10 +2,7 @@ package quickdt.randomForest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import quickdt.Branch;
-import quickdt.Instance;
-import quickdt.Node;
-import quickdt.TreeBuilder;
+import quickdt.*;
 
 import java.util.List;
 import java.util.Set;
@@ -30,15 +27,15 @@ public class RandomForestBuilder {
         this.numTrees = numTrees;
     }
 
-    public RandomForest buildRandomForest(final Iterable<Instance> trainingData) {
+    public RandomForest buildRandomForest(final Iterable<? extends AbstractInstance> trainingData) {
         return buildRandomForest(trainingData, Integer.MAX_VALUE, 1.0);
     }
 
-    public RandomForest buildRandomForest(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability) {
+    public RandomForest buildRandomForest(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability) {
         return buildRandomForest(trainingData, maxDepth, minProbability, 1);
     }
 
-    public RandomForest buildRandomForest(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, int attributeExcludeDepth) {
+    public RandomForest buildRandomForest(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability, int attributeExcludeDepth) {
         List<Node> trees = Lists.newArrayListWithCapacity(numTrees);
 
         Set<String> excludeAttributes = Sets.newHashSet();

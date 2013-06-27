@@ -32,7 +32,7 @@ public class Benchmarks {
                 break;
             }
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
-            final Attributes a = new Attributes();
+            final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
             Instance instance = new Instance(a, (String) jo.get("output"));
             instances.add(instance);
@@ -56,8 +56,8 @@ public class Benchmarks {
 
             int correctlyClassified = 0;
             for (Instance testInstance : test) {
-                String result = (String) tree.getLeaf(testInstance.attributes).getBestClassification();
-                if (result.equals(testInstance.classification)) {
+                String result = (String) tree.getLeaf(testInstance.getAttributes()).getBestClassification();
+                if (result.equals(testInstance.getClassification())) {
                     correctlyClassified++;
                 }
             }
@@ -70,9 +70,9 @@ public class Benchmarks {
 
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {
-                    BaggingResult baggingResult = baggedTree.predict(testInstance.attributes);
+                    BaggingResult baggingResult = baggedTree.predict(testInstance.getAttributes());
                     Object result = baggingResult.getClassification().getValue0();
-                    if (result.equals(testInstance.classification)) {
+                    if (result.equals(testInstance.getClassification())) {
                         correctlyClassified++;
                     }
                 }
@@ -88,8 +88,8 @@ public class Benchmarks {
                 RandomForest randomForest = rfBuilder.buildRandomForest(train);
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {
-                    Serializable result = randomForest.getClassificationByMaxProb(testInstance.attributes);
-                    if (result.equals(testInstance.classification)) {
+                    Serializable result = randomForest.getClassificationByMaxProb(testInstance.getAttributes());
+                    if (result.equals(testInstance.getClassification())) {
                         correctlyClassified++;
                     }
                 }

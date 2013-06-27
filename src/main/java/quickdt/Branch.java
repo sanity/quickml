@@ -29,22 +29,22 @@ public abstract class Branch extends Node {
 		return trueChild.fullRecall() && falseChild.fullRecall();
 	}
 
-	public Predicate<Instance> getInPredicate() {
-		return new Predicate<Instance>() {
+	public Predicate<AbstractInstance> getInPredicate() {
+		return new Predicate<AbstractInstance>() {
 
 			@Override
-			public boolean apply(final Instance input) {
-				return decide(input.attributes);
+			public boolean apply(final AbstractInstance input) {
+				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance> getOutPredicate() {
-		return new Predicate<Instance>() {
+	public Predicate<AbstractInstance> getOutPredicate() {
+		return new Predicate<AbstractInstance>() {
 
 			@Override
-			public boolean apply(final Instance input) {
-				return !decide(input.attributes);
+			public boolean apply(final AbstractInstance input) {
+				return !decide(input.getAttributes());
 			}
 		};
 	}

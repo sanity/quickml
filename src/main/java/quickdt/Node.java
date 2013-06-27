@@ -22,7 +22,7 @@ public abstract class Node implements Serializable {
 	}
 
 	/**
-	 * Get a label for a given set of Attributes
+	 * Get a label for a given set of HashMapAttributes
 	 * 
 	 * @param attributes
 	 * @return

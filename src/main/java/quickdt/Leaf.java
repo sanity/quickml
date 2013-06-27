@@ -24,7 +24,7 @@ public class Leaf extends Node {
 
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
-    public Leaf(Node parent, final Iterable<Instance> instances, final int depth) {
+    public Leaf(Node parent, final Iterable<? extends AbstractInstance> instances, final int depth) {
 		super(parent);
         classificationCounts = ClassificationCounter.countAll(instances);
          exampleCount = classificationCounts.getTotal();

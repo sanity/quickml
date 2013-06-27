@@ -2,7 +2,7 @@ package quickdt;
 
 import java.io.Serializable;
 
-public class Instance {
+public class Instance extends AbstractInstance {
 
 	private Instance() {
 
@@ -13,7 +13,7 @@ public class Instance {
     }
 
     public static Instance create(final String classification, final double weight, final Serializable... inputs) {
-		final Attributes a = new Attributes();
+		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
 		}
@@ -30,9 +30,24 @@ public class Instance {
         this.weight = weight;
     }
 
-	public Attributes attributes;
-	public Serializable classification;
-    public double weight;
+    @Override
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public Serializable getClassification() {
+        return classification;
+    }
+
+    @Override
+    public double getWeight() {
+        return weight;
+    }
+
+    private Attributes attributes;
+	private Serializable classification;
+    private double weight;
 
     @Override
 	public String toString() {

@@ -15,19 +15,19 @@ public class ClassificationCounter implements Serializable {
 	private double total = 0;
 
 	public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-			final Iterable<Instance> instances, final String attribute) {
+			final Iterable<? extends AbstractInstance> instances, final String attribute) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
-		for (final Instance i : instances) {
-			final Serializable attrVal = i.attributes.get(attribute);
+		for (final AbstractInstance i : instances) {
+			final Serializable attrVal = i.getAttributes().get(attribute);
 			if (attrVal != null) {
 				ClassificationCounter cc = result.get(attrVal);
 				if (cc == null) {
 					cc = new ClassificationCounter();
 					result.put(attrVal, cc);
 				}
-				cc.addClassification(i.classification, i.weight);
-				totals.addClassification(i.classification, i.weight);
+				cc.addClassification(i.getClassification(), i.getWeight());
+				totals.addClassification(i.getClassification(), i.getWeight());
 			}
 		}
 		return Pair.with(totals, result);
@@ -38,10 +38,10 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-	public static ClassificationCounter countAll(final Iterable<Instance> instances) {
+	public static ClassificationCounter countAll(final Iterable<? extends AbstractInstance> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
-		for (final Instance i : instances) {
-			result.addClassification(i.classification, i.weight);
+		for (final AbstractInstance i : instances) {
+			result.addClassification(i.getClassification(), i.getWeight());
 		}
 		return result;
 	}

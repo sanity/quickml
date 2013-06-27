@@ -50,7 +50,7 @@ public class BaggedTree implements Serializable {
      *            The training instances, not <code>null</code>.
      */
     public static BaggedTree build(TreeBuilder builder, int numTrees,
-	    Iterable<Instance> training) {
+	    Iterable<? extends AbstractInstance> training) {
 	Preconditions.checkNotNull(builder);
 	Preconditions.checkArgument(numTrees > 0,
 		"numTrees must be greater than zero");
@@ -60,7 +60,7 @@ public class BaggedTree implements Serializable {
 	for (int i = 0; i < numTrees; i++) {
 	    // System.out.println("building tree " + (i + 1) + " of " +
 	    // numTrees);
-	    List<Instance> sampling = getBootstrapSampling(training);
+	    List<AbstractInstance> sampling = getBootstrapSampling(training);
 	    Node node = builder.buildTree(sampling);
 	    trees.add(node);
 	}
@@ -81,7 +81,7 @@ public class BaggedTree implements Serializable {
      *            The training instances, not <code>null</code>.
      */
     public static BaggedTree build(TreeBuilder builder,
-	    Iterable<Instance> training) {
+	    Iterable<? extends AbstractInstance> training) {
 	return build(builder, DEFAULT_TREE_COUNT, training);
     }
 
@@ -126,10 +126,10 @@ public class BaggedTree implements Serializable {
      * @param trainingData
      * @return
      */
-    private static List<Instance> getBootstrapSampling(
-	    Iterable <Instance> trainingData) {
-	List<Instance> allInstances = Lists.newArrayList(trainingData);
-	List<Instance> sampling = Lists.newArrayList();
+    private static List<AbstractInstance> getBootstrapSampling(
+	    Iterable <? extends AbstractInstance> trainingData) {
+	List<AbstractInstance> allInstances = Lists.newArrayList(trainingData);
+	List<AbstractInstance> sampling = Lists.newArrayList();
 	for (int i = 0; i < allInstances.size(); i++) {
 	    int sample = Misc.random.nextInt(allInstances.size());
 	    sampling.add(allInstances.get(sample));

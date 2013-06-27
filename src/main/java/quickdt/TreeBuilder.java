@@ -28,24 +28,24 @@ public final class TreeBuilder {
 		this.scorer = scorer;
 	}
 
-	public Node buildTree(final Iterable<Instance> trainingData) {
+	public Node buildTree(final Iterable<? extends AbstractInstance> trainingData) {
 		return buildTree(trainingData, Integer.MAX_VALUE, 1.0, Collections.<String>emptySet(), 1);
 	}
 
-    public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, int excludeAttributeDepth) {
+    public Node buildTree(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability, int excludeAttributeDepth) {
         return buildTree(trainingData, maxDepth, minProbability, Collections.<String> emptySet(), excludeAttributeDepth);
     }
 
-    public Node buildTree(final Iterable<Instance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
+    public Node buildTree(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
         this.excludeAttributeFromTopLevel = excludeAttributeFromTopLevel;
         return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData), excludeAttributeFromTopLevel, excludeAttributeDepth);
 	}
 
 
-	private double[] createOrdinalSplit(final Iterable<Instance> trainingData, final String attribute) {
+	private double[] createOrdinalSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
 		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
-		for (final Instance i : trainingData) {
-			rs.addSample(((Number) i.attributes.get(attribute)).doubleValue());
+		for (final AbstractInstance i : trainingData) {
+			rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
 		}
 		final ArrayList<Double> al = Lists.newArrayList();
 		for (final Double d : rs.getSamples()) {
@@ -61,10 +61,10 @@ public final class TreeBuilder {
 		return split;
 	}
 
-	private Map<String, double[]> createOrdinalSplits(final Iterable<Instance> trainingData) {
+	private Map<String, double[]> createOrdinalSplits(final Iterable<? extends AbstractInstance> trainingData) {
 		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-		for (final Instance i : trainingData) {
-			for (final Entry<String, Serializable> e : i.attributes.entrySet()) {
+		for (final AbstractInstance i : trainingData) {
+			for (final Entry<String, Serializable> e : i.getAttributes().entrySet()) {
 				if (e.getValue() instanceof Number) {
 					ReservoirSampler<Double> rs = rsm.get(e.getKey());
 					if (rs == null) {
@@ -95,17 +95,17 @@ public final class TreeBuilder {
 		return splits;
 	}
 
-	protected Node buildTree(Node parent, final Iterable<Instance> trainingData, final int depth, final int maxDepth,
+	protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth, final int maxDepth,
 			final double minProbability, final Map<String, double[]> splits, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
 
-		final Instance sampleInstance = Iterables.get(trainingData, 0);
+		final AbstractInstance sampleInstance = Iterables.get(trainingData, 0);
 
 		boolean smallTrainingSet = true;
 		int tsCount = 0;
-		for (final Instance i : trainingData) {
+		for (final AbstractInstance i : trainingData) {
 			tsCount++;
 			if (tsCount > 10) {
 				smallTrainingSet = false;
@@ -115,7 +115,7 @@ public final class TreeBuilder {
 
 		Branch bestNode = null;
 		double bestScore = 0;
-		for (final Entry<String, Serializable> e : sampleInstance.attributes.entrySet()) {
+		for (final Entry<String, Serializable> e : sampleInstance.getAttributes().entrySet()) {
             if (depth <= excludeAttributeDepth && excludeAttributeFromTopLevel.contains(e.getKey())) {
                 continue;
             }
@@ -142,9 +142,9 @@ public final class TreeBuilder {
 
 		double[] oldSplit = null;
 
-		final LinkedList<Instance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+		final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
 				bestNode.getInPredicate()));
-		final LinkedList<Instance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
+		final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
 				bestNode.getOutPredicate()));
 
 		// We want to temporarily replace the split for an attribute for
@@ -180,10 +180,10 @@ public final class TreeBuilder {
 	}
 
 	protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
-			final Iterable<Instance> instances) {
+			final Iterable<? extends AbstractInstance> instances) {
 		final Set<Serializable> values = Sets.newHashSet();
-		for (final Instance instance : instances) {
-			values.add(instance.attributes.get(attribute));
+		for (final AbstractInstance instance : instances) {
+			values.add(instance.getAttributes().get(attribute));
 		}
 		double score = 0;
 		final Set<Serializable> bestSoFar = Sets.newHashSet();
@@ -230,7 +230,7 @@ public final class TreeBuilder {
 	}
 
 	protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
-			final Iterable<Instance> instances,
+			final Iterable<? extends AbstractInstance> instances,
 			final double[] splits) {
 
 		double bestScore = 0;
@@ -244,24 +244,24 @@ public final class TreeBuilder {
 				continue;
 			}
 			lastThreshold = threshold;
-			final Iterable<Instance> inSet = Iterables.filter(instances, new Predicate<Instance>() {
+			final Iterable<? extends AbstractInstance> inSet = Iterables.filter(instances, new Predicate<AbstractInstance>() {
 
 				@Override
-				public boolean apply(final Instance input) {
+				public boolean apply(final AbstractInstance input) {
 					try {
-						return ((Number) input.attributes.get(attribute)).doubleValue() > threshold;
+						return ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
 					} catch (final ClassCastException e) { // Kludge, need to
 						// handle better
 						return false;
 					}
 				}
 			});
-			final Iterable<Instance> outSet = Iterables.filter(instances, new Predicate<Instance>() {
+			final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new Predicate<AbstractInstance>() {
 
 				@Override
-				public boolean apply(final Instance input) {
+				public boolean apply(final AbstractInstance input) {
 					try {
-						return ((Number) input.attributes.get(attribute)).doubleValue() <= threshold;
+						return ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
 					} catch (final ClassCastException e) { // Kludge, need to
 						// handle better
 						return false;
