@@ -13,12 +13,22 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder {
+public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 
+    private int maxDepth = Integer.MAX_VALUE;
+    private double minProbability = 1.0;
+    private int attributeExcludeDepth = 1;
+    private Set<String> excludeAttributes = Collections.<String>emptySet();
+
 	Scorer scorer;
     private Set<String> excludeAttributeFromTopLevel;
+
+    public TreeBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
+    public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
+    public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
+    public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
 
     public TreeBuilder() {
 		this(new Scorer1());
@@ -28,19 +38,10 @@ public final class TreeBuilder {
 		this.scorer = scorer;
 	}
 
-	public Node buildTree(final Iterable<? extends AbstractInstance> trainingData) {
-		return buildTree(trainingData, Integer.MAX_VALUE, 1.0, Collections.<String>emptySet(), 1);
+    @Override
+	public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+        return new Tree(buildTree(null, trainingData, 0, createOrdinalSplits(trainingData)));
 	}
-
-    public Node buildTree(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability, int excludeAttributeDepth) {
-        return buildTree(trainingData, maxDepth, minProbability, Collections.<String> emptySet(), excludeAttributeDepth);
-    }
-
-    public Node buildTree(final Iterable<? extends AbstractInstance> trainingData, final int maxDepth, final double minProbability, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
-        this.excludeAttributeFromTopLevel = excludeAttributeFromTopLevel;
-        return buildTree(null, trainingData, 0, maxDepth, minProbability, createOrdinalSplits(trainingData), excludeAttributeFromTopLevel, excludeAttributeDepth);
-	}
-
 
 	private double[] createOrdinalSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
 		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
@@ -95,8 +96,8 @@ public final class TreeBuilder {
 		return splits;
 	}
 
-	protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth, final int maxDepth,
-			final double minProbability, final Map<String, double[]> splits, Set<String> excludeAttributeFromTopLevel, int excludeAttributeDepth) {
+	protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+                             final Map<String, double[]> splits) {
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
@@ -116,7 +117,7 @@ public final class TreeBuilder {
 		Branch bestNode = null;
 		double bestScore = 0;
 		for (final Entry<String, Serializable> e : sampleInstance.getAttributes().entrySet()) {
-            if (depth <= excludeAttributeDepth && excludeAttributeFromTopLevel.contains(e.getKey())) {
+            if (depth <= attributeExcludeDepth && excludeAttributes.contains(e.getKey())) {
                 continue;
             }
 
@@ -156,7 +157,7 @@ public final class TreeBuilder {
 		}
 
 		// Recurse down the true branch
-		bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, maxDepth, minProbability, splits, excludeAttributeFromTopLevel, excludeAttributeDepth);
+		bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, splits);
 
 		// And now replace the old split if this is an OrdinalBranch
 		if (bestNode instanceof OrdinalBranch) {
@@ -165,10 +166,7 @@ public final class TreeBuilder {
 		}
 
 		// Recurse down the false branch
-		bestNode.falseChild = buildTree(bestNode,
-				falseTrainingSet, depth + 1,
-				maxDepth,
-				minProbability, splits, excludeAttributeFromTopLevel, excludeAttributeDepth);
+		bestNode.falseChild = buildTree(bestNode, falseTrainingSet, depth + 1, splits);
 
 		// And now replace the original split if this is an OrdinalBranch
 		if (bestNode instanceof OrdinalBranch) {

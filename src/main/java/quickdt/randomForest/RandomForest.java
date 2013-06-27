@@ -2,9 +2,7 @@ package quickdt.randomForest;
 
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
-import quickdt.Attributes;
-import quickdt.Leaf;
-import quickdt.Node;
+import quickdt.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,25 +15,27 @@ import java.util.Map;
  * Time: 4:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForest implements Serializable {
-    public final List<Node> trees;
+public class RandomForest implements PredictiveModel {
+    public final List<Tree> trees;
 
-    protected RandomForest(List<Node> trees) {
+    protected RandomForest(List<Tree> trees) {
         this.trees = trees;
     }
 
+    @Override
     public double getProbability(Attributes attributes, Serializable classification) {
         double total = 0;
-        for (Node tree : trees) {
-            total += tree.getLeaf(attributes).getProbability(classification);
+        for (Tree tree : trees) {
+            total += tree.getProbability(attributes, classification);
         }
         return total / trees.size();
     }
 
+    @Override
     public Serializable getClassificationByMaxProb(Attributes attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
-        for (Node tree : trees) {
-            Leaf leaf =tree.getLeaf(attributes);
+        for (Tree tree : trees) {
+            Leaf leaf =tree.node.getLeaf(attributes);
             for (Serializable classification : leaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {

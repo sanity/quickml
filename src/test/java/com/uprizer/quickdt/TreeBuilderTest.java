@@ -23,15 +23,15 @@ public class TreeBuilderTest {
 		}
 		final TreeBuilder tb = new TreeBuilder();
 		final long startTime = System.currentTimeMillis();
-		final Node tree = tb.buildTree(instances, 100, 1.0, java.util.Collections.<String>emptySet(), 1);
+		final Node node = tb.buildPredictiveModel(instances).node;
 
-        serializeDeserialize(tree);
+        serializeDeserialize(node);
 
-		Assert.assertTrue(tree.fullRecall(), "Confirm that the tree achieves full recall on the training set");
-		Assert.assertTrue(tree.size() < 400, "Tree size should be less than 350 nodes");
-		Assert.assertTrue(tree.meanDepth() < 6, "Mean depth should be less than 6");
+		Assert.assertTrue(node.fullRecall(), "Confirm that the node achieves full recall on the training set");
+		Assert.assertTrue(node.size() < 400, "Tree size should be less than 350 nodes");
+		Assert.assertTrue(node.meanDepth() < 6, "Mean depth should be less than 6");
 		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,
-				"Building this tree should take far less than 20 seconds");
+				"Building this node should take far less than 20 seconds");
 	}
 
     private static void serializeDeserialize(final Serializable object) throws IOException, ClassNotFoundException {
@@ -58,8 +58,8 @@ public class TreeBuilderTest {
 		}
 		{
 			final TreeBuilder tb = new TreeBuilder(new Scorer1());
-			final Node tree = tb.buildTree(instances, 100, 1.0, java.util.Collections.<String>emptySet(), 1);
-			System.out.println("Scorer1 tree size: " + tree.size());
+			final Tree tree = tb.buildPredictiveModel(instances);
+			System.out.println("Scorer1 node size: " + tree.node.size());
 		}
 	}
 

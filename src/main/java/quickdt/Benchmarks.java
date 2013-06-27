@@ -7,6 +7,7 @@ import org.json.simple.JSONValue;
 import quickdt.bagging.BaggedTree;
 import quickdt.bagging.BaggingResult;
 import quickdt.randomForest.RandomForest;
+import quickdt.randomForest.RandomForestBuilder;
 import quickdt.scorers.Scorer1;
 
 import java.io.*;
@@ -44,12 +45,12 @@ public class Benchmarks {
 
         System.out.println("Read " + instances.size() + " instances");
 
-        System.out.println("Testing scorers with single decision tree");
+        System.out.println("Testing scorers with single decision node");
         for (final Scorer scorer : Sets.newHashSet(new Scorer1())) {
             final TreeBuilder tb = new TreeBuilder(scorer);
 
             final long startTime = System.currentTimeMillis();
-            final Node tree = tb.buildTree(train, 100, 1.0, java.util.Collections.<String>emptySet(), 1);
+            final Node tree = tb.buildPredictiveModel(train).node;
             System.out.println(scorer.getClass().getSimpleName() + " build time "
                     + (System.currentTimeMillis() - startTime) + ", size: " + tree.size() + " mean depth: "
                     + tree.meanDepth());
@@ -84,8 +85,8 @@ public class Benchmarks {
             System.out.println("Testing random forest");
 
             for (int i = 2; i <= 20; i++) {
-                quickdt.randomForest.RandomForestBuilder rfBuilder = new quickdt.randomForest.RandomForestBuilder(new TreeBuilder(), i);
-                RandomForest randomForest = rfBuilder.buildRandomForest(train);
+                RandomForestBuilder rfBuilder = new RandomForestBuilder(new TreeBuilder());
+                RandomForest randomForest = rfBuilder.buildPredictiveModel(train);
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {
                     Serializable result = randomForest.getClassificationByMaxProb(testInstance.getAttributes());

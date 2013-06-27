@@ -28,9 +28,9 @@ public class BaggedTree implements Serializable {
     /** Default number of trees to grow. */
     public static final int DEFAULT_TREE_COUNT = 10;
 
-    private final List<Node> trees;
+    private final List<Tree> trees;
 
-    private BaggedTree(List<Node> trees) {
+    private BaggedTree(List<Tree> trees) {
 	this.trees = trees;
     }
 
@@ -56,12 +56,12 @@ public class BaggedTree implements Serializable {
 		"numTrees must be greater than zero");
 	Preconditions.checkNotNull(training);
 
-	List<Node> trees = Lists.newArrayList();
+	List<Tree> trees = Lists.newArrayList();
 	for (int i = 0; i < numTrees; i++) {
 	    // System.out.println("building tree " + (i + 1) + " of " +
 	    // numTrees);
 	    List<AbstractInstance> sampling = getBootstrapSampling(training);
-	    Node node = builder.buildTree(sampling);
+	    Tree node = builder.buildPredictiveModel(sampling);
 	    trees.add(node);
 	}
 	return new BaggedTree(trees);
@@ -98,8 +98,8 @@ public class BaggedTree implements Serializable {
 	Preconditions.checkNotNull(attributes);
 
 	Multiset<Serializable> results = HashMultiset.create();
-	for (Node tree : trees) {
-	    Leaf leaf = tree.getLeaf(attributes);
+	for (Tree tree : trees) {
+	    Leaf leaf = tree.node.getLeaf(attributes);
 	    results.add(leaf.getBestClassification());
 	}
 	return new BaggingResult(results);
@@ -108,8 +108,8 @@ public class BaggedTree implements Serializable {
     public double getProbability(Attributes attributes, Serializable classification) {
         int count = 0;
         double prob = 0;
-        for (Node tree : trees) {
-            prob += tree.getLeaf(attributes).getProbability(classification);
+        for (Tree tree : trees) {
+            prob += tree.node.getLeaf(attributes).getProbability(classification);
             count ++;
         }
 
@@ -144,7 +144,7 @@ public class BaggedTree implements Serializable {
      * 
      * @return
      */
-    public List<Node> getTrees() {
+    public List<Tree> getTrees() {
 	return trees;
     }
 
