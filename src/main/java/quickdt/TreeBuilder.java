@@ -23,7 +23,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
 	Scorer scorer;
-    private Set<String> excludeAttributeFromTopLevel;
 
     public TreeBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
     public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }

@@ -54,7 +54,14 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
                     excludeAttributes.add((String) allAttributes[Misc.random.nextInt(allAttributes.length)]);
                 }
             }
-            Tree tree = treeBuilder.excludeAttributes(excludeAttributes).buildPredictiveModel(trainingData);
+            Tree tree = null;
+            treeBuilder.excludeAttributes(excludeAttributes);
+            if(useBagging) {
+                List<AbstractInstance> sampling = getBootstrapSampling(trainingData);
+                tree = treeBuilder.buildPredictiveModel(sampling);
+            } else {
+                tree = treeBuilder.buildPredictiveModel(trainingData);
+            }
             if (attributesPerTree == 0 && tree.node instanceof Branch) {
                 Branch branch = (Branch) tree.node;
                 excludeAttributes.add(branch.attribute);
@@ -65,9 +72,20 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
         return new RandomForest(trees);
     }
 
-    private static List<Instance> getBootstrapSampling(Iterable <Instance> trainingData) {
-        List<Instance> allInstances = Lists.newArrayList(trainingData);
-        List<Instance> sampling = Lists.newArrayList();
+    /**
+     * <p>
+     * Simple implementation of a bagging predictor using multiple decision trees.
+     * The idea is to create a random bootstrap sample of the training data to grow
+     * multiple trees. For more information see <a
+     * href="http://www.stat.berkeley.edu/tech-reports/421.pdf">Bagging
+     * Predictors</a>, Leo Breiman, 1994.
+     * </p>
+     *
+     * Bagging code taken from contribution by Philipp Katz
+     */
+    private static List<AbstractInstance> getBootstrapSampling(Iterable <? extends AbstractInstance> trainingData) {
+        final List<? extends AbstractInstance> allInstances = Lists.newArrayList(trainingData);
+        final List<AbstractInstance> sampling = Lists.newArrayList();
         for (int i = 0; i < allInstances.size(); i++) {
             int sample = Misc.random.nextInt(allInstances.size());
             sampling.add(allInstances.get(sample));
