@@ -23,6 +23,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
     private int attributesPerTree = 0;
+    private double ignoreAttributeAtNodeProbability = 0.0;
 
     public RandomForestBuilder() {
         this(new TreeBuilder());
@@ -38,9 +39,10 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     public RandomForestBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
     public RandomForestBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
     public RandomForestBuilder attributesPerTree(int attributes) { this.attributesPerTree=attributes; return this; }
+    public RandomForestBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
 
     public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-        treeBuilder.maxDepth(maxDepth).minProbability(minProbability).attributeExcludeDepth(attributeExcludeDepth);
+        treeBuilder.maxDepth(maxDepth).minProbability(minProbability).attributeExcludeDepth(attributeExcludeDepth).ignoreAttributeAtNodeProbability(ignoreAttributeAtNodeProbability);
         List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
 
         final AbstractInstance sampleInstance = Iterables.get(trainingData, 0);

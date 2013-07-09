@@ -20,6 +20,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private int maxDepth = Integer.MAX_VALUE;
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
+    private double ignoreAttributeAtNodeProbability = 0.0;
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
 	Scorer scorer;
@@ -28,6 +29,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
     public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
     public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
+    public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
 
     public TreeBuilder() {
 		this(new Scorer1());
@@ -119,6 +121,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             if (depth <= attributeExcludeDepth && excludeAttributes.contains(e.getKey())) {
                 continue;
             }
+
+            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) continue;
 
 			Pair<? extends Branch, Double> thisPair = null;
 
