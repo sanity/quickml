@@ -21,7 +21,7 @@ public class TreeBuilderTest {
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
-		final TreeBuilder tb = new TreeBuilder();
+		final TreeBuilder tb = new TreeBuilder().minNominalAttributeValueOccurances(0);
 		final long startTime = System.currentTimeMillis();
 		final Node node = tb.buildPredictiveModel(instances).node;
 
@@ -57,7 +57,7 @@ public class TreeBuilderTest {
 			instances.add(instance);
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer1());
+			final TreeBuilder tb = new TreeBuilder(new Scorer1()).minNominalAttributeValueOccurances(0);
 			final Tree tree = tb.buildPredictiveModel(instances);
 			System.out.println("Scorer1 node size: " + tree.node.size());
 		}
