@@ -207,7 +207,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 					continue;
 				}
                 if (this.minNominalAttributeValueOccurances > 0) {
-                    if (shouldWeConsiderThisValue(testValCounts)) continue;
+                    if (shouldWeIgnoreThisValue(testValCounts)) continue;
                 }
 
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
@@ -236,7 +236,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		return Pair.with(new NominalBranch(parent, attribute, bestSoFar), score);
 	}
 
-    private boolean shouldWeConsiderThisValue(final ClassificationCounter testValCounts) {
+    private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         double lowestClassificationCount = Double.MAX_VALUE;
         for (double classificationCount : testValCounts.getCounts().values()) {
             if (classificationCount < lowestClassificationCount) {
