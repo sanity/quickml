@@ -21,6 +21,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
     private double ignoreAttributeAtNodeProbability = 0.0;
+    private int minNominalAttributeValueOccurances = 10;
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
 	Scorer scorer;
@@ -30,6 +31,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
     public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
     public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
+    public TreeBuilder minNominalAttributeValueOccurances(int occurances) {this.minNominalAttributeValueOccurances = occurances; return this;}
 
     public TreeBuilder() {
 		this(new Scorer1());
@@ -204,6 +206,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 					// this would happen
 					continue;
 				}
+                if (testValCounts.getTotal() < this.minNominalAttributeValueOccurances) {
+                    continue;
+                }
+
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
 				final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
