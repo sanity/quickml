@@ -19,12 +19,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     private final TreeBuilder treeBuilder;
     private int numTrees = 8;
     private boolean useBagging = false;
-    private int maxDepth = Integer.MAX_VALUE;
-    private double minProbability = 1.0;
-    private int attributeExcludeDepth = 1;
     private int attributesPerTree = 0;
-    private double ignoreAttributeAtNodeProbability = 0.0;
-    private int minNominalAttributeValueOccurances = 10;
 
     public RandomForestBuilder() {
         this(new TreeBuilder());
@@ -36,19 +31,9 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
     public RandomForestBuilder numTrees(int numTrees) { this.numTrees = numTrees; return this; }
     public RandomForestBuilder useBagging(boolean useBagging) { this.useBagging=useBagging; return this; }
-    public RandomForestBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
-    public RandomForestBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
-    public RandomForestBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
     public RandomForestBuilder attributesPerTree(int attributes) { this.attributesPerTree=attributes; return this; }
-    public RandomForestBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
-    public RandomForestBuilder minNominalAttributeValueOccurances(int occurances) {this.minNominalAttributeValueOccurances = occurances; return this;}
 
     public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-        treeBuilder.maxDepth(maxDepth)
-                .minProbability(minProbability)
-                .attributeExcludeDepth(attributeExcludeDepth)
-                .ignoreAttributeAtNodeProbability(ignoreAttributeAtNodeProbability)
-                .minNominalAttributeValueOccurances(minNominalAttributeValueOccurances);
         List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
 
         final AbstractInstance sampleInstance = Iterables.get(trainingData, 0);

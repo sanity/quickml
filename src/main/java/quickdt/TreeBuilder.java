@@ -21,7 +21,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
     private double ignoreAttributeAtNodeProbability = 0.0;
-    private int minNominalAttributeValueOccurances = 10;
+    private int minNominalAttributeValueOccurances = 5;
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
 	Scorer scorer;
@@ -206,8 +206,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 					// this would happen
 					continue;
 				}
-                if (testValCounts.getTotal() < this.minNominalAttributeValueOccurances) {
-                    continue;
+                if (this.minNominalAttributeValueOccurances > 0) {
+                    if (shouldWeConsiderThisValue(testValCounts)) continue;
                 }
 
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
@@ -236,7 +236,20 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		return Pair.with(new NominalBranch(parent, attribute, bestSoFar), score);
 	}
 
-	protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
+    private boolean shouldWeConsiderThisValue(final ClassificationCounter testValCounts) {
+        double lowestClassificationCount = Double.MAX_VALUE;
+        for (double classificationCount : testValCounts.getCounts().values()) {
+            if (classificationCount < lowestClassificationCount) {
+                lowestClassificationCount = classificationCount;
+            }
+        }
+        if (lowestClassificationCount < this.minNominalAttributeValueOccurances) {
+            return true;
+        }
+        return false;
+    }
+
+    protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances,
 			final double[] splits) {
 
