@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import quickdt.bagging.BaggedTree;
-import quickdt.bagging.BaggingResult;
 import quickdt.randomForest.RandomForest;
 import quickdt.randomForest.RandomForestBuilder;
 import quickdt.scorers.Scorer1;
@@ -63,24 +61,6 @@ public class Benchmarks {
                 }
             }
             System.out.println(", accuracy: " + (double) correctlyClassified / test.size());
-
-            System.out.println("Testing bagging predictors");
-
-            for (int i = 2; i <= 20; i++) {
-                BaggedTree baggedTree = BaggedTree.build(tb, i, train);
-
-                correctlyClassified = 0;
-                for (Instance testInstance : test) {
-                    BaggingResult baggingResult = baggedTree.predict(testInstance.getAttributes());
-                    Object result = baggingResult.getClassification().getValue0();
-                    if (result.equals(testInstance.getClassification())) {
-                        correctlyClassified++;
-                    }
-                }
-                System.out.println("accuracy with " + i + " trees: " + (double) correctlyClassified / test.size());
-                //ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("baggedTree.ser")));
-                //out.writeObject(baggedTree);
-            }
 
             System.out.println("Testing random forest");
 
