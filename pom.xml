@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickdt</groupId>
     <artifactId>quickdt</artifactId>
-    <version>0.0.8.6</version>
+    <version>0.0.8.7</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>

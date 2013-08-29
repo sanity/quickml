@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
-
+	Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
@@ -24,22 +24,24 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private int minNominalAttributeValueOccurances = 5;
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
-	Scorer scorer;
-
-    public TreeBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
-    public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
-    public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
-    public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
-    public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
-    public TreeBuilder minNominalAttributeValueOccurances(int occurances) {this.minNominalAttributeValueOccurances = occurances; return this;}
-
     public TreeBuilder() {
 		this(new Scorer1());
 	}
-
 	public TreeBuilder(final Scorer scorer) {
 		this.scorer = scorer;
 	}
+
+    public TreeBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
+
+    public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
+
+    public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
+
+    public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
+
+    public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
+
+    public TreeBuilder minNominalAttributeValueOccurances(int occurances) {this.minNominalAttributeValueOccurances = occurances; return this;}
 
     @Override
 	public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
@@ -105,7 +107,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
 
-		final AbstractInstance sampleInstance = Iterables.get(trainingData, 0);
+        Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
 		boolean smallTrainingSet = true;
 		int tsCount = 0;
@@ -119,7 +121,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 		Branch bestNode = null;
 		double bestScore = 0;
-		for (final Entry<String, Serializable> e : sampleInstance.getAttributes().entrySet()) {
+		for (final Entry<String, AttributeCharacteristics> e : attributeCharacteristics.entrySet()) {
             if (depth <= attributeExcludeDepth && excludeAttributes.contains(e.getKey())) {
                 continue;
             }
@@ -128,7 +130,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 			Pair<? extends Branch, Double> thisPair = null;
 
-			if (!smallTrainingSet && e.getValue() instanceof Number) {
+			if (!smallTrainingSet && e.getValue().isNumber) {
 				thisPair = createOrdinalNode(parent, e.getKey(), trainingData, splits.get(e.getKey()));
 			}
 
@@ -182,7 +184,25 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		return bestNode;
 	}
 
-	protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
+    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
+        Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
+
+        for (AbstractInstance instance : trainingData) {
+            for (Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
+                AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
+                if (attributeCharacteristic == null) {
+                    attributeCharacteristic = new AttributeCharacteristics();
+                    attributeCharacteristics.put(e.getKey(), attributeCharacteristic);
+                }
+                if (!(e.getValue() instanceof Number)) {
+                    attributeCharacteristic.isNumber = false;
+                }
+            }
+        }
+        return attributeCharacteristics;
+    }
+
+    protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances) {
 		final Set<Serializable> values = Sets.newHashSet();
 		for (final AbstractInstance instance : instances) {
@@ -302,5 +322,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		return Pair.with(new OrdinalBranch(parent, attribute, bestThreshold), bestScore);
 	}
 
+    public static class AttributeCharacteristics {
+        public boolean isNumber = true;
+    }
 
 }

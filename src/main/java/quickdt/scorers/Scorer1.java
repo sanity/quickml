@@ -26,6 +26,7 @@ public final class Scorer1 implements Scorer {
 	 * splits.
 	 */
 
+    @Override
 	public double scoreSplit(final ClassificationCounter a, final ClassificationCounter b) {
 		double score = 0;
 		for (final Serializable value : Sets.union(a.allClassifications(), b.allClassifications())) {
