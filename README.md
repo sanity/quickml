@@ -1,6 +1,10 @@
 Quick Decision Tree Learner
 ===========================
 
+Build Status
+------------
+[![Build Status](https://travis-ci.org/sanity/quickdt.png?branch=master)](https://travis-ci.org/sanity/quickdt)
+
 License
 -------
 
