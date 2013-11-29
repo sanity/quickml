@@ -3,6 +3,8 @@ package quickdt.randomForest;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickdt.*;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest> {
+    private static final  Logger logger =  LoggerFactory.getLogger(RandomForestBuilder.class);
+
     private final TreeBuilder treeBuilder;
     private int numTrees = 8;
     private boolean useBagging = false;
@@ -34,6 +38,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     public RandomForestBuilder attributesPerTree(int attributes) { this.attributesPerTree=attributes; return this; }
 
     public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+        logger.info("Building random forest with "+numTrees+" trees, bagging: "+useBagging+", attributes per tree: "+attributesPerTree);
         List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
 
         final AbstractInstance sampleInstance = Iterables.get(trainingData, 0);
@@ -41,6 +46,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
         Set<String> excludeAttributes = Sets.newHashSet();
         for (int treeIx = 0; treeIx < numTrees; treeIx++) {
+            logger.info("Building tree "+treeIx+" of "+numTrees);
             if(attributesPerTree > 0) {
                 excludeAttributes.clear();
                 while(excludeAttributes.size() < allAttributes.length-attributesPerTree) {

@@ -7,6 +7,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import org.javatuples.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickdt.scorers.Scorer1;
 
 import java.io.Serializable;
@@ -14,6 +16,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
+    private static final  Logger logger =  LoggerFactory.getLogger(TreeBuilder.class);
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 	Scorer scorer;
@@ -45,10 +48,12 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     @Override
 	public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+        logger.info("Building decision tree, max depth: "+maxDepth+", min probability: "+minProbability+", attributeExcludeDepth: "+attributeExcludeDepth+", excludeAttributes: "+excludeAttributes+", ignoreAttributeAtNodeProb: "+ignoreAttributeAtNodeProbability+", minValOcc: "+minNominalAttributeValueOccurances);
         return new Tree(buildTree(null, trainingData, 0, createOrdinalSplits(trainingData)));
 	}
 
 	private double[] createOrdinalSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
+        logger.debug("Creating ordinal split for attribute "+attribute);
 		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
 		for (final AbstractInstance i : trainingData) {
 			rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
@@ -64,10 +69,12 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 			split[x] = al.get((x + 1) * al.size() / (split.length + 1));
 		}
 
+        logger.debug("Created ordinal split for attribute "+attribute+": "+Arrays.toString(split));
 		return split;
 	}
 
 	private Map<String, double[]> createOrdinalSplits(final Iterable<? extends AbstractInstance> trainingData) {
+        logger.debug("Creating ordinal splits");
 		final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
 		for (final AbstractInstance i : trainingData) {
 			for (final Entry<String, Serializable> e : i.getAttributes().entrySet()) {
@@ -103,6 +110,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 	protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
+        logger.debug("Building tree at depth "+depth);
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
@@ -185,6 +193,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 	}
 
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
+        logger.debug("Surveying training data");
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (AbstractInstance instance : trainingData) {
