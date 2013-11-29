@@ -208,11 +208,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 }
             }
         }
+        logger.debug("Survey complete");
         return attributeCharacteristics;
     }
 
     protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances) {
+        logger.debug("Creating nominal node for attribute "+attribute);
 		final Set<Serializable> values = Sets.newHashSet();
 		for (final AbstractInstance instance : instances) {
 			values.add(instance.getAttributes().get(attribute));
@@ -261,7 +263,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				break;
 			}
 		}
-
+        logger.debug("Created nominal node for attribute "+attribute);
 		return Pair.with(new NominalBranch(parent, attribute, bestSoFar), score);
 	}
 
@@ -281,6 +283,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances,
 			final double[] splits) {
+        logger.debug("Creating ordinal node for attribute "+attribute);
 
 		double bestScore = 0;
 		double bestThreshold = 0;
@@ -327,7 +330,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				bestThreshold = threshold;
 			}
 		}
-
+        logger.debug("Created ordinal node for attribute "+attribute);
 		return Pair.with(new OrdinalBranch(parent, attribute, bestThreshold), bestScore);
 	}
 
