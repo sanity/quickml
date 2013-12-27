@@ -21,7 +21,21 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   private final TreeBuilder treeBuilder;
   private int numTrees = 8;
   private boolean useBagging = false;
-  private int attributesPerTree = 0;
+  
+    // FIXME the problem with the parallelized version of this code is, that the "attributesPerTree" are not considered
+    // any longer; essentially, when not using the bagging option, all trees will be identical now. The old
+    // implementation had this this code:
+  
+    //  if (attributesPerTree == 0 && tree.node instanceof Branch) {
+    //      Branch branch = (Branch) tree.node;
+    //      excludeAttributes.add(branch.attribute);
+    //  }
+  
+    // ... this is missing in the parallelized version now. However, it's not possible to translate this into a
+    // parallelized builder.
+
+  // this attribute is not honored any more:
+//  private int attributesPerTree = 0;
   private int executorThreadCount = 8;
   private ExecutorService executorService;
 
@@ -43,10 +57,10 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     return this;
   }
 
-  public RandomForestBuilder attributesPerTree(int attributes) {
-    this.attributesPerTree = attributes;
-    return this;
-  }
+//  public RandomForestBuilder attributesPerTree(int attributes) {
+//    this.attributesPerTree = attributes;
+//    return this;
+//  }
 
   public RandomForestBuilder executorThreadCount(int threadCount) {
     this.executorThreadCount = threadCount;
@@ -56,7 +70,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
   public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
     initExecutorService();
-    logger.info("Building random forest with " + numTrees + " trees, bagging: " + useBagging + ", attributes per tree: " + attributesPerTree);
+    logger.info("Building random forest with " + numTrees + " trees, bagging: " + useBagging /* + ", attributes per tree: " + attributesPerTree */);
 
     List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
     List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
@@ -93,7 +107,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree " + treeIndex + " of " + numTrees);
     if (useBagging) {
-      trainingData = getBootstrapSampling(trainingData);
+      trainingData = Misc.getBootstrapSampling(trainingData);
     }
     return treeBuilder.buildPredictiveModel(trainingData);
   }
@@ -104,27 +118,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     } catch (Exception e) {
       logger.error("Error retrieving tree", e);
     }
-  }
-
-  /**
-   * <p>
-   * Simple implementation of a bagging predictor using multiple decision trees.
-   * The idea is to create a random bootstrap sample of the training data to grow
-   * multiple trees. For more information see <a
-   * href="http://www.stat.berkeley.edu/tech-reports/421.pdf">Bagging
-   * Predictors</a>, Leo Breiman, 1994.
-   * </p>
-   * <p/>
-   * Bagging code taken from contribution by Philipp Katz
-   */
-  private static List<AbstractInstance> getBootstrapSampling(Iterable<? extends AbstractInstance> trainingData) {
-    final List<? extends AbstractInstance> allInstances = Lists.newArrayList(trainingData);
-    final List<AbstractInstance> sampling = Lists.newArrayList();
-    for (int i = 0; i < allInstances.size(); i++) {
-      int sample = Misc.random.nextInt(allInstances.size());
-      sampling.add(allInstances.get(sample));
-    }
-    return sampling;
   }
 
 }
