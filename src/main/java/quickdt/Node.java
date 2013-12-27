@@ -5,6 +5,13 @@ import java.io.*;
 public abstract class Node implements Serializable {
 	public abstract void dump(int indent, PrintStream ps);
 
+    public final Node parent;
+
+    public Node(Node parent) {
+        this.parent = parent;
+    }
+
+
 	/**
 	 * Writes a textual representation of this tree to a PrintStream
 	 * 
@@ -15,7 +22,7 @@ public abstract class Node implements Serializable {
 	}
 
 	/**
-	 * Get a label for a given set of Attributes
+	 * Get a label for a given set of HashMapAttributes
 	 * 
 	 * @param attributes
 	 * @return

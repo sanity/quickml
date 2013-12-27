@@ -1,6 +1,8 @@
 Quick Decision Tree Learner
 ===========================
 
+Build Status: [![Build Status](https://travis-ci.org/sanity/quickdt.png?branch=master)](https://travis-ci.org/sanity/quickdt)
+
 License
 -------
 
@@ -50,7 +52,7 @@ And this dependency:
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<version>0.0.3</version>
+			<version>0.0.8.3</version>
 		</dependency>
 ```
 

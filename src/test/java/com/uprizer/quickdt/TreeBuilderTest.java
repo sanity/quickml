@@ -1,36 +1,52 @@
 package com.uprizer.quickdt;
 
-import java.util.Set;
-
+import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-
 import quickdt.*;
 import quickdt.scorers.Scorer1;
+
+import java.io.*;
+import java.util.List;
+import java.util.Set;
 
 
 public class TreeBuilderTest {
 	@Test
-	public void simpleBmiTest() {
-		final Set<Instance> instances = Sets.newHashSet();
-		for (int x = 0; x < 10000; x++) {
+	public void simpleBmiTest() throws Exception {
+		final List<Instance> instances = Lists.newArrayList();
+        for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
-		final TreeBuilder tb = new TreeBuilder();
+		final TreeBuilder tb = new TreeBuilder().minNominalAttributeValueOccurances(0);
 		final long startTime = System.currentTimeMillis();
-		final Node tree = tb.buildTree(instances, 100, 1.0);
+		final Node node = tb.buildPredictiveModel(instances).node;
 
-		Assert.assertTrue(tree.fullRecall(), "Confirm that the tree achieves full recall on the training set");
-		Assert.assertTrue(tree.size() < 400, "Tree size should be less than 350 nodes");
-		Assert.assertTrue(tree.meanDepth() < 6, "Mean depth should be less than 6");
+        serializeDeserialize(node);
+
+		Assert.assertTrue(node.fullRecall(), "Confirm that the node achieves full recall on the training set");
+		Assert.assertTrue(node.size() < 400, "Tree size should be less than 350 nodes");
+		Assert.assertTrue(node.meanDepth() < 6, "Mean depth should be less than 6");
 		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,
-				"Building this tree should take far less than 20 seconds");
+				"Building this node should take far less than 20 seconds");
 	}
 
-	@Test(enabled = false)
+    private static void serializeDeserialize(final Serializable object) throws IOException, ClassNotFoundException {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1000);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(object);
+        objectOutputStream.close();
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        Object deserialized = objectInputStream.readObject();
+        objectInputStream.close();
+    }
+
+    @Test(enabled = false)
 	public void multiScorerBmiTest() {
 		final Set<Instance> instances = Sets.newHashSet();
 
@@ -41,9 +57,9 @@ public class TreeBuilderTest {
 			instances.add(instance);
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer1());
-			final Node tree = tb.buildTree(instances, 100, 1.0);
-			System.out.println("Scorer1 tree size: " + tree.size());
+			final TreeBuilder tb = new TreeBuilder(new Scorer1()).minNominalAttributeValueOccurances(0);
+			final Tree tree = tb.buildPredictiveModel(instances);
+			System.out.println("Scorer1 node size: " + tree.node.size());
 		}
 	}
 

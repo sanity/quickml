@@ -1,2 +1,7 @@
 target/
 test-output/
+*.iml
+.project
+.classpath
+testdata/
+/.idea/

@@ -1,8 +1,8 @@
 package quickdt;
 
-import java.io.PrintStream;
-
 import com.google.common.base.Predicate;
+
+import java.io.PrintStream;
 
 
 public abstract class Branch extends Node {
@@ -12,8 +12,9 @@ public abstract class Branch extends Node {
 
 	public Node trueChild, falseChild;
 
-	public Branch(final String attribute) {
-		this.attribute = attribute;
+	public Branch(Node parent, final String attribute) {
+		super(parent);
+        this.attribute = attribute;
 	}
 
 	protected abstract boolean decide(Attributes attributes);
@@ -28,22 +29,22 @@ public abstract class Branch extends Node {
 		return trueChild.fullRecall() && falseChild.fullRecall();
 	}
 
-	public Predicate<Instance> getInPredicate() {
-		return new Predicate<Instance>() {
+	public Predicate<AbstractInstance> getInPredicate() {
+		return new Predicate<AbstractInstance>() {
 
 			@Override
-			public boolean apply(final Instance input) {
-				return decide(input.attributes);
+			public boolean apply(final AbstractInstance input) {
+				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance> getOutPredicate() {
-		return new Predicate<Instance>() {
+	public Predicate<AbstractInstance> getOutPredicate() {
+		return new Predicate<AbstractInstance>() {
 
 			@Override
-			public boolean apply(final Instance input) {
-				return !decide(input.attributes);
+			public boolean apply(final AbstractInstance input) {
+				return !decide(input.getAttributes());
 			}
 		};
 	}

@@ -1,21 +1,15 @@
 package quickdt;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
-public final class Attributes extends HashMap<String, Serializable> {
-
-	private static final long serialVersionUID = 5737931426134041728L;
-
-	public static Attributes create(final Serializable... inputs) {
-		final Attributes a = new Attributes();
-		for (int x = 0; x < inputs.length; x += 2) {
-			a.put((String) inputs[x], inputs[x + 1]);
-		}
-		return a;
-	}
-
-	public Instance classification(final Serializable cls) {
-		return new Instance(this, cls);
-	}
+/**
+ * Created with IntelliJ IDEA.
+ * User: ian
+ * Date: 6/27/13
+ * Time: 1:09 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public interface Attributes extends Map<String, Serializable> {
+    public Instance classification(Serializable cls);
 }
