@@ -71,6 +71,8 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     for (Future<Tree> treeFuture : treeFutures) {
       collectTreeFutures(trees, treeFuture);
     }
+    
+    executorService.shutdown();
 
     return new RandomForest(trees);
   }
