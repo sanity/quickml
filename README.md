@@ -39,21 +39,21 @@ How do I install QuickDT?
 QuickDT is distributed using Maven.  To use it in your project just add this repository to your pom.xml file:
 
 ```xml
-		<repository>
-			<id>sanity-maven-repo</id>
-			<name>Sanity's Maven repository on GitHub</name>
-			<url>http://sanity.github.com/maven-repo/repository/</url>
-		</repository>
+<repository>
+	<id>sanity-maven-repo</id>
+	<name>Sanity's Maven repository on GitHub</name>
+	<url>http://sanity.github.com/maven-repo/repository/</url>
+</repository>
 ```
 
 And this dependency:
 
 ```xml
-		<dependency>
-			<groupId>quickdt</groupId>
-			<artifactId>quickdt</artifactId>
-			<version>0.0.8.10</version>
-		</dependency>
+<dependency>
+	<groupId>quickdt</groupId>
+	<artifactId>quickdt</artifactId>
+	<version>0.0.8.10</version>
+</dependency>
 ```
 
 How do I use QuickDT?
@@ -65,15 +65,15 @@ an "attribute" of the instance, and "overweight", "healthy", and "underweight" a
 Attributes.create() is some syntactic sugar that makes it easier to create Instances (although it's easy even without it).
 
 ```java
-	import quickdt.*;
+import quickdt.*;
 
-	final Set<Instance> instances = Sets.newHashSet();
-	// A male weighing 168lb that is 55 inches tall, they are overweight
-	instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
-	instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
-	instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
-	instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
-	instances.add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
+final Set<Instance> instances = Sets.newHashSet();
+// A male weighing 168lb that is 55 inches tall, they are overweight
+instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
+instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
+instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
+instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
+instances.add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
 ```
 
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
@@ -97,27 +97,27 @@ nominal, doesn't change from one instance to the next.  QuickDT may crash with a
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
 ```java
-	TreeBuilder treeBuilder = new TreeBuilder();
-	Tree tree = treeBuilder.buildPredictiveModel(instances);
+TreeBuilder treeBuilder = new TreeBuilder();
+Tree tree = treeBuilder.buildPredictiveModel(instances);
 ```
 
 That's it!  So, let's say that we have a new person and we'd like to use our decision tree to tell us if they are healthy:
 
 ```java
-	Leaf leaf = tree.getLeaf(HashMapAttributes.create("height", 62, "weight", 201, "gender", "female"));
-	if (leaf.getBestClassification().equals("healthy")) {
-		System.out.println("They are healthy!");
-	} else if (leaf.getBestClassification().equals("underweight")) {
-		System.out.println("They are underweight!");
-	} else {
-		System.out.println("They are overweight!");
-	}
+Leaf leaf = tree.getLeaf(HashMapAttributes.create("height", 62, "weight", 201, "gender", "female"));
+if (leaf.getBestClassification().equals("healthy")) {
+	System.out.println("They are healthy!");
+} else if (leaf.getBestClassification().equals("underweight")) {
+	System.out.println("They are underweight!");
+} else {
+	System.out.println("They are overweight!");
+}
 ```
 
 Its as simple as that!  But what if you wanted to see what the tree looks like?  That's easy too:
 
 ```java
-	tree.dump(System.out);
+tree.dump(System.out);
 ```
 
 This is what the output might look like for a larger dataset:
@@ -209,20 +209,20 @@ Usage of the bagging is quite straight forward. Set up a `TreeBuilder` and if yo
 
 
 ```java
-	import quickdt.*;
-	import quickdt.randomForest.*;
+import quickdt.*;
+import quickdt.randomForest.*;
 
-	TreeBuilder treeBuilder = new TreeBuilder()
-		.ignoreAttributeAtNodeProbability(0.7);
-	RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
-		.numTrees(50)
-		.useBagging(true);
+TreeBuilder treeBuilder = new TreeBuilder()
+	.ignoreAttributeAtNodeProbability(0.7);
+RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
+	.numTrees(50)
+	.useBagging(true);
 
-	RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
+RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
 
-    Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
-    Serializable classification = randomForest.getClassificationByMaxProb(attributes);
-	System.out.println("Assigned class: " + classification); 
+Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+Serializable classification = randomForest.getClassificationByMaxProb(attributes);
+System.out.println("Assigned class: " + classification); 
 ```
 
 Under the hood
