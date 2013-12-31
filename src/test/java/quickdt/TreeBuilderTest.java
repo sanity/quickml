@@ -1,10 +1,9 @@
-package com.uprizer.quickdt;
+package quickdt;
 
 import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-import quickdt.*;
 import quickdt.scorers.Scorer1;
 
 import java.io.*;
