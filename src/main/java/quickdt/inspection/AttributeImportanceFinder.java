@@ -41,7 +41,7 @@ public class AttributeImportanceFinder {
             for (Map.Entry<String,Serializable> attributeKeyValue : instance.getAttributes().entrySet()) {
                 ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
                 if (sampler == null) {
-                    sampler = new ReservoirSampler<>(1000);
+                    sampler = new ReservoirSampler<Serializable>(1000);
                     samplesPerAttribute.put(attributeKeyValue.getKey(), sampler);
                 }
                 sampler.addSample(attributeKeyValue.getValue());
