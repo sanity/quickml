@@ -52,7 +52,7 @@ And this dependency:
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<version>0.0.8.3</version>
+			<version>0.0.8.10</version>
 		</dependency>
 ```
 
@@ -69,11 +69,11 @@ Attributes.create() is some syntactic sugar that makes it easier to create Insta
 
 	final Set<Instance> instances = Sets.newHashSet();
 	// A male weighing 168lb that is 55 inches tall, they are overweight
-	instances.add(Attributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
-	instances.add(Attributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
-	instances.add(Attributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
-	instances.add(Attributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
-	instances.add(Attributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
+	instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
+	instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
+	instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
+	instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
+	instances.add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
 ```
 
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
@@ -98,16 +98,16 @@ Next we create a TreeBuilder, and use it to build a tree using this data:
 
 ```java
 	TreeBuilder treeBuilder = new TreeBuilder();
-	Node tree = treeBuilder.buildTree(instances);
+	Tree tree = treeBuilder.buildPredictiveModel(instances);
 ```
 
 That's it!  So, let's say that we have a new person and we'd like to use our decision tree to tell us if they are healthy:
 
 ```java
-	Leaf leaf = tree.getLeaf(Attributes.create("height", 62, "weight", 201, "gender", "female"));
-	if (leaf.classification.equals("healthy")) {
+	Leaf leaf = tree.getLeaf(HashMapAttributes.create("height", 62, "weight", 201, "gender", "female"));
+	if (leaf.getBestClassification().equals("healthy")) {
 		System.out.println("They are healthy!");
-	} else if (leaf.classification.equals("underweight")) {
+	} else if (leaf.getBestClassification().equals("underweight")) {
 		System.out.println("They are underweight!");
 	} else {
 		System.out.println("They are overweight!");
@@ -200,22 +200,29 @@ I've done limited benchmarking, but by way of example QuickDT is able to build a
 8,500 instances, where each instance contains 46 attributes, a mixture of nominal and ordinal.  On my several-years-old
 MacBook Pro laptop it required only 8 seconds to produce a well-balanced tree with over 500 nodes.
 
-Bagging
--------
+Random Decision Forests
+-----------------------
 
-QuickDT contains a simple implementation of a bagging predictor combining multiple decision trees. The idea behind bagging is to create a random bootstrap sample of the training data to grow multiple trees. Prediction is done by letting all the trees vote and taking the winner class as the final classification result. For more information see [Bagging Predictors](http://www.stat.berkeley.edu/tech-reports/421.pdf) (Leo Breiman, 1994). With the included test data set "mobo1", the classification accuracy can be increased from 86 percent up to 92 percent. A further advantage of the Bagging mechanism is the ability to provide classification with confidence values, allowing a ranking of the classified instances. The bagging was contributed by [Philipp Katz](http://philippkatz.de/).
+QuickDT allows to create forests from multiple decision trees to avoid the problem of overfitting and to improve classification accuracy. For creating such a forest, a method called "random subspace" (Tin K. Ho; The random subspace method for constructing decision forests; 1998) is employed, where only a subset of all available attributes are considered at each branch. A further mechanism which can be used, is the so called bootstrap sampling also known as "bagging". The idea behind bagging is to create different random bootstrap sample of the training data for each tree, which is a subset drawn of all available instances with duplicates. For more information see [Bagging Predictors](http://www.stat.berkeley.edu/tech-reports/421.pdf) (Leo Breiman, 1994). For classification, an instance is classified by each tree in the forest separately and a majority vote decides about the final class label.
 
-Usage of the bagging is quite straight forward:
+Usage of the bagging is quite straight forward. Set up a `TreeBuilder` and if you want to use "random subspace" as described above, make sure to configure the `ignoreAttributeAtNodeProbability` to a value below 1 (0.7 is a good choice). This parameter denotes the probability, that a attribute will be skipped at a branch. Create a new `RandomForestBuilder` wrapping the TreeBuilder and specify the number of trees to grow using the `numTrees` method. Bagging can be activated by `useBagging`.
 
 
 ```java
 	import quickdt.*;
-	import quickdt.bagging.*;
+	import quickdt.randomForest.*;
 
-	BaggedTree baggedTree = BaggedTree.build(tb, i, train);
-	BaggingResult baggingResult = baggedTree.predict(testInstance.attributes);
-	System.out.println("Assigned classes and their probabilities: " + 
-		baggingResult.getAllClassifications());
+	TreeBuilder treeBuilder = new TreeBuilder()
+		.ignoreAttributeAtNodeProbability(0.7);
+	RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
+		.numTrees(50)
+		.useBagging(true);
+
+	RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
+
+    Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+    Serializable classification = randomForest.getClassificationByMaxProb(attributes);
+	System.out.println("Assigned class: " + classification); 
 ```
 
 Under the hood

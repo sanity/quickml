@@ -4,10 +4,6 @@ import java.io.Serializable;
 
 public class Instance extends AbstractInstance {
 
-	private Instance() {
-
-	}
-
     public static Instance create(final String classification, final Serializable... inputs) {
         return create(classification, 1.0, inputs);
     }
