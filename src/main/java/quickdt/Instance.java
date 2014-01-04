@@ -2,9 +2,11 @@ package quickdt;
 
 import java.io.Serializable;
 
-public class Instance extends AbstractInstance {
+public class Instance extends AbstractInstance implements Serializable {
 
-	private Instance() {
+    private static final long serialVersionUID = -932048363529904511L;
+
+    private Instance() {
 
 	}
 
