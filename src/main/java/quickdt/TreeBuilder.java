@@ -19,7 +19,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private static final  Logger logger =  LoggerFactory.getLogger(TreeBuilder.class);
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
-	Scorer scorer;
+	private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double minProbability = 1.0;
     private int attributeExcludeDepth = 1;
@@ -48,12 +48,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     @Override
 	public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-        logger.info("Building decision tree, max depth: "+maxDepth+", min probability: "+minProbability+", attributeExcludeDepth: "+attributeExcludeDepth+", excludeAttributes: "+excludeAttributes+", ignoreAttributeAtNodeProb: "+ignoreAttributeAtNodeProbability+", minValOcc: "+minNominalAttributeValueOccurances);
+        logger.info("Building decision tree, max depth: {}, min probability: {}, attributeExcludeDepth: {}, excludeAttributes: {}, ignoreAttributeAtNodeProb: {}, minValOcc: {}",
+                maxDepth, minProbability, attributeExcludeDepth, excludeAttributes, ignoreAttributeAtNodeProbability, minNominalAttributeValueOccurances);
         return new Tree(buildTree(null, trainingData, 0, createOrdinalSplits(trainingData)));
 	}
 
 	private double[] createOrdinalSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
-        logger.debug("Creating ordinal split for attribute "+attribute);
+        logger.debug("Creating ordinal split for attribute {}", attribute);
 		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
 		for (final AbstractInstance i : trainingData) {
 			rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
@@ -69,7 +70,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 			split[x] = al.get((x + 1) * al.size() / (split.length + 1));
 		}
 
-        logger.debug("Created ordinal split for attribute "+attribute+": "+Arrays.toString(split));
+        logger.debug("Created ordinal split for attribute {}: {}", attribute, Arrays.toString(split));
 		return split;
 	}
 
@@ -110,7 +111,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 	protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        logger.debug("Building tree at depth "+depth);
+        logger.debug("Building tree at depth {}", depth);
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
 			return thisLeaf;
@@ -214,7 +215,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     protected Pair<? extends Branch, Double> createNominalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances) {
-        logger.debug("Creating nominal node for attribute "+attribute);
+        logger.debug("Creating nominal node for attribute {}", attribute);
 		final Set<Serializable> values = Sets.newHashSet();
 		for (final AbstractInstance instance : instances) {
 			values.add(instance.getAttributes().get(attribute));
@@ -263,7 +264,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				break;
 			}
 		}
-        logger.debug("Created nominal node for attribute "+attribute);
+        logger.debug("Created nominal node for attribute {}", attribute);
 		return Pair.with(new NominalBranch(parent, attribute, bestSoFar), score);
 	}
 
@@ -283,7 +284,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     protected Pair<? extends Branch, Double> createOrdinalNode(Node parent, final String attribute,
 			final Iterable<? extends AbstractInstance> instances,
 			final double[] splits) {
-        logger.debug("Creating ordinal node for attribute "+attribute);
+        logger.debug("Creating ordinal node for attribute {}", attribute);
 
 		double bestScore = 0;
 		double bestThreshold = 0;
@@ -330,7 +331,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				bestThreshold = threshold;
 			}
 		}
-        logger.debug("Created ordinal node for attribute "+attribute);
+        logger.debug("Created ordinal node for attribute {}", attribute);
 		return Pair.with(new OrdinalBranch(parent, attribute, bestThreshold), bestScore);
 	}
 

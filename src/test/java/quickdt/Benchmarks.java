@@ -65,7 +65,8 @@ public class Benchmarks {
             System.out.println("Testing random forest");
 
             for (int i = 2; i <= 20; i++) {
-                RandomForestBuilder rfBuilder = new RandomForestBuilder(new TreeBuilder());
+                TreeBuilder randomForestTreeBuilder = new TreeBuilder(scorer).ignoreAttributeAtNodeProbability(0.7);
+                RandomForestBuilder rfBuilder = new RandomForestBuilder(randomForestTreeBuilder).numTrees(i).useBagging(true);
                 RandomForest randomForest = rfBuilder.buildPredictiveModel(train);
                 correctlyClassified = 0;
                 for (Instance testInstance : test) {

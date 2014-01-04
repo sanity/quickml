@@ -12,8 +12,6 @@ public final class HashMapAttributes implements Attributes {
 
     private HashMap<String, Serializable> delegatedHashMap = Maps.newHashMap();
 
-	private static final long serialVersionUID = 5737931426134041728L;
-
 	public static Attributes create(final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {

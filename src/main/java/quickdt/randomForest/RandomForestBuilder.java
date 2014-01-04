@@ -21,7 +21,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   private final TreeBuilder treeBuilder;
   private int numTrees = 8;
   private boolean useBagging = false;
-  private int attributesPerTree = 0;
   private int executorThreadCount = 8;
   private ExecutorService executorService;
 
@@ -43,11 +42,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     return this;
   }
 
-  public RandomForestBuilder attributesPerTree(int attributes) {
-    this.attributesPerTree = attributes;
-    return this;
-  }
-
   public RandomForestBuilder executorThreadCount(int threadCount) {
     this.executorThreadCount = threadCount;
     return this;
@@ -56,7 +50,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
   public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
     initExecutorService();
-    logger.info("Building random forest with " + numTrees + " trees, bagging: " + useBagging + ", attributes per tree: " + attributesPerTree);
+    logger.info("Building random forest with {} trees, bagging {}", numTrees, useBagging);
 
     List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
     List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
@@ -93,7 +87,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   }
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
-    logger.info("Building tree " + treeIndex + " of " + numTrees);
+    logger.info("Building tree {} of {}", treeIndex, numTrees);
     if (useBagging) {
       trainingData = getBootstrapSampling(trainingData);
     }
