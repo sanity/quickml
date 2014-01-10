@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickdt</groupId>
     <artifactId>quickdt</artifactId>
-    <version>0.0.8.10</version>
+    <version>0.0.8.11-TS</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
@@ -17,12 +17,17 @@
             <name>Sanity's Maven repository on GitHub</name>
             <url>http://sanity.github.com/maven-repo/repository/</url>
         </repository>
+        <repository>
+            <id>twitter</id>
+            <name>twitter</name>
+            <url>http://maven.twttr.com</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>com.uprizer.sensearray</groupId>
-            <artifactId>freetools</artifactId>
-            <version>1.10</version>
+            <groupId>com.twitter.common</groupId>
+            <artifactId>stats-util</artifactId>
+            <version>0.0.15</version>
         </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
