@@ -6,7 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import com.twitter.common.stats.ReservoirSampler;
 import quickdt.*;
 
 import java.io.Serializable;
@@ -44,7 +44,7 @@ public class AttributeImportanceFinder {
                     sampler = new ReservoirSampler<Serializable>(1000);
                     samplesPerAttribute.put(attributeKeyValue.getKey(), sampler);
                 }
-                sampler.addSample(attributeKeyValue.getValue());
+                sampler.sample(attributeKeyValue.getValue());
             }
         }
 

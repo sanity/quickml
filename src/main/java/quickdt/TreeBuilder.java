@@ -5,7 +5,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import com.twitter.common.stats.ReservoirSampler;
+import com.twitter.common.util.*;
+import com.twitter.common.util.Random;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import java.util.Map.Entry;
 
 public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private static final  Logger logger =  LoggerFactory.getLogger(TreeBuilder.class);
+    private static final com.twitter.common.util.Random random = Random.Util.fromSystemRandom(Misc.random);
 
 	public static final int ORDINAL_TEST_SPLITS = 5;
 	private final Scorer scorer;
@@ -55,9 +58,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
 	private double[] createOrdinalSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         logger.debug("Creating ordinal split for attribute {}", attribute);
-		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
+		final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000, random);
 		for (final AbstractInstance i : trainingData) {
-			rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
+			rs.sample(((Number) i.getAttributes().get(attribute)).doubleValue());
 		}
 		final ArrayList<Double> al = Lists.newArrayList();
 		for (final Double d : rs.getSamples()) {
@@ -82,10 +85,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				if (e.getValue() instanceof Number) {
 					ReservoirSampler<Double> rs = rsm.get(e.getKey());
 					if (rs == null) {
-						rs = new ReservoirSampler<Double>(1000);
+						rs = new ReservoirSampler<Double>(1000, random);
 						rsm.put(e.getKey(), rs);
 					}
-					rs.addSample(((Number) e.getValue()).doubleValue());
+					rs.sample(((Number) e.getValue()).doubleValue());
 				}
 			}
 		}
