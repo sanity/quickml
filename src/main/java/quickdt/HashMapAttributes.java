@@ -11,7 +11,7 @@ import java.util.Set;
 public final class HashMapAttributes implements Attributes, Serializable {
 
     private static final long serialVersionUID = 1251740682190367389L;
-    
+
     private HashMap<String, Serializable> delegatedHashMap = Maps.newHashMap();
 
 	public static Attributes create(final Serializable... inputs) {
