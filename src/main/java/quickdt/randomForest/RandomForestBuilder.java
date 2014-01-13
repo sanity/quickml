@@ -49,7 +49,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
 
   public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-    initExecutorService();
+    executorService = Executors.newFixedThreadPool(executorThreadCount);
     logger.info("Building random forest with {} trees, bagging {}", numTrees, useBagging);
 
     List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
@@ -78,12 +78,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
         return buildModel(trainingData, treeIndex);
       }
     });
-  }
-
-  private void initExecutorService() {
-    if (executorService == null) {
-      executorService = Executors.newFixedThreadPool(executorThreadCount);
-    }
   }
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
