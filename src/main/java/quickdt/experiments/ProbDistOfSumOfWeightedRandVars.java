@@ -15,7 +15,7 @@ import java.util.Random;
 /**
  * Created by alexanderhawk on 1/16/14.
  */
-public class ProbDistOfSumOfWeigtedRandVars {
+public class ProbDistOfSumOfWeightedRandVars {
 
     private int instances;
     private int maxDepth;
@@ -32,7 +32,7 @@ public class ProbDistOfSumOfWeigtedRandVars {
     private double stiffness;
     private double maxProbabilityOfPositiveClassification;
 
-    public ProbDistOfSumOfWeigtedRandVars(int instances, int maxDepth, int numTrees, int numNoiseAttributes, int numPredictiveAttributes, double maxProbabilityOfPositiveClassification, int stdsAboveTheMeanForRelevance)  {
+    public ProbDistOfSumOfWeightedRandVars(int instances, int maxDepth, int numTrees, int numNoiseAttributes, int numPredictiveAttributes, double maxProbabilityOfPositiveClassification, double stdsAboveTheMeanForRelevance)  {
 
         initializeRandomForestProperties(instances, numTrees, maxDepth);
         initializeAttributeProperties(numPredictiveAttributes, numNoiseAttributes);
@@ -48,14 +48,14 @@ public class ProbDistOfSumOfWeigtedRandVars {
         double predictedProb;
         double actualProb;
         double deviation = 0;
-
+        System.out.println("getting deviations\n");
         for (int sample = 0; sample < samples; sample++)  {
             attributes = new HashMapAttributes();
+            classificationVar = 0;
             for (int attributeNumber = 1; attributeNumber <= numAttributes; attributeNumber++)  {
                 attributeValue = useAttribute(attributeNumber);
                 attributes.put(Integer.toString(attributeNumber), attributeValue);
             }
-            normalizeClassificationVar();
             actualProb = getInstanceProbability();
             if (actualProb > onlyConsiderSamplesAboveThisProbability)  {
                 predictedProb = randomForest.getProbability(attributes, 1);
@@ -74,7 +74,8 @@ public class ProbDistOfSumOfWeigtedRandVars {
     }
 
     private double getInstanceProbability()  {
-            return maxProbabilityOfPositiveClassification * (1 - Math.exp(-stiffness*classificationVar) );
+            double instanceProbability = maxProbabilityOfPositiveClassification * (1 - Math.exp(-stiffness*classificationVar) );
+            return instanceProbability;
     }
 //        System.out.println("Probability of a click: " + randomForest.getProbability(HashMapAttributes.create("age", 11), "click"));
 
@@ -90,12 +91,14 @@ public class ProbDistOfSumOfWeigtedRandVars {
         this.maxDepth = maxDepth;
     }
 
-    private void initializeClassificationVariableProperties(double maxProbabilityOfPositiveClassification,int stdsAboveTheMeanForRelevance) {
+    private void initializeClassificationVariableProperties(double maxProbabilityOfPositiveClassification, double stdsAboveTheMeanForRelevance) {
         this.classificationSampler = new Random();
         double standardDeviationOfUniformVariableOn0to1 = Math.sqrt(1.0/12);
-        double meanOfUniformVariableOn0to1 = 0.5;
+        double meanOfPredictiveVariable = 0;
+        for (int i=1; i<=numPredictiveAttributes; i++)
+            meanOfPredictiveVariable+=(2.0-1.0/i)/2 * 1/i;
         double standardDeviationOfClassificationVariable = standardDeviationOfUniformVariableOn0to1 / Math.sqrt(numPredictiveAttributes);
-        this.stiffness = 1/(meanOfUniformVariableOn0to1 + stdsAboveTheMeanForRelevance*standardDeviationOfClassificationVariable);
+        this.stiffness = 1/(meanOfPredictiveVariable + stdsAboveTheMeanForRelevance*standardDeviationOfClassificationVariable);
         this.maxProbabilityOfPositiveClassification = maxProbabilityOfPositiveClassification;
     }
 
@@ -119,17 +122,12 @@ public class ProbDistOfSumOfWeigtedRandVars {
                 attributes.put(Integer.toString(attributeNumber), attributeValue);
             }
 
-            normalizeClassificationVar();
             classify();
 
             instance = new Instance(attributes, this.classification );
             trainingData.add(instance);
         }
         return trainingData;
-    }
-
-    private void normalizeClassificationVar() {
-        classificationVar /= numPredictiveAttributes;
     }
 
     private void classify() {
@@ -150,14 +148,14 @@ public class ProbDistOfSumOfWeigtedRandVars {
 
     private double getPredictiveAttribute(int attributeNumber) {
         double attributeVal;
-        attributeVal = (attributeValueGenerator.nextDouble())/attributeNumber + (1-1/attributeNumber);
+        attributeVal = (attributeValueGenerator.nextDouble())/attributeNumber + (1-1.0/attributeNumber);
         incorporateAttributeInClassificationVar(attributeNumber, attributeVal);
         return attributeVal;
     }
 
     private void incorporateAttributeInClassificationVar(int attributeNumber, double attributeVal) {
         if (attributeNumber <= numPredictiveAttributes)
-            classificationVar += attributeVal;
+            classificationVar += attributeVal/attributeNumber;
     }
 
 }

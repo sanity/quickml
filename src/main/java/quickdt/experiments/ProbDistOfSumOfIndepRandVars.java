@@ -54,6 +54,7 @@ public class ProbDistOfSumOfIndepRandVars {
 
         for (int i = 0; i < samples; i++)  {
             attributes = new HashMapAttributes();
+            classificationVar = 0;
             for (int j = 0; j < numAttributes; j++)  {
                 attributeValue = useAttribute(j);
                 attributes.put(Integer.toString(j), attributeValue);
