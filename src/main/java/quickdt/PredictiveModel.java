@@ -2,6 +2,8 @@ package quickdt;
 
 import quickdt.Attributes;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,8 @@ import java.io.Serializable;
  */
 public interface PredictiveModel extends Serializable {
     double getProbability(Attributes attributes, Serializable classification);
+
+    public void dump(PrintStream printStream);
 
     Serializable getClassificationByMaxProb(Attributes attributes);
 }

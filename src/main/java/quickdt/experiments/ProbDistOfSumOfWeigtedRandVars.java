@@ -1,21 +1,21 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
+import quickdt.Attributes;
 import quickdt.HashMapAttributes;
 import quickdt.Instance;
 import quickdt.TreeBuilder;
 import quickdt.randomForest.RandomForest;
 import quickdt.randomForest.RandomForestBuilder;
-import quickdt.Attributes;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Random;
-import java.lang.Math;
 
 /**
  * Created by alexanderhawk on 1/16/14.
  */
-public class ProbTest {
+public class ProbDistOfSumOfWeigtedRandVars {
 
     private int instances;
     private int maxDepth;
@@ -32,7 +32,7 @@ public class ProbTest {
     private double stiffness;
     private double maxProbabilityOfPositiveClassification;
 
-    public ProbTest(int instances, int maxDepth, int numTrees, int numNoiseAttributes, int numPredictiveAttributes, double maxProbabilityOfPositiveClassification, int stdsAboveTheMeanForRelevance)  {
+    public ProbDistOfSumOfWeigtedRandVars(int instances, int maxDepth, int numTrees, int numNoiseAttributes, int numPredictiveAttributes, double maxProbabilityOfPositiveClassification, int stdsAboveTheMeanForRelevance)  {
 
         initializeRandomForestProperties(instances, numTrees, maxDepth);
         initializeAttributeProperties(numPredictiveAttributes, numNoiseAttributes);
@@ -40,7 +40,6 @@ public class ProbTest {
 
         List<Instance> trainingData = createTrainingData();
         this.randomForest = getRandomForest(trainingData);
-
     }
 
     public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, boolean print)  {
@@ -50,11 +49,11 @@ public class ProbTest {
         double actualProb;
         double deviation = 0;
 
-        for (int i = 0; i < samples; i++)  {
+        for (int sample = 0; sample < samples; sample++)  {
             attributes = new HashMapAttributes();
-            for (int j = 0; j < numAttributes; j++)  {
-                attributeValue = useAttribute(j);
-                attributes.put(Integer.toString(j), attributeValue);
+            for (int attributeNumber = 1; attributeNumber <= numAttributes; attributeNumber++)  {
+                attributeValue = useAttribute(attributeNumber);
+                attributes.put(Integer.toString(attributeNumber), attributeValue);
             }
             normalizeClassificationVar();
             actualProb = getInstanceProbability();
@@ -64,8 +63,11 @@ public class ProbTest {
                 System.out.println("actualProb : predictedProb " + actualProb + " : " + predictedProb);
             }
             else
-                i--;
+                sample--;
             }
+//        Writer writer = new PrintWriter(System.out);
+        PrintStream treeView = new PrintStream(System.out); //new WriterOutputStream(writer));
+        randomForest.dump(treeView);
 
         System.out.println("average deviation" + deviation/samples);
         return;
@@ -90,7 +92,7 @@ public class ProbTest {
 
     private void initializeClassificationVariableProperties(double maxProbabilityOfPositiveClassification,int stdsAboveTheMeanForRelevance) {
         this.classificationSampler = new Random();
-        double standardDeviationOfUniformVariableOn0to1 = Math.sqrt(1/12);
+        double standardDeviationOfUniformVariableOn0to1 = Math.sqrt(1.0/12);
         double meanOfUniformVariableOn0to1 = 0.5;
         double standardDeviationOfClassificationVariable = standardDeviationOfUniformVariableOn0to1 / Math.sqrt(numPredictiveAttributes);
         this.stiffness = 1/(meanOfUniformVariableOn0to1 + stdsAboveTheMeanForRelevance*standardDeviationOfClassificationVariable);
@@ -111,9 +113,10 @@ public class ProbTest {
 
         for (int i = 0; i < instances; i++)  {
             attributes = new HashMapAttributes();
-            for (int j = 0; j < numAttributes; j++)  {
-                attributeValue = useAttribute(j);
-                attributes.put(Integer.toString(j), attributeValue);
+            classificationVar = 0;
+            for (int attributeNumber = 1; attributeNumber <= numAttributes; attributeNumber++)  {
+                attributeValue = useAttribute(attributeNumber);
+                attributes.put(Integer.toString(attributeNumber), attributeValue);
             }
 
             normalizeClassificationVar();
@@ -136,13 +139,24 @@ public class ProbTest {
     }
 
     private double useAttribute(int attributeNumber) {
-        double attributeVal = attributeValueGenerator.nextDouble();
+        double attributeVal;
+        if (attributeNumber <= numPredictiveAttributes)  {
+            attributeVal = getPredictiveAttribute(attributeNumber);
+        }
+        else
+            attributeVal = attributeValueGenerator.nextDouble();
+        return attributeVal;
+    }
+
+    private double getPredictiveAttribute(int attributeNumber) {
+        double attributeVal;
+        attributeVal = (attributeValueGenerator.nextDouble())/attributeNumber + (1-1/attributeNumber);
         incorporateAttributeInClassificationVar(attributeNumber, attributeVal);
         return attributeVal;
     }
 
     private void incorporateAttributeInClassificationVar(int attributeNumber, double attributeVal) {
-        if (attributeNumber < numAttributes)
+        if (attributeNumber <= numPredictiveAttributes)
             classificationVar += attributeVal;
     }
 

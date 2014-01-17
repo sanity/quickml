@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import quickdt.*;
 
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,17 @@ public class RandomForest implements PredictiveModel {
 
     protected RandomForest(List<Tree> trees) {
         this.trees = trees;
+    }
+
+
+    public void dump(PrintStream printStream, int numTrees) {
+        for (int i=0; i<numTrees; i++)
+            trees.get(i).dump(printStream);
+    }
+
+    @Override
+    public void dump(PrintStream printStream) {
+        trees.get(0).dump(printStream);
     }
 
     @Override
