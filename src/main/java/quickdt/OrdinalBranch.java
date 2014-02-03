@@ -22,8 +22,7 @@ public final class OrdinalBranch extends Branch {
 	protected boolean decide(final Attributes attributes) {
         final Serializable value = attributes.get(attribute);
         if (!(value instanceof Number)) {
-            logger.error("Expecting a number as the value of "+attribute+" but got "+value);
-            return false;
+            throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());
         }
         final double valueAsDouble = ((Number) value).doubleValue();
 		return valueAsDouble > threshold;
