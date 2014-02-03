@@ -1,5 +1,7 @@
 package quickdt;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**
@@ -20,6 +22,11 @@ public class Tree implements PredictiveModel {
     public double getProbability(Attributes attributes, Serializable classification) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getProbability(classification);
+    }
+
+    @Override
+    public void dump(PrintStream printStream) {
+        node.dump(printStream);
     }
 
     @Override
