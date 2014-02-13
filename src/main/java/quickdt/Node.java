@@ -3,7 +3,9 @@ package quickdt;
 import java.io.*;
 
 public abstract class Node implements Serializable {
-	public abstract void dump(int indent, PrintStream ps);
+    private static final long serialVersionUID = -8713974861744567620L;
+
+    public abstract void dump(int indent, PrintStream ps);
 
     public final Node parent;
 

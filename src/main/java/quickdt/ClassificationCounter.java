@@ -10,7 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class ClassificationCounter implements Serializable {
-	private final Map<Serializable, Double> counts = Maps.newHashMap();
+    private static final long serialVersionUID = -6821237234748044623L;
+    private final Map<Serializable, Double> counts = Maps.newHashMap();
 
 	private double total = 0;
 
