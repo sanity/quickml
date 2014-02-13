@@ -17,6 +17,9 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class RandomForest implements PredictiveModel {
+
+    static final long serialVersionUID = 56394564395638954L;
+
     public final List<Tree> trees;
 
     protected RandomForest(List<Tree> trees) {
