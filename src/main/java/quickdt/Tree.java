@@ -1,7 +1,6 @@
 package quickdt;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**
@@ -12,6 +11,8 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public class Tree implements PredictiveModel {
+    static final long serialVersionUID = 56394564395635672L;
+
     public final Node node;
 
     protected Tree(Node tree) {
