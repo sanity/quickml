@@ -15,6 +15,20 @@ public class ClassificationCounter implements Serializable {
 
 	private double total = 0;
 
+    public static ClassificationCounter merge(ClassificationCounter a, ClassificationCounter b) {
+        ClassificationCounter newCC = new ClassificationCounter();
+        newCC.counts.putAll(a.counts);
+        for (Entry<Serializable, Double> e : b.counts.entrySet()) {
+            Double existingCountVal = newCC.counts.get(e.getKey());
+            if (existingCountVal == null) {
+                existingCountVal = 0.0;
+            }
+            newCC.counts.put(e.getKey(), existingCountVal+e.getValue());
+        }
+        newCC.total = a.total+b.total;
+        return newCC;
+    }
+
 	public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
 			final Iterable<? extends AbstractInstance> instances, final String attribute) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
