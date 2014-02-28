@@ -7,7 +7,10 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * Created by ian on 2/27/14.
+ * A Scorer intended to estimate the impact on the Mean of the Squared Error (MSE)
+ * of a branch existing versus not existing.  The value returned is the MSE
+ * without the branch minus the MSE with the branch (so higher is better, as
+ * is required by the scoreSplit() interface.
  */
 public class MSEScorer implements Scorer {
     private final double crossValidationInstanceCorrection;
