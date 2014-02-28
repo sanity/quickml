@@ -63,6 +63,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		for (final Double d : rs.getSamples()) {
 			al.add(d);
 		}
+        if (al.isEmpty()) {
+            throw new RuntimeException("Split list empty");
+        }
 		Collections.sort(al);
 
 		final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
@@ -163,6 +166,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 				bestNode.getInPredicate()));
 		final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
 				bestNode.getOutPredicate()));
+
+        if (trueTrainingSet.isEmpty() || falseTrainingSet.isEmpty()) {
+            return thisLeaf;
+        }
 
 		// We want to temporarily replace the split for an attribute for
 		// descendants of an ordinal branch, first the true split

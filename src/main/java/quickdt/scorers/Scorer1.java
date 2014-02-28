@@ -1,10 +1,10 @@
 package quickdt.scorers;
 
-import java.io.Serializable;
-
-import quickdt.*;
-
 import com.google.common.collect.Sets;
+import quickdt.ClassificationCounter;
+import quickdt.Scorer;
+
+import java.io.Serializable;
 
 public final class Scorer1 implements Scorer {
 
@@ -37,5 +37,9 @@ public final class Scorer1 implements Scorer {
 		}
 		return score;
 	}
+
+    public String toString() {
+        return "Scorer1";
+    }
 
 }
