@@ -1,15 +1,12 @@
 package quickdt;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.scorers.Scorer1;
+import quickdt.scorers.MSEScorer;
 
 import java.io.Serializable;
 import java.util.*;
@@ -28,7 +25,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private Set<String> excludeAttributes = Collections.<String>emptySet();
 
     public TreeBuilder() {
-		this(new Scorer1());
+		this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
 	}
 	public TreeBuilder(final Scorer scorer) {
 		this.scorer = scorer;

@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-import quickdt.scorers.Scorer1;
+import quickdt.scorers.SplitDiffScorer;
 
 import java.io.*;
 import java.util.List;
@@ -56,9 +56,9 @@ public class TreeBuilderTest {
 			instances.add(instance);
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer1()).minNominalAttributeValueOccurances(0);
+			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).minNominalAttributeValueOccurances(0);
 			final Tree tree = tb.buildPredictiveModel(instances);
-			System.out.println("Scorer1 node size: " + tree.node.size());
+			System.out.println("SplitDiffScorer node size: " + tree.node.size());
 		}
 	}
 

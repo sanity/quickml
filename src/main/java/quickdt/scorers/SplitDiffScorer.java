@@ -6,7 +6,7 @@ import quickdt.Scorer;
 
 import java.io.Serializable;
 
-public final class Scorer1 implements Scorer {
+public final class SplitDiffScorer implements Scorer {
 
 	/*
 	 * The general idea here is that a good split is one where the proportions
@@ -39,7 +39,7 @@ public final class Scorer1 implements Scorer {
 	}
 
     public String toString() {
-        return "Scorer1";
+        return "SplitDiffScorer";
     }
 
 }
