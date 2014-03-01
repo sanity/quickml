@@ -44,7 +44,7 @@ public class Benchmarks {
         }
     }
 
-    private static List<Instance> loadDiabetesDataset() throws IOException {
+    public static List<Instance> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
         final List<Instance> instances = Lists.newLinkedList();
 

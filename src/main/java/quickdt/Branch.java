@@ -24,11 +24,6 @@ public abstract class Branch extends Node {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	@Override
-	public boolean fullRecall() {
-		return trueChild.fullRecall() && falseChild.fullRecall();
-	}
-
 	public Predicate<AbstractInstance> getInPredicate() {
 		return new Predicate<AbstractInstance>() {
 

@@ -65,11 +65,6 @@ public class Leaf extends Node {
 		return this;
 	}
 
-    @Override
-    public boolean fullRecall() {
-        return getBestClassificationProbability() == 1.0;
-    }
-
 	@Override
 	public int size() {
 		return 1;
