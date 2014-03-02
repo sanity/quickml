@@ -25,9 +25,9 @@ public class DiabetesDatasetTest {
         PredictiveModelBuilder<?> predictiveModelBuilder = new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.0)).numTrees(100);
         final PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(instances);
 
-        System.out.println("Random forest hash: " + predictiveModel.hashCode());
-
         final RMSECrossValScorer testResult = (RMSECrossValScorer) crossValidator.test(predictiveModelBuilder, instances);
-        Assert.assertTrue(String.format("RMSE is %f, should be below 0.7", testResult.getRMSE()), testResult.getRMSE() < 0.7);
+        final double rmse = testResult.getRMSE();
+        System.out.println("RMSE on Diabetes dataset: "+rmse);
+        Assert.assertTrue(String.format("RMSE is %f, should be below 0.499", rmse), rmse < 0.499);
     }
 }
