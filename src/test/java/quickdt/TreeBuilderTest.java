@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-import quickdt.scorers.Scorer1;
+import quickdt.scorers.SplitDiffScorer;
 
 import java.io.*;
 import java.util.List;
@@ -20,13 +20,12 @@ public class TreeBuilderTest {
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
-		final TreeBuilder tb = new TreeBuilder().minNominalAttributeValueOccurances(0);
+		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
 		final long startTime = System.currentTimeMillis();
 		final Node node = tb.buildPredictiveModel(instances).node;
 
         serializeDeserialize(node);
 
-		Assert.assertTrue(node.fullRecall(), "Confirm that the node achieves full recall on the training set");
 		Assert.assertTrue(node.size() < 400, "Tree size should be less than 350 nodes");
 		Assert.assertTrue(node.meanDepth() < 6, "Mean depth should be less than 6");
 		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,
@@ -56,9 +55,9 @@ public class TreeBuilderTest {
 			instances.add(instance);
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new Scorer1()).minNominalAttributeValueOccurances(0);
+			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
 			final Tree tree = tb.buildPredictiveModel(instances);
-			System.out.println("Scorer1 node size: " + tree.node.size());
+			System.out.println("SplitDiffScorer node size: " + tree.node.size());
 		}
 	}
 

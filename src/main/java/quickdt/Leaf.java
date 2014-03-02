@@ -65,11 +65,6 @@ public class Leaf extends Node {
 		return this;
 	}
 
-    @Override
-    public boolean fullRecall() {
-        return getBestClassificationProbability() == 1.0;
-    }
-
 	@Override
 	public int size() {
 		return 1;
@@ -100,5 +95,30 @@ public class Leaf extends Node {
 
     public Set<Serializable> getClassifications() {
         return classificationCounts.getCounts().keySet();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Leaf leaf = (Leaf) o;
+
+        if (depth != leaf.depth) return false;
+        if (Double.compare(leaf.exampleCount, exampleCount) != 0) return false;
+        if (!classificationCounts.equals(leaf.classificationCounts)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = depth;
+        temp = Double.doubleToLongBits(exampleCount);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + classificationCounts.hashCode();
+        return result;
     }
 }

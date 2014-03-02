@@ -18,13 +18,12 @@ import java.util.concurrent.*;
 public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest> {
   private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
   private final TreeBuilder treeBuilder;
-  private int numTrees = 8;
-  private boolean useBagging = false;
+  private int numTrees = 20;
   private int executorThreadCount = 8;
   private ExecutorService executorService;
 
   public RandomForestBuilder() {
-    this(new TreeBuilder());
+    this(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5));
   }
 
   public RandomForestBuilder(TreeBuilder treeBuilder) {
@@ -36,11 +35,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     return this;
   }
 
-  public RandomForestBuilder useBagging(boolean useBagging) {
-    this.useBagging = useBagging;
-    return this;
-  }
-
   public RandomForestBuilder executorThreadCount(int threadCount) {
     this.executorThreadCount = threadCount;
     return this;
@@ -49,7 +43,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
   public RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
     executorService = Executors.newFixedThreadPool(executorThreadCount);
-    logger.info("Building random forest with {} trees, bagging {}", numTrees, useBagging);
+    logger.info("Building random forest with {} trees", numTrees);
 
     List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
     List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
@@ -81,9 +75,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree {} of {}", treeIndex, numTrees);
-    if (useBagging) {
-      trainingData = getBootstrapSampling(trainingData);
-    }
     return treeBuilder.buildPredictiveModel(trainingData);
   }
 
@@ -94,26 +85,4 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
       logger.error("Error retrieving tree", e);
     }
   }
-
-  /**
-   * <p>
-   * Simple implementation of a bagging predictor using multiple decision trees.
-   * The idea is to create a random bootstrap sample of the training data to grow
-   * multiple trees. For more information see <a
-   * href="http://www.stat.berkeley.edu/tech-reports/421.pdf">Bagging
-   * Predictors</a>, Leo Breiman, 1994.
-   * </p>
-   * <p/>
-   * Bagging code taken from contribution by Philipp Katz
-   */
-  private static List<AbstractInstance> getBootstrapSampling(Iterable<? extends AbstractInstance> trainingData) {
-    final List<? extends AbstractInstance> allInstances = Lists.newArrayList(trainingData);
-    final List<AbstractInstance> sampling = Lists.newArrayList();
-    for (int i = 0; i < allInstances.size(); i++) {
-      int sample = Misc.random.nextInt(allInstances.size());
-      sampling.add(allInstances.get(sample));
-    }
-    return sampling;
-  }
-
 }

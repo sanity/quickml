@@ -35,4 +35,21 @@ public class Tree implements PredictiveModel {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getBestClassification();
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Tree tree = (Tree) o;
+
+        if (!node.equals(tree.node)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return node.hashCode();
+    }
 }

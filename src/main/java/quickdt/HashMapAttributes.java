@@ -14,7 +14,15 @@ public final class HashMapAttributes implements Attributes, Serializable {
 
     private HashMap<String, Serializable> delegatedHashMap = Maps.newHashMap();
 
-	public static Attributes create(final Serializable... inputs) {
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("HashMapAttributes{");
+        sb.append("map=").append(delegatedHashMap);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public static Attributes create(final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
@@ -90,5 +98,22 @@ public final class HashMapAttributes implements Attributes, Serializable {
     @Override
     public Instance classification(final Serializable cls) {
         return new Instance(this, cls);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final HashMapAttributes that = (HashMapAttributes) o;
+
+        if (!delegatedHashMap.equals(that.delegatedHashMap)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return delegatedHashMap.hashCode();
     }
 }
