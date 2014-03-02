@@ -20,7 +20,7 @@ public class TreeBuilderTest {
 			final double weight = 120 + Misc.random.nextInt(110);
 			instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
 		}
-		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).minNominalAttributeValueOccurances(0);
+		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
 		final long startTime = System.currentTimeMillis();
 		final Node node = tb.buildPredictiveModel(instances).node;
 
@@ -55,7 +55,7 @@ public class TreeBuilderTest {
 			instances.add(instance);
 		}
 		{
-			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).minNominalAttributeValueOccurances(0);
+			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
 			final Tree tree = tb.buildPredictiveModel(instances);
 			System.out.println("SplitDiffScorer node size: " + tree.node.size());
 		}

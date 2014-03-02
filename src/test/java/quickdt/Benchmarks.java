@@ -39,7 +39,7 @@ public class Benchmarks {
             System.out.println(dsName+", single-tree, "+scorer+", "+crossValidator.test(singleTreeBuilder, instances));
 
             TreeBuilder forestTreeBuilder = new TreeBuilder(scorer).ignoreAttributeAtNodeProbability(0.5);
-            RandomForestBuilder randomForestBuilder = new RandomForestBuilder(forestTreeBuilder).numTrees(100).executorThreadCount(8).useBagging(false);
+            RandomForestBuilder randomForestBuilder = new RandomForestBuilder(forestTreeBuilder).numTrees(100).executorThreadCount(8);
             System.out.println(dsName+", random-forest, "+scorer+", "+crossValidator.test(randomForestBuilder, instances));
         }
     }

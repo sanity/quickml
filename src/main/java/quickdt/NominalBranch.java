@@ -29,4 +29,24 @@ public final class NominalBranch extends Branch {
 	public String toNotString() {
 		return attribute + " not in " + inSet;
 	}
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        final NominalBranch that = (NominalBranch) o;
+
+        if (!inSet.equals(that.inSet)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + inSet.hashCode();
+        return result;
+    }
 }

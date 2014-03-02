@@ -1,12 +1,11 @@
 package quickdt;
 
-import java.io.Serializable;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import quickdt.randomForest.RandomForest;
 import quickdt.randomForest.RandomForestBuilder;
 
-import com.google.common.collect.Sets;
+import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Code examples for the README file.
@@ -48,8 +47,7 @@ public class ReadMeExample {
             TreeBuilder treeBuilder = new TreeBuilder()
                 .ignoreAttributeAtNodeProbability(0.7);
             RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
-                .numTrees(50)
-                .useBagging(true);
+                .numTrees(50);
             RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
             
             Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");

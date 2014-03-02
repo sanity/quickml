@@ -50,7 +50,13 @@ public abstract class Node implements Serializable {
 	 */
 	public abstract int size();
 
-	protected abstract void calcMeanDepth(LeafDepthStats stats);
+    @Override
+    public abstract boolean equals(final Object obj);
+
+    @Override
+    public abstract int hashCode();
+
+    protected abstract void calcMeanDepth(LeafDepthStats stats);
 
 	protected static class LeafDepthStats {
 		int ttlDepth = 0;

@@ -18,11 +18,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 	public static final int ORDINAL_TEST_SPLITS = 5;
 	private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
-    private double minProbability = 1.0;
-    private int attributeExcludeDepth = 1;
     private double ignoreAttributeAtNodeProbability = 0.0;
-    private int minNominalAttributeValueOccurances = 5;
-    private Set<String> excludeAttributes = Collections.<String>emptySet();
+    private double minimumScore = 0.00000000000001;
 
     public TreeBuilder() {
 		this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
@@ -33,20 +30,17 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     public TreeBuilder maxDepth(int maxDepth) { this.maxDepth=maxDepth; return this; }
 
-    public TreeBuilder minProbability(double minProbability) { this.minProbability=minProbability; return this; }
-
-    public TreeBuilder attributeExcludeDepth(int depth) { this.attributeExcludeDepth=depth; return this; }
-
-    public TreeBuilder excludeAttributes(Set<String> attributes) { this.excludeAttributes = attributes; return this; }
-
     public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {this.ignoreAttributeAtNodeProbability = probability; return this; }
 
-    public TreeBuilder minNominalAttributeValueOccurances(int occurances) {this.minNominalAttributeValueOccurances = occurances; return this;}
+    public TreeBuilder minimumScore(double minimumScore) {
+        this.minimumScore = minimumScore;
+        return this;
+    }
 
     @Override
 	public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-        logger.info("Building decision tree, max depth: {}, min probability: {}, attributeExcludeDepth: {}, excludeAttributes: {}, ignoreAttributeAtNodeProb: {}, minValOcc: {}",
-                maxDepth, minProbability, attributeExcludeDepth, excludeAttributes, ignoreAttributeAtNodeProbability, minNominalAttributeValueOccurances);
+        logger.info("Building decision tree, max depth: {}, ignoreAttributeAtNodeProb: {}",
+                maxDepth, ignoreAttributeAtNodeProbability);
         return new Tree(buildTree(null, trainingData, 0, createOrdinalSplits(trainingData)));
 	}
 
@@ -113,8 +107,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                              final Map<String, double[]> splits) {
         logger.debug("Building tree at depth {}", depth);
 		final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
-		if (depth == maxDepth || thisLeaf.getBestClassificationProbability() >= minProbability)
-			return thisLeaf;
 
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -131,10 +123,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		Branch bestNode = null;
 		double bestScore = 0;
 		for (final Entry<String, AttributeCharacteristics> e : attributeCharacteristics.entrySet()) {
-            if (depth <= attributeExcludeDepth && excludeAttributes.contains(e.getKey())) {
-                continue;
-            }
-
             if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) continue;
 
 			Pair<? extends Branch, Double> thisPair = null;
@@ -153,7 +141,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 		}
 
 		// If we were unable to find a useful branch, return the leaf
-		if (bestNode == null)
+		if (bestNode == null || bestScore < minimumScore)
 			// Its a bad sign when this happens, normally something to debug
 			return thisLeaf;
 
@@ -242,10 +230,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 					// this would happen
 					continue;
 				}
-                if (this.minNominalAttributeValueOccurances > 0) {
-                    if (shouldWeIgnoreThisValue(testValCounts)) continue;
-                }
-
 				final ClassificationCounter testInCounts = inCounts.add(testValCounts);
 				final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
@@ -278,9 +262,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             if (classificationCount < lowestClassificationCount) {
                 lowestClassificationCount = classificationCount;
             }
-        }
-        if (lowestClassificationCount < this.minNominalAttributeValueOccurances) {
-            return true;
         }
         return false;
     }

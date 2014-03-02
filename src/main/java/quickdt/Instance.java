@@ -52,6 +52,31 @@ public class Instance extends AbstractInstance implements Serializable {
     private double weight;
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Instance instance = (Instance) o;
+
+        if (Double.compare(instance.weight, weight) != 0) return false;
+        if (!attributes.equals(instance.attributes)) return false;
+        if (!classification.equals(instance.classification)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = attributes.hashCode();
+        result = 31 * result + classification.hashCode();
+        temp = Double.doubleToLongBits(weight);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    @Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("[attributes=");
