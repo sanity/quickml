@@ -38,4 +38,26 @@ public final class OrdinalBranch extends Branch {
 		return attribute + " <= " + threshold;
 
 	}
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        final OrdinalBranch that = (OrdinalBranch) o;
+
+        if (Double.compare(that.threshold, threshold) != 0) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        long temp;
+        temp = Double.doubleToLongBits(threshold);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

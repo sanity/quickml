@@ -71,4 +71,20 @@ public class RandomForest implements PredictiveModel {
         return bestClassification;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final RandomForest that = (RandomForest) o;
+
+        if (!trees.equals(that.trees)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return trees.hashCode();
+    }
 }

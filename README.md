@@ -13,8 +13,11 @@ What is it?
 If you are unfamiliar with Decision Tree Learning, it's the process of building a decision tree to categorize things, based
 on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
 
-QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was written by
-[Ian Clarke](http://blog.locut.us/).  The initial public release was on 2011-09-21.
+QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was originally
+written by [Ian Clarke](http://blog.locut.us/).  The initial public release was on 2011-09-21.
+
+QuickDT also supports Random Decision Forests, which deliver a significant improvement in predictive performance by combining
+multiple decision trees. QuickDT also includes functionality to easily do cross-validation in a flexible but easy-to-use manner.
 
 What are the alternatives?
 --------------------------
@@ -52,7 +55,7 @@ And this dependency:
 <dependency>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.0.8.10</version>
+	<version>0.1</version>
 </dependency>
 ```
 
@@ -225,23 +228,32 @@ Serializable classification = randomForest.getClassificationByMaxProb(attributes
 System.out.println("Assigned class: " + classification); 
 ```
 
+Cross-validation Framework
+--------------------------
+
+QuickDT provides a simple but flexible cross-validation framework.  At the simplest level
+you give [CrossValidator](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/experiments/crossValidation/CrossValidator.java?source=c) a [PredictiveModelBuilder](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/PredictiveModelBuilder.java),
+a dataset (an Iterable<Instance>), and it will give you a root-mean-squared-error based on
+cross validation where 10% of the dataset has been reserved for testing.
+
+See [Benchmarks.java](https://github.com/sanity/quickdt/blob/master/src/test/java/quickdt/Benchmarks.java) for
+a usage example.
+
+
 Under the hood
 --------------
 
 **Split scoring formula**
 
 Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
-variety of formulae, and eventually settled on the one implemented [here](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/scorers/Scorer1.java).
+variety of formulae, and eventually settled on [MSEScorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/scorers/MSEScorer.java).
 So far as I know its a novel approach.  
 
-The basic idea is that the best split is the one with the greatest differences in the 
-proportions of the outcomes in each of the two subsets created by the split, multiplied by the size of the smaller set.  In tests 
+This Scorer is designed to estimate the improvement in "mean-squared error" resulting from the creation of a new branch. In tests
 this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/Scorer.java)
 and pass it to the TreeBuilder constructor.
 
 **Finding the best nominal branch**
-
-The algorithm I came up with for proposing a nominal branch may also be novel:
 
 Given a nominal attribute (ie. one where the values are strings), we start by scoring the splits produced by a set of size one, 
 testing each value in turn.

@@ -24,11 +24,6 @@ public abstract class Branch extends Node {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	@Override
-	public boolean fullRecall() {
-		return trueChild.fullRecall() && falseChild.fullRecall();
-	}
-
 	public Predicate<AbstractInstance> getInPredicate() {
 		return new Predicate<AbstractInstance>() {
 
@@ -78,5 +73,27 @@ public abstract class Branch extends Node {
 		trueChild.calcMeanDepth(stats);
 		falseChild.calcMeanDepth(stats);
 	}
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Branch branch = (Branch) o;
+
+        if (!attribute.equals(branch.attribute)) return false;
+        if (!falseChild.equals(branch.falseChild)) return false;
+        if (!trueChild.equals(branch.trueChild)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = attribute.hashCode();
+        result = 31 * result + trueChild.hashCode();
+        result = 31 * result + falseChild.hashCode();
+        return result;
+    }
 }
 

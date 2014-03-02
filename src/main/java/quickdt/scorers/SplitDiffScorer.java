@@ -1,12 +1,12 @@
 package quickdt.scorers;
 
+import com.google.common.collect.Sets;
+import quickdt.ClassificationCounter;
+import quickdt.Scorer;
+
 import java.io.Serializable;
 
-import quickdt.*;
-
-import com.google.common.collect.Sets;
-
-public final class Scorer1 implements Scorer {
+public final class SplitDiffScorer implements Scorer {
 
 	/*
 	 * The general idea here is that a good split is one where the proportions
@@ -37,5 +37,9 @@ public final class Scorer1 implements Scorer {
 		}
 		return score;
 	}
+
+    public String toString() {
+        return "SplitDiffScorer";
+    }
 
 }

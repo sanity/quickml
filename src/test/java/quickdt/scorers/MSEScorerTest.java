@@ -18,7 +18,7 @@ public class MSEScorerTest {
        b.addClassification("a", 5);
        b.addClassification("b", 9);
        b.addClassification("c", 6);
-        MSEScorer mseScorer = new MSEScorer();
+        MSEScorer mseScorer = new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE);
         Assert.assertTrue(Math.abs(mseScorer.scoreSplit(a, b)- 0.021776929) < 0.000000001);
     }
 }
