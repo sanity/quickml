@@ -10,7 +10,7 @@ import quickdt.AbstractInstance;
 */
 public class AttributesHashSplitter implements Predicate<AbstractInstance> {
 
-    private static final HashFunction hashFunction = Hashing.goodFastHash(8);
+    private static final HashFunction hashFunction = Hashing.murmur3_32();
 
     private final int every;
 
