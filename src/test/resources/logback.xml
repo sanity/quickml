@@ -8,6 +8,8 @@
     </encoder>
   </appender>
 
+    <logger name="quickdt.experiments.crossValidation" level="INFO"/>
+
   <root level="ERROR">
     <appender-ref ref="STDOUT" />
   </root>

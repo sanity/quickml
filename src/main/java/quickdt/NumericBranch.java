@@ -6,13 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-public final class OrdinalBranch extends Branch {
-    private static final  Logger logger =  LoggerFactory.getLogger(OrdinalBranch.class);
+public final class NumericBranch extends Branch {
+    private static final  Logger logger =  LoggerFactory.getLogger(NumericBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-	public OrdinalBranch(Node parent, final String attribute, final double threshold) {
+	public NumericBranch(Node parent, final String attribute, final double threshold) {
 		super(parent, attribute);
 		this.threshold = threshold;
 
@@ -45,7 +45,7 @@ public final class OrdinalBranch extends Branch {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        final OrdinalBranch that = (OrdinalBranch) o;
+        final NumericBranch that = (NumericBranch) o;
 
         if (Double.compare(that.threshold, threshold) != 0) return false;
 

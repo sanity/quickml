@@ -2,12 +2,16 @@ package quickdt.experiments.crossValidation;
 
 import com.google.common.base.*;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickdt.*;
 
 /**
  * Created by ian on 2/28/14.
  */
 public class CrossValidator {
+    private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.class);
+
     private final Predicate<AbstractInstance> splitter;
     private final Supplier<? extends CrossValScorer<?>> scorerSupplier;
 
@@ -35,8 +39,11 @@ public class CrossValidator {
 
     public CrossValScorer<?> test(PredictiveModelBuilder<?> predictiveModelBuilder, Iterable<Instance> data) {
         Iterable<Instance> trainingData = Iterables.filter(data, Predicates.not(splitter));
+        logger.info("Training set contains "+Iterables.size(trainingData));
         Iterable<Instance> testingData = Iterables.filter(data, splitter);
+        logger.info("Testing set contains "+Iterables.size(testingData));
         PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
+        logger.info("Predictive model hash: "+predictiveModel.hashCode());
         CrossValScorer<?> scorer = scorerSupplier.get();
         for (AbstractInstance instance : testingData) {
             scorer.score(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()));

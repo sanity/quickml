@@ -1,5 +1,6 @@
 package quickdt.experiments.crossValidation;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 
 /**
@@ -18,6 +19,9 @@ public class MSECrossValScorer extends CrossValScorer<MSECrossValScorer> {
 
     @Override
     public void score(double probabilityOfCorrectInstance) {
+        Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
+        Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
+
         total++;
         final double error = 1.0 - probabilityOfCorrectInstance;
         final double errorSquared = error*error;

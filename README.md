@@ -55,7 +55,7 @@ And this dependency:
 <dependency>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.1</version>
+	<version>0.1.2</version>
 </dependency>
 ```
 
@@ -82,20 +82,20 @@ instances.add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "m
 In reality 5 examples wouldn't be enough to learn a useful tree, but you get the idea.  Note that QuickDT can handle two types
 of data:
 
-* nominal
+* Categorical
 
 These values are categories, for example the attribute "gender" in the example above has possible values "male" and "female".
 It is ok for an attribute to have hundreds of possible values, but thousands or tens of thousands may slow down the tree
 building process significantly.  Values don't have to be strings, they can be almost any object type that isn't a number.
 
-* ordinal
+* Numeric
 
 Numbers like 1.3, -25, or 3.1415.  These can be integers, or floating point numbers, positive or negative, any object that
 implements the java.lang.Number class.  Values like Double.NaN, Double.POSITIVE_INFINITY and other non-real numbers aren't 
 supported and will probably result in an exception or unexpected behavior.
 
-**WARNING:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, ordinal or 
-nominal, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
+**WARNING:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, categorical or
+numeric, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
 
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
@@ -175,8 +175,8 @@ This is what the output might look like for a larger dataset:
 	      height <= 54.0
 	        [classification=overweight, depth=4, exampleCount=9657, probability=1.0]
 
-Note that there are two types of decisions, depending on whether its an ordinal or nominal field.  If its ordinal, then
-QuickDT will normally do a less-than or greater-than decision, if its nominal (or sometimes when its ordinal) it will
+Note that there are two types of decisions, depending on whether its a categorical or numeric field.  If its numeric, then
+QuickDT will normally do a less-than or greater-than decision, if its categorical (or sometimes when its numeric) it will
 be a test to see if the value is or isn't a member of a set.
 
 How do I build QuickDT?
@@ -200,7 +200,7 @@ Benchmarking
 ------------
 
 I've done limited benchmarking, but by way of example QuickDT is able to build a tree with 100% recall on a test set with
-8,500 instances, where each instance contains 46 attributes, a mixture of nominal and ordinal.  On my several-years-old
+8,500 instances, where each instance contains 46 attributes, a mixture of categorical and numeric.  On my several-years-old
 MacBook Pro laptop it required only 8 seconds to produce a well-balanced tree with over 500 nodes.
 
 Random Decision Forests
@@ -253,9 +253,9 @@ This Scorer is designed to estimate the improvement in "mean-squared error" resu
 this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/Scorer.java)
 and pass it to the TreeBuilder constructor.
 
-**Finding the best nominal branch**
+**Finding the best categorical branch**
 
-Given a nominal attribute (ie. one where the values are strings), we start by scoring the splits produced by a set of size one, 
+Given a categorical attribute (ie. one where the values are strings), we start by scoring the splits produced by a set of size one,
 testing each value in turn.
 
 We take the best of these, and then try adding another value to this set, again, trying each of the remaining values in turn and

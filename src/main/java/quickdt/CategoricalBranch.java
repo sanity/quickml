@@ -5,11 +5,11 @@ import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.Set;
 
-public final class NominalBranch extends Branch {
+public final class CategoricalBranch extends Branch {
 	private static final long serialVersionUID = -1723969623146234761L;
 	public final Set<Serializable> inSet;
 
-	public NominalBranch(Node parent, final String attribute, final Set<Serializable> inSet) {
+	public CategoricalBranch(Node parent, final String attribute, final Set<Serializable> inSet) {
 		super(parent, attribute);
 		this.inSet = Sets.newHashSet(inSet);
 
@@ -36,7 +36,7 @@ public final class NominalBranch extends Branch {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        final NominalBranch that = (NominalBranch) o;
+        final CategoricalBranch that = (CategoricalBranch) o;
 
         if (!inSet.equals(that.inSet)) return false;
 
