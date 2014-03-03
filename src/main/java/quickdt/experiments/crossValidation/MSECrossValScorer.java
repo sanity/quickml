@@ -18,12 +18,12 @@ public class MSECrossValScorer extends CrossValScorer<MSECrossValScorer> {
     private double totalErrorSquared = 0.0;
 
     @Override
-    public void score(double probabilityOfCorrectInstance) {
+    public void score(double probabilityOfCorrectInstance, double weight) {
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
 
-        total++;
-        final double error = 1.0 - probabilityOfCorrectInstance;
+        total+= weight;
+        final double error = (1.0 - probabilityOfCorrectInstance) * weight;
         final double errorSquared = error*error;
         totalErrorSquared += errorSquared;
     }

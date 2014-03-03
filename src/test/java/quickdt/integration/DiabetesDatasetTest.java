@@ -29,4 +29,5 @@ public class DiabetesDatasetTest {
         System.out.println("RMSE on Diabetes dataset: "+rmse);
         Assert.assertTrue(String.format("RMSE is %f, should be below 0.499", rmse), rmse < 0.48);
     }
+
 }
