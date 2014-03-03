@@ -22,11 +22,12 @@ public class DiabetesDatasetTest {
         System.out.println("Total instance count: "+ Iterables.size(instances));
 
         CrossValidator crossValidator = new CrossValidator();
-        PredictiveModelBuilder<?> predictiveModelBuilder = new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5)).numTrees(100);
+        PredictiveModelBuilder<?> predictiveModelBuilder = new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5).minimumScore(0.001)).numTrees(100);
 
         final RMSECrossValScorer testResult = (RMSECrossValScorer) crossValidator.test(predictiveModelBuilder, instances);
         final double rmse = testResult.getRMSE();
         System.out.println("RMSE on Diabetes dataset: "+rmse);
         Assert.assertTrue(String.format("RMSE is %f, should be below 0.499", rmse), rmse < 0.48);
     }
+
 }

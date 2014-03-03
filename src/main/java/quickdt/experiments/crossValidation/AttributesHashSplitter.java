@@ -15,10 +15,8 @@ public class AttributesHashSplitter implements Predicate<AbstractInstance> {
     private final int every;
 
     public AttributesHashSplitter(int every) {
-
         this.every = every;
     }
-
 
     @Override
     public boolean apply(final AbstractInstance instance) {

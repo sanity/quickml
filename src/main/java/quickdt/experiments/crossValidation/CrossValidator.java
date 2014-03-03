@@ -46,7 +46,7 @@ public class CrossValidator {
         logger.info("Predictive model hash: "+predictiveModel.hashCode());
         CrossValScorer<?> scorer = scorerSupplier.get();
         for (AbstractInstance instance : testingData) {
-            scorer.score(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()));
+            scorer.score(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
         }
         return scorer;
     }
