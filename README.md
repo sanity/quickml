@@ -94,9 +94,6 @@ Numbers like 1.3, -25, or 3.1415.  These can be integers, or floating point numb
 implements the java.lang.Number class.  Values like Double.NaN, Double.POSITIVE_INFINITY and other non-real numbers aren't 
 supported and will probably result in an exception or unexpected behavior.
 
-**WARNING:** Currently QuickDT assumes that the same attribute names are present in every instance, and that their type, categorical or
-numeric, doesn't change from one instance to the next.  QuickDT may crash with an exception if this is not the case.
-
 Next we create a TreeBuilder, and use it to build a tree using this data:
 
 ```java
