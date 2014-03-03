@@ -16,8 +16,8 @@ public class RMSECrossValScorer extends CrossValScorer<RMSECrossValScorer> {
     private MSECrossValScorer mseCrossValScorer = new MSECrossValScorer();
 
     @Override
-    public void score(final double probabilityOfCorrectInstance) {
-        mseCrossValScorer.score(probabilityOfCorrectInstance);
+    public void score(final double probabilityOfCorrectInstance, double weight) {
+        mseCrossValScorer.score(probabilityOfCorrectInstance, weight);
     }
 
     @Override
