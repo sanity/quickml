@@ -2,30 +2,23 @@ package quickdt;
 
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
+import quickdt.collections.ValueSummingMap;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class ClassificationCounter implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
-    private final Map<Serializable, Double> counts = Maps.newHashMap();
-
-	private double total = 0;
+    private final ValueSummingMap<Serializable> counts = new ValueSummingMap<Serializable>();
 
     public static ClassificationCounter merge(ClassificationCounter a, ClassificationCounter b) {
         ClassificationCounter newCC = new ClassificationCounter();
         newCC.counts.putAll(a.counts);
-        for (Entry<Serializable, Double> e : b.counts.entrySet()) {
-            Double existingCountVal = newCC.counts.get(e.getKey());
-            if (existingCountVal == null) {
-                existingCountVal = 0.0;
-            }
-            newCC.counts.put(e.getKey(), existingCountVal+e.getValue());
+        for (Entry<Serializable, Number> e : b.counts.entrySet()) {
+            newCC.counts.addToValue(e.getKey(), e.getValue().doubleValue());
         }
-        newCC.total = a.total+b.total;
         return newCC;
     }
 
@@ -49,7 +42,11 @@ public class ClassificationCounter implements Serializable {
 	}
 
     public Map<Serializable, Double> getCounts() {
-        return Collections.unmodifiableMap(counts);
+        Map<Serializable, Double> ret = Maps.newHashMap();
+        for (Entry<Serializable, Number> serializableNumberEntry : counts.entrySet()) {
+            ret.put(serializableNumberEntry.getKey(), serializableNumberEntry.getValue().doubleValue());
+        }
+        return ret;
     }
 
 
@@ -62,20 +59,16 @@ public class ClassificationCounter implements Serializable {
 	}
 
 	public void addClassification(final Serializable classification, double weight) {
-		Double c = counts.get(classification);
-		if (c == null) {
-			c = 0.0;
-		}
-		total+= weight;
-		counts.put(classification, c + weight);
+		counts.addToValue(classification, weight);
 	}
 
 	public double getCount(final Serializable classification) {
-		final Double c = counts.get(classification);
-		if (c == null)
-			return 0.0;
-		else
-			return c;
+		Number c = counts.get(classification);
+        if (c == null) {
+            return 0;
+        } else {
+            return c.doubleValue();
+        }
 	}
 
 	public Set<Serializable> allClassifications() {
@@ -85,33 +78,32 @@ public class ClassificationCounter implements Serializable {
 	public ClassificationCounter add(final ClassificationCounter other) {
 		final ClassificationCounter result = new ClassificationCounter();
 		result.counts.putAll(counts);
-		for (final Entry<Serializable, Double> e : other.counts.entrySet()) {
-			result.counts.put(e.getKey(), getCount(e.getKey()) + e.getValue());
+		for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
+			result.counts.addToValue(e.getKey(), e.getValue().doubleValue());
 		}
-		result.total = total + other.total;
 		return result;
 	}
 
 	public ClassificationCounter subtract(final ClassificationCounter other) {
 		final ClassificationCounter result = new ClassificationCounter();
-		for (final Entry<Serializable, Double> e : counts.entrySet()) {
-			result.counts.put(e.getKey(), e.getValue() - other.getCount(e.getKey()));
+        result.counts.putAll(counts);
+		for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
+			result.counts.addToValue(e.getKey(), -other.getCount(e.getKey()));
 		}
-		result.total = total - other.total;
 		return result;
 	}
 
 	public double getTotal() {
-		return total;
+		return counts.getSumOfValues();
 	}
 
 	public Pair<Serializable, Double> mostPopular() {
-		Entry<Serializable, Double> best = null;
-		for (final Entry<Serializable, Double> e : counts.entrySet()) {
-			if (best == null || e.getValue() > best.getValue()) {
+		Entry<Serializable, Number> best = null;
+		for (final Entry<Serializable, Number> e : counts.entrySet()) {
+			if (best == null || e.getValue().doubleValue() > best.getValue().doubleValue()) {
 				best = e;
 			}
 		}
-		return Pair.with(best.getKey(), best.getValue());
+		return Pair.with(best.getKey(), best.getValue().doubleValue());
 	}
 }

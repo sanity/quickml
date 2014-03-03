@@ -1,5 +1,8 @@
 package quickdt;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
@@ -25,8 +28,10 @@ public class Leaf extends Node {
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
     public Leaf(Node parent, final Iterable<? extends AbstractInstance> instances, final int depth) {
-		super(parent);
+        super(parent);
+        Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
         classificationCounts = ClassificationCounter.countAll(instances);
+        Preconditions.checkState(classificationCounts.getTotal() > 0, "Classifications must be > 0");
          exampleCount = classificationCounts.getTotal();
          this.depth = depth;
 	}
@@ -76,10 +81,6 @@ public class Leaf extends Node {
 		stats.ttlSamples += exampleCount;
 	}
 
-    public double getBestClassificationProbability() {
-        return (double) getBestClassificationEntry().getValue() / (double) this.exampleCount;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -90,7 +91,11 @@ public class Leaf extends Node {
     }
 
     public double getProbability(Serializable classification) {
-        return (double) classificationCounts.getCount(classification) / (double) exampleCount;
+        final double totalCount = classificationCounts.getTotal();
+        if (totalCount == 0) {
+            throw new IllegalStateException("Trying to get a probability from a Leaf with no examples");
+        }
+        return classificationCounts.getCount(classification) / totalCount;
     }
 
     public Set<Serializable> getClassifications() {
