@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ExperimentDriver {
     public static void main(String[] args) {
-
+/*
 
       //  ProbDistOfVarMultivariateGaussian x = new ProbDistOfVarMultivariateGaussian(400000, 3, 5, 4, 3, 4, 5, 1.5, 100000, .5, 0.5);
       //  x.getAverageDeviationInPredictedProbabilities(100, 0.0001, true);
@@ -40,6 +40,6 @@ public class ExperimentDriver {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
-    }
+*/    }
 
 }

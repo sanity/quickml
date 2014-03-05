@@ -14,7 +14,7 @@ import java.util.Random;
  * Created by alexanderhawk on 1/16/14.
  */
 public class TrainingDataGenerator {
-
+/*
     private Random uniformRandom;
 
     private int instances;
@@ -117,4 +117,5 @@ public class TrainingDataGenerator {
         int attributeValForPredictiveModel = (int)(attributeVal*10000);
         return attributeValForPredictiveModel;
     }
+    */
 }
