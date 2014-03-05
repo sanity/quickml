@@ -6,6 +6,7 @@ import org.json.simple.JSONValue;
 import quickdt.experiments.crossValidation.CrossValidator;
 import quickdt.randomForest.RandomForestBuilder;
 import quickdt.scorers.MSEScorer;
+import quickdt.scorers.SplitDiffScorer;
 
 import java.io.*;
 import java.util.List;
@@ -31,13 +32,7 @@ public class Benchmarks {
     private static void testWithInstances(String dsName, final List<Instance> instances) {
         CrossValidator crossValidator = new CrossValidator();
 
-        for (double minScore = 0.000001; minScore < 0.1; minScore *= 2.0) {
-            TreeBuilder forestTreeBuilder = new TreeBuilder(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE)).minimumScore(minScore).ignoreAttributeAtNodeProbability(0.5);
-            RandomForestBuilder randomForestBuilder = new RandomForestBuilder(forestTreeBuilder).numTrees(100).executorThreadCount(8);
-            System.out.println(minScore+", "+crossValidator.test(randomForestBuilder, instances));
-        }
-
-/*        for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
+        for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
             final TreeBuilder singleTreeBuilder = new TreeBuilder(scorer);
             System.out.println(dsName+", single-tree, "+scorer+", "+crossValidator.getCrossValidatedLoss(singleTreeBuilder, instances));
 
