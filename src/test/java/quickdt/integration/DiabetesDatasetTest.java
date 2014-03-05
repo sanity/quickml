@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 import quickdt.*;
 import quickdt.experiments.crossValidation.CrossValidator;
-import quickdt.experiments.crossValidation.RMSECrossValScorer;
+import quickdt.experiments.crossValidation.RMSECrossValLoss;
 import quickdt.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
@@ -24,8 +24,7 @@ public class DiabetesDatasetTest {
         CrossValidator crossValidator = new CrossValidator();
         PredictiveModelBuilder<?> predictiveModelBuilder = new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5).minimumScore(0.001)).numTrees(100);
 
-        final RMSECrossValScorer testResult = (RMSECrossValScorer) crossValidator.test(predictiveModelBuilder, instances);
-        final double rmse = testResult.getRMSE();
+        final double rmse = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, instances);
         System.out.println("RMSE on Diabetes dataset: "+rmse);
         Assert.assertTrue(String.format("RMSE is %f, should be below 0.499", rmse), rmse < 0.48);
     }

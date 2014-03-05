@@ -17,7 +17,6 @@ import java.util.concurrent.*;
  */
 public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest> {
   private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
-
   private final TreeBuilder treeBuilder;
   private int numTrees = 20;
   private int executorThreadCount = 8;
