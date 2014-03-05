@@ -18,7 +18,7 @@ import java.util.Random;
  * Created by alexanderhawk on 1/21/14.
  */
 public class ProbDistOfVarMultivariateGaussian {
-
+/*
     private int instances;
     private int maxDepth;
     private int numTrees;
@@ -133,6 +133,7 @@ public class ProbDistOfVarMultivariateGaussian {
     }
 
     private void initializeAttributeProperties(int numPredictiveAttributes, int numNoiseAttributes, int numAttributeVals, double degreeOfCovariance, int numRawResponseStates, double stdsAboveTheMeanForPositiveResponse, double monteCarloMoveProbability) {
+
         this.attributeValueGenerator = new Random();
         this.probabilityOfMakingAMonteCarloMove = new Random();
         this.monteCarloMoveProbability = monteCarloMoveProbability;
@@ -386,7 +387,9 @@ public class ProbDistOfVarMultivariateGaussian {
            // System.out.println("response" + response + "rawResponse" + rawResponse + "maxRawResponse" + maxRawResponse);
           //  System.exit(0);
         }
+
     }
+*/
 }
 
 
