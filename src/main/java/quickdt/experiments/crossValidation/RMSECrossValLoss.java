@@ -16,8 +16,8 @@ public class RMSECrossValLoss extends CrossValLoss<RMSECrossValLoss> {
     private MSECrossValLoss mseCrossValLoss = new MSECrossValLoss();
 
     @Override
-    public void lossFromInstance(final double probabilityOfCorrectInstance, double weight) {
-        mseCrossValLoss.lossFromInstance(probabilityOfCorrectInstance, weight);
+    public void addLossFromInstance(final double probabilityOfCorrectInstance, double weight) {
+        mseCrossValLoss.addLossFromInstance(probabilityOfCorrectInstance, weight);
     }
 
     @Override

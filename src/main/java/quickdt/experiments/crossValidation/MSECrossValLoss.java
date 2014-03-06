@@ -18,7 +18,7 @@ public class MSECrossValLoss extends CrossValLoss<MSECrossValLoss> {
     private double totalErrorSquared = 0.0;
 
     @Override
-    public void lossFromInstance(double probabilityOfCorrectInstance, double weight) {
+    public void addLossFromInstance(double probabilityOfCorrectInstance, double weight) {
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
 

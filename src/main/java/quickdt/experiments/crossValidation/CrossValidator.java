@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class CrossValidator {
     private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.class);
-    private static int defaultNumberOfFolds = 4;
+    private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
     private final Supplier<? extends CrossValLoss<?>> lossObjectSupplier;
     private List<Instance> trainingData;
@@ -25,7 +25,7 @@ public class CrossValidator {
      * the Attributes in each Instance.
      */
     public CrossValidator() {
-        this(CrossValidator.defaultNumberOfFolds, RMSECrossValLoss.supplier);
+        this(CrossValidator.DEFAULT_NUMBER_OF_FOLDS, RMSECrossValLoss.supplier);
      }
     public CrossValidator(int folds) {
         this(folds, RMSECrossValLoss.supplier);
@@ -54,7 +54,7 @@ public class CrossValidator {
             logger.info("Predictive model hash: "+predictiveModel.hashCode());
             crossValLoss = lossObjectSupplier.get();
             for (Instance instance : validationData) {
-                crossValLoss.lossFromInstance(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
+                crossValLoss.addLossFromInstance(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
             }
             runningLoss+=crossValLoss.getTotalLoss();
             System.out.println("runningTotal " + runningLoss);

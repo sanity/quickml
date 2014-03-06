@@ -1,6 +1,5 @@
-package quickdt.Optimizer;
+package quickdt.PredictiveModelOptimizer;
 
-import quickdt.PredictiveModelBuilder;
 import quickdt.TreeBuilder;
 import quickdt.randomForest.RandomForest;
 import quickdt.randomForest.RandomForestBuilder;
