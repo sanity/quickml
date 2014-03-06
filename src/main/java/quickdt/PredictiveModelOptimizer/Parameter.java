@@ -7,25 +7,18 @@ import java.util.List;
  */
 public class Parameter {
     public Properties properties;
-    public TrialValues trialValues;
-    public TrialErrors trialErrors;
+    public valueWithPreviousValue trialValues;
+    public valueWithPreviousValue trialErrors;
 
     public Parameter(Properties properties){
         this.properties = properties;
+        trialValues = new valueWithPreviousValue();
+        trialErrors = new valueWithPreviousValue();
     }
 
-    class TrialValues {
+    class valueWithPreviousValue {
         public Object current;
         public Object previous;
-
-        public void setPrevious() {
-            previous = current;
-        }
-    }
-
-    class TrialErrors {
-        public double current;
-        public double previous;
 
         public void setPrevious() {
             previous = current;

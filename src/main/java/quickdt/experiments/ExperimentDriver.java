@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class ExperimentDriver {
     public static void main(String[] args) {
+        ProbDistOfSumOfIndepRandVars x = new ProbDistOfSumOfIndepRandVars(100000, 5, 20, 2, 5, .005, 16);
+        x.getAverageDeviationInPredictedProbabilities(400, 0.0015, true);
+
 /*
 
       //  ProbDistOfVarMultivariateGaussian x = new ProbDistOfVarMultivariateGaussian(400000, 3, 5, 4, 3, 4, 5, 1.5, 100000, .5, 0.5);
@@ -32,8 +35,7 @@ public class ExperimentDriver {
         //x.getAverageDeviationInPredictedProbabilities(400, 0.0015, true);
 
 
-  //     ProbDistOfSumOfIndepRandVars x = new ProbDistOfSumOfIndepRandVars(100000, 5, 10, 5, 20, .005, 16);
-  //     x.getAverageDeviationInPredictedProbabilities(400, 0.0015, true);
+
         //get prob for each .
     }
     private static RandomForest getRandomForest(List<Instance> trainingData, int maxDepth, int numTrees) {
