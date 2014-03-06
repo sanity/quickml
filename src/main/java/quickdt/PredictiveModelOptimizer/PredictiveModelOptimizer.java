@@ -100,7 +100,7 @@ public class PredictiveModelOptimizer {
 
     private boolean errorIsWithinTolerance(Parameter parameter) {
         boolean converged = true;
-        if (Math.abs(parameter.trialErrors.current - parameter.trialErrors.previous) > parameter.properties.errorTolerance)
+        if (Math.abs((Double)parameter.trialErrors.current - (Double)parameter.trialErrors.previous) > parameter.properties.errorTolerance)
             converged = false;
 
         return converged;
