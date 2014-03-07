@@ -17,16 +17,17 @@ public class PredictiveModelOptimizer {
     Map<String, Object> predictiveModelConfig;
     String nameOfPredictiveModel;
     List<Instance> trainingData;
-    private int countsTowardsConvergence=0;
-    private int maxIterations = 3;
+    private int iterations =0;
+    private int maxIterations = 6;
     private int minIterations = 2;
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
 
     public PredictiveModelOptimizer(String nameOfPredictiveModel, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, CrossValidator crossValidator, List<Instance> trainingData ) {
-        this.crossValidator = crossValidator;
-        this.parameters = parameters;
         this.nameOfPredictiveModel = nameOfPredictiveModel;
+        this.parameters = parameters;
+        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+        this.crossValidator = crossValidator;
         this.trainingData = trainingData;
         setPredictiveModelConfig();
     }
@@ -35,6 +36,12 @@ public class PredictiveModelOptimizer {
         predictiveModelConfig = new HashMap<String, Object>();
         for (Parameter parameter : parameters)
             predictiveModelConfig.put(parameter.properties.name, parameter.properties.optimalValue);
+        if (!predictiveModelConfig.containsKey("maxDepth"))
+            predictiveModelConfig.put("maxDepth", new Integer(4));
+        if (!predictiveModelConfig.containsKey("ignoreAttributeAtNodeProbability"))
+            predictiveModelConfig.put("ignoreAttributeAtNodeProbability", new Double(0.7));
+        if (!predictiveModelConfig.containsKey("numTrees"))
+            predictiveModelConfig.put("numTrees", new Integer(4));
     }
 
     public Map<String, Object> findOptimalParameters() {
@@ -42,9 +49,17 @@ public class PredictiveModelOptimizer {
         while (!converged) {
             for (Parameter parameter : parameters) {
                 parameter.trialValues.setPrevious();
+                parameter.trialErrors.setPrevious();
+
                 findOptimalParameterValue(parameter);
             }
-            converged = isConverged();
+            iterations++;
+            System.out.println("iterations " + iterations);
+
+            if (iterations > 1){
+                System.out.println("checking convergence");
+                converged = isConverged();
+            }
         }
         return predictiveModelConfig;
     }
@@ -55,30 +70,32 @@ public class PredictiveModelOptimizer {
         for (int i=0; i< parameter.properties.range.size(); i++)  {
             Object paramValue = parameter.properties.range.get(i);
             predictiveModelConfig.put(parameter.properties.name, paramValue);
+            System.out.println(parameter.properties.name + paramValue);
             predictiveModelBuilder = predictiveModelBuilderBuilder.build(predictiveModelConfig);
             loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
 
             if (i==0 || loss < minLoss) {
                 minLoss = loss;
                 parameter.trialValues.current = paramValue;
+                parameter.trialErrors.current = minLoss;
+
             }
         }
     }
 
     private boolean isConverged() {  // what will be the condition
         boolean converged = true;
-        countsTowardsConvergence++;
-        if (countsTowardsConvergence > minIterations)
+        if (iterations < minIterations)
             return false;
-        else if (countsTowardsConvergence > maxIterations)
+        else if (iterations > maxIterations)
             return true;
         else {
             for (Parameter parameter : parameters)  {
                 System.out.println(parameter.properties.name + " current value " + parameter.trialValues.current + " previous value " + parameter.trialValues.previous);
-                System.out.println(parameter.properties.name + " current error " + parameter.trialErrors.current + " previous error " + parameter.trialErrors.previous);
+        //        System.out.println(parameter.properties.name + " current error " + parameter.trialErrors.current + " previous error " + parameter.trialErrors.previous);
 
                 if(parameterIsConverged(parameter) == false || errorIsWithinTolerance(parameter) == false);
-                    return false;
+                    converged = false;
 
             }
         }
@@ -87,22 +104,25 @@ public class PredictiveModelOptimizer {
 
     private boolean parameterIsConverged(Parameter parameter) {
         boolean converged = true;
-        if (parameter.trialValues.current instanceof Number && Math.abs(((Number) parameter.trialValues.current).doubleValue() - ((Number) parameter.trialValues.previous).doubleValue()) > parameter.properties.errorTolerance)
-            converged = false;
-        else if (parameter.trialValues.current instanceof Boolean && !parameter.trialValues.current.equals(parameter.trialValues.previous))
-            converged = false;
-        else  {
+        if (!(parameter.trialValues.current instanceof Number) && !(parameter.trialValues.current instanceof Boolean)) {
             System.out.println("parameters to optimize must be numbers or booleans");
             System.exit(0);
         }
+        else if (parameter.trialValues.current instanceof Number && Math.abs(((Number) parameter.trialValues.current).doubleValue() - ((Number) parameter.trialValues.previous).doubleValue()) > parameter.properties.errorTolerance)
+            converged = false;
+        else if (parameter.trialValues.current instanceof Boolean && !parameter.trialValues.current.equals(parameter.trialValues.previous))
+            converged = false;
+
         return converged;
     }
 
     private boolean errorIsWithinTolerance(Parameter parameter) {
         boolean converged = true;
-        if (Math.abs((Double)parameter.trialErrors.current - (Double)parameter.trialErrors.previous) > parameter.properties.errorTolerance)
+        double percentError = Math.abs((Double)parameter.trialErrors.current - (Double)parameter.trialErrors.previous)/((Double)parameter.trialErrors.current);
+        if (percentError > parameter.properties.errorTolerance)
             converged = false;
 
+        System.out.println("current % error" + percentError);
         return converged;
     }
 }
