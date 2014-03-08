@@ -17,7 +17,7 @@ public class ExperimentDriver2 {
     public static void main(String[] args) {
 
         String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id"};
-        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(10000, .005, bidRequestAttributes);
+        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(40000, .005, bidRequestAttributes);
         List<Instance> trainingData = trainingDataGenerator.createTrainingData();
         List<Parameter> parameters = Lists.newArrayList();
         List<Object> depthRange = Lists.newArrayList();
