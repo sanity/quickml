@@ -11,8 +11,8 @@ public class Properties {
     public boolean binarySearchTheRange = false;
     public Object optimalValue;
     public List<Object> range;
-    public double parameterTolerance = 1.0;
-    public double errorTolerance = .05;
+    public double parameterTolerance;
+    public double errorTolerance;
 
     public Properties(String name, boolean isOrdinal, List<Object> range, Object initialGuessOfOptimalValue, boolean binarySearchTheRange, double parameterTolerance, double errorTolerance) {
         this.name = name;
