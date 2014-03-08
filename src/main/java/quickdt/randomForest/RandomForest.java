@@ -1,5 +1,6 @@
 package quickdt.randomForest;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import quickdt.*;
@@ -23,6 +24,7 @@ public class RandomForest implements PredictiveModel {
     public final List<Tree> trees;
 
     protected RandomForest(List<Tree> trees) {
+        Preconditions.checkArgument(trees.size() > 0, "We must have at least one tree");
         this.trees = trees;
     }
 
@@ -41,7 +43,11 @@ public class RandomForest implements PredictiveModel {
     public double getProbability(Attributes attributes, Serializable classification) {
         double total = 0;
         for (Tree tree : trees) {
-            total += tree.getProbability(attributes, classification);
+            final double probability = tree.getProbability(attributes, classification);
+            if (Double.isInfinite(probability) || Double.isNaN(probability)) {
+                throw new RuntimeException("Probability must be a normal number, not "+probability);
+            }
+            total += probability;
         }
         return total / trees.size();
     }

@@ -1,5 +1,7 @@
-package quickdt.PredictiveModelOptimizer;
+package quickdt.predictiveModelOptimizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickdt.Instance;
 import quickdt.PredictiveModel;
 import quickdt.PredictiveModelBuilder;
@@ -13,6 +15,8 @@ import java.util.Map;
  * Created by alexanderhawk on 3/4/14.
  */
 public class PredictiveModelOptimizer {
+    private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizer.class);
+
     List<Parameter> parameters;
     Map<String, Object> predictiveModelConfig;
     String nameOfPredictiveModel;
@@ -54,10 +58,8 @@ public class PredictiveModelOptimizer {
                 findOptimalParameterValue(parameter);
             }
             iterations++;
-            System.out.println("iterations " + iterations);
 
             if (iterations > 1){
-                System.out.println("checking convergence");
                 converged = isConverged();
             }
         }
@@ -70,17 +72,16 @@ public class PredictiveModelOptimizer {
         for (int i=0; i< parameter.properties.range.size(); i++)  {
             Object paramValue = parameter.properties.range.get(i);
             predictiveModelConfig.put(parameter.properties.name, paramValue);
-            System.out.println(parameter.properties.name + paramValue);
             predictiveModelBuilder = predictiveModelBuilderBuilder.build(predictiveModelConfig);
             loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
-
+            logger.info(String.format("Trying parameter %s with value %s, loss is %s", parameter.properties.name, paramValue, loss));
             if (i==0 || loss < minLoss) {
                 minLoss = loss;
                 parameter.trialValues.current = paramValue;
                 parameter.trialErrors.current = minLoss;
-
             }
         }
+        logger.info(String.format("Best value for parameter %s is %s with loss of %s", parameter.properties.name, parameter.trialValues.current, parameter.trialErrors.current));
     }
 
     private boolean isConverged() {  // what will be the condition
@@ -91,8 +92,7 @@ public class PredictiveModelOptimizer {
             return true;
         else {
             for (Parameter parameter : parameters)  {
-                System.out.println(parameter.properties.name + " current value " + parameter.trialValues.current + " previous value " + parameter.trialValues.previous);
-        //        System.out.println(parameter.properties.name + " current error " + parameter.trialErrors.current + " previous error " + parameter.trialErrors.previous);
+                logger.info(parameter.properties.name + " current value " + parameter.trialValues.current + " previous value " + parameter.trialValues.previous);
 
                 if(parameterIsConverged(parameter) == false || errorIsWithinTolerance(parameter) == false);
                     converged = false;

@@ -6,3 +6,5 @@ test-output/
 testdata/
 /.idea/
 .settings/
+local-*
+logback.xsd

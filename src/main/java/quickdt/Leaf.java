@@ -95,7 +95,8 @@ public class Leaf extends Node {
         if (totalCount == 0) {
             throw new IllegalStateException("Trying to get a probability from a Leaf with no examples");
         }
-        return classificationCounts.getCount(classification) / totalCount;
+        final double probability = classificationCounts.getCount(classification) / totalCount;
+        return probability;
     }
 
     public Set<Serializable> getClassifications() {
