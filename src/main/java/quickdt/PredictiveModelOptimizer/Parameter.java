@@ -1,6 +1,4 @@
-package quickdt.PredictiveModelOptimizer;
-
-import java.util.List;
+package quickdt.predictiveModelOptimizer;
 
 /**
  * Created by alexanderhawk on 3/4/14.

@@ -13,7 +13,8 @@ import java.util.List;
  * Created by ian on 2/28/14.
  */
 public class CrossValidator {
-    private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.class);
+private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.class);
+
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
     private final Supplier<? extends CrossValLoss<?>> lossObjectSupplier;
@@ -57,9 +58,10 @@ public class CrossValidator {
                 crossValLoss.addLossFromInstance(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
             }
             runningLoss+=crossValLoss.getTotalLoss();
-            System.out.println("runningTotal " + runningLoss);
         }
-        return runningLoss/folds;
+        final double averageLoss = runningLoss / folds;
+        logger.info("Average loss: "+averageLoss);
+        return averageLoss;
     }
 
     private void setTrainingAndValidationSets(int foldNumber, Iterable<Instance> data) {
