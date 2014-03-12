@@ -14,9 +14,9 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public interface PredictiveModel extends Serializable {
-    double getProbability(Attributes attributes, Serializable classification);
+    double getProbability(Attributes attributes, Serializable classification);  //refactor to getUncalibratedProbability()
 
     public void dump(PrintStream printStream);
 
-    Serializable getClassificationByMaxProb(Attributes attributes);
+    public Serializable getClassificationByMaxProb(Attributes attributes);
 }

@@ -18,18 +18,18 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        List<Instance> diaInstances = loadDiabetesDataset();
+        List<AbstractInstance> diaInstances = loadDiabetesDataset();
 
         testWithInstances("diabetes", diaInstances);
 
-        final List<Instance> moboInstances = loadMoboDataset();
+        final List<AbstractInstance> moboInstances = loadMoboDataset();
 
         testWithInstances("mobo", moboInstances);
 
 
     }
 
-    private static void testWithInstances(String dsName, final List<Instance> instances) {
+    private static void testWithInstances(String dsName, final List<AbstractInstance> instances) {
         CrossValidator crossValidator = new CrossValidator();
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
@@ -42,9 +42,9 @@ public class Benchmarks {
         }
     }
 
-    public static List<Instance> loadDiabetesDataset() throws IOException {
+    public static List<AbstractInstance> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<Instance> instances = Lists.newLinkedList();
+        final List<AbstractInstance> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -56,7 +56,7 @@ public class Benchmarks {
             for (int x=0; x<8; x++) {
                 hashMapAttributes.put("attr"+x, splitLine[x]);
             }
-            final Instance instance = new Instance(hashMapAttributes, splitLine[8]);
+            final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[8]);
             instances.add(instance);
 
         }
@@ -64,10 +64,10 @@ public class Benchmarks {
         return instances;
     }
 
-    private static List<Instance> loadMoboDataset() throws IOException {
+    private static List<AbstractInstance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<Instance> instances = Lists.newLinkedList();
+        final List<AbstractInstance> instances = Lists.newLinkedList();
 
         int count = 0;
         while (true) {
@@ -79,7 +79,7 @@ public class Benchmarks {
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
             final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
-            Instance instance = new Instance(a, (String) jo.get("output"));
+            AbstractInstance instance = new Instance(a, (String) jo.get("output"));
             instances.add(instance);
         }
 

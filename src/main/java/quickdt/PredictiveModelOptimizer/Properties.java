@@ -1,5 +1,4 @@
-package quickdt.predictiveModelOptimizer;
-
+package quickdt.PredictiveModelOptimizer;
 import java.util.List;
 
 /**
@@ -8,15 +7,17 @@ import java.util.List;
 public class Properties {
     public String name;
     public boolean isOrdinal = true;
+    public boolean isMonotonicallyConvergent;
     public boolean binarySearchTheRange = false;
     public Object optimalValue;
     public List<Object> range;
     public double parameterTolerance;
     public double errorTolerance;
 
-    public Properties(String name, boolean isOrdinal, List<Object> range, Object initialGuessOfOptimalValue, boolean binarySearchTheRange, double parameterTolerance, double errorTolerance) {
+    public Properties(String name, boolean isOrdinal, boolean isMonotonicallyConvergent, List<Object> range, Object initialGuessOfOptimalValue, boolean binarySearchTheRange, double parameterTolerance, double errorTolerance) {
         this.name = name;
         this.isOrdinal = isOrdinal;
+        this.isMonotonicallyConvergent = isMonotonicallyConvergent;
         this.binarySearchTheRange = binarySearchTheRange;
         this.optimalValue = initialGuessOfOptimalValue;
         this.range = range;

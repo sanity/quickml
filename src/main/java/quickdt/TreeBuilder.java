@@ -52,13 +52,12 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-        logger.info("Building decision tree, max depth: {}, ignoreAttributeAtNodeProb: {}",
-                maxDepth, ignoreAttributeAtNodeProbability);
+       // logger.info("Building decision tree, max depth: {}, ignoreAttributeAtNodeProb: {}",maxDepth, ignoreAttributeAtNodeProbability);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
-        logger.debug("Creating numeric split for attribute {}", attribute);
+     //   logger.debug("Creating numeric split for attribute {}", attribute);
         final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
         for (final AbstractInstance i : trainingData) {
             rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
@@ -77,12 +76,12 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             split[x] = al.get((x + 1) * al.size() / (split.length + 1));
         }
 
-        logger.debug("Created numeric split for attribute {}: {}", attribute, Arrays.toString(split));
+//        logger.debug("Created numeric split for attribute {}: {}", attribute, Arrays.toString(split));
         return split;
     }
 
     private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
-        logger.debug("Creating numeric splits");
+     //   logger.debug("Creating numeric splits");
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final AbstractInstance i : trainingData) {
             for (final Entry<String, Serializable> e : i.getAttributes().entrySet()) {
@@ -118,7 +117,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        logger.debug("Building tree at depth {}", depth);
+   //     logger.debug("Building tree at depth {}", depth);
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
@@ -200,7 +199,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     }
 
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
-        logger.debug("Surveying training data");
+    //    logger.debug("Surveying training data");
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (AbstractInstance instance : trainingData) {
@@ -215,13 +214,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 }
             }
         }
-        logger.debug("Survey complete");
+//        logger.debug("Survey complete");
         return attributeCharacteristics;
     }
 
     protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
-        logger.debug("Creating categorical node for attribute {}", attribute);
+      //  logger.debug("Creating categorical node for attribute {}", attribute);
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
             values.add(instance.getAttributes().get(attribute));
@@ -269,7 +268,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 break;
             }
         }
-        logger.debug("Created categorical node for attribute {}", attribute);
+       // logger.debug("Created categorical node for attribute {}", attribute);
         return Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
     }
 
@@ -286,7 +285,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     protected Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances,
                                                                final double[] splits) {
-        logger.debug("Creating numeric node for attribute {}", attribute);
+//        logger.debug("Creating numeric node for attribute {}", attribute);
 
         double bestScore = 0;
         double bestThreshold = 0;
@@ -333,7 +332,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 bestThreshold = threshold;
             }
         }
-        logger.debug("Created numeric node for attribute {}", attribute);
+//        logger.debug("Created numeric node for attribute {}", attribute);
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
     }
 

@@ -1,6 +1,7 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
+import quickdt.AbstractInstance;
 import quickdt.Attributes;
 import quickdt.HashMapAttributes;
 import quickdt.Instance;
@@ -85,13 +86,15 @@ public class TrainingDataGenerator2 {
         int stdsAboveTheMeanForRelevance = 16;  //make this number higher if you want more instances that have high click probabilities.
         double standardDeviationOfClassificationVariable = standardDeviationOfUniformVariableOn0to1 / Math.sqrt(numPredictiveAttributes);
         this.decayConstantForNoClickEvent = 1/(meanOfUniformVariableOn0to1 + stdsAboveTheMeanForRelevance*standardDeviationOfClassificationVariable);
+        System.out.println("decay constant " + decayConstantForNoClickEvent );
+        //System.exit(0);
     }
 
-    public List<Instance> createTrainingData() {
+    public List<AbstractInstance> createTrainingData() {
 
-        List<Instance> trainingData = Lists.newArrayList();
+        List<AbstractInstance> trainingData = Lists.<AbstractInstance>newArrayList();
         double attributeValue;
-        Instance instance;
+        AbstractInstance instance;
         Attributes attributes;
         double clickClassification;
 

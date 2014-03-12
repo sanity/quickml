@@ -1,10 +1,11 @@
-package quickdt.predictiveModelOptimizer;
+package quickdt.PredictiveModelOptimizer;
 
 import java.util.List;
 
 public class PropertiesBuilder {
     private String name;
     private boolean isOrdinal;
+    private boolean isMonotonicallyConvergent = false;
     private List<Object> range;
     private Object initialGuessOfOptimalValue;
     private boolean binarySearchTheRange;
@@ -18,6 +19,11 @@ public class PropertiesBuilder {
 
     public PropertiesBuilder setIsOrdinal(boolean isOrdinal) {
         this.isOrdinal = isOrdinal;
+        return this;
+    }
+
+    public PropertiesBuilder setIsMonotonicallyConvergent(boolean isMonotonicallyConvergent) {
+        this.isMonotonicallyConvergent = isMonotonicallyConvergent;
         return this;
     }
 
@@ -47,6 +53,6 @@ public class PropertiesBuilder {
     }
 
     public Properties createProperties() {
-        return new Properties(name, isOrdinal, range, initialGuessOfOptimalValue, binarySearchTheRange, parameterTolerance, errorTolerance);
+        return new Properties(name, isOrdinal, isMonotonicallyConvergent, range, initialGuessOfOptimalValue, binarySearchTheRange, parameterTolerance, errorTolerance);
     }
 }

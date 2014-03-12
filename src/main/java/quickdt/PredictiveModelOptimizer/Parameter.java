@@ -1,5 +1,4 @@
-package quickdt.predictiveModelOptimizer;
-
+package quickdt.PredictiveModelOptimizer;
 /**
  * Created by alexanderhawk on 3/4/14.
  */

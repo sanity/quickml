@@ -1,36 +1,52 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import quickdt.AbstractInstance;
+import quickdt.CalibratedPredictiveModel.PAVCalibratedPredictiveModelBuilderBuilder;
 import quickdt.Instance;
-import quickdt.predictiveModelOptimizer.*;
+import quickdt.PredictiveModelOptimizer.*;
 import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.randomForest.RandomForestBuilderBuilder;
 
 import java.util.List;
 import java.util.Map;
 
 public class ExperimentDriver2 {
-    public static void main(String[] args) {
+    private static final Logger logger = LoggerFactory.getLogger(ExperimentDriver2.class);
 
-        String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id"};
-        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(40000, .005, bidRequestAttributes);
-        List<Instance> trainingData = trainingDataGenerator.createTrainingData();
+    public static void main(String[] args) {
+        String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "att 4", "att 5"};
+        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(1000, .4, bidRequestAttributes);
+        List<AbstractInstance> trainingData = trainingDataGenerator.createTrainingData();
         List<Parameter> parameters = Lists.newArrayList();
-        List<Object> depthRange = Lists.<Object>newArrayList(2, 4, 6);
+        List<Object> depthRange = Lists.<Object>newArrayList(2, 4);
         PropertiesBuilder maxDepthPropertyBuilder = new PropertiesBuilder().setName("maxDepth").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(4).setIsOrdinal(true)
-                .setParameterTolerance(1).setErrorTolerance(.05).setRange(depthRange);
+                .setParameterTolerance(0).setErrorTolerance(.05).setRange(depthRange);
         parameters.add(new Parameter(maxDepthPropertyBuilder.createProperties()));
-        List<Object> skipRange = Lists.<Object>newArrayList(0.1, 0.3, 0.5, 0.7, 0.9);
-       PropertiesBuilder ignoreAttrPropertyBuilder = new PropertiesBuilder().setName("ignoreAttributeAtNodeProbability").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(0.3).setIsOrdinal(true)
-                .setParameterTolerance(0.39).setErrorTolerance(.05).setRange(skipRange);
+
+        List<Object> skipRange = Lists.<Object>newArrayList(0.3, 0.7);
+        PropertiesBuilder ignoreAttrPropertyBuilder = new PropertiesBuilder().setName("ignoreAttributeAtNodeProbability").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(0.3).setIsOrdinal(true)
+                .setParameterTolerance(0).setErrorTolerance(.05).setRange(skipRange);
         parameters.add(new Parameter(ignoreAttrPropertyBuilder.createProperties()));
-        List<Object> numTreesRange = Lists.<Object>newArrayList(5, 10, 20, 50, 100);
-        PropertiesBuilder numTreesPropertyBuilder = new PropertiesBuilder().setName("numTrees").setBinarySearchTheRange(true).setInitialGuessOfOptimalValue(20).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(.05).setRange(numTreesRange);
+
+        List<Object> numTreesRange = Lists.<Object>newArrayList(5, 10, 20, 40);
+        PropertiesBuilder numTreesPropertyBuilder = new PropertiesBuilder().setName("numTrees").setBinarySearchTheRange(true).setIsMonotonicallyConvergent(true).setInitialGuessOfOptimalValue(20).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.02).setRange(numTreesRange);
         parameters.add(new Parameter(numTreesPropertyBuilder.createProperties()));
-        PredictiveModelOptimizer optimizer = new PredictiveModelOptimizer("exp",parameters, new RandomForestBuilderBuilder(), new CrossValidator(3), trainingData);
-        Map<String, Object> optimalParameters = optimizer.findOptimalParameters();
-        System.out.println("Optimal parameters");
+
+        List<Object> binsInCalibratorRange = Lists.<Object>newArrayList(5, 10, 20, 40, 100, 200);
+        PropertiesBuilder binsInCalibratorPropertyBuilder = new PropertiesBuilder().setName("binsInCalibrator").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(false).setInitialGuessOfOptimalValue(5).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.01).setRange(binsInCalibratorRange);
+        parameters.add(new Parameter(binsInCalibratorPropertyBuilder.createProperties()));
+
+        BestOptimum bestOptimum = new BestOptimum(3, new CrossValidator(3), parameters, new PAVCalibratedPredictiveModelBuilderBuilder(), trainingData);
+        Map<String, Object> optimalParameters =  bestOptimum.findBestOptimum();
+
+        logger.info(String.format("Optimal Parameters"));
+        logger.info("Optimal parameters");
         for (String key : optimalParameters.keySet())
-            System.out.println(key + " " + optimalParameters.get(key));
+            logger.info(key + " " +optimalParameters.get(key));
+
     }
 
 }

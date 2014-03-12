@@ -17,7 +17,7 @@ import java.util.List;
 public class DiabetesDatasetTest {
     @Test
     public void testDiabetesDataset() throws IOException {
-        final List<Instance> instances = Benchmarks.loadDiabetesDataset();
+        final List<AbstractInstance> instances = Benchmarks.loadDiabetesDataset();
 
         System.out.println("Total instance count: "+ Iterables.size(instances));
 

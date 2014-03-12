@@ -1,13 +1,11 @@
-package quickdt.predictiveModelOptimizer;
+package quickdt.PredictiveModelOptimizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.Instance;
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
+import quickdt.*;
 import quickdt.experiments.crossValidation.CrossValidator;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,32 +18,35 @@ public class PredictiveModelOptimizer {
     List<Parameter> parameters;
     Map<String, Object> predictiveModelConfig;
     String nameOfPredictiveModel;
-    List<Instance> trainingData;
+    Iterable<AbstractInstance> trainingData;
     private int iterations =0;
-    private int maxIterations = 6;
+    private int maxIterations = 12;
     private int minIterations = 2;
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
 
-    public PredictiveModelOptimizer(String nameOfPredictiveModel, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, CrossValidator crossValidator, List<Instance> trainingData ) {
-        this.nameOfPredictiveModel = nameOfPredictiveModel;
+    public PredictiveModelOptimizer(CrossValidator crossValidator, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
         this.parameters = parameters;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
         this.trainingData = trainingData;
-        setPredictiveModelConfig();
+        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
-    private void setPredictiveModelConfig() {
-        predictiveModelConfig = new HashMap<String, Object>();
-        for (Parameter parameter : parameters)
-            predictiveModelConfig.put(parameter.properties.name, parameter.properties.optimalValue);
-        if (!predictiveModelConfig.containsKey("maxDepth"))
-            predictiveModelConfig.put("maxDepth", new Integer(4));
-        if (!predictiveModelConfig.containsKey("ignoreAttributeAtNodeProbability"))
-            predictiveModelConfig.put("ignoreAttributeAtNodeProbability", new Double(0.7));
-        if (!predictiveModelConfig.containsKey("numTrees"))
-            predictiveModelConfig.put("numTrees", new Integer(4));
+    public PredictiveModelOptimizer(List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+        this.parameters = parameters;
+        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+        this.crossValidator = new CrossValidator();
+        this.trainingData = trainingData;
+        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
+    }
+
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+        this.parameters = predictiveModelBuilderBuilder.createDefaultParameters();
+        this.crossValidator = new CrossValidator();
+        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+        this.trainingData = trainingData;
+        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
     public Map<String, Object> findOptimalParameters() {
@@ -61,6 +62,7 @@ public class PredictiveModelOptimizer {
 
             if (iterations > 1){
                 converged = isConverged();
+                logger.info("\n checking convergence \n");
             }
         }
         return predictiveModelConfig;
@@ -69,32 +71,50 @@ public class PredictiveModelOptimizer {
     private void findOptimalParameterValue(Parameter parameter){
         double loss=0, minLoss=0;
         PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
+        double relativeError = 0;
         for (int i=0; i< parameter.properties.range.size(); i++)  {
             Object paramValue = parameter.properties.range.get(i);
             predictiveModelConfig.put(parameter.properties.name, paramValue);
-            predictiveModelBuilder = predictiveModelBuilderBuilder.build(predictiveModelConfig);
+            predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
             loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
-            logger.info(String.format("Trying parameter %s with value %s, loss is %s", parameter.properties.name, paramValue, loss));
+            logger.info(String.format("Trying parameter %s with value %s, loss is %f", parameter.properties.name, paramValue, loss));
+            for (String key : predictiveModelConfig.keySet())
+                logger.info(String.format(key + " " + predictiveModelConfig.get(key)));
+
+            if (parameter.properties.isMonotonicallyConvergent)  {
+                relativeError = Math.abs(loss - minLoss)/loss;//Math.abs(((Number)parameter.trialErrors.current).doubleValue() - ((Number) parameter.trialErrors.previous).doubleValue())/((Number)(parameter.trialErrors.previous)).doubleValue();
+                parameter.trialValues.current = paramValue;
+                parameter.trialErrors.current = loss;
+                logger.info("relative Error" + " " + relativeError);
+                if (relativeError < parameter.properties.errorTolerance)  {
+                    break;
+                }
+            }
             if (i==0 || loss < minLoss) {
                 minLoss = loss;
                 parameter.trialValues.current = paramValue;
-                parameter.trialErrors.current = minLoss;
+                parameter.trialErrors.current = loss;
             }
         }
+        predictiveModelConfig.put("loss", parameter.trialErrors.current);
+        predictiveModelConfig.put(parameter.properties.name, parameter.trialValues.current);
         logger.info(String.format("Best value for parameter %s is %s with loss of %s", parameter.properties.name, parameter.trialValues.current, parameter.trialErrors.current));
     }
 
-    private boolean isConverged() {  // what will be the condition
+    private boolean isConverged() {
         boolean converged = true;
         if (iterations < minIterations)
             return false;
-        else if (iterations > maxIterations)
+        else if (iterations > maxIterations) {
+            logger.info(String.format("exceededMax Iterations %d", maxIterations));
+
             return true;
+        }
         else {
             for (Parameter parameter : parameters)  {
                 logger.info(parameter.properties.name + " current value " + parameter.trialValues.current + " previous value " + parameter.trialValues.previous);
 
-                if(parameterIsConverged(parameter) == false || errorIsWithinTolerance(parameter) == false);
+                if(parameterIsConverged(parameter) == false)
                     converged = false;
 
             }
@@ -105,7 +125,7 @@ public class PredictiveModelOptimizer {
     private boolean parameterIsConverged(Parameter parameter) {
         boolean converged = true;
         if (!(parameter.trialValues.current instanceof Number) && !(parameter.trialValues.current instanceof Boolean)) {
-            System.out.println("parameters to optimize must be numbers or booleans");
+            logger.error("parameters to optimize must be numbers or booleans");
             System.exit(0);
         }
         else if (parameter.trialValues.current instanceof Number && Math.abs(((Number) parameter.trialValues.current).doubleValue() - ((Number) parameter.trialValues.previous).doubleValue()) > parameter.properties.errorTolerance)
@@ -122,7 +142,6 @@ public class PredictiveModelOptimizer {
         if (percentError > parameter.properties.errorTolerance)
             converged = false;
 
-        System.out.println("current % error" + percentError);
         return converged;
     }
 }
