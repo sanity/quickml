@@ -1,15 +1,12 @@
 package quickdt.randomForest;
-import com.google.common.collect.Lists;
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
-import quickdt.PredictiveModelBuilderBuilder;
-import quickdt.PredictiveModelOptimizer.Parameter;
-import quickdt.PredictiveModelOptimizer.PropertiesBuilder;
-import quickdt.TreeBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import quickdt.PredictiveModelBuilderBuilder;
+import quickdt.TreeBuilder;
+import quickdt.predictiveModelOptimizer.Parameter;
+import quickdt.predictiveModelOptimizer.PropertiesBuilder;
+
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 3/4/14.

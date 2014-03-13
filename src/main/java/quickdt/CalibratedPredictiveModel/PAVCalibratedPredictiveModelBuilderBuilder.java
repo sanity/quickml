@@ -1,16 +1,12 @@
 package quickdt.CalibratedPredictiveModel;
 
 import com.google.common.collect.Lists;
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
-import quickdt.PredictiveModelBuilderBuilder;
-import quickdt.PredictiveModelOptimizer.Parameter;
-import quickdt.PredictiveModelOptimizer.PropertiesBuilder;
+import quickdt.*;
+import quickdt.predictiveModelOptimizer.Parameter;
+import quickdt.predictiveModelOptimizer.PropertiesBuilder;
 import quickdt.randomForest.RandomForestBuilderBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 3/10/14.

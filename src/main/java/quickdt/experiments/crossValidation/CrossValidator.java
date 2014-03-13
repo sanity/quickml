@@ -42,7 +42,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
 
     }
 
-    public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<AbstractInstance> allTrainingData) {
+    public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
         CrossValLoss<?> crossValLoss;
         double runningLoss = 0;
         DataSplit dataSplit;
@@ -61,7 +61,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
         return averageLoss;
     }
 
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<AbstractInstance> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends AbstractInstance> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
         for (AbstractInstance instance : data) {
