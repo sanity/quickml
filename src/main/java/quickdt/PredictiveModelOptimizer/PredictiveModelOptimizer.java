@@ -1,4 +1,4 @@
-package quickdt.PredictiveModelOptimizer;
+package quickdt.predictiveModelOptimizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +18,14 @@ public class PredictiveModelOptimizer {
     List<Parameter> parameters;
     Map<String, Object> predictiveModelConfig;
     String nameOfPredictiveModel;
-    Iterable<AbstractInstance> trainingData;
+    Iterable<? extends AbstractInstance> trainingData;
     private int iterations =0;
     private int maxIterations = 12;
     private int minIterations = 2;
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
 
-    public PredictiveModelOptimizer(CrossValidator crossValidator, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+    public PredictiveModelOptimizer(CrossValidator crossValidator, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
         this.parameters = parameters;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
@@ -33,7 +33,7 @@ public class PredictiveModelOptimizer {
         this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
-    public PredictiveModelOptimizer(List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+    public PredictiveModelOptimizer(List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
         this.parameters = parameters;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = new CrossValidator();
@@ -41,7 +41,7 @@ public class PredictiveModelOptimizer {
         this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
         this.parameters = predictiveModelBuilderBuilder.createDefaultParameters();
         this.crossValidator = new CrossValidator();
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;

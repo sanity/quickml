@@ -5,10 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.AbstractInstance;
 import quickdt.CalibratedPredictiveModel.PAVCalibratedPredictiveModelBuilderBuilder;
-import quickdt.Instance;
-import quickdt.PredictiveModelOptimizer.*;
 import quickdt.experiments.crossValidation.CrossValidator;
-import quickdt.randomForest.RandomForestBuilderBuilder;
+import quickdt.predictiveModelOptimizer.*;
 
 import java.util.List;
 import java.util.Map;

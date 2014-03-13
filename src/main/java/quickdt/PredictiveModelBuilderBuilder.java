@@ -1,12 +1,8 @@
 package quickdt;
 
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
-import quickdt.PredictiveModelOptimizer.Parameter;
+import quickdt.predictiveModelOptimizer.Parameter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 3/4/14.
