@@ -3,8 +3,8 @@ package quickdt.randomForest;
 import com.google.common.collect.Lists;
 import quickdt.PredictiveModelBuilderBuilder;
 import quickdt.TreeBuilder;
-import quickdt.PredictiveModelOptimizer.Parameter;
-import quickdt.PredictiveModelOptimizer.PropertiesBuilder;
+import quickdt.predictiveModelOptimizer2.Parameter;
+import quickdt.predictiveModelOptimizer2.PropertiesBuilder;
 
 import java.util.*;
 

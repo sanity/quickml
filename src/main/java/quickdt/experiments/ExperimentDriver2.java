@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.AbstractInstance;
-import quickdt.CalibratedPredictiveModel.PAVCalibratedPredictiveModelBuilderBuilder;
+import quickdt.calibratedPredictiveModel2.PAVCalibratedPredictiveModelBuilderBuilder;
 import quickdt.experiments.crossValidation.CrossValidator;
-import quickdt.PredictiveModelOptimizer.*;
+import quickdt.predictiveModelOptimizer2.*;
 
 import java.util.List;
 import java.util.Map;

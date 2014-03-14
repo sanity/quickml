@@ -1,4 +1,4 @@
-package quickdt.PredictiveModelOptimizer;
+package quickdt.predictiveModelOptimizer2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

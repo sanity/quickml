@@ -1,6 +1,6 @@
 package quickdt;
 
-import quickdt.PredictiveModelOptimizer.Parameter;
+import quickdt.predictiveModelOptimizer2.Parameter;
 
 import java.util.*;
 

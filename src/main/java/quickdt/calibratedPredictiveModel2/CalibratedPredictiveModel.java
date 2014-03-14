@@ -1,4 +1,4 @@
-package quickdt.CalibratedPredictiveModel;
+package quickdt.calibratedPredictiveModel2;
 
 import quickdt.Attributes;
 import quickdt.PredictiveModel;
