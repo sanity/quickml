@@ -24,11 +24,11 @@ public class ExperimentDriver2 {
                 .setParameterTolerance(0).setErrorTolerance(.05).setRange(depthRange);
         parameters.add(new Parameter(maxDepthPropertyBuilder.createProperties()));
 
-        List<Object> skipRange = Lists.<Object>newArrayList(0.3, 0.7);
-        PropertiesBuilder ignoreAttrPropertyBuilder = new PropertiesBuilder().setName("ignoreAttributeAtNodeProbability").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(0.3).setIsOrdinal(true)
+        List<Object> skipRange = Lists.<Object>newArrayList(0.8, 0.9);
+        PropertiesBuilder ignoreAttrPropertyBuilder = new PropertiesBuilder().setName("ignoreAttributeAtNodeProbability").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(0.8).setIsOrdinal(true)
                 .setParameterTolerance(0).setErrorTolerance(.05).setRange(skipRange);
         parameters.add(new Parameter(ignoreAttrPropertyBuilder.createProperties()));
-
+/*
         List<Object> numTreesRange = Lists.<Object>newArrayList(5, 10, 20, 40);
         PropertiesBuilder numTreesPropertyBuilder = new PropertiesBuilder().setName("numTrees").setBinarySearchTheRange(true).setIsMonotonicallyConvergent(true).setInitialGuessOfOptimalValue(20).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.02).setRange(numTreesRange);
         parameters.add(new Parameter(numTreesPropertyBuilder.createProperties()));
@@ -36,7 +36,7 @@ public class ExperimentDriver2 {
         List<Object> binsInCalibratorRange = Lists.<Object>newArrayList(5, 10, 20, 40, 100, 200);
         PropertiesBuilder binsInCalibratorPropertyBuilder = new PropertiesBuilder().setName("binsInCalibrator").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(false).setInitialGuessOfOptimalValue(5).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.01).setRange(binsInCalibratorRange);
         parameters.add(new Parameter(binsInCalibratorPropertyBuilder.createProperties()));
-
+*/
         BestOptimum bestOptimum = new BestOptimum(3, new CrossValidator(3), parameters, new PAVCalibratedPredictiveModelBuilderBuilder(), trainingData);
         Map<String, Object> optimalParameters =  bestOptimum.findBestOptimum();
 
