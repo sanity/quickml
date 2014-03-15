@@ -50,7 +50,7 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
 
 
         for (ParameterToOptimize parameterToOptimize : parametersToOptimizes)
-            predictiveModelParameters.put(parameterToOptimize.properties.name, parameterToOptimize.properties.optimalValue);
+             predictiveModelParameters.put(parameterToOptimize.properties.name, parameterToOptimize.properties.optimalValue);
         if (!predictiveModelParameters.containsKey("maxDepth"))
             predictiveModelParameters.put("maxDepth", new Integer(4));
         if (!predictiveModelParameters.containsKey("ignoreAttributeAtNodeProbability"))
