@@ -38,11 +38,11 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable <? extends AbstractInstance> trainingInstances) {
         predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
-        setCalibrator(trainingInstances);
+        createCalibrator(trainingInstances);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    private void setCalibrator(Iterable <? extends AbstractInstance> trainingInstances) {
+    private void createCalibrator(Iterable<? extends AbstractInstance> trainingInstances) {
             List mobservations = Lists.<PAVCalibrator.Observation>newArrayList();
             double prediction = 0;
             double groundTruth = 0;

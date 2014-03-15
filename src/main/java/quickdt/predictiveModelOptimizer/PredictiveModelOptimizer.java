@@ -15,8 +15,8 @@ import java.util.Map;
 public class PredictiveModelOptimizer {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
-    List<Parameter> parameters;
-    Map<String, Object> predictiveModelConfig;
+    List<ParameterToOptimize> parametersToOptimize;
+    Map<String, Object> predictiveModelParamaters;
     String nameOfPredictiveModel;
     Iterable<? extends AbstractInstance> trainingData;
     private int iterations =0;
@@ -25,38 +25,38 @@ public class PredictiveModelOptimizer {
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
 
-    public PredictiveModelOptimizer(CrossValidator crossValidator, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.parameters = parameters;
+    public PredictiveModelOptimizer(CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+        this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
+        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
     }
 
-    public PredictiveModelOptimizer(List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.parameters = parameters;
+    public PredictiveModelOptimizer(List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+        this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = new CrossValidator();
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
+        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
     }
 
     public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.parameters = predictiveModelBuilderBuilder.createDefaultParameters();
+        this.parametersToOptimize = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
         this.crossValidator = new CrossValidator();
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
+        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
     }
 
     public Map<String, Object> findOptimalParameters() {
         boolean converged = false;
         while (!converged) {
-            for (Parameter parameter : parameters) {
-                parameter.trialValues.setPrevious();
-                parameter.trialErrors.setPrevious();
+            for (ParameterToOptimize parameterToOptimize : parametersToOptimize) {
+                parameterToOptimize.trialValues.setPrevious();
+                parameterToOptimize.trialErrors.setPrevious();
 
-                findOptimalParameterValue(parameter);
+                findOptimalParameterValue(parameterToOptimize);
             }
             iterations++;
 
@@ -65,41 +65,41 @@ public class PredictiveModelOptimizer {
                 logger.info("\n checking convergence \n");
             }
         }
-        return predictiveModelConfig;
+        return predictiveModelParamaters;
     }
 
-    private void findOptimalParameterValue(Parameter parameter){
+    private void findOptimalParameterValue(ParameterToOptimize parameterToOptimize){
         double loss=0, minLoss=0;
         PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
         double relativeError = 0;
-        for (int i=0; i< parameter.properties.range.size(); i++)  {
-            Object paramValue = parameter.properties.range.get(i);
-            predictiveModelConfig.put(parameter.properties.name, paramValue);
-            predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
+        for (int i=0; i< parameterToOptimize.properties.range.size(); i++)  {
+            Object paramValue = parameterToOptimize.properties.range.get(i);
+            predictiveModelParamaters.put(parameterToOptimize.properties.name, paramValue);
+            predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelParamaters);
             loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
-            logger.info(String.format("parameter %s with value %s, has loss %f .  Other params are:", parameter.properties.name, paramValue, loss));
-            for (String key : predictiveModelConfig.keySet())
-                if (!key.equals("loss") && !key.equals(parameter.properties.name))
-                   logger.info(String.format(key + " " + predictiveModelConfig.get(key)));
+            logger.info(String.format("parameterToOptimize: %s with value %s, has loss %f .  Other params are:", parameterToOptimize.properties.name, paramValue, loss));
+            for (String key : predictiveModelParamaters.keySet())
+                if (!key.equals("loss") && !key.equals(parameterToOptimize.properties.name))
+                   logger.info(String.format(key + " " + predictiveModelParamaters.get(key)));
 
-            if (parameter.properties.isMonotonicallyConvergent)  {
+            if (parameterToOptimize.properties.isMonotonicallyConvergent)  {
                 relativeError = Math.abs(loss - minLoss)/loss;//Math.abs(((Number)parameter.trialErrors.current).doubleValue() - ((Number) parameter.trialErrors.previous).doubleValue())/((Number)(parameter.trialErrors.previous)).doubleValue();
-                parameter.trialValues.current = paramValue;
-                parameter.trialErrors.current = loss;
+                parameterToOptimize.trialValues.current = paramValue;
+                parameterToOptimize.trialErrors.current = loss;
                 logger.info("relative Error" + " " + relativeError);
-                if (relativeError < parameter.properties.errorTolerance)  {
+                if (relativeError < parameterToOptimize.properties.errorTolerance)  {
                     break;
                 }
             }
             if (i==0 || loss < minLoss) {
                 minLoss = loss;
-                parameter.trialValues.current = paramValue;
-                parameter.trialErrors.current = loss;
+                parameterToOptimize.trialValues.current = paramValue;
+                parameterToOptimize.trialErrors.current = loss;
             }
         }
-        predictiveModelConfig.put("loss", parameter.trialErrors.current);
-        predictiveModelConfig.put(parameter.properties.name, parameter.trialValues.current);
-        logger.info(String.format("Best value for parameter %s is %s with loss of %s", parameter.properties.name, parameter.trialValues.current, parameter.trialErrors.current));
+        predictiveModelParamaters.put("loss", parameterToOptimize.trialErrors.current);
+        predictiveModelParamaters.put(parameterToOptimize.properties.name, parameterToOptimize.trialValues.current);
+        logger.info(String.format("Best value for parameterToOptimize %s is %s with loss of %s", parameterToOptimize.properties.name, parameterToOptimize.trialValues.current, parameterToOptimize.trialErrors.current));
     }
 
     private boolean isConverged() {
@@ -112,10 +112,10 @@ public class PredictiveModelOptimizer {
             return true;
         }
         else {
-            for (Parameter parameter : parameters)  {
-                logger.info(parameter.properties.name + " current value " + parameter.trialValues.current + " previous value " + parameter.trialValues.previous);
+            for (ParameterToOptimize parameterToOptimize : parametersToOptimize)  {
+                logger.info(parameterToOptimize.properties.name + " current value " + parameterToOptimize.trialValues.current + " previous value " + parameterToOptimize.trialValues.previous);
 
-                if(parameterIsConverged(parameter) == false)
+                if(parameterIsConverged(parameterToOptimize) == false)
                     converged = false;
 
             }
@@ -123,24 +123,24 @@ public class PredictiveModelOptimizer {
         return converged;
     }
 
-    private boolean parameterIsConverged(Parameter parameter) {
+    private boolean parameterIsConverged(ParameterToOptimize parameterToOptimize) {
         boolean converged = true;
-        if (!(parameter.trialValues.current instanceof Number) && !(parameter.trialValues.current instanceof Boolean)) {
-            logger.error("parameters to optimize must be numbers or booleans");
+        if (!(parameterToOptimize.trialValues.current instanceof Number) && !(parameterToOptimize.trialValues.current instanceof Boolean)) {
+            logger.error("parametersToOptimize to optimize must be numbers or booleans");
             System.exit(0);
         }
-        else if (parameter.trialValues.current instanceof Number && Math.abs(((Number) parameter.trialValues.current).doubleValue() - ((Number) parameter.trialValues.previous).doubleValue()) > parameter.properties.errorTolerance)
+        else if (parameterToOptimize.trialValues.current instanceof Number && Math.abs(((Number) parameterToOptimize.trialValues.current).doubleValue() - ((Number) parameterToOptimize.trialValues.previous).doubleValue()) > parameterToOptimize.properties.errorTolerance)
             converged = false;
-        else if (parameter.trialValues.current instanceof Boolean && !parameter.trialValues.current.equals(parameter.trialValues.previous))
+        else if (parameterToOptimize.trialValues.current instanceof Boolean && !parameterToOptimize.trialValues.current.equals(parameterToOptimize.trialValues.previous))
             converged = false;
 
         return converged;
     }
 
-    private boolean errorIsWithinTolerance(Parameter parameter) {
+    private boolean errorIsWithinTolerance(ParameterToOptimize parameterToOptimize) {
         boolean converged = true;
-        double percentError = Math.abs((Double)parameter.trialErrors.current - (Double)parameter.trialErrors.previous)/((Double)parameter.trialErrors.current);
-        if (percentError > parameter.properties.errorTolerance)
+        double percentError = Math.abs((Double)parameterToOptimize.trialErrors.current - (Double)parameterToOptimize.trialErrors.previous)/((Double)parameterToOptimize.trialErrors.current);
+        if (percentError > parameterToOptimize.properties.errorTolerance)
             converged = false;
 
         return converged;
