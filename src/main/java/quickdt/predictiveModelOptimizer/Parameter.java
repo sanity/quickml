@@ -19,7 +19,7 @@ public class Parameter {
         this.trialValues = new ValueWithPreviousValue(parameter.trialValues);
     }
     
-    public static Object createAppropriatePrimitiveWrapper(Object obj){
+    public static Object copyConstructAppropriatePrimitiveWrapper(Object obj){
         Object returnObj;
         if (obj instanceof Double)
             return new Double((Double)obj);
@@ -37,8 +37,8 @@ public class Parameter {
         public ValueWithPreviousValue(){}
 
         public ValueWithPreviousValue(ValueWithPreviousValue valueWithPreviousValue)  {
-            this.current = createAppropriatePrimitiveWrapper(valueWithPreviousValue.current);
-            this.previous = createAppropriatePrimitiveWrapper(valueWithPreviousValue.previous);
+            this.current = copyConstructAppropriatePrimitiveWrapper(valueWithPreviousValue.current);
+            this.previous = copyConstructAppropriatePrimitiveWrapper(valueWithPreviousValue.previous);
         }
 
         public void setPrevious() {
