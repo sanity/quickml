@@ -74,7 +74,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   }
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
- //   logger.info("Building tree {} of {}", treeIndex, numTrees);
+    logger.info("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
   }
 
