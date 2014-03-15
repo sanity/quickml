@@ -21,9 +21,7 @@ public class Parameter {
     
     public static Object createAppropriatePrimitiveWrapper(Object obj){
         Object returnObj;
-        if (obj instanceof String)
-            return new String((String)obj);
-        else if (obj instanceof Double)
+        if (obj instanceof Double)
             return new Double((Double)obj);
         else if (obj instanceof Integer)
             return new Integer((Integer)obj);
