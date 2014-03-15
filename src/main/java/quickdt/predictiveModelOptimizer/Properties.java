@@ -27,16 +27,16 @@ public class Properties {
         this.errorTolerance = errorTolerance;
     }
     public Properties(Properties properties){
-        this.name = (String)Parameter.newStringOrPrimitiveWrapperFactory(properties.name);
-        this.isOrdinal = (Boolean)Parameter.newStringOrPrimitiveWrapperFactory(properties.isOrdinal);
-        this.isMonotonicallyConvergent = (Boolean)Parameter.newStringOrPrimitiveWrapperFactory(properties.isMonotonicallyConvergent);
-        this.binarySearchTheRange = (Boolean)Parameter.newStringOrPrimitiveWrapperFactory(properties.binarySearchTheRange);
-        this.optimalValue = Parameter.newStringOrPrimitiveWrapperFactory(properties.optimalValue);
-        this.parameterTolerance = (Double)Parameter.newStringOrPrimitiveWrapperFactory((Double) properties.parameterTolerance);
-        this.errorTolerance = (Double) Parameter.newStringOrPrimitiveWrapperFactory((Double) properties.errorTolerance);
+        this.name = new String(properties.name);
+        this.isOrdinal = properties.isOrdinal;
+        this.isMonotonicallyConvergent = properties.isMonotonicallyConvergent;
+        this.binarySearchTheRange = properties.binarySearchTheRange;
+        this.optimalValue = Parameter.createAppropriatePrimitiveWrapper(properties.optimalValue);
+        this.parameterTolerance = properties.parameterTolerance;
+        this.errorTolerance = properties.errorTolerance;
         this.range = Lists.<Object>newArrayList();
         for(Object obj : properties.range)
-            this.range.add(Parameter.newStringOrPrimitiveWrapperFactory(obj));
+            this.range.add(Parameter.createAppropriatePrimitiveWrapper(obj));
     }
 
 }

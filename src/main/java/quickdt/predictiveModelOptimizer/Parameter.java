@@ -19,7 +19,7 @@ public class Parameter {
         this.trialValues = new ValueWithPreviousValue(parameter.trialValues);
     }
     
-    public static Object newStringOrPrimitiveWrapperFactory(Object obj){
+    public static Object createAppropriatePrimitiveWrapper(Object obj){
         Object returnObj;
         if (obj instanceof String)
             return new String((String)obj);
@@ -39,8 +39,8 @@ public class Parameter {
         public ValueWithPreviousValue(){}
 
         public ValueWithPreviousValue(ValueWithPreviousValue valueWithPreviousValue)  {
-            this.current = newStringOrPrimitiveWrapperFactory(valueWithPreviousValue.current);
-            this.previous = newStringOrPrimitiveWrapperFactory(valueWithPreviousValue.previous);
+            this.current = createAppropriatePrimitiveWrapper(valueWithPreviousValue.current);
+            this.previous = createAppropriatePrimitiveWrapper(valueWithPreviousValue.previous);
         }
 
         public void setPrevious() {
