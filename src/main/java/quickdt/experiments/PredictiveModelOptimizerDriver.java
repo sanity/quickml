@@ -4,15 +4,15 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.AbstractInstance;
-import quickdt.calibratedPredictiveModel2.PAVCalibratedPredictiveModelBuilderBuilder;
+import quickdt.calibratedPredictiveModel.PAVCalibratedPredictiveModelBuilderBuilder;
 import quickdt.experiments.crossValidation.CrossValidator;
-import quickdt.predictiveModelOptimizer2.*;
+import quickdt.predictiveModelOptimizer.*;
 
 import java.util.List;
 import java.util.Map;
 
-public class ExperimentDriver2 {
-    private static final Logger logger = LoggerFactory.getLogger(ExperimentDriver2.class);
+public class PredictiveModelOptimizerDriver {
+    private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizerDriver.class);
 
     public static void main(String[] args) {
         String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "att 4", "att 5"};
@@ -37,7 +37,7 @@ public class ExperimentDriver2 {
         PropertiesBuilder binsInCalibratorPropertyBuilder = new PropertiesBuilder().setName("binsInCalibrator").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(false).setInitialGuessOfOptimalValue(5).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.01).setRange(binsInCalibratorRange);
         parameters.add(new Parameter(binsInCalibratorPropertyBuilder.createProperties()));
 */
-        BestOptimum bestOptimum = new BestOptimum(3, new CrossValidator(3), parameters, new PAVCalibratedPredictiveModelBuilderBuilder(), trainingData);
+        BestOptimum bestOptimum = new BestOptimum(2, new CrossValidator(3), parameters, new PAVCalibratedPredictiveModelBuilderBuilder(), trainingData);
         Map<String, Object> optimalParameters =  bestOptimum.findBestOptimum();
 
         logger.info(String.format("Optimal Parameters"));

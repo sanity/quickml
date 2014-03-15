@@ -1,4 +1,4 @@
-package quickdt.calibratedPredictiveModel2;
+package quickdt.calibratedPredictiveModel;
 
 import com.google.common.collect.Lists;
 import quickdt.AbstractInstance;

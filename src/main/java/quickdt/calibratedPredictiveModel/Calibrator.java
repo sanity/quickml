@@ -1,4 +1,4 @@
-package quickdt.calibratedPredictiveModel2;
+package quickdt.calibratedPredictiveModel;
 
 /**
  * Created by alexanderhawk on 3/11/14.

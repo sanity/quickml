@@ -1,4 +1,4 @@
-package quickdt.predictiveModelOptimizer2;
+package quickdt.predictiveModelOptimizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +77,10 @@ public class PredictiveModelOptimizer {
             predictiveModelConfig.put(parameter.properties.name, paramValue);
             predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
             loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
-            logger.info(String.format("Trying parameter %s with value %s, loss is %f", parameter.properties.name, paramValue, loss));
+            logger.info(String.format("parameter %s with value %s, has loss %f .  Other params are:", parameter.properties.name, paramValue, loss));
             for (String key : predictiveModelConfig.keySet())
-                logger.info(String.format(key + " " + predictiveModelConfig.get(key)));
+                if (!key.equals("loss") && !key.equals(parameter.properties.name))
+                   logger.info(String.format(key + " " + predictiveModelConfig.get(key)));
 
             if (parameter.properties.isMonotonicallyConvergent)  {
                 relativeError = Math.abs(loss - minLoss)/loss;//Math.abs(((Number)parameter.trialErrors.current).doubleValue() - ((Number) parameter.trialErrors.previous).doubleValue())/((Number)(parameter.trialErrors.previous)).doubleValue();
@@ -106,7 +107,7 @@ public class PredictiveModelOptimizer {
         if (iterations < minIterations)
             return false;
         else if (iterations > maxIterations) {
-            logger.info(String.format("exceededMax Iterations %d", maxIterations));
+            logger.info(String.format("did not converge.  Stopped because we exceeded Max Iterations %d", maxIterations));
 
             return true;
         }

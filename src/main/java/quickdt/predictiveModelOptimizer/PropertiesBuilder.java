@@ -1,4 +1,4 @@
-package quickdt.predictiveModelOptimizer2;
+package quickdt.predictiveModelOptimizer;
 
 import java.util.List;
 

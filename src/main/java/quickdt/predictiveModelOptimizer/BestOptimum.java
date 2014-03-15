@@ -1,5 +1,6 @@
-package quickdt.predictiveModelOptimizer2;
+package quickdt.predictiveModelOptimizer;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.AbstractInstance;
@@ -33,7 +34,6 @@ public class BestOptimum {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
     public BestOptimum(int numOptima, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
@@ -42,7 +42,6 @@ public class BestOptimum {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = new CrossValidator();
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
 
     public BestOptimum(int numOptima, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
@@ -51,23 +50,29 @@ public class BestOptimum {
         this.crossValidator = new CrossValidator();
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
-        this.predictiveModelConfig = predictiveModelBuilderBuilder.createPredictiveModelConfig(parameters);
     }
     public Map<String, Object> findBestOptimum() {
         Map<String, Object> bestPredictiveModelConfig = null;
-        PredictiveModelOptimizer predictiveModelOptimizer;
+        Map<String, Object> trialPredictiveModelConfig = null;
 
+        PredictiveModelOptimizer predictiveModelOptimizer;
+        List<Parameter> localParameters;
+
+        double minLoss = 0, loss = 0;
         for (int i = 0; i < numOptima; i++) {
-            double loss = 0, minLoss = 0;
-            predictiveModelOptimizer = new PredictiveModelOptimizer(crossValidator, parameters, predictiveModelBuilderBuilder, trainingData);
-            if (predictiveModelOptimizer.findOptimalParameters().containsKey("loss"))
-                 loss = (Double)predictiveModelOptimizer.findOptimalParameters().get("loss");
+            loss = 0;
+            localParameters = Lists.<Parameter>newArrayList();
+            for (Parameter parameter : parameters)
+                localParameters.add(new Parameter(parameter));
+            predictiveModelOptimizer = new PredictiveModelOptimizer(crossValidator, localParameters, predictiveModelBuilderBuilder, trainingData);
+            trialPredictiveModelConfig = predictiveModelOptimizer.findOptimalParameters();
+            loss = (Double)trialPredictiveModelConfig.get("loss");
             if (i==0 || loss < minLoss)  {
                 minLoss = loss;
-                bestPredictiveModelConfig = predictiveModelOptimizer.findOptimalParameters();
+                bestPredictiveModelConfig = trialPredictiveModelConfig;
             }
         }
-        //bestPredictiveModelConfig.remove("loss");
+
         return bestPredictiveModelConfig;
 
     }
