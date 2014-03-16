@@ -31,6 +31,10 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
         PropertiesBuilder numTreesPropertyBuilder = new PropertiesBuilder().setName("numTrees").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(true).setInitialGuessOfOptimalValue(20).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.0).setRange(numTreesRange);
         parameters.add(new Parameter(numTreesPropertyBuilder.createProperties()));
 
+        List<Object> minimumScoreRange = Lists.<Object>newArrayList(Double.MIN_VALUE, 0.0, 0.00001, 0.0001, 0.001, 0.01, 0.1);
+        PropertiesBuilder minimumScorePropertiesBuilder = new PropertiesBuilder().setName("minimumScore").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(false).setInitialGuessOfOptimalValue(0.001).setIsOrdinal(true).setRange(minimumScoreRange);
+        parameters.add(new Parameter(minimumScorePropertiesBuilder.createProperties()));
+
         return parameters;
     }
 
@@ -40,17 +44,22 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
         for (Parameter parameter : parameters)
             predictiveModelConfig.put(parameter.properties.name, parameter.properties.optimalValue);
         if (!predictiveModelConfig.containsKey("maxDepth"))
-            predictiveModelConfig.put("maxDepth", new Integer(4));
+            predictiveModelConfig.put("maxDepth", 4);
         if (!predictiveModelConfig.containsKey("ignoreAttributeAtNodeProbability"))
-            predictiveModelConfig.put("ignoreAttributeAtNodeProbability", new Double(0.7));
+            predictiveModelConfig.put("ignoreAttributeAtNodeProbability", 0.7);
         if (!predictiveModelConfig.containsKey("numTrees"))
-            predictiveModelConfig.put("numTrees", new Integer(4));
+            predictiveModelConfig.put("numTrees", 4);
+        if (!predictiveModelConfig.containsKey("minimumScore"))
+            predictiveModelConfig.put("minimumScore", 0.0);
         return predictiveModelConfig;
     }
 
     @Override
     public RandomForestBuilder buildBuilder(Map<String, Object> parameters){
-        TreeBuilder treeBuilder = new TreeBuilder().maxDepth((Integer)parameters.get("maxDepth")).ignoreAttributeAtNodeProbability((Double)parameters.get("ignoreAttributeAtNodeProbability"));
+        TreeBuilder treeBuilder = new TreeBuilder()
+                .maxDepth((Integer)parameters.get("maxDepth"))
+                .ignoreAttributeAtNodeProbability((Double)parameters.get("ignoreAttributeAtNodeProbability"))
+                .minimumScore((Double) parameters.get("minimumScore"));
         return new RandomForestBuilder(treeBuilder).numTrees((Integer)parameters.get("numTrees"));
     }
 }
