@@ -55,7 +55,7 @@ And this dependency:
 <dependency>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.1.3</version>
+	<version>0.1.4.8</version>
 </dependency>
 ```
 

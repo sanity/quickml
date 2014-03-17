@@ -37,6 +37,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
      *                       predictive model's performance
      */
     public CrossValidator(final int folds, Supplier<? extends CrossValLoss<?>> lossObjectSupplier) {
+        Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.lossObjectSupplier = lossObjectSupplier;
 
