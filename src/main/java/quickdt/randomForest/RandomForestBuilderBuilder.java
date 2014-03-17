@@ -22,7 +22,7 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
                 .setParameterTolerance(0).setErrorTolerance(.05).setRange(depthRange);
         parameters.add(new Parameter(maxDepthPropertyBuilder.createProperties()));
 
-        List<Object> skipRange = Lists.<Object>newArrayList(0.8, 0.9, 0.95, 0.98);
+        List<Object> skipRange = Lists.<Object>newArrayList(0.6, 0.8, 0.9, 0.95, 0.98);
         PropertiesBuilder ignoreAttrPropertyBuilder = new PropertiesBuilder().setName("ignoreAttributeAtNodeProbability").setBinarySearchTheRange(false).setInitialGuessOfOptimalValue(0.3).setIsOrdinal(true)
                 .setParameterTolerance(0).setErrorTolerance(.05).setRange(skipRange);
         parameters.add(new Parameter(ignoreAttrPropertyBuilder.createProperties()));
