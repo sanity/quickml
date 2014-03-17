@@ -17,7 +17,7 @@ public class BestOptimum {
 
     private static final Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
-    List<Parameter> parameters;
+    List<ParameterToOptimize> parametersToOptimize;
     Map<String, Object> predictiveModelConfig;
     String nameOfPredictiveModel;
     Iterable<AbstractInstance> trainingData;
@@ -28,17 +28,17 @@ public class BestOptimum {
     private CrossValidator crossValidator;
     private int numOptima;
 
-    public BestOptimum(int numOptima, CrossValidator crossValidator, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+    public BestOptimum(int numOptima, CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
         this.numOptima = numOptima;
-        this.parameters = parameters;
+        this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
         this.trainingData = trainingData;
     }
 
-    public BestOptimum(int numOptima, List<Parameter> parameters, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+    public BestOptimum(int numOptima, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
         this.numOptima = numOptima;
-        this.parameters = parameters;
+        this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = new CrossValidator();
         this.trainingData = trainingData;
@@ -46,7 +46,7 @@ public class BestOptimum {
 
     public BestOptimum(int numOptima, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
         this.numOptima = numOptima;
-        this.parameters = predictiveModelBuilderBuilder.createDefaultParameters();
+        this.parametersToOptimize = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
         this.crossValidator = new CrossValidator();
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
@@ -56,14 +56,14 @@ public class BestOptimum {
         Map<String, Object> trialPredictiveModelConfig = null;
 
         PredictiveModelOptimizer predictiveModelOptimizer;
-        List<Parameter> localParameters;
+        List<ParameterToOptimize> localParameters;
 
         double minLoss = 0, loss = 0;
         for (int i = 0; i < numOptima; i++) {
             loss = 0;
-            localParameters = Lists.<Parameter>newArrayList();
-            for (Parameter parameter : parameters)
-                localParameters.add(new Parameter(parameter));
+            localParameters = Lists.<ParameterToOptimize>newArrayList();
+            for (ParameterToOptimize parameter : parametersToOptimize)
+                localParameters.add(new ParameterToOptimize(parameter));
             predictiveModelOptimizer = new PredictiveModelOptimizer(crossValidator, localParameters, predictiveModelBuilderBuilder, trainingData);
             trialPredictiveModelConfig = predictiveModelOptimizer.findOptimalParameters();
             loss = (Double)trialPredictiveModelConfig.get("loss");

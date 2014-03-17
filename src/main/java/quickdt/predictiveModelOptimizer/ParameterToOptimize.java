@@ -2,25 +2,24 @@ package quickdt.predictiveModelOptimizer;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class Parameter {
+public class ParameterToOptimize {
     public Properties properties;
     public ValueWithPreviousValue trialValues;
     public ValueWithPreviousValue trialErrors;
 
-    public Parameter(Properties properties){
+    public ParameterToOptimize(Properties properties){
         this.properties = properties;
         trialValues = new ValueWithPreviousValue();
         trialErrors = new ValueWithPreviousValue();
     }
 
-    public Parameter(Parameter parameter) {
+    public ParameterToOptimize(ParameterToOptimize parameter) {
         this.properties = new Properties(parameter.properties);
         this.trialErrors = new ValueWithPreviousValue(parameter.trialErrors);
         this.trialValues = new ValueWithPreviousValue(parameter.trialValues);
     }
     
     public static Object copyConstructAppropriatePrimitiveWrapper(Object obj){
-        Object returnObj;
         if (obj instanceof Double)
             return new Double((Double)obj);
         else if (obj instanceof Integer)

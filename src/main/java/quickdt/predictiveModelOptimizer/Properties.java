@@ -31,12 +31,12 @@ public class Properties {
         this.isOrdinal = properties.isOrdinal;
         this.isMonotonicallyConvergent = properties.isMonotonicallyConvergent;
         this.binarySearchTheRange = properties.binarySearchTheRange;
-        this.optimalValue = Parameter.copyConstructAppropriatePrimitiveWrapper(properties.optimalValue);
+        this.optimalValue = ParameterToOptimize.copyConstructAppropriatePrimitiveWrapper(properties.optimalValue);
         this.parameterTolerance = properties.parameterTolerance;
         this.errorTolerance = properties.errorTolerance;
         this.range = Lists.<Object>newArrayList();
         for(Object obj : properties.range)
-            this.range.add(Parameter.copyConstructAppropriatePrimitiveWrapper(obj));
+            this.range.add(ParameterToOptimize.copyConstructAppropriatePrimitiveWrapper(obj));
     }
 
 }
