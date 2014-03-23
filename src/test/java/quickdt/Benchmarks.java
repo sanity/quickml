@@ -64,7 +64,29 @@ public class Benchmarks {
         return instances;
     }
 
-    private static List<AbstractInstance> loadMoboDataset() throws IOException {
+    public static List<AbstractInstance> loadIrisDataset() throws IOException {
+        final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
+        final List<AbstractInstance> instances = Lists.newLinkedList();
+
+        while (true) {
+            String line = br.readLine();
+            if (line == null) {
+                break;
+            }
+            String[] splitLine = line.split(",");
+            HashMapAttributes hashMapAttributes = new HashMapAttributes();
+            for (int x=0; x<splitLine.length - 1; x++) {
+                hashMapAttributes.put("attr"+x, splitLine[x]);
+            }
+            final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[splitLine.length-1]);
+            instances.add(instance);
+
+        }
+
+        return instances;
+    }
+
+    public static List<AbstractInstance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
         final List<AbstractInstance> instances = Lists.newLinkedList();
