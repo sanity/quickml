@@ -163,10 +163,17 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
         final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getInPredicate()));
+        double trueWeight = 0;
+        for (AbstractInstance instance : trueTrainingSet)
+            trueWeight += instance.getWeight();
+
         final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getOutPredicate()));
+        double falseWeight = 0;
+        for (AbstractInstance instance : falseTrainingSet)
+            falseWeight += instance.getWeight();
 
-        if (trueTrainingSet.isEmpty() || falseTrainingSet.isEmpty()) {
+        if (trueWeight == 0 || falseWeight ==0) {
             return thisLeaf;
         }
 
