@@ -23,7 +23,7 @@ public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveMod
     }
 
 
-    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<? extends PredictiveModel, PredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder) {
+    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<? extends PredictiveModel, ? extends PredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
     }
 
