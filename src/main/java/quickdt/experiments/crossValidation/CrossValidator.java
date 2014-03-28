@@ -17,6 +17,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
 
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
+    private int foldsUsed;
     private final Supplier<? extends CrossValLoss<?>> lossObjectSupplier;
 
     /**
@@ -30,6 +31,10 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
     public CrossValidator(int folds) {
         this(folds, RMSECrossValLoss.supplier);
     }
+
+    public CrossValidator(int folds, int foldsUsed) {
+        this(folds, foldsUsed, RMSECrossValLoss.supplier);
+    }
     /**
      * Create a new CrossValidator
      * @param folds The number folds to be used in the cross validation procedure
@@ -39,15 +44,23 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
     public CrossValidator(final int folds, Supplier<? extends CrossValLoss<?>> lossObjectSupplier) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
+        this.foldsUsed = folds;
         this.lossObjectSupplier = lossObjectSupplier;
 
+    }
+
+    public CrossValidator(final int folds, final int foldsUsed, Supplier<? extends CrossValLoss<?>> lossObjectSupplier) {
+        Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
+        this.folds = folds;
+        this.foldsUsed = foldsUsed;
+        this.lossObjectSupplier = lossObjectSupplier;
     }
 
     public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
         CrossValLoss<?> crossValLoss;
         double runningLoss = 0;
         DataSplit dataSplit;
-        for (int currentFold = 0; currentFold < folds; currentFold++)  {
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
             crossValLoss = lossObjectSupplier.get();
@@ -57,7 +70,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
             runningLoss+=crossValLoss.getTotalLoss();
 
         }
-        final double averageLoss = runningLoss / folds;
+        final double averageLoss = runningLoss / foldsUsed;
         logger.info("Average loss: "+averageLoss);
         return averageLoss;
     }

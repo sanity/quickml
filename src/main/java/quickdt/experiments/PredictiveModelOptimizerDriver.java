@@ -33,7 +33,9 @@ public class PredictiveModelOptimizerDriver {
         parametersToOptimize.add(new ParameterToOptimize(ignoreAttrPropertyBuilder.createProperties()));
         Map<String, Object> initialPredictiveModelParameters = new HashMap<String, Object>();
         initialPredictiveModelParameters.put("binsInCalibrator", new Integer(10));
-        initialPredictiveModelParameters.put("numTrees", new Integer(5));
+        initialPredictiveModelParameters.put("numTrees", new Integer(16));
+        initialPredictiveModelParameters.put("executorThreadCount", new Integer(8));
+
 
 /*
         List<Object> numTreesRange = Lists.<Object>newArrayList(5, 10, 20, 40);
@@ -46,7 +48,7 @@ public class PredictiveModelOptimizerDriver {
 
 */
         PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder = new PAVCalibratedPredictiveModelBuilderBuilder(initialPredictiveModelParameters);
-        BestOptimum bestOptimum = new BestOptimum(2, new CrossValidator(4), parametersToOptimize, pavCalibratedPredictiveModelBuilderBuilder, trainingData);
+        BestOptimum bestOptimum = new BestOptimum(1, 1,  new CrossValidator(4,2), parametersToOptimize, pavCalibratedPredictiveModelBuilderBuilder, trainingData);
         Map<String, Object> optimalParameters =  bestOptimum.findBestOptimum();
 
         logger.info("parametersToOptimize");

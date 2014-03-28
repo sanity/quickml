@@ -118,7 +118,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "Can't build a tree with no training data");
+        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);

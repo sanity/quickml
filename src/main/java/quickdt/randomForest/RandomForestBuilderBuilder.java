@@ -63,6 +63,8 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
             predictiveModelParameters.put("numTrees", new Integer(4));
         if (!predictiveModelParameters.containsKey("minimumScore"))
             predictiveModelParameters.put("minimumScore", 0.0);
+        if (!predictiveModelParameters.containsKey("executorThreadCount"))
+            predictiveModelParameters.put("executorThreadCount", 8);
         return predictiveModelParameters;
     }
 
@@ -72,7 +74,7 @@ public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder
                 .maxDepth((Integer)predictiveModelParameters
                 .get("maxDepth")).ignoreAttributeAtNodeProbability((Double) predictiveModelParameters.get("ignoreAttributeAtNodeProbability"))
                 .minimumScore((Double) predictiveModelParameters.get("minimumScore"));
-        return new RandomForestBuilder(treeBuilder).numTrees((Integer)predictiveModelParameters.get("numTrees"));
+        return new RandomForestBuilder(treeBuilder).numTrees((Integer)predictiveModelParameters.get("numTrees")).executorThreadCount((Integer)predictiveModelParameters.get("executorThreadCount"));
 
     }
 }

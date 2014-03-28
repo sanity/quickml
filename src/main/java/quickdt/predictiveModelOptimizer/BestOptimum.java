@@ -27,6 +27,16 @@ public class BestOptimum {
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
     private int numOptima;
+    private int userMaxIterations = 12;
+
+    public BestOptimum(int userMaxIterations, int numOptima, CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
+        this.userMaxIterations = userMaxIterations;
+        this.numOptima = numOptima;
+        this.parametersToOptimize = parametersToOptimize;
+        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+        this.crossValidator = crossValidator;
+        this.trainingData = trainingData;
+    }
 
     public BestOptimum(int numOptima, CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<AbstractInstance> trainingData ) {
         this.numOptima = numOptima;
@@ -64,7 +74,7 @@ public class BestOptimum {
             localParameters = Lists.<ParameterToOptimize>newArrayList();
             for (ParameterToOptimize parameter : parametersToOptimize)
                 localParameters.add(new ParameterToOptimize(parameter));
-            predictiveModelOptimizer = new PredictiveModelOptimizer(crossValidator, localParameters, predictiveModelBuilderBuilder, trainingData);
+            predictiveModelOptimizer = new PredictiveModelOptimizer(userMaxIterations, crossValidator, localParameters, predictiveModelBuilderBuilder, trainingData);
             trialPredictiveModelConfig = predictiveModelOptimizer.findOptimalParameters();
             loss = (Double)trialPredictiveModelConfig.get("loss");
             if (i==0 || loss < minLoss)  {

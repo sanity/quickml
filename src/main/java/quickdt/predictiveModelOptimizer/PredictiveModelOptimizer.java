@@ -24,8 +24,11 @@ public class PredictiveModelOptimizer {
     private int minIterations = 2;
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
     private CrossValidator crossValidator;
+    private int userMaxIterations;
 
-    public PredictiveModelOptimizer(CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+    public PredictiveModelOptimizer(int userMaxIterations, CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+        this.userMaxIterations = userMaxIterations;
+        this.maxIterations = userMaxIterations;
         this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = crossValidator;
@@ -33,7 +36,9 @@ public class PredictiveModelOptimizer {
         this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
     }
 
+
     public PredictiveModelOptimizer(List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+        this.userMaxIterations = maxIterations;
         this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.crossValidator = new CrossValidator();
@@ -42,6 +47,7 @@ public class PredictiveModelOptimizer {
     }
 
     public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
+        this.userMaxIterations = maxIterations;
         this.parametersToOptimize = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
         this.crossValidator = new CrossValidator();
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
@@ -50,6 +56,12 @@ public class PredictiveModelOptimizer {
     }
 
     public Map<String, Object> findOptimalParameters() {
+
+        findOptimalParametersIteratively();
+        return predictiveModelParamaters;
+    }
+
+    private void findOptimalParametersIteratively() {
         boolean converged = false;
         while (!converged) {
             for (ParameterToOptimize parameterToOptimize : parametersToOptimize) {
@@ -64,8 +76,9 @@ public class PredictiveModelOptimizer {
                 converged = isConverged();
                 logger.info("\n checking convergence \n");
             }
+            if(iterations >= userMaxIterations)
+               break;
         }
-        return predictiveModelParamaters;
     }
 
     private void findOptimalParameterValue(ParameterToOptimize parameterToOptimize){
@@ -108,7 +121,6 @@ public class PredictiveModelOptimizer {
             return false;
         else if (iterations > maxIterations) {
             logger.info(String.format("did not converge.  Stopped because we exceeded Max Iterations %d", maxIterations));
-
             return true;
         }
         else {
