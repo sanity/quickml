@@ -14,7 +14,7 @@ If you are unfamiliar with Decision Tree Learning, it's the process of building 
 on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
 
 QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was originally
-written by [Ian Clarke](http://blog.locut.us/).  The initial public release was on 2011-09-21.
+written by [Ian Clarke](http://blog.locut.us/), with significant contributions by Alex Hawk.  The initial public release was on 2011-09-21.
 
 QuickDT also supports Random Decision Forests, which deliver a significant improvement in predictive performance by combining
 multiple decision trees. QuickDT also includes functionality to easily do cross-validation in a flexible but easy-to-use manner.
