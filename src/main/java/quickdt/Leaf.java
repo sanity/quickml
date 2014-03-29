@@ -7,9 +7,15 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Leaf extends Node {
 	private static final long serialVersionUID = -5617660873196498754L;
+
+    private static final AtomicLong guidCounter = new AtomicLong(0);
+
+    public final long guid;
+
 	/**
 	 * How deep in the tree is this label? A lower number typically indicates a
 	 * more confident getBestClassification.
@@ -29,6 +35,7 @@ public class Leaf extends Node {
 
     public Leaf(Node parent, final Iterable<? extends AbstractInstance> instances, final int depth) {
         super(parent);
+        guid = guidCounter.incrementAndGet();
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
         classificationCounts = ClassificationCounter.countAll(instances);
         Preconditions.checkState(classificationCounts.getTotal() > 0, "Classifications must be > 0");
