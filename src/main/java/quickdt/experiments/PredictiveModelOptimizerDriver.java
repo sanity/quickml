@@ -34,7 +34,7 @@ public class PredictiveModelOptimizerDriver {
         Map<String, Object> initialPredictiveModelParameters = new HashMap<String, Object>();
         initialPredictiveModelParameters.put("binsInCalibrator", new Integer(10));
         initialPredictiveModelParameters.put("numTrees", new Integer(16));
-        initialPredictiveModelParameters.put("executorThreadCount", new Integer(8));
+        initialPredictiveModelParameters.put("executorThreadCount", new Integer(4));
 
 
 /*
