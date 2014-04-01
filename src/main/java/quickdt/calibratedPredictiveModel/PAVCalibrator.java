@@ -117,7 +117,11 @@ public class PAVCalibrator implements Serializable, Calibrator {
 
         kProp = (input - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
-        return corrected;
+        if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
+            return input;
+        } else {
+            return corrected;
+        }
     }
 
     public double reverse(final double output) {

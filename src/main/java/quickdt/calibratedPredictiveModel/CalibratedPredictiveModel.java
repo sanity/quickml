@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
   This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a random forest of probability estimation trees.
 */
 public class CalibratedPredictiveModel implements PredictiveModel {
+    private static final long serialVersionUID = 8291739965981425742L;
     Calibrator calibrator;
     PredictiveModel predictiveModel;
     int binsInCalibrator = 20;
