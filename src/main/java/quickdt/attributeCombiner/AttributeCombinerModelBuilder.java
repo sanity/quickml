@@ -24,7 +24,7 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
     }
 
     public AttributeCombinerModelBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {
-        this(new TreeBuilder().maxDepth(4), wrappedBuilder, attributesToCombine);
+        this(new TreeBuilder().maxDepth(3), wrappedBuilder, attributesToCombine);
     }
 
     public AttributeCombinerModelBuilder(TreeBuilder preBuilder, PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {

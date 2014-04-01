@@ -41,7 +41,7 @@ public class AttributeCombinerModelBuilderTest {
             public String apply(final AttributeScore attributeScore) {
                 return attributeScore.getAttribute();
             }
-        }), 9));
+        }), 4));
 
         logger.info("Top attributes: "+topAttributes);
 
