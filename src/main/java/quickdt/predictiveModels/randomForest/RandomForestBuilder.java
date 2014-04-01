@@ -26,7 +26,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
   private final TreeBuilder treeBuilder;
   private int numTrees = 20;
-  private int executorThreadCount = 8;
+  private int executorThreadCount = Runtime.getRuntime().availableProcessors();
   private ExecutorService executorService;
   private int baggingSampleSize = 0;
 
