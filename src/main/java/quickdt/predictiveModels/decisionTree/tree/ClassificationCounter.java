@@ -1,8 +1,9 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickdt.collections.ValueSummingMap;
+import quickdt.data.AbstractInstance;
 
 import java.io.Serializable;
 import java.util.Map;

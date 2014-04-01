@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 //import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.*;
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import java.util.List;
 

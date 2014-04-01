@@ -1,4 +1,6 @@
-package quickdt;
+package quickdt.predictiveModels;
+
+import quickdt.data.AbstractInstance;
 
 /**
  * Created with IntelliJ IDEA.

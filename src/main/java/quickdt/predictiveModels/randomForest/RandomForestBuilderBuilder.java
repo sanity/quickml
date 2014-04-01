@@ -1,8 +1,8 @@
-package quickdt.randomForest;
+package quickdt.predictiveModels.randomForest;
 
 import com.google.common.collect.Lists;
-import quickdt.PredictiveModelBuilderBuilder;
-import quickdt.TreeBuilder;
+import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModelOptimizer.ParameterToOptimize;
 import quickdt.predictiveModelOptimizer.PropertiesBuilder;
 

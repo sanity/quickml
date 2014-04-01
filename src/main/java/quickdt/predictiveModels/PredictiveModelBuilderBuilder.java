@@ -1,4 +1,4 @@
-package quickdt;
+package quickdt.predictiveModels;
 
 import quickdt.predictiveModelOptimizer.ParameterToOptimize;
 

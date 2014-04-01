@@ -1,11 +1,7 @@
 package quickdt.experiments;
 
-import quickdt.Instance;
-import quickdt.TreeBuilder;
-import quickdt.randomForest.RandomForest;
-import quickdt.randomForest.RandomForestBuilder;
-
-import java.util.List;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 /**
  * Created by alexanderhawk on 1/16/14.

@@ -3,8 +3,8 @@ package quickdt.predictiveModelOptimizer;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.AbstractInstance;
-import quickdt.PredictiveModelBuilderBuilder;
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.experiments.crossValidation.CrossValidator;
 
 import java.util.List;

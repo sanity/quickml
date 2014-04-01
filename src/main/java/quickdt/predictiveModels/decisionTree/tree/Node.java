@@ -1,4 +1,6 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree.tree;
+
+import quickdt.data.Attributes;
 
 import java.io.*;
 

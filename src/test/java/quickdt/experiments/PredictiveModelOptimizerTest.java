@@ -4,12 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.AbstractInstance;
+import quickdt.data.AbstractInstance;
 import quickdt.Benchmarks;
 import quickdt.experiments.crossValidation.CrossValidator;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
-import quickdt.randomForest.RandomForestBuilder;
-import quickdt.randomForest.RandomForestBuilderBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.util.List;

@@ -1,18 +1,8 @@
 package quickdt.experiments;
 
 //import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
-import com.google.common.collect.Lists;
-import quickdt.Attributes;
-import quickdt.HashMapAttributes;
-import quickdt.Instance;
-import quickdt.TreeBuilder;
-import quickdt.randomForest.RandomForest;
-import quickdt.randomForest.RandomForestBuilder;
-
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Random;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 /**
  * Created by alexanderhawk on 1/21/14.

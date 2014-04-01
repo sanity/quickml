@@ -1,9 +1,12 @@
-package quickdt.randomForest;
+package quickdt.predictiveModels.randomForest;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.*;
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
 import java.util.List;
 import java.util.concurrent.*;

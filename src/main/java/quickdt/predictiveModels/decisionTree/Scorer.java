@@ -1,5 +1,7 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree;
 
+
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.

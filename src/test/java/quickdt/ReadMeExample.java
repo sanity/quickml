@@ -1,8 +1,11 @@
 package quickdt;
 
 import com.google.common.collect.Sets;
-import quickdt.randomForest.RandomForest;
-import quickdt.randomForest.RandomForestBuilder;
+import quickdt.data.*;
+import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
 import java.util.Set;

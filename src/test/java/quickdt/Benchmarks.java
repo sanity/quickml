@@ -3,10 +3,13 @@ package quickdt;
 import com.google.common.collect.Lists;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import quickdt.data.*;
 import quickdt.experiments.crossValidation.CrossValidator;
-import quickdt.randomForest.RandomForestBuilder;
-import quickdt.scorers.MSEScorer;
-import quickdt.scorers.SplitDiffScorer;
+import quickdt.predictiveModels.decisionTree.Scorer;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
+import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
 import java.io.*;
 import java.util.List;

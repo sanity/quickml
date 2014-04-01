@@ -1,4 +1,9 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree;
+
+import quickdt.data.Attributes;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.decisionTree.tree.Leaf;
+import quickdt.predictiveModels.decisionTree.tree.Node;
 
 import java.io.PrintStream;
 import java.io.Serializable;

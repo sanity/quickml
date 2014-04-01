@@ -1,4 +1,4 @@
-package quickdt;
+package quickdt.data;
 
 import com.google.common.collect.Maps;
 

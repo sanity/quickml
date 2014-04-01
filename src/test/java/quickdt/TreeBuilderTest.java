@@ -4,7 +4,11 @@ import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-import quickdt.scorers.SplitDiffScorer;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.decisionTree.*;
+import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
+import quickdt.predictiveModels.decisionTree.tree.Node;
+import quickdt.predictiveModels.decisionTree.Tree;
 
 import java.io.*;
 import java.util.List;

@@ -1,9 +1,11 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
-import quickdt.*;
-import quickdt.randomForest.RandomForest;
-import quickdt.randomForest.RandomForestBuilder;
+import quickdt.data.HashMapAttributes;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import java.util.Random;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class LearnSimpleVariable {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(2);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(100);
         RandomForest randomForest = randomForestBuilder.buildPredictiveModel(trainingData);
-        System.out.println("Probability of a click: "+randomForest.getProbability(HashMapAttributes.create("age",11),"click"));
+        System.out.println("Probability of a click: "+randomForest.getProbability(HashMapAttributes.create("age", 11),"click"));
     }
 
     private static List<Instance> createTrainingData(int instances, int maxAge) {

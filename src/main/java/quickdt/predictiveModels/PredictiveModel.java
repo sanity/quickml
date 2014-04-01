@@ -1,9 +1,8 @@
-package quickdt;
+package quickdt.predictiveModels;
 
-import quickdt.Attributes;
+import quickdt.data.Attributes;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**

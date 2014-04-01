@@ -1,4 +1,4 @@
-package quickdt;
+package quickdt.data;
 
 import java.io.Serializable;
 import java.util.Map;
