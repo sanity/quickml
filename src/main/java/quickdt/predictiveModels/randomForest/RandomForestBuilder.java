@@ -1,13 +1,17 @@
 package quickdt.predictiveModels.randomForest;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -24,8 +28,9 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   private int numTrees = 20;
   private int executorThreadCount = 8;
   private ExecutorService executorService;
+  private int baggingSampleSize = 0;
 
-  public RandomForestBuilder() {
+    public RandomForestBuilder() {
     this(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5));
   }
 
@@ -36,6 +41,21 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   public RandomForestBuilder numTrees(int numTrees) {
     this.numTrees = numTrees;
     return this;
+  }
+
+    /**
+     * Setting this to a value greater than zero will turn on bagging (see
+     * <a href="http://en.wikipedia.org/wiki/Bootstrap_aggregating">Bootstrap aggregating</a>.
+     * Use Integer.MAX_VALUE to set the bag size to be the same as the training set size.
+     *
+     * @param sampleSize The size of each bag, 0 to deactivate bagging (defaults to 0).  Will use
+     *                   the smaller of this value and the training set size.
+     * @return
+     */
+  public RandomForestBuilder withBagging(int sampleSize) {
+      Preconditions.checkArgument(sampleSize > -1, "Sample size must not be negative");
+      this.baggingSampleSize = sampleSize;
+      return this;
   }
 
   public RandomForestBuilder executorThreadCount(int threadCount) {
@@ -54,7 +74,22 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     // Submit all tree building jobs to the executor
     for (int idx = 0; idx < numTrees; idx++) {
       final int treeIndex = idx;
-      treeFutures.add(submitTreeBuild(trainingData, treeIndex));
+        Iterable<? extends AbstractInstance> treeTrainingData;
+        final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
+        if (bagSize > 0) {
+          ArrayList<AbstractInstance> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
+          for (AbstractInstance instance : Iterables.limit(trainingData, bagSize)) {
+              treeTrainingDataArrayList.add(instance);
+          }
+          for (AbstractInstance instance : trainingData) {
+              int position = Misc.random.nextInt(bagSize);
+              treeTrainingDataArrayList.add(position, instance);
+          }
+          treeTrainingData = treeTrainingDataArrayList;
+      } else {
+          treeTrainingData = trainingData;
+      }
+      treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
     }
 
     // Collect all completed trees. Will block until complete
