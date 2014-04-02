@@ -1,10 +1,10 @@
 package quickdt.calibratedPredictiveModel;
 
 import com.google.common.collect.Lists;
-import quickdt.*;
 import quickdt.predictiveModelOptimizer.ParameterToOptimize;
 import quickdt.predictiveModelOptimizer.PropertiesBuilder;
-import quickdt.randomForest.RandomForestBuilderBuilder;
+import quickdt.predictiveModels.*;
+import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
 import java.util.*;
 

@@ -1,9 +1,12 @@
-package quickdt.randomForest;
+package quickdt.predictiveModels.randomForest;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
-import quickdt.*;
+import quickdt.data.Attributes;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.decisionTree.tree.Leaf;
+import quickdt.predictiveModels.decisionTree.Tree;
 
 import java.io.PrintStream;
 import java.io.Serializable;

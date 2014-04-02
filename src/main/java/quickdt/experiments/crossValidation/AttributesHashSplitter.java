@@ -3,7 +3,7 @@ package quickdt.experiments.crossValidation;
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import quickdt.AbstractInstance;
+import quickdt.data.AbstractInstance;
 
 /**
 * Created by ian on 2/28/14.

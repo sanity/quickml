@@ -1,11 +1,11 @@
 package quickdt.calibratedPredictiveModel;
 
 import com.google.common.collect.Lists;
-import quickdt.AbstractInstance;
-import quickdt.Instance;
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
-import quickdt.randomForest.RandomForestBuilder;
+import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import com.google.common.collect.Iterables;
 
 import java.io.Serializable;

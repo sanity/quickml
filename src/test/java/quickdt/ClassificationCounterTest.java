@@ -2,6 +2,7 @@ package quickdt;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 /**
  * Created by ian on 2/27/14.

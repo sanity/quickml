@@ -1,14 +1,6 @@
 package quickdt.experiments;
 
-import com.google.common.collect.Lists;
-import quickdt.Attributes;
-import quickdt.HashMapAttributes;
-import quickdt.Instance;
-import quickdt.randomForest.RandomForest;
-
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Random;
+import quickdt.predictiveModels.randomForest.RandomForest;
 
 /**
  * Created by alexanderhawk on 1/16/14.

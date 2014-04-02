@@ -1,7 +1,9 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import quickdt.data.AbstractInstance;
+import quickdt.data.Attributes;
 
 import java.io.PrintStream;
 import java.io.Serializable;

@@ -1,6 +1,7 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.collect.Sets;
+import quickdt.data.Attributes;
 
 import java.io.Serializable;
 import java.util.Set;

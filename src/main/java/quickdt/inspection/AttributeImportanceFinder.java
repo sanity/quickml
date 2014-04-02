@@ -8,6 +8,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import quickdt.*;
+import quickdt.data.*;
+import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.Serializable;
 import java.util.*;
@@ -74,7 +76,7 @@ public class AttributeImportanceFinder {
         private final ArrayList<Serializable> attributeValueSamples;
 
         @Override
-        public Instance apply(final quickdt.Instance instance) {
+        public Instance apply(final Instance instance) {
             Attributes randomizedAttributes = new HashMapAttributes();
             randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(Math.max(1, attributeValueSamples.size())));

@@ -1,7 +1,7 @@
-package quickdt.scorers;
+package quickdt.predictiveModels.decisionTree.scorers;
 
-import quickdt.ClassificationCounter;
-import quickdt.Scorer;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
+import quickdt.predictiveModels.decisionTree.Scorer;
 
 import java.io.Serializable;
 import java.util.Map;

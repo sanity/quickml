@@ -1,7 +1,7 @@
 package quickdt.calibratedPredictiveModel;
 
-import quickdt.Attributes;
-import quickdt.PredictiveModel;
+import quickdt.data.Attributes;
+import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
   This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a random forest of probability estimation trees.
 */
 public class CalibratedPredictiveModel implements PredictiveModel {
+    private static final long serialVersionUID = 8291739965981425742L;
     Calibrator calibrator;
     PredictiveModel predictiveModel;
     int binsInCalibrator = 20;

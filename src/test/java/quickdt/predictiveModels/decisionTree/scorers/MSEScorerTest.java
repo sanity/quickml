@@ -1,8 +1,8 @@
-package quickdt.scorers;
+package quickdt.predictiveModels.decisionTree.scorers;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.ClassificationCounter;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 /**
  * Created by ian on 2/27/14.

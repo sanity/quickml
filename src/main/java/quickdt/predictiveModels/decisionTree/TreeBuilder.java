@@ -1,4 +1,4 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -7,7 +7,11 @@ import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.scorers.MSEScorer;
+import quickdt.*;
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
+import quickdt.predictiveModels.decisionTree.tree.*;
 
 import java.io.Serializable;
 import java.util.*;
