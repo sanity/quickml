@@ -1,4 +1,4 @@
-package quickdt.calibratedPredictiveModel;
+package quickdt.predictiveModels.calibratedPredictiveModel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
