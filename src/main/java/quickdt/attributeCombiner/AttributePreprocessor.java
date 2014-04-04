@@ -1,6 +1,6 @@
 package quickdt.attributeCombiner;
 
-import quickdt.Tree;
+import quickdt.predictiveModels.decisionTree.Tree;
 
 import java.util.List;
 

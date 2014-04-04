@@ -5,13 +5,11 @@ import com.google.common.collect.*;
 import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.*;
-<<<<<<< HEAD
+import quickdt.Misc;
 import quickdt.data.*;
-import quickdt.predictiveModels.PredictiveModel;
-=======
 import quickdt.experiments.crossValidation.CrossValidator;
->>>>>>> AttributeCombinerModelBuilder
+import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
 import java.io.Serializable;
 import java.util.*;
@@ -87,11 +85,7 @@ public class AttributeImportanceFinder {
         private final ArrayList<Serializable> attributeValueSamples;
 
         @Override
-<<<<<<< HEAD
-        public Instance apply(final Instance instance) {
-=======
         public AbstractInstance apply(final AbstractInstance instance) {
->>>>>>> AttributeCombinerModelBuilder
             Attributes randomizedAttributes = new HashMapAttributes();
             randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(Math.max(1, attributeValueSamples.size())));

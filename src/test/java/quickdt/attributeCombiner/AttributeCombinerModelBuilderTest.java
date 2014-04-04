@@ -5,11 +5,13 @@ import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
-import quickdt.*;
+import quickdt.Benchmarks;
+import quickdt.data.AbstractInstance;
 import quickdt.experiments.crossValidation.CrossValidator;
 import quickdt.inspection.AttributeImportanceFinder;
 import quickdt.inspection.AttributeScore;
-import quickdt.randomForest.RandomForestBuilder;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,7 +22,7 @@ import java.util.*;
 public class AttributeCombinerModelBuilderTest {
     private static final  Logger logger =  LoggerFactory.getLogger(AttributeCombinerModelBuilderTest.class);
 
-    @Test
+    @Test(enabled = false)
     public void moboTest() throws IOException {
         final List<AbstractInstance> moboDataset = Benchmarks.loadMoboDataset();
 

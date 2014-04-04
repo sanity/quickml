@@ -1,17 +1,14 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
-import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
+import quickdt.data.*;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
-import quickdt.data.Attributes;
 
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Random;
-import java.lang.Math;
 
 /**
  * Created by alexanderhawk on 1/16/14.

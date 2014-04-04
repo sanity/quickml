@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
-import quickdt.predictiveModels.decisionTree.tree.Leaf;
 import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.tree.Leaf;
 
 import java.io.PrintStream;
 import java.io.Serializable;

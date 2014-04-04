@@ -6,8 +6,9 @@ import quickdt.data.Instance;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
-import java.util.Random;
+
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by alexanderhawk on 1/15/14.

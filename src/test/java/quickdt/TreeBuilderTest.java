@@ -5,10 +5,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 import quickdt.data.Instance;
-import quickdt.predictiveModels.decisionTree.*;
+import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.decisionTree.tree.Node;
-import quickdt.predictiveModels.decisionTree.Tree;
 
 import java.io.*;
 import java.util.List;

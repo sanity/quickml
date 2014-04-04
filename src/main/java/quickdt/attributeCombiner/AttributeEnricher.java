@@ -1,7 +1,9 @@
 package quickdt.attributeCombiner;
 
 import com.google.common.base.Function;
-import quickdt.*;
+import quickdt.data.Attributes;
+import quickdt.data.HashMapAttributes;
+import quickdt.predictiveModels.decisionTree.tree.Leaf;
 
 import java.io.Serializable;
 

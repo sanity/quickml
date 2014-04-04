@@ -2,7 +2,8 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import quickdt.data.Attributes;
 
-import java.io.*;
+import java.io.PrintStream;
+import java.io.Serializable;
 
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -8713974861744567620L;

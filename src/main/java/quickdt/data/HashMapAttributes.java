@@ -3,10 +3,7 @@ package quickdt.data;
 import com.google.common.collect.Maps;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class HashMapAttributes implements Attributes, Serializable {
 

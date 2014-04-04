@@ -6,7 +6,6 @@ import quickdt.data.AbstractInstance;
 import quickdt.experiments.crossValidation.CrossValidator;
 import quickdt.predictiveModels.*;
 
-
 import java.util.List;
 import java.util.Map;
 

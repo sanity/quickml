@@ -1,7 +1,5 @@
 package quickdt.experiments;
 
-import quickdt.predictiveModels.randomForest.RandomForest;
-
 /**
  * Created by alexanderhawk on 1/16/14.
  */

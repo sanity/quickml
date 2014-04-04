@@ -1,8 +1,8 @@
 package quickdt.predictiveModels.decisionTree.scorers;
 
 import com.google.common.collect.Sets;
-import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 import quickdt.predictiveModels.decisionTree.Scorer;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 

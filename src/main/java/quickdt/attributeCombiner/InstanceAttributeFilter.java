@@ -1,7 +1,7 @@
 package quickdt.attributeCombiner;
 
 import com.google.common.base.Function;
-import quickdt.*;
+import quickdt.data.*;
 
 import java.util.Collection;
 

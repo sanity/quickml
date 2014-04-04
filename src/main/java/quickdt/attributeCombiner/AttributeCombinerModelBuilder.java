@@ -4,10 +4,15 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.*;
-import quickdt.randomForest.RandomForestBuilder;
+import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ian on 3/28/14.
