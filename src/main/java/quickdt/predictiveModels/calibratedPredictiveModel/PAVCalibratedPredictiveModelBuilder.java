@@ -18,8 +18,8 @@ import java.util.List;
 public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
     private PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
-    private PAVCalibrator calibrator;
-    private PredictiveModel predictiveModel;
+    public PAVCalibrator calibrator;
+    public PredictiveModel predictiveModel;
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder predictiveModelBuilder) {
         this.predictiveModelBuilder = predictiveModelBuilder;

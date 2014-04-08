@@ -125,6 +125,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
+        //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
         boolean smallTrainingSet = true;
@@ -212,6 +213,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
     //    logger.debug("Surveying training data");
+        //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (AbstractInstance instance : trainingData) {
