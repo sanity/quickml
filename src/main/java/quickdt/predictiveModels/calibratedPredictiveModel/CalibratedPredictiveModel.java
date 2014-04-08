@@ -17,8 +17,8 @@ import java.io.Serializable;
 */
 public class CalibratedPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 8291739965981425742L;
-    Calibrator calibrator;
-    PredictiveModel predictiveModel;
+    public Calibrator calibrator;
+    public PredictiveModel predictiveModel;
     int binsInCalibrator = 20;
 
     public CalibratedPredictiveModel (PredictiveModel predictiveModel, Calibrator calibrator) {
