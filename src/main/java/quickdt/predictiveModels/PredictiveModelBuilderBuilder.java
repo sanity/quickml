@@ -2,7 +2,8 @@ package quickdt.predictiveModels;
 
 import quickdt.predictiveModelOptimizer.ParameterToOptimize;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/4/14.

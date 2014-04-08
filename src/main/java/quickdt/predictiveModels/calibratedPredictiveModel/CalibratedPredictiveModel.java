@@ -1,11 +1,11 @@
 package quickdt.predictiveModels.calibratedPredictiveModel;
 
+import com.google.common.base.Preconditions;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
-import com.google.common.base.Preconditions;
 
 
 /**

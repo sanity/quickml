@@ -1,8 +1,6 @@
 package quickdt.experiments;
 
 //import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
-import quickdt.predictiveModels.randomForest.RandomForest;
-import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 /**
  * Created by alexanderhawk on 1/21/14.

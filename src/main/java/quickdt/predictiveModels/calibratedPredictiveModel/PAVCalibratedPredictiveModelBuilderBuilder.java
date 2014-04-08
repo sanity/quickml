@@ -6,7 +6,8 @@ import quickdt.predictiveModelOptimizer.PropertiesBuilder;
 import quickdt.predictiveModels.*;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/10/14.

@@ -7,7 +7,7 @@ import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.*;
+import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
