@@ -8,7 +8,7 @@
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
-            <url>file:///Users/ian/Documents/maven-repo/repository</url>
+            <url>file:../../Documents/maven-repo/repository</url>
         </repository>
     </distributionManagement>
     <repositories>
