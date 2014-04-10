@@ -11,26 +11,21 @@ public class LogCrossValLoss extends CrossValLoss<LogCrossValLoss> {
 
     double totalLogLoss = 0;
     private double total = 0;
-    public static double minProbability;
-    public static double minError;
-    static {
-        minProbability = .0001;
-        minError = -Math.log(minProbability);
+    public  double minProbability;
+    public  double maxError;
+
+    public LogCrossValLoss(double minProbability) {
+        this.minProbability = minProbability;
+        maxError = -Math.log(minProbability);
     }
-    public double maxError;
-        public static Supplier<LogCrossValLoss> supplier = new Supplier<LogCrossValLoss>() {
-            @Override
-            public LogCrossValLoss get() {
-                return new LogCrossValLoss();
-            }
-        };
+
     @Override
     public void addLossFromInstance(double probabilityOfCorrectInstance, double weight) {
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
 
         total+= weight;
-        final double error =  (probabilityOfCorrectInstance > minProbability) ? -weight*Math.log(probabilityOfCorrectInstance) : minError;
+        final double error =  (probabilityOfCorrectInstance > minProbability) ? -weight*Math.log(probabilityOfCorrectInstance) : maxError;
         totalLogLoss += error;
 
     }
