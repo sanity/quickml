@@ -11,7 +11,13 @@ public class LogCrossValLoss extends CrossValLoss<LogCrossValLoss> {
 
     double totalLogLoss = 0;
     private double total = 0;
-
+    public static double minProbability;
+    public static double minError;
+    static {
+        minProbability = .0001;
+        minError = -Math.log(minProbability);
+    }
+    public double maxError;
         public static Supplier<LogCrossValLoss> supplier = new Supplier<LogCrossValLoss>() {
             @Override
             public LogCrossValLoss get() {
@@ -24,8 +30,9 @@ public class LogCrossValLoss extends CrossValLoss<LogCrossValLoss> {
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
 
         total+= weight;
-        final double error = weight*Math.log(probabilityOfCorrectInstance);
+        final double error =  (probabilityOfCorrectInstance > minProbability) ? -weight*Math.log(probabilityOfCorrectInstance) : minError;
         totalLogLoss += error;
+
     }
 
     @Override
