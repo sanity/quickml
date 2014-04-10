@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import quickdt.data.*;
-import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.decisionTree.Scorer;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;

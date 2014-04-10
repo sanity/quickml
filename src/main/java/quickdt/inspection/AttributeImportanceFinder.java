@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.data.*;
-import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 

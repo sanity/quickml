@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
 import quickdt.data.AbstractInstance;
-import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.inspection.AttributeImportanceFinder;
 import quickdt.inspection.AttributeScore;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;

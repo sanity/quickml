@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
 import quickdt.data.AbstractInstance;
-import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;

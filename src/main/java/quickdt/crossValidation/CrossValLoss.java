@@ -1,4 +1,4 @@
-package quickdt.experiments.crossValidation;
+package quickdt.crossValidation;
 
 /**
  * Created by ian on 2/28/14.

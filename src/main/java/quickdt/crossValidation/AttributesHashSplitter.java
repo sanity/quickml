@@ -1,4 +1,4 @@
-package quickdt.experiments.crossValidation;
+package quickdt.crossValidation;
 
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;

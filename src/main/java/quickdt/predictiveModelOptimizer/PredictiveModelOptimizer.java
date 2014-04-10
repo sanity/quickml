@@ -3,7 +3,7 @@ package quickdt.predictiveModelOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
-import quickdt.experiments.crossValidation.CrossValidator;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.*;
 
 import java.util.List;
