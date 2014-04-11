@@ -252,7 +252,7 @@ variety of formulae, and eventually settled on [MSEScorer](https://github.com/sa
 So far as I know it's a novel approach.
 
 This Scorer is designed to estimate the improvement in "mean-squared error" resulting from the creation of a new branch. In tests
-this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/Scorer.java)
+this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/predictiveModels/decisionTree/Scorer.java)
 and pass it to the TreeBuilder constructor.
 
 **Finding the best categorical branch**
