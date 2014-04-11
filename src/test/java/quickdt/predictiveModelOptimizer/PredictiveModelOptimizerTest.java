@@ -1,4 +1,4 @@
-package quickdt.experiments;
+package quickdt.predictiveModelOptimizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 import quickdt.Benchmarks;
 import quickdt.data.AbstractInstance;
 import quickdt.crossValidation.CrossValidator;
-import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 

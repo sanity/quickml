@@ -236,6 +236,11 @@ cross validation where 10% of the dataset has been reserved for testing.
 See [Benchmarks.java](https://github.com/sanity/quickdt/blob/master/src/test/java/quickdt/Benchmarks.java) for
 a usage example.
 
+Hyperparameter Optimization
+---------------------------
+QuickDT also includes a hyperparameter optimizer, to find the optimal parameters for a PredictiveModelBuilder.  See
+[PredictiveModelOptimizerTest.java](https://github.com/sanity/quickdt/blob/master/src/test/java/quickdt/predictiveModelOptimizer/PredictiveModelOptimizerTest.java)
+for a simple usage example.
 
 Under the hood
 --------------
