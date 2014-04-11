@@ -249,7 +249,7 @@ Under the hood
 
 Like all decision tree learners, QuickDT uses a formula to determine the quality of a "split" at each branch.  I've tested a wide
 variety of formulae, and eventually settled on [MSEScorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/scorers/MSEScorer.java).
-So far as I know its a novel approach.  
+So far as I know it's a novel approach.
 
 This Scorer is designed to estimate the improvement in "mean-squared error" resulting from the creation of a new branch. In tests
 this performed better than Gini impurity, and various other approaches I tried.  Its easy to try your own, just implement [Scorer](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/Scorer.java)
