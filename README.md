@@ -229,7 +229,7 @@ Cross-validation Framework
 --------------------------
 
 QuickDT provides a simple but flexible cross-validation framework.  At the simplest level
-you give [CrossValidator](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/experiments/crossValidation/CrossValidator.java?source=c) a [PredictiveModelBuilder](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/PredictiveModelBuilder.java),
+you give [CrossValidator](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/crossValidation/CrossValidator.java) a [PredictiveModelBuilder](https://github.com/sanity/quickdt/blob/master/src/main/java/quickdt/predictiveModels/PredictiveModelBuilder.java),
 a dataset (an Iterable<Instance>), and it will give you a root-mean-squared-error based on
 cross validation where 10% of the dataset has been reserved for testing.
 
