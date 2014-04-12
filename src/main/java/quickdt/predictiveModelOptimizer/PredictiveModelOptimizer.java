@@ -2,8 +2,8 @@ package quickdt.predictiveModelOptimizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.data.AbstractInstance;
 import quickdt.crossValidation.CrossValidator;
+import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.*;
 
 import java.util.List;
@@ -17,42 +17,32 @@ public class PredictiveModelOptimizer {
 
     List<ParameterToOptimize> parametersToOptimize;
     Map<String, Object> predictiveModelParamaters;
-    String nameOfPredictiveModel;
     Iterable<? extends AbstractInstance> trainingData;
-    private int iterations =0;
+    private int iterations = 0;
     private int maxIterations = 12;
     private int minIterations = 2;
     private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
-    private CrossValidator crossValidator;
-    private int userMaxIterations;
+    private CrossValidator crossValidator = new CrossValidator(2);
 
-    public PredictiveModelOptimizer(int userMaxIterations, CrossValidator crossValidator, List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.userMaxIterations = userMaxIterations;
-        this.maxIterations = userMaxIterations;
-        this.parametersToOptimize = parametersToOptimize;
-        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
-        this.crossValidator = crossValidator;
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData) {
         this.trainingData = trainingData;
-        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
-    }
-
-
-    public PredictiveModelOptimizer(List<ParameterToOptimize> parametersToOptimize, PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.userMaxIterations = maxIterations;
-        this.parametersToOptimize = parametersToOptimize;
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
-        this.crossValidator = new CrossValidator();
-        this.trainingData = trainingData;
-        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
-    }
-
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData ) {
-        this.userMaxIterations = maxIterations;
         this.parametersToOptimize = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
-        this.crossValidator = new CrossValidator();
-        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
-        this.trainingData = trainingData;
-        this.predictiveModelParamaters = predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
+    }
+
+    public PredictiveModelOptimizer withParametersToOptimize(List<ParameterToOptimize> parametersToOptimize) {
+        this.parametersToOptimize = parametersToOptimize;
+        return this;
+    }
+
+    public PredictiveModelOptimizer withMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
+        return this;
+    }
+
+    public PredictiveModelOptimizer withCrossValidator(CrossValidator crossValidator) {
+        this.crossValidator = crossValidator;
+        return this;
     }
 
     public Map<String, Object> findOptimalParameters() {
@@ -76,7 +66,7 @@ public class PredictiveModelOptimizer {
                 converged = isConverged();
                 logger.info("\n checking convergence \n");
             }
-            if(iterations >= userMaxIterations)
+            if(iterations >= maxIterations)
                break;
         }
     }
