@@ -74,7 +74,10 @@ public class BestOptimum {
             localParameters = Lists.<ParameterToOptimize>newArrayList();
             for (ParameterToOptimize parameter : parametersToOptimize)
                 localParameters.add(new ParameterToOptimize(parameter));
-            predictiveModelOptimizer = new PredictiveModelOptimizer(userMaxIterations, crossValidator, localParameters, predictiveModelBuilderBuilder, trainingData);
+            predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, trainingData)
+                    .withCrossValidator(crossValidator)
+                    .withMaxIterations(userMaxIterations)
+                    .withParametersToOptimize(localParameters);
             trialPredictiveModelConfig = predictiveModelOptimizer.findOptimalParameters();
             loss = (Double)trialPredictiveModelConfig.get("loss");
             if (i==0 || loss < minLoss)  {

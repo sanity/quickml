@@ -18,16 +18,7 @@ public class ParameterToOptimize {
         this.trialErrors = new ValueWithPreviousValue(parameter.trialErrors);
         this.trialValues = new ValueWithPreviousValue(parameter.trialValues);
     }
-    
-    public static Object copyConstructAppropriatePrimitiveWrapper(Object obj){
-        if (obj instanceof Double)
-            return new Double((Double)obj);
-        else if (obj instanceof Integer)
-            return new Integer((Integer)obj);
-        else if (obj instanceof Boolean)
-            return new Boolean((Boolean)obj);
-        return null;
-    }
+
 
     class ValueWithPreviousValue {
         public Object current;
@@ -36,8 +27,8 @@ public class ParameterToOptimize {
         public ValueWithPreviousValue(){}
 
         public ValueWithPreviousValue(ValueWithPreviousValue valueWithPreviousValue)  {
-            this.current = copyConstructAppropriatePrimitiveWrapper(valueWithPreviousValue.current);
-            this.previous = copyConstructAppropriatePrimitiveWrapper(valueWithPreviousValue.previous);
+            this.current = valueWithPreviousValue.current;
+            this.previous = valueWithPreviousValue.previous;
         }
 
         public void setPrevious() {
