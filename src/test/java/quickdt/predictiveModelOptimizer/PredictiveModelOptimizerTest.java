@@ -24,9 +24,9 @@ public class PredictiveModelOptimizerTest {
     public void irisDatasetTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
         final RandomForestBuilderBuilder predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
-        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances);
-        final Map<String, Object> optimalParameters = predictiveModelOptimizer.findOptimalParameters();
-        logger.error("Optimal parameters: " + optimalParameters);
+        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder);
+        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration(instances);
+        logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
         final RandomForestBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
         CrossValidator crossValidator = new CrossValidator();

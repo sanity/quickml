@@ -1,150 +1,133 @@
 package quickdt.predictiveModelOptimizer;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.Misc;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.*;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class PredictiveModelOptimizer {
-    private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizer.class);
+public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends PredictiveModelBuilder<PM>> {
+    private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
+    private final PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder;
+    private final CrossValidator crossValidator;
+    private final Map<String, FieldValueRecommender> valueRecommenders;
 
-    List<ParameterToOptimize> parametersToOptimize;
-    Map<String, Object> predictiveModelParamaters;
-    Iterable<? extends AbstractInstance> trainingData;
-    private int iterations = 0;
-    private int maxIterations = 12;
-    private int minIterations = 2;
-    private PredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
-    private CrossValidator crossValidator = new CrossValidator(2);
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder) {
+        this(predictiveModelBuilderBuilder, new CrossValidator(4));
+    }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder, Iterable<? extends AbstractInstance> trainingData) {
-        this.trainingData = trainingData;
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, CrossValidator crossValidator) {
+        this(predictiveModelBuilderBuilder, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
+    }
+
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
-        this.parametersToOptimize = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
-    }
-
-    public PredictiveModelOptimizer withParametersToOptimize(List<ParameterToOptimize> parametersToOptimize) {
-        this.parametersToOptimize = parametersToOptimize;
-        return this;
-    }
-
-    public PredictiveModelOptimizer withMaxIterations(int maxIterations) {
-        this.maxIterations = maxIterations;
-        return this;
-    }
-
-    public PredictiveModelOptimizer withCrossValidator(CrossValidator crossValidator) {
         this.crossValidator = crossValidator;
-        return this;
+        this.valueRecommenders = valueRecommenders;
     }
 
-    public Map<String, Object> findOptimalParameters() {
-
-        findOptimalParametersIteratively();
-        return predictiveModelParamaters;
-    }
-
-    private void findOptimalParametersIteratively() {
-        boolean converged = false;
-        while (!converged) {
-            for (ParameterToOptimize parameterToOptimize : parametersToOptimize) {
-                parameterToOptimize.trialValues.setPrevious();
-                parameterToOptimize.trialErrors.setPrevious();
-
-                findOptimalParameterValue(parameterToOptimize);
+    public Map<String, Object> determineOptimalConfiguration(final Iterable<? extends AbstractInstance> trainingData) {
+        Map<String, Object> startingConfiguration = Maps.newHashMap();
+        for (Map.Entry<String, FieldValueRecommender> stringFieldValueRecommenderEntry : valueRecommenders.entrySet()) {
+            final Optional<Object> firstValueOptional = stringFieldValueRecommenderEntry.getValue().recommendNextValue(Collections.<Object, Double>emptyMap());
+            if (!firstValueOptional.isPresent()) {
+                throw new RuntimeException("Failed to retrieve initial value for field " + stringFieldValueRecommenderEntry.getKey());
             }
-            iterations++;
-
-            if (iterations > 1){
-                converged = isConverged();
-                logger.info("\n checking convergence \n");
-            }
-            if(iterations >= maxIterations)
-               break;
+            startingConfiguration.put(stringFieldValueRecommenderEntry.getKey(), firstValueOptional.get());
         }
+        return determineOptimalConfiguration(trainingData, startingConfiguration);
     }
 
-    private void findOptimalParameterValue(ParameterToOptimize parameterToOptimize){
-        double loss=0, minLoss=0;
-        PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
-        double relativeError = 0;
-        for (int i=0; i< parameterToOptimize.properties.range.size(); i++)  {
-            Object paramValue = parameterToOptimize.properties.range.get(i);
-            predictiveModelParamaters.put(parameterToOptimize.properties.name, paramValue);
-            predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelParamaters);
-            loss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
-            logger.info(String.format("parameterToOptimize: %s with value %s, has loss %f .  Other params are:", parameterToOptimize.properties.name, paramValue, loss));
-            for (String key : predictiveModelParamaters.keySet())
-                if (!key.equals("loss") && !key.equals(parameterToOptimize.properties.name))
-                   logger.info(String.format(key + " " + predictiveModelParamaters.get(key)));
 
-            if (parameterToOptimize.properties.isMonotonicallyConvergent)  {
-                relativeError = Math.abs(loss - minLoss)/loss;//Math.abs(((Number)parameter.trialErrors.current).doubleValue() - ((Number) parameter.trialErrors.previous).doubleValue())/((Number)(parameter.trialErrors.previous)).doubleValue();
-                parameterToOptimize.trialValues.current = paramValue;
-                parameterToOptimize.trialErrors.current = loss;
-                logger.info("relative Error" + " " + relativeError);
-                if (relativeError < parameterToOptimize.properties.errorTolerance)  {
-                    break;
-                }
-            }
-            if (i==0 || loss < minLoss) {
-                minLoss = loss;
-                parameterToOptimize.trialValues.current = paramValue;
-                parameterToOptimize.trialErrors.current = loss;
+    public Map<String, Object> determineOptimalConfiguration(final Iterable<? extends AbstractInstance> trainingData, Map<String, Object> startingConfiguration) {
+        Map<String, Object> bestConfigurationSoFar = Maps.newHashMap(startingConfiguration);
+        final Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
+        while (true) {
+            final ObjectWithLoss<Map<String, Object>> newBestConfigurationWithLoss = iterateAndImproveConfiguration(trainingData, configurationLosses, bestConfigurationSoFar);
+            if (newBestConfigurationWithLoss.get().equals(bestConfigurationSoFar)) {
+                logger.info("Best configuration unchanged after iteration, we're done here.  Configuration: "+newBestConfigurationWithLoss.get()+" with loss: "+newBestConfigurationWithLoss.getLoss());
+                break;
+            } else {
+                bestConfigurationSoFar = newBestConfigurationWithLoss.get();
+                logger.info("Found new best configuration after iteration: "+bestConfigurationSoFar+" with loss "+newBestConfigurationWithLoss.getLoss());
             }
         }
-        predictiveModelParamaters.put("loss", parameterToOptimize.trialErrors.current);
-        predictiveModelParamaters.put(parameterToOptimize.properties.name, parameterToOptimize.trialValues.current);
-        logger.info(String.format("Best value for parameterToOptimize %s is %s with loss of %s", parameterToOptimize.properties.name, parameterToOptimize.trialValues.current, parameterToOptimize.trialErrors.current));
+        return bestConfigurationSoFar;
     }
 
-    private boolean isConverged() {
-        boolean converged = true;
-        if (iterations < minIterations)
-            return false;
-        else if (iterations > maxIterations) {
-            logger.info(String.format("did not converge.  Stopped because we exceeded Max Iterations %d", maxIterations));
-            return true;
+    private ObjectWithLoss<Map<String, Object>> iterateAndImproveConfiguration(final Iterable<? extends AbstractInstance> trainingData,
+                                                                               final Map<Map<String, Object>, Double> configurationLoss,
+                                                                               Map<String, Object> startingConfiguration) {
+        Map<String, Object> currentConfiguration = Maps.newHashMap(startingConfiguration);
+        double currentConfigurationLoss = Double.MAX_VALUE;
+        for (Map.Entry<String, FieldValueRecommender> stringFieldValueRecommenderEntry : valueRecommenders.entrySet()) {
+            String fieldName = stringFieldValueRecommenderEntry.getKey();
+            logger.info("Optimizing field '" + fieldName + "'");
+            final Map<Object, Double> scoresForFieldValues = getScoresForFieldValues(trainingData, currentConfiguration, configurationLoss, fieldName, stringFieldValueRecommenderEntry.getValue());
+            final Optional<Map.Entry<Object, Double>> entryWithLowestValueOpt = Misc.getEntryWithLowestValue(scoresForFieldValues);
+            final Map.Entry<Object, Double> entryWithLowestValue = entryWithLowestValueOpt.get();
+            Object bestValue = entryWithLowestValue.getKey();
+            final Double bestValueLoss = entryWithLowestValue.getValue();
+            currentConfigurationLoss = bestValueLoss;
+            logger.info("For field " + fieldName + ", best value is " + bestValue + " with loss " + bestValueLoss);
+            currentConfiguration.put(fieldName, bestValue);
         }
-        else {
-            for (ParameterToOptimize parameterToOptimize : parametersToOptimize)  {
-                logger.info(parameterToOptimize.properties.name + " current value " + parameterToOptimize.trialValues.current + " previous value " + parameterToOptimize.trialValues.previous);
+        return new ObjectWithLoss<Map<String, Object>>(currentConfiguration, currentConfigurationLoss);
+    }
 
-                if(parameterIsConverged(parameterToOptimize) == false)
-                    converged = false;
-
+    private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends AbstractInstance> trainingData,
+                                                        final Map<String, Object> baselineConfiguration,
+                                                        final Map<Map<String, Object>, Double> configurationLoss,
+                                                        final String fieldName,
+                                                        final FieldValueRecommender fieldValueRecommender) {
+        Map<Object, Double> valueLoss = Maps.newHashMap();
+        while (true) {
+            Optional<Object> valueToTestOpt = fieldValueRecommender.recommendNextValue(valueLoss);
+            if (!valueToTestOpt.isPresent()) {
+                break;
             }
+            final Object valueToTest = valueToTestOpt.get();
+            Map<String, Object> configurationToTest = Maps.newHashMap(baselineConfiguration);
+            configurationToTest.put(fieldName, valueToTest);
+            if (configurationLoss.containsKey(configurationToTest)) {
+                double lastLoss = configurationLoss.get(configurationToTest);
+                valueLoss.put(valueToTest, lastLoss);
+                continue; // No point in testing the same configuration twice
+            }
+            logger.info("Testing predictive model configuration: " + configurationToTest);
+            final PMB predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(configurationToTest);
+            final double crossValidatedLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
+            logger.info("Loss for configuration " + configurationToTest + " is " + crossValidatedLoss);
+            valueLoss.put(valueToTest, crossValidatedLoss);
+            configurationLoss.put(configurationToTest, crossValidatedLoss);
         }
-        return converged;
+        return valueLoss;
     }
 
-    private boolean parameterIsConverged(ParameterToOptimize parameterToOptimize) {
-        boolean converged = true;
-        if (!(parameterToOptimize.trialValues.current instanceof Number) && !(parameterToOptimize.trialValues.current instanceof Boolean)) {
-            logger.error("parametersToOptimize to optimize must be numbers or booleans");
-            System.exit(0);
+    public static class ObjectWithLoss<O> {
+        O object;
+        double loss;
+
+        public O get() {
+            return object;
         }
-        else if (parameterToOptimize.trialValues.current instanceof Number && Math.abs(((Number) parameterToOptimize.trialValues.current).doubleValue() - ((Number) parameterToOptimize.trialValues.previous).doubleValue()) > parameterToOptimize.properties.errorTolerance)
-            converged = false;
-        else if (parameterToOptimize.trialValues.current instanceof Boolean && !parameterToOptimize.trialValues.current.equals(parameterToOptimize.trialValues.previous))
-            converged = false;
 
-        return converged;
-    }
+        public double getLoss() {
+            return loss;
+        }
 
-    private boolean errorIsWithinTolerance(ParameterToOptimize parameterToOptimize) {
-        boolean converged = true;
-        double percentError = Math.abs((Double)parameterToOptimize.trialErrors.current - (Double)parameterToOptimize.trialErrors.previous)/((Double)parameterToOptimize.trialErrors.current);
-        if (percentError > parameterToOptimize.properties.errorTolerance)
-            converged = false;
-
-        return converged;
+        public ObjectWithLoss(final O object, final double loss) {
+            this.object = object;
+            this.loss = loss;
+        }
     }
 }
