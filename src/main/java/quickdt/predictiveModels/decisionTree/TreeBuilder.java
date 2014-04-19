@@ -26,6 +26,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 5;
+    private int minLeafInstances = 0;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
@@ -37,6 +38,11 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     public TreeBuilder maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
+        return this;
+    }
+
+    public TreeBuilder minLeafInstances(int minLeafInstances) {
+        this.minLeafInstances = minLeafInstances;
         return this;
     }
 
@@ -57,7 +63,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-       // logger.info("Building decision tree, max depth: {}, ignoreAttributeAtNodeProb: {}",maxDepth, ignoreAttributeAtNodeProbability);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
@@ -125,6 +130,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
+        if (depth >= maxDepth) {
+            return thisLeaf;
+        }
+
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -168,12 +177,22 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
         final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getInPredicate()));
+
+        if (trueTrainingSet.size() < this.minLeafInstances) {
+            return thisLeaf;
+        }
+
         double trueWeight = 0;
         for (AbstractInstance instance : trueTrainingSet)
             trueWeight += instance.getWeight();
 
         final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getOutPredicate()));
+
+        if (falseTrainingSet.size() < this.minLeafInstances) {
+            return thisLeaf;
+        }
+
         double falseWeight = 0;
         for (AbstractInstance instance : falseTrainingSet)
             falseWeight += instance.getWeight();
