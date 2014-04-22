@@ -20,22 +20,31 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
     private final PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder;
     private final CrossValidator crossValidator;
     private final Map<String, FieldValueRecommender> valueRecommenders;
+    private final Iterable<? extends AbstractInstance> trainingData;
+    private Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
+    private volatile boolean hasRun = false;
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder) {
-        this(predictiveModelBuilderBuilder, new CrossValidator(4));
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData) {
+        this(predictiveModelBuilderBuilder, trainingData, new CrossValidator(4));
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, CrossValidator crossValidator) {
-        this(predictiveModelBuilderBuilder, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator) {
+        this(predictiveModelBuilderBuilder, trainingData, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+        this.trainingData = trainingData;
         this.crossValidator = crossValidator;
         this.valueRecommenders = valueRecommenders;
     }
 
-    public Map<String, Object> determineOptimalConfiguration(final Iterable<? extends AbstractInstance> trainingData) {
+    public Map<String, Object> determineOptimalConfiguration() {
+        if (hasRun) {
+            throw new IllegalStateException("Can't call this method more than once");
+        } else {
+            hasRun = true;
+        }
         Map<String, Object> startingConfiguration = Maps.newHashMap();
         for (Map.Entry<String, FieldValueRecommender> stringFieldValueRecommenderEntry : valueRecommenders.entrySet()) {
             final Optional<Object> firstValueOptional = stringFieldValueRecommenderEntry.getValue().recommendNextValue(Collections.<Object, Double>emptyMap());
@@ -44,15 +53,14 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
             }
             startingConfiguration.put(stringFieldValueRecommenderEntry.getKey(), firstValueOptional.get());
         }
-        return determineOptimalConfiguration(trainingData, startingConfiguration);
+        return determineOptimalConfiguration(startingConfiguration);
     }
 
 
-    public Map<String, Object> determineOptimalConfiguration(final Iterable<? extends AbstractInstance> trainingData, Map<String, Object> startingConfiguration) {
-        Map<String, Object> bestConfigurationSoFar = Maps.newHashMap(startingConfiguration);
-        final Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
+    public Map<String, Object> determineOptimalConfiguration(Map<String, Object> startingConfiguration) {
+        Map<String, Object> bestConfigurationSoFar = startingConfiguration;
         while (true) {
-            final ObjectWithLoss<Map<String, Object>> newBestConfigurationWithLoss = iterateAndImproveConfiguration(trainingData, configurationLosses, bestConfigurationSoFar);
+            final ObjectWithLoss<Map<String, Object>> newBestConfigurationWithLoss = iterateAndImproveConfiguration(bestConfigurationSoFar);
             if (newBestConfigurationWithLoss.get().equals(bestConfigurationSoFar)) {
                 logger.info("Best configuration unchanged after iteration, we're done here.  Configuration: "+newBestConfigurationWithLoss.get()+" with loss: "+newBestConfigurationWithLoss.getLoss());
                 break;
@@ -64,15 +72,13 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
         return bestConfigurationSoFar;
     }
 
-    private ObjectWithLoss<Map<String, Object>> iterateAndImproveConfiguration(final Iterable<? extends AbstractInstance> trainingData,
-                                                                               final Map<Map<String, Object>, Double> configurationLoss,
-                                                                               Map<String, Object> startingConfiguration) {
+    private ObjectWithLoss<Map<String, Object>> iterateAndImproveConfiguration(Map<String, Object> startingConfiguration) {
         Map<String, Object> currentConfiguration = Maps.newHashMap(startingConfiguration);
         double currentConfigurationLoss = Double.MAX_VALUE;
         for (Map.Entry<String, FieldValueRecommender> stringFieldValueRecommenderEntry : valueRecommenders.entrySet()) {
             String fieldName = stringFieldValueRecommenderEntry.getKey();
             logger.info("Optimizing field '" + fieldName + "'");
-            final Map<Object, Double> scoresForFieldValues = getScoresForFieldValues(trainingData, currentConfiguration, configurationLoss, fieldName, stringFieldValueRecommenderEntry.getValue());
+            final Map<Object, Double> scoresForFieldValues = getScoresForFieldValues(trainingData, currentConfiguration, fieldName, stringFieldValueRecommenderEntry.getValue());
             final Optional<Map.Entry<Object, Double>> entryWithLowestValueOpt = Misc.getEntryWithLowestValue(scoresForFieldValues);
             final Map.Entry<Object, Double> entryWithLowestValue = entryWithLowestValueOpt.get();
             Object bestValue = entryWithLowestValue.getKey();
@@ -86,7 +92,6 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
 
     private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends AbstractInstance> trainingData,
                                                         final Map<String, Object> baselineConfiguration,
-                                                        final Map<Map<String, Object>, Double> configurationLoss,
                                                         final String fieldName,
                                                         final FieldValueRecommender fieldValueRecommender) {
         Map<Object, Double> valueLoss = Maps.newHashMap();
@@ -98,8 +103,8 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
             final Object valueToTest = valueToTestOpt.get();
             Map<String, Object> configurationToTest = Maps.newHashMap(baselineConfiguration);
             configurationToTest.put(fieldName, valueToTest);
-            if (configurationLoss.containsKey(configurationToTest)) {
-                double lastLoss = configurationLoss.get(configurationToTest);
+            if (configurationLosses.containsKey(configurationToTest)) {
+                double lastLoss = configurationLosses.get(configurationToTest);
                 valueLoss.put(valueToTest, lastLoss);
                 continue; // No point in testing the same configuration twice
             }
@@ -108,7 +113,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
             final double crossValidatedLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
             logger.info("Loss for configuration " + configurationToTest + " is " + crossValidatedLoss);
             valueLoss.put(valueToTest, crossValidatedLoss);
-            configurationLoss.put(configurationToTest, crossValidatedLoss);
+            configurationLosses.put(configurationToTest, crossValidatedLoss);
         }
         return valueLoss;
     }
@@ -117,17 +122,17 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
         O object;
         double loss;
 
+        public ObjectWithLoss(final O object, final double loss) {
+            this.object = object;
+            this.loss = loss;
+        }
+
         public O get() {
             return object;
         }
 
         public double getLoss() {
             return loss;
-        }
-
-        public ObjectWithLoss(final O object, final double loss) {
-            this.object = object;
-            this.loss = loss;
         }
     }
 }

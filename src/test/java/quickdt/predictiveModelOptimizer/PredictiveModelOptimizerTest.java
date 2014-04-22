@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
+import quickdt.crossValidation.LogCrossValLossSupplier;
 import quickdt.data.AbstractInstance;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -34,9 +35,9 @@ public class PredictiveModelOptimizerTest {
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final RandomForestBuilderBuilder predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
-        final CrossValidator crossVal = new CrossValidator(4, 4);
-        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, crossVal);
-        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration(instances);
+        final CrossValidator crossVal = new CrossValidator(4, 4, new LogCrossValLossSupplier());
+        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
+        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
         final RandomForestBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
