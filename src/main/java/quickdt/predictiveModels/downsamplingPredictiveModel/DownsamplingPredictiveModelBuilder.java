@@ -33,7 +33,7 @@ public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilde
     @Override
     public DownsamplingPredictiveModel buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
-        Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, was %s", classificationProportions.size());
+        Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
         final Map.Entry<Serializable, Double> majorityEntry = Misc.getEntryWithHighestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
         final double majorityProportion = majorityEntry.getValue();
