@@ -17,4 +17,15 @@ public class Misc {
         }
         return entryWithLowestValue;
     }
+
+
+    public static final <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> getEntryWithHighestValue(Map<K, V> map) {
+        Optional<Map.Entry<K, V>> entryWithHighestValue = Optional.absent();
+        for (Map.Entry<K, V> kvEntry : map.entrySet()) {
+            if (!entryWithHighestValue.isPresent() || entryWithHighestValue.get().getValue().compareTo(kvEntry.getValue()) <= 0){
+                entryWithHighestValue = Optional.of(kvEntry);
+            }
+        }
+        return entryWithHighestValue;
+    }
 }

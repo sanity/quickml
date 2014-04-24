@@ -1,5 +1,6 @@
 package quickdt.predictiveModelOptimizer.fieldValueRecommenders;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -14,9 +15,9 @@ public class FixedOrderRecommenderTest {
     @Test
     public void simpleTest() {
         FixedOrderRecommender fixedOrderRecommender = new FixedOrderRecommender(1, 2, 3);
-        Assert.assertEquals(fixedOrderRecommender.recommendNextValue(Collections.<Object, Double>emptyMap()), 1);
+        Assert.assertEquals(fixedOrderRecommender.recommendNextValue(Collections.<Object, Double>emptyMap()), Optional.of(1));
         Map<Object, Double> oneDone = Maps.newHashMap();
         oneDone.put(1, 0.0);
-        Assert.assertEquals(fixedOrderRecommender.recommendNextValue(oneDone), 2);
+        Assert.assertEquals(fixedOrderRecommender.recommendNextValue(oneDone), Optional.of(2));
     }
 }
