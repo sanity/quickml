@@ -14,20 +14,20 @@ import java.util.Map;
 public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
     private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
 
-    private final PredictiveModelBuilderBuilder<?, ?> wrapperBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
 
     public PAVCalibratedPredictiveModelBuilderBuilder() {
         this(new RandomForestBuilderBuilder());
     }
 
-    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrapperBuilderBuilder) {
-        this.wrapperBuilderBuilder = wrapperBuilderBuilder;
+    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder) {
+        this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
         Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
-        parametersToOptimize.putAll(wrapperBuilderBuilder.createDefaultParametersToOptimize());
+        parametersToOptimize.putAll(wrappedBuilderBuilder.createDefaultParametersToOptimize());
         parametersToOptimize.put(BINS_IN_CALIBRATOR, new FixedOrderRecommender(5, 10, 20, 40));
         return parametersToOptimize;
     }
