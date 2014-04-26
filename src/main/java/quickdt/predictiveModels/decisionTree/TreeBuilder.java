@@ -3,7 +3,7 @@ package quickdt.predictiveModels.decisionTree;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
      //   logger.debug("Creating numeric split for attribute {}", attribute);
         final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
         for (final AbstractInstance i : trainingData) {
-            rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
+            rs.sample(((Number) i.getAttributes().get(attribute)).doubleValue());
         }
         final ArrayList<Double> al = Lists.newArrayList();
         for (final Double d : rs.getSamples()) {
@@ -96,7 +96,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                         rs = new ReservoirSampler<Double>(1000);
                         rsm.put(e.getKey(), rs);
                     }
-                    rs.addSample(((Number) e.getValue()).doubleValue());
+                    rs.sample(((Number) e.getValue()).doubleValue());
                 }
             }
         }

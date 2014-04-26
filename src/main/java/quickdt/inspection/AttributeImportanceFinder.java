@@ -2,12 +2,12 @@ package quickdt.inspection;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import com.twitter.common.stats.ReservoirSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
-import quickdt.data.*;
 import quickdt.crossValidation.CrossValidator;
+import quickdt.data.*;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
@@ -57,7 +57,7 @@ public class AttributeImportanceFinder {
                     sampler = new ReservoirSampler<Serializable>(1000);
                     samplesPerAttribute.put(attributeKeyValue.getKey(), sampler);
                 }
-                sampler.addSample(attributeKeyValue.getValue());
+                sampler.sample(attributeKeyValue.getValue());
             }
         }
 
