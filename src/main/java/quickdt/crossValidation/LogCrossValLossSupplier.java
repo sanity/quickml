@@ -7,6 +7,9 @@ import com.google.common.base.Supplier;
  */
 public class LogCrossValLossSupplier implements Supplier<LogCrossValLoss> {
     double minProbality;
+    public LogCrossValLossSupplier() {
+      this(LogCrossValLoss.DEFAULT_MIN_PROBABILITY);
+    }
     public LogCrossValLossSupplier(double minProbability) {
         this.minProbality= minProbability;
     }

@@ -1,54 +1,40 @@
 package quickdt.predictiveModels.calibratedPredictiveModel;
 
-import com.google.common.collect.Lists;
-import quickdt.predictiveModelOptimizer.ParameterToOptimize;
-import quickdt.predictiveModelOptimizer.PropertiesBuilder;
-import quickdt.predictiveModels.*;
+import com.google.common.collect.Maps;
+import quickdt.predictiveModelOptimizer.FieldValueRecommender;
+import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/10/14.
  */
 public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
-    private PredictiveModelBuilderBuilder<? extends PredictiveModel, ? extends PredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder;
+    private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
+
+    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
 
     public PAVCalibratedPredictiveModelBuilderBuilder() {
-        this.predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
+        this(new RandomForestBuilderBuilder());
     }
 
-    public PAVCalibratedPredictiveModelBuilderBuilder(Map<String, Object> predictiveModelParameters) {
-        this.predictiveModelBuilderBuilder = new RandomForestBuilderBuilder(predictiveModelParameters);
-    }
-
-
-    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<? extends PredictiveModel, PredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder) {
-        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
-    }
-
-
-
-    @Override
-    public List<ParameterToOptimize> createDefaultParametersToOptimize(){
-        List<ParameterToOptimize> parameters = predictiveModelBuilderBuilder.createDefaultParametersToOptimize();
-
-        List<Object> binsInCalibratorRange = Lists.<Object>newArrayList(5, 10, 20, 40, 100);
-        PropertiesBuilder binsInCalibratorPropertyBuilder = new PropertiesBuilder().setName("binsInCalibrator").setBinarySearchTheRange(false).setIsMonotonicallyConvergent(true).setInitialGuessOfOptimalValue(5).setIsOrdinal(true).setParameterTolerance(0.39).setErrorTolerance(0.9).setRange(binsInCalibratorRange);
-        parameters.add(new ParameterToOptimize(binsInCalibratorPropertyBuilder.createProperties()));
-
-        return parameters;
-    }
-
-    public Map<String, Object> createPredictiveModelConfig(List<ParameterToOptimize> parametersToOptimize) {
-        return predictiveModelBuilderBuilder.createPredictiveModelConfig(parametersToOptimize);
+    public PAVCalibratedPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder) {
+        this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 
     @Override
-    public PAVCalibratedPredictiveModelBuilder buildBuilder (Map<String, Object> predictiveModelParameters){
-       PredictiveModelBuilder predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelParameters);
-       return new PAVCalibratedPredictiveModelBuilder(predictiveModelBuilder).binsInCalibrator((Integer)predictiveModelParameters.get("binsInCalibrator"));
+    public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
+        Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
+        parametersToOptimize.putAll(wrappedBuilderBuilder.createDefaultParametersToOptimize());
+        parametersToOptimize.put(BINS_IN_CALIBRATOR, new FixedOrderRecommender(5, 10, 20, 40));
+        return parametersToOptimize;
+    }
+
+    @Override
+    public PAVCalibratedPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
+        return new PAVCalibratedPredictiveModelBuilder().binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
     }
 }
 

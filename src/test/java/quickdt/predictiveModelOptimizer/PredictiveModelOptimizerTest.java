@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
+import quickdt.crossValidation.LogCrossValLossSupplier;
 import quickdt.data.AbstractInstance;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -21,19 +22,29 @@ public class PredictiveModelOptimizerTest {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
     @Test
-    public void irisDatasetTest() throws IOException {
+    public void irisTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
+        testWithTrainingSet(instances);
+    }
+
+    @Test
+    public void diabetesTest() throws IOException {
+        final List<AbstractInstance> instances = Benchmarks.loadDiabetesDataset();
+        testWithTrainingSet(instances);
+    }
+
+    private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final RandomForestBuilderBuilder predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
-        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances);
-        final Map<String, Object> optimalParameters = predictiveModelOptimizer.findOptimalParameters();
-        logger.error("Optimal parameters: " + optimalParameters);
+        final CrossValidator crossVal = new CrossValidator(4, 4, new LogCrossValLossSupplier());
+        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
+        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
+        logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
         final RandomForestBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
-        CrossValidator crossValidator = new CrossValidator();
-        double defaultLoss = crossValidator.getCrossValidatedLoss(defaultRFBuilder, instances);
-        double optimizedLoss = crossValidator.getCrossValidatedLoss(optimalRFBuilder, instances);
+        double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
+        double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
         logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
-        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss ("+defaultLoss+") should be higher or equal to optimized PM loss ("+optimizedLoss+")");
+        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss (" + optimizedLoss + ")");
     }
 
 }

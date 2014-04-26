@@ -1,18 +1,21 @@
 package quickdt.crossValidation;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
-import sun.rmi.runtime.Log;
 
 /**
  * Created by alexanderhawk on 4/10/14.
  */
 public class LogCrossValLoss extends CrossValLoss<LogCrossValLoss> {
 
+    public static final double DEFAULT_MIN_PROBABILITY = 10e-8;
     double totalLogLoss = 0;
     private double total = 0;
     public  double minProbability;
     public  double maxError;
+
+    public LogCrossValLoss() {
+        this(DEFAULT_MIN_PROBABILITY);
+    }
 
     public LogCrossValLoss(double minProbability) {
         this.minProbability = minProbability;
