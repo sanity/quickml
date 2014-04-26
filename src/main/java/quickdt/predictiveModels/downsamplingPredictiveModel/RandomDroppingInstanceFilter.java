@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Created by ian on 4/23/14.
  */
-public class RandomDroppingInstanceFilter implements Predicate<AbstractInstance> {
+class RandomDroppingInstanceFilter implements Predicate<AbstractInstance> {
     private final Serializable classificationToDrop;
     private final double dropProbability;
 
