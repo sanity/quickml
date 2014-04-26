@@ -15,7 +15,7 @@ import java.io.Serializable;
  * Time: 3:15 PM
  * To change this template use File | Settings | File Templates.
  */
-class Tree implements PredictiveModel {
+public class Tree implements PredictiveModel {
     static final long serialVersionUID = 56394564395635672L;
 
     public final Node node;
