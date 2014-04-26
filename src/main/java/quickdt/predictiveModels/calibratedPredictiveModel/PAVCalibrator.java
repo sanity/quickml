@@ -183,7 +183,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
          * This type of observation can be used to correct a previous observation.
          * So adding:
          * Observation(1, 0) and Observation.WEIGHTLESS(1, 2)
-         * <p/>
+         * 
          * Has the exact same effect as adding:
          * Observation(1, 1)
          *

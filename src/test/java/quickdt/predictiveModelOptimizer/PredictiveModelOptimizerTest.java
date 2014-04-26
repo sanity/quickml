@@ -27,7 +27,7 @@ public class PredictiveModelOptimizerTest {
         testWithTrainingSet(instances);
     }
 
-    @Test
+    @Test(enabled = false)
     public void diabetesTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadDiabetesDataset();
         testWithTrainingSet(instances);
