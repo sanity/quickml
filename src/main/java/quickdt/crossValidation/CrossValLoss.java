@@ -1,9 +1,13 @@
 package quickdt.crossValidation;
 
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModel;
+
+import java.util.List;
+
 /**
- * Created by ian on 2/28/14.
+ * Created by alexanderhawk on 4/24/14.
  */
-public abstract class CrossValLoss<S extends CrossValLoss> implements Comparable<S> {
-    public abstract void addLossFromInstance(double probabilityOfCorrectInstance, double weight);
-    public abstract double getTotalLoss();
+public interface CrossValLoss {
+    public abstract double getTotalLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel);
 }
