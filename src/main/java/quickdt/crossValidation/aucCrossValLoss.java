@@ -13,7 +13,7 @@ public class aucCrossValLoss implements CrossValLoss
 {
 
     @Override
-    public double getTotalLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
         Auc auc = new Auc();
 
         for (AbstractInstance instance : crossValSet) {

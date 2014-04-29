@@ -1,6 +1,5 @@
 package quickdt.crossValidation;
 
-import com.google.common.base.Supplier;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 
@@ -23,8 +22,8 @@ public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
         return mseCrossValLoss.compareTo(o.mseCrossValLoss);
     }
     @Override
-    public double getTotalLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
-        return Math.sqrt(super.getTotalLoss(crossValSet, predictiveModel));
+    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+        return Math.sqrt(super.getLoss(crossValSet, predictiveModel));
     }
 
     @Override

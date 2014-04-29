@@ -1,7 +1,6 @@
 package quickdt.crossValidation;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +63,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            runningLoss+=crossValLoss.getTotalLoss(dataSplit.validation, predictiveModel);
+            runningLoss+=crossValLoss.getLoss(dataSplit.validation, predictiveModel);
         }
         final double averageLoss = runningLoss / foldsUsed;
         logger.info("Average loss: "+averageLoss);

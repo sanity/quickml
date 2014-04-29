@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,28 +16,29 @@ import java.util.List;
 public class TemporalReweighter {
 
         private Iterable<? extends AbstractInstance> trainingData;
-        private double crossValidationFraction;
+        private final double testWindow = 7;
+        private double minutesInValidationSet;
         private double testFraction;
-        private CrossValLoss<?> lossObject;
+        private CrossValLoss lossObject;
         private double trainingSetLifeTime;
         private static final DateTime timeSince2012 = new DateTime(2013,1,1,0,0,0,0);
         private List<InstanceWithTime> allTrainingDataWithTimes = Lists.<InstanceWithTime>newArrayList();
-        private List<InstanceWithTime> trainingSet = Lists.<InstanceWithTime>newArrayList();
-        private List<InstanceWithTime> validationSet = Lists.<InstanceWithTime>newArrayList();
+        private List<AbstractInstance> trainingSet = Lists.<AbstractInstance>newArrayList();
+        private List<AbstractInstance> validationSet = Lists.<AbstractInstance>newArrayList();
         private List<InstanceWithTime> testSet = Lists.<InstanceWithTime>newArrayList();
+        PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder;
 
         private double timeIntervalOfData;
 
-        public TemporalReweighter(Iterable<? extends AbstractInstance> trainingData, CrossValLoss<?> lossObject, double crossValidationFraction, double testFraction){
+        public TemporalReweighter(PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> trainingData, CrossValLoss lossObject, double crossValidationMinutes){
+            this.predictiveModelBuilder = predictiveModelBuilder;
             this.trainingData = trainingData;
-            this.crossValidationFraction = crossValidationFraction;
-            this.testFraction = testFraction;
+            this.minutesInValidationSet = crossValidationMinutes;
             this.lossObject = lossObject;
-            createTimedInstances();
-            createTrainingValidationAndTestSets();
+            this.timeIntervalOfData = createTimedInstances();
         }
 
-        private void createTimedInstances() {
+        private double createTimedInstances() {
             double mostRecent;
             double arrivalTimeInMinutes;
             for(AbstractInstance instance : trainingData)  {
@@ -53,12 +56,13 @@ public class TemporalReweighter {
                  if (presentTime > endTime)
                      endTime = presentTime;
             }
-            this.timeIntervalOfData = endTime - startTime;
 
             for (InstanceWithTime instanceWithTime : allTrainingDataWithTimes)
                 instanceWithTime.time = instanceWithTime.time - startTime;
 
             Collections.sort(allTrainingDataWithTimes);
+            double timeIntervalOfData = endTime - startTime;
+            return timeIntervalOfData;
         }
 
         private double getArrivalTimeInMinutes(AbstractInstance instance) {
@@ -69,44 +73,45 @@ public class TemporalReweighter {
             return Minutes.minutesBetween(dateTime, timeSince2012).getMinutes();
         }
 
-        private void createTrainingValidationAndTestSets() {
-            int trainingSetSize = (int)((1.0 - testFraction - crossValidationFraction)* allTrainingDataWithTimes.size());
-            int validationSetSize = (int)(crossValidationFraction*allTrainingDataWithTimes.size());
 
-            for (int i = 0; i< allTrainingDataWithTimes.size(); i++) {
-                if(i < trainingSetSize )
-                    trainingSet.add(allTrainingDataWithTimes.get(i));
-                else if(i < trainingSetSize + validationSetSize)
-                    validationSet.add(allTrainingDataWithTimes.get(i));
-                else
-                    testSet.add(allTrainingDataWithTimes.get(i));
-            }
+    private void createTrainingValidationSets(double trainingEndTime, double testEndTime) {
+        trainingSet = Lists.<AbstractInstance>newArrayList();
+        validationSet = Lists.<AbstractInstance>newArrayList();
+        for (InstanceWithTime instanceWithTime : allTrainingDataWithTimes) {
+            if (instanceWithTime.time < trainingEndTime)
+                trainingSet.add(instanceWithTime.instance);
+            else if (instanceWithTime.time <= testEndTime)
+                validationSet.add(instanceWithTime.instance);
+            else
+                break;
         }
+    }
 
-        public Iterable<? extends AbstractInstance> verifyReweightingOfTrainingData() { // create a similar method that reweights just the test data.
-              double reWeightFactor = 0;
-              List<Double> reweigtingFactors = getReweightingFactorsForVariousRegularizationConstants();
-              reWeightFactor = getBestCrossValidatedReweightingFactor(reweigtingFactors);
-              List<? extends AbstractInstance> reweightedInstances = reweightEachInstance(); //reweights everything in training the trainingAndValidationSet
-              verifyNoOverfit(reweightedInstances);
-        }
+    public void reweightEachInstance() {
+        double initialTrainingEndTime = timeIntervalOfData - testWindow;
+        double initialTestEndTime = initialTrainingEndTime + minutesInValidationSet;
+        createTrainingValidationSets(initialTrainingEndTime, initialTrainingEndTime);
 
-        private  List<Double> getReweightingFactorsForVariousRegularizationConstants() {
-        List<Double> reweigtingFactors = Lists.<Double>newArrayList();
-        double regularizationConstants[] = {.001, .003, .01, .03, .06, .1, .3};
-        for (double regularizationConstant : regularizationConstants) {
-               reweigtingFactors.add(getBestReweightFactor(regularizationConstant));
+        while (weightingConstantRecommender.get()) {
+            reweightTrainingSet();
+            PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingSet);
         }
-        return reweigtingFactors;
-        }
+        updateMovingAverage(weightinConstantRecommender)
+        //what do we do with the weighting constant?  we use it in a running average (which might want to make a holt winters).
+        // At training time, the value of the moving average is used to reweight the entire training set
 
-        private getBestReweightFactor
+        //In experiments however, the value of the moving average is used to get an error on a test set.  With the average error on
+        //on each test set (for each moving avearge that is used) gives a total error.  This is repeated for different window sizes
+        //moving average schemes (e.g. Holt winters)
+    }
+
+
+
 
         private double newWeight(double time, double reweightFactor) {
             return 1.0 - reweightFactor * time / trainingSetLifeTime;
         }
 
-        public void verifyNoOverfit(){}
 
         class InstanceWithTime implements Comparable<InstanceWithTime>{
             public double time;

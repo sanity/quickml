@@ -8,9 +8,6 @@ import com.google.common.base.Supplier;
  */
 public class MSECrossValLoss extends OnlineCrossValLoss<MSECrossValLoss> {
 
-    private int total = 0;
-    private double totalErrorSquared = 0.0;
-
     @Override
     public double getLossFromInstance(double probabilityOfCorrectInstance, double weight) {
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
