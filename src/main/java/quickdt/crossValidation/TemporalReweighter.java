@@ -7,6 +7,7 @@ import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,10 +31,9 @@ public class TemporalReweighter {
 
         private double timeIntervalOfData;
 
-        public TemporalReweighter(PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> trainingData, CrossValLoss lossObject, double crossValidationMinutes){
+        public TemporalReweighter(PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> trainingData, CrossValLoss lossObject){
             this.predictiveModelBuilder = predictiveModelBuilder;
             this.trainingData = trainingData;
-            this.minutesInValidationSet = crossValidationMinutes;
             this.lossObject = lossObject;
             this.timeIntervalOfData = createTimedInstances();
         }
@@ -74,7 +74,7 @@ public class TemporalReweighter {
         }
 
 
-    private void createTrainingValidationSets(double trainingEndTime, double testEndTime) {
+    private void createTrainingAndValidationSets(double trainingEndTime, double testEndTime) {
         trainingSet = Lists.<AbstractInstance>newArrayList();
         validationSet = Lists.<AbstractInstance>newArrayList();
         for (InstanceWithTime instanceWithTime : allTrainingDataWithTimes) {
@@ -87,22 +87,43 @@ public class TemporalReweighter {
         }
     }
 
-    public void reweightEachInstance() {
-        double initialTrainingEndTime = timeIntervalOfData - testWindow;
-        double initialTestEndTime = initialTrainingEndTime + minutesInValidationSet;
-        createTrainingValidationSets(initialTrainingEndTime, initialTrainingEndTime);
+    private double getOptimalWeightingConstantForValidationWindow(CrossValLoss crossValLoss, double trainingEndTime, double validationEndTime) {
 
-        while (weightingConstantRecommender.get()) {
-            reweightTrainingSet();
+        double weightingConstant, currentLoss;
+        do {
+            weightingConstant = weightingConstantRecommender.get();
+            createTrainingAndValidationSets(trainingEndTime, validationEndTime);
+            reweightTrainingSet(weightingConstant);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingSet);
-        }
-        updateMovingAverage(weightinConstantRecommender)
+            currentLoss =  crossValLoss.getLoss(validationSet, predictiveModel);
+            validationEndTime += minutesInValidationSet;
+            trainingEndTime += minutesInValidationSet;
+        } while (weightingConstantRecommender.get())
+        updateMovingAverage(weightingConstantRecommender.getBest());
+
         //what do we do with the weighting constant?  we use it in a running average (which might want to make a holt winters).
         // At training time, the value of the moving average is used to reweight the entire training set
 
         //In experiments however, the value of the moving average is used to get an error on a test set.  With the average error on
         //on each test set (for each moving avearge that is used) gives a total error.  This is repeated for different window sizes
         //moving average schemes (e.g. Holt winters)
+    }
+
+    public double getAveragedWeightingConstant(MovingAverage movingAverage, CrossValLoss crossValLoss, double minutesInValidaitonWindow, int numValidationWindows) {
+        ArrayList<Double> weightingConstants = Lists.<Double>newArrayList();
+
+        for (int i = 0; i< numValidationWindows; i++) {
+            double trainingEndTime = timeIntervalOfData + i*minutesInValidaitonWindow;
+            double validationEndTime = trainingEndTime + minutesInValidaitonWindow;
+            double optimalWeightingConstantForWindow = getOptimalWeightingConstantForValidationWindow(crossValLoss, trainingEndTime, validationEndTime);
+            weightingConstants.add(optimalWeightingConstantForWindow);
+        }
+        return movingAverage.getAverage(weightingConstants);
+
+    }
+
+    public void optimizeWindowSize() {
+
     }
 
 
