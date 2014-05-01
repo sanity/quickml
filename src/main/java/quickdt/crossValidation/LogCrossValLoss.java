@@ -1,10 +1,13 @@
 package quickdt.crossValidation;
 
 import com.google.common.base.Preconditions;
+<<<<<<< HEAD
 import com.google.common.base.Supplier;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import sun.rmi.runtime.Log;
+=======
+>>>>>>> master
 
 import java.util.List;
 
@@ -13,9 +16,12 @@ import java.util.List;
  */
 public class LogCrossValLoss extends OnlineCrossValLoss<LogCrossValLoss> {
 
-
     public  double minProbability;
     public  double maxError;
+
+    public LogCrossValLoss() {
+        this(DEFAULT_MIN_PROBABILITY);
+    }
 
     public LogCrossValLoss(double minProbability) {
         this.minProbability = minProbability;

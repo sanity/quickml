@@ -3,7 +3,7 @@ package quickdt.predictiveModels.decisionTree;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.uprizer.sensearray.freetools.stats.ReservoirSampler;
+import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 5;
+    private int minLeafInstances = 0;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
@@ -37,6 +38,11 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     public TreeBuilder maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
+        return this;
+    }
+
+    public TreeBuilder minLeafInstances(int minLeafInstances) {
+        this.minLeafInstances = minLeafInstances;
         return this;
     }
 
@@ -57,7 +63,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-       // logger.info("Building decision tree, max depth: {}, ignoreAttributeAtNodeProb: {}",maxDepth, ignoreAttributeAtNodeProbability);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
@@ -65,7 +70,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
      //   logger.debug("Creating numeric split for attribute {}", attribute);
         final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
         for (final AbstractInstance i : trainingData) {
-            rs.addSample(((Number) i.getAttributes().get(attribute)).doubleValue());
+            rs.sample(((Number) i.getAttributes().get(attribute)).doubleValue());
         }
         final ArrayList<Double> al = Lists.newArrayList();
         for (final Double d : rs.getSamples()) {
@@ -96,7 +101,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                         rs = new ReservoirSampler<Double>(1000);
                         rsm.put(e.getKey(), rs);
                     }
-                    rs.addSample(((Number) e.getValue()).doubleValue());
+                    rs.sample(((Number) e.getValue()).doubleValue());
                 }
             }
         }
@@ -124,6 +129,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                              final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
+
+        if (depth >= maxDepth) {
+            return thisLeaf;
+        }
 
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
@@ -168,12 +177,22 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
         final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getInPredicate()));
+
+        if (trueTrainingSet.size() < this.minLeafInstances) {
+            return thisLeaf;
+        }
+
         double trueWeight = 0;
         for (AbstractInstance instance : trueTrainingSet)
             trueWeight += instance.getWeight();
 
         final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
                 bestNode.getOutPredicate()));
+
+        if (falseTrainingSet.size() < this.minLeafInstances) {
+            return thisLeaf;
+        }
+
         double falseWeight = 0;
         for (AbstractInstance instance : falseTrainingSet)
             falseWeight += instance.getWeight();
