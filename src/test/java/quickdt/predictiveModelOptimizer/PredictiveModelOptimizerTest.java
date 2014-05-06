@@ -6,8 +6,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
 import quickdt.crossValidation.LogCrossValLossSupplier;
+import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
-import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
@@ -35,7 +35,7 @@ public class PredictiveModelOptimizerTest {
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final RandomForestBuilderBuilder predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
-        final CrossValidator crossVal = new CrossValidator(4, 4, new LogCrossValLossSupplier());
+        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLossSupplier());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);

@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
+import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
-import quickdt.crossValidation.CrossValidator;
 import quickdt.inspection.AttributeImportanceFinder;
 import quickdt.inspection.AttributeScore;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -35,7 +35,7 @@ public class AttributeCombinerModelBuilderTest {
             logger.info(attributeScore.toString());
         }
 
-        CrossValidator crossValidator = new CrossValidator(4, 2);
+        StationaryCrossValidator crossValidator = new StationaryCrossValidator(4, 2);
         double rfLoss = crossValidator.getCrossValidatedLoss(new RandomForestBuilder(), moboDataset);
 
         ArrayList<String> topAttributes = Lists.newArrayList(Iterables.limit(Iterables.transform(attributeScores.descendingSet(), new Function<AttributeScore, String>() {
