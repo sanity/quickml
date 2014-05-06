@@ -61,20 +61,27 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
     }
 
     public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
-        CrossValLoss<?> crossValLoss;
+        CrossValLoss<?> crossValLoss = null;
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            crossValLoss = lossObjectSupplier.get();
+            if (crossValLoss == null || crossValLoss instanceof OnlineCrossValLoss) {
+                crossValLoss = lossObjectSupplier.get();
+            }
             for (AbstractInstance instance : dataSplit.validation) {
-                crossValLoss.addLossFromInstance(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
+                crossValLoss.addLoss(instance, predictiveModel);
             }
             runningLoss+=crossValLoss.getTotalLoss();
 
         }
-        final double averageLoss = runningLoss / foldsUsed;
+        final double averageLoss;
+        if (crossValLoss instanceof OnlineCrossValLoss) {
+            averageLoss = runningLoss / foldsUsed;
+        } else {
+            averageLoss = crossValLoss != null ? crossValLoss.getAverageLoss() : 0;
+        }
         logger.info("Average loss: "+averageLoss);
         return averageLoss;
     }
