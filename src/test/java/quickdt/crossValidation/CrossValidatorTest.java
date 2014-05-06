@@ -19,25 +19,6 @@ import java.util.List;
 public class CrossValidatorTest {
 
     @Test
-    public void testOnlineCrossValidator() {
-        Supplier supplier = Mockito.mock(Supplier.class);
-        OnlineCrossValLoss onlineCrossValLoss = Mockito.mock(OnlineCrossValLoss.class);
-
-        Mockito.when(supplier.get()).thenReturn(onlineCrossValLoss);
-
-        int folds = 4;
-        CrossValidator crossValidator = new CrossValidator(folds, folds, supplier);
-        TreeBuilder treeBuilder = new TreeBuilder();
-        List<AbstractInstance> instances = getInstances();
-        crossValidator.getCrossValidatedLoss(treeBuilder, instances);
-
-        Mockito.verify(onlineCrossValLoss, Mockito.times(instances.size())).addLoss(Mockito.any(AbstractInstance.class), Mockito.any(PredictiveModel.class));
-        Mockito.verify(onlineCrossValLoss, Mockito.times(folds)).getTotalLoss();
-        //An online cross val loss should not call get average
-        Mockito.verify(onlineCrossValLoss, Mockito.never()).getAverageLoss();
-    }
-
-    @Test
     public void testCrossValidator() {
         Supplier supplier = Mockito.mock(Supplier.class);
         CrossValLoss crossValLoss = Mockito.mock(CrossValLoss.class);
@@ -52,7 +33,6 @@ public class CrossValidatorTest {
 
         Mockito.verify(crossValLoss, Mockito.times(instances.size())).addLoss(Mockito.any(AbstractInstance.class), Mockito.any(PredictiveModel.class));
         Mockito.verify(crossValLoss, Mockito.times(folds)).getTotalLoss();
-        Mockito.verify(crossValLoss, Mockito.times(1)).getAverageLoss();
     }
 
     private List<AbstractInstance> getInstances() {

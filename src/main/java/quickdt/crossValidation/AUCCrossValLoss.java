@@ -16,12 +16,7 @@ import java.util.*;
 public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
     private final Serializable positiveClassification;
     private Set<Serializable> classifications = new HashSet<Serializable>();
-
-    private List<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
-    private double truePositives = 0;
-    private double trueNegatives = 0;
-    private double falsePositives = 0;
-    private double falseNegatives = 0;
+    private List<AUCData> aucDataList = new ArrayList<AUCData>();
 
     public AUCCrossValLoss(Serializable positiveClassification) {
         this.positiveClassification = positiveClassification;
@@ -33,48 +28,77 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
         if (classifications.size() > 2) {
             throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
         }
-        Serializable predictedClassification = predictiveModel.getClassificationByMaxProb(abstractInstance.getAttributes());
-        addLoss(predictedClassification, predictedClassification.equals(abstractInstance.getClassification()), abstractInstance.getWeight());
-    }
-
-    private void addLoss(Serializable predictedClassification, boolean correctClassification, double weight) {
-        if (predictedClassification.equals(positiveClassification)) {
-            if (correctClassification) {
-                truePositives += weight;
-            } else {
-                falsePositives += weight;
-            }
-        } else {
-            if (correctClassification) {
-                trueNegatives += weight;
-            } else {
-                falseNegatives += weight;
-            }
-        }
+        aucDataList.add(new AUCData(abstractInstance.getClassification(), abstractInstance.getWeight(), predictiveModel.getProbability(abstractInstance.getAttributes(), abstractInstance.getClassification())));
     }
 
     @Override
     public double getTotalLoss() {
-        double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : truePositives / (truePositives + falseNegatives);
-        double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : falsePositives / (falsePositives + trueNegatives);
-        aucPoints.add(new AUCPoint(truePositiveRate, falsePositiveRate));
+        orderByProbability();
 
-        truePositives = 0;
-        trueNegatives = 0;
-        falsePositives = 0;
-        falseNegatives = 0;
-        return 0;
+        ArrayList<AUCPoint> aucPoints = getAUCPoints();
+
+        return getAUC(aucPoints);
     }
 
-    @Override
-    public double getAverageLoss() {
-        if (aucPoints.isEmpty()) {
-            if (truePositives == 0 && trueNegatives == 0 && falsePositives == 0 && falseNegatives == 0) {
-                throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
+    private ArrayList<AUCPoint> getAUCPoints() {
+        double truePositives = 0;
+        double trueNegatives = 0;
+        double falsePositives = 0;
+        double falseNegatives = 0;
+
+        //calculate with threshold of 0 as a baseline, don't store as a point
+        for(AUCData aucData : aucDataList) {
+            if(aucData.getClassification().equals(positiveClassification)) {
+                truePositives += aucData.getWeight();
             } else {
-                //we have data, call getTotalLoss to store the data point
-                getTotalLoss();
+                falsePositives += aucData.getWeight();
             }
+        }
+
+        ArrayList<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
+        for(AUCData aucData : aucDataList) {
+            //we are positive but guessing negative
+            if (aucData.getClassification().equals(positiveClassification)) {
+                //add a false negative
+                falseNegatives+=aucData.getWeight();
+                //remove true positive from previous threshold
+                truePositives-=aucData.getWeight();
+            } else {//we are negative and guessing negative
+                //add a true negative
+                trueNegatives+=aucData.getWeight();
+                //remove a false positive from previous threshold
+                falsePositives-=aucData.getWeight();
+            }
+            aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+        }
+        return aucPoints;
+    }
+
+    private void orderByProbability() {
+        Collections.sort(aucDataList, new Comparator<AUCData>() {
+            @Override
+            public int compare(AUCData o1, AUCData o2) {
+                if (o1.getProbability() > o2.getProbability()) {
+                    return 1;
+                } else if (o2.getProbability() > o1.getProbability()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+
+            }
+        });
+    }
+
+    private AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
+        double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : truePositives / (truePositives + falseNegatives);
+        double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : falsePositives / (falsePositives + trueNegatives);
+        return new AUCPoint(truePositiveRate, falsePositiveRate);
+    }
+
+    public double getAUC(ArrayList<AUCPoint> aucPoints) {
+        if (aucPoints.isEmpty()) {
+            throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
         }
 
         //order by false positive rate
@@ -127,7 +151,7 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
 
     @Override
     public int compareTo(AUCCrossValLoss o) {
-        return 1 - Double.compare(this.getAverageLoss(), o.getAverageLoss());
+        return 1 - Double.compare(this.getTotalLoss(), o.getTotalLoss());
     }
 
     private class AUCPoint {
@@ -145,6 +169,31 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
 
         public double getTruePositiveRate() {
             return truePositiveRate;
+        }
+
+    }
+
+    private class AUCData {
+        private final Serializable classification;
+        private final double weight;
+        private final double probability;
+
+        public AUCData(Serializable classification, double weight, double probability) {
+            this.classification = classification;
+            this.weight = weight;
+            this.probability = probability;
+        }
+
+        public Serializable getClassification() {
+            return classification;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public double getProbability() {
+            return probability;
         }
     }
 }

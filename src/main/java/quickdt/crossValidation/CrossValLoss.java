@@ -8,6 +8,5 @@ import quickdt.predictiveModels.PredictiveModel;
  */
 public interface CrossValLoss<S extends CrossValLoss> extends Comparable<S> {
     public void addLoss(AbstractInstance abstractInstance, PredictiveModel predictiveModel);
-    public double getAverageLoss();
     public double getTotalLoss();
 }
