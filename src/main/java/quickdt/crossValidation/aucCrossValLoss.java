@@ -1,13 +1,8 @@
 package quickdt.crossValidation;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+
 import org.apache.mahout.classifier.evaluation.Auc;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
-import quickdt.predictiveModels.calibratedPredictiveModel.Calibrator;
-
-import java.util.HashSet;
 import java.util.List;
 
 /**
