@@ -33,20 +33,24 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
 
     @Override
     public double getTotalLoss() {
-        orderByProbability();
+        if (aucDataList.isEmpty()) {
+            throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
+        }
+        sortDataByProbability(aucDataList);
 
-        ArrayList<AUCPoint> aucPoints = getAUCPoints();
+        ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
 
         return getAUC(aucPoints);
     }
 
-    private ArrayList<AUCPoint> getAUCPoints() {
+    protected ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {
         double truePositives = 0;
         double trueNegatives = 0;
         double falsePositives = 0;
         double falseNegatives = 0;
 
-        //calculate with threshold of 0 as a baseline, don't store as a point
+        ArrayList<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
+        //calculate with threshold of 0
         for(AUCData aucData : aucDataList) {
             if(aucData.getClassification().equals(positiveClassification)) {
                 truePositives += aucData.getWeight();
@@ -54,8 +58,9 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
                 falsePositives += aucData.getWeight();
             }
         }
+        aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
 
-        ArrayList<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
+        //iterate through each data point and use that as a threshold, only the point being considered changes
         for(AUCData aucData : aucDataList) {
             //we are positive but guessing negative
             if (aucData.getClassification().equals(positiveClassification)) {
@@ -74,7 +79,8 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
         return aucPoints;
     }
 
-    private void orderByProbability() {
+    protected void sortDataByProbability(List<AUCData> aucDataList) {
+        //order by probability ascending
         Collections.sort(aucDataList, new Comparator<AUCData>() {
             @Override
             public int compare(AUCData o1, AUCData o2) {
@@ -85,80 +91,52 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
                 } else {
                     return 0;
                 }
-
             }
         });
     }
 
-    private AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
-        double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : truePositives / (truePositives + falseNegatives);
-        double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : falsePositives / (falsePositives + trueNegatives);
-        return new AUCPoint(truePositiveRate, falsePositiveRate);
+    protected AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
+        double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : (truePositives / (truePositives + falseNegatives));
+        double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : (falsePositives / (falsePositives + trueNegatives));
+        return new AUCPoint(falsePositiveRate, truePositiveRate);
     }
 
-    public double getAUC(ArrayList<AUCPoint> aucPoints) {
-        if (aucPoints.isEmpty()) {
-            throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
-        }
-
-        //order by false positive rate
+    protected double getAUC(ArrayList<AUCPoint> aucPoints) {
+        //order by false positive rate ascending, true positive rate ascending
         Collections.sort(aucPoints, new Comparator<AUCPoint>() {
             @Override
             public int compare(AUCPoint o1, AUCPoint o2) {
-                return o1.getFalsePositiveRate() >= o2.getFalsePositiveRate() ? 1 : -1;
+                if (o1.getFalsePositiveRate() > o2.getFalsePositiveRate()) {
+                    return 1;
+                } else if (o1.getFalsePositiveRate() < o2.getFalsePositiveRate()) {
+                    return -1;
+                } else {
+                    return o1.getTruePositiveRate() >= o2.getTruePositiveRate() ? 1 : -1;
+                }
             }
         });
 
-        double area = 0.0;
-        AUCPoint previousAucPoint = null;
-        for(AUCPoint aucPoint : aucPoints) {
-            area += getArea(previousAucPoint, aucPoint);
-            previousAucPoint = aucPoint;
+        double sumXY = 0.0;
+        //Area over curve OR AUCLoss = (2 - sum((x1-x0)(y1+y0)))/2
+        for(int i = 1; i < aucPoints.size(); i++) {
+            AUCPoint aucPoint1 = aucPoints.get(i);
+            AUCPoint aucPoint0 = aucPoints.get(i-1);
+            sumXY += ((aucPoint1.getFalsePositiveRate() - aucPoint0.getFalsePositiveRate())*(aucPoint1.getTruePositiveRate()+aucPoint0.getTruePositiveRate()));
         }
-
-        if (previousAucPoint != null && previousAucPoint.getFalsePositiveRate() < 1) {
-            area += getArea(previousAucPoint, new AUCPoint(1, 1));
-        }
-
-        return 1.0 - area;
-    }
-    
-    private double getArea(AUCPoint point1, AUCPoint point2) {
-        double area = 0;
-        if (point2.getFalsePositiveRate() > 0) {
-            if (point1 == null) {
-                //point1 == 0,0, get the area of the triangle from 0,0 to point2
-                area += getAreaTriangle(point2.getFalsePositiveRate(), point2.getTruePositiveRate());
-            } else {
-                //get the area from the triangle between point1 and point2
-                double width = point2.getFalsePositiveRate() - point1.getFalsePositiveRate();
-                //area of square from previous point across
-                area += getAreaSquare(width, Math.min(point1.getTruePositiveRate(), point2.getTruePositiveRate()));
-                //area of triangle
-                area += getAreaTriangle(width, Math.abs(point2.getTruePositiveRate() - point1.getTruePositiveRate()));
-            }
-        }
-        return area;
+        return (2.0 - sumXY) / 2.0;
     }
 
-    private double getAreaTriangle(double base, double height) {
-        return base * height / 2;
-    }
-
-    private double getAreaSquare(double width, double height) {
-        return width * height;
-    }
 
     @Override
     public int compareTo(AUCCrossValLoss o) {
         return 1 - Double.compare(this.getTotalLoss(), o.getTotalLoss());
     }
 
-    private class AUCPoint {
+    protected static class AUCPoint {
         private final double truePositiveRate;
         private final double falsePositiveRate;
 
-        public AUCPoint(double truePositiveRate, double falsePositiveRate) {
+        public AUCPoint(double falsePositiveRate, double truePositiveRate) {
             this.truePositiveRate = truePositiveRate;
             this.falsePositiveRate = falsePositiveRate;
         }
@@ -170,10 +148,9 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
         public double getTruePositiveRate() {
             return truePositiveRate;
         }
-
     }
 
-    private class AUCData {
+    protected static class AUCData {
         private final Serializable classification;
         private final double weight;
         private final double probability;
