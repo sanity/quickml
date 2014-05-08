@@ -27,7 +27,12 @@
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
-            <version>2.1.0</version>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.amazonaws</groupId>
+        	<artifactId>aws-java-sdk</artifactId>
+        	<version>1.0.002</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
