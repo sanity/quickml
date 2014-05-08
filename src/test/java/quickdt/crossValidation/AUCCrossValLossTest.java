@@ -168,12 +168,10 @@ public class AUCCrossValLossTest {
         double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
 
         Auc auc = new Auc();
-        auc.add(1, 0.2);
-        auc.add(0, 0.3);
-        auc.add(1, 0.5);
-        auc.add(0, 0.6);
-        auc.add(1, 0.7);
-        auc.add(1, 0.8);
+        for(AUCCrossValLoss.AUCData aucData : aucDataList) {
+            auc.add("test1".equals(aucData.getClassification()) ? 1 : 0, aucData.getProbability());
+        }
+
         double mahoutAucLoss = 1.0 - auc.auc();
         Assert.assertEquals(mahoutAucLoss, aucCrossValLoss);
     }
