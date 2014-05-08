@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * AUCCrossValLoss calculates the ROC area under the curve to determine loss.
- * Call getTotalLoss will store a data point for all losses added
- * Get average loss will return 1.0 - AUC
+ * AUCCrossValLoss calculates the ROC area over the curve to determine loss.
  *
  * Created by Chris on 5/5/2014.
  */
@@ -40,7 +38,7 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
 
         ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
 
-        return getAUC(aucPoints);
+        return getAUCLoss(aucPoints);
     }
 
     protected ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {
@@ -50,7 +48,7 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
         double falseNegatives = 0;
 
         ArrayList<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
-        //calculate with threshold of 0
+        double threshold = 0.0;
         for(AUCData aucData : aucDataList) {
             if(aucData.getClassification().equals(positiveClassification)) {
                 truePositives += aucData.getWeight();
@@ -58,24 +56,29 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
                 falsePositives += aucData.getWeight();
             }
         }
-        aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
 
-        //iterate through each data point and use that as a threshold, only the point being considered changes
+        //iterate through each data point updating all points that are changed by the threshold
         for(AUCData aucData : aucDataList) {
+            if (threshold != aucData.getProbability()) {
+                aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+                threshold = aucData.getProbability();
+            }
             //we are positive but guessing negative
             if (aucData.getClassification().equals(positiveClassification)) {
                 //add a false negative
-                falseNegatives+=aucData.getWeight();
+                falseNegatives += aucData.getWeight();
                 //remove true positive from previous threshold
-                truePositives-=aucData.getWeight();
+                truePositives -= aucData.getWeight();
             } else {//we are negative and guessing negative
                 //add a true negative
-                trueNegatives+=aucData.getWeight();
+                trueNegatives += aucData.getWeight();
                 //remove a false positive from previous threshold
-                falsePositives-=aucData.getWeight();
+                falsePositives -= aucData.getWeight();
             }
-            aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+
         }
+        //add last point
+        aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
         return aucPoints;
     }
 
@@ -101,7 +104,7 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
         return new AUCPoint(falsePositiveRate, truePositiveRate);
     }
 
-    protected double getAUC(ArrayList<AUCPoint> aucPoints) {
+    protected double getAUCLoss(ArrayList<AUCPoint> aucPoints) {
         //order by false positive rate ascending, true positive rate ascending
         Collections.sort(aucPoints, new Comparator<AUCPoint>() {
             @Override

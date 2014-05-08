@@ -136,6 +136,10 @@ public class AUCCrossValLossTest {
         Assert.assertEquals(1.0/4.0, aucPoints.get(5).getTruePositiveRate());
         Assert.assertEquals(0.0, aucPoints.get(6).getFalsePositiveRate());
         Assert.assertEquals(0.0, aucPoints.get(6).getTruePositiveRate());
+        aucDataList.add(new AUCCrossValLoss.AUCData("test1", 1.0, 0.8));
+        aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
+        //Added data with same probability, should not result in new number of points but will change rates
+        Assert.assertEquals(aucDataList.size(), aucPoints.size());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -161,7 +165,7 @@ public class AUCCrossValLossTest {
         List<AUCCrossValLoss.AUCData> aucDataList = getAucDataList();
         crossValLoss.sortDataByProbability(aucDataList);
         ArrayList<AUCCrossValLoss.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
-        double aucCrossValLoss = crossValLoss.getAUC(aucPoints);
+        double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
 
         Auc auc = new Auc();
         auc.add(1, 0.2);
