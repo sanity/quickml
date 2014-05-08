@@ -162,7 +162,15 @@ public class AUCCrossValLossTest {
     @Test
     public void testAgainstMahout() {
         AUCCrossValLoss crossValLoss = new AUCCrossValLoss("test1");
-        List<AUCCrossValLoss.AUCData> aucDataList = getAucDataList();
+        List<AUCCrossValLoss.AUCData> aucDataList = new ArrayList<>();
+        int dataSize = 9000; //mahout only stores 10000 data points, test against less than what they consider
+        for(int i = 0; i < dataSize; i++) {
+            String classification = "test0";
+            if (i % 5 == 0) {
+                classification = "test1";
+            }
+            aucDataList.add(new AUCCrossValLoss.AUCData(classification, 1.0, Math.random()));
+        }
         crossValLoss.sortDataByProbability(aucDataList);
         ArrayList<AUCCrossValLoss.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
@@ -173,6 +181,8 @@ public class AUCCrossValLossTest {
         }
 
         double mahoutAucLoss = 1.0 - auc.auc();
-        Assert.assertEquals(mahoutAucLoss, aucCrossValLoss);
+        //These aren't matching exactly, but the difference is minimal
+        double acceptableDifference = 0.000000000001;
+        Assert.assertTrue(Math.abs(mahoutAucLoss - aucCrossValLoss) < acceptableDifference);
     }
 }
