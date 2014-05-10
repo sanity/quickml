@@ -6,7 +6,7 @@ import com.google.common.base.Supplier;
 /**
  * Created by ian on 2/28/14.
  */
-public class MSECrossValLoss extends CrossValLoss<MSECrossValLoss> {
+public class MSECrossValLoss extends OnlineCrossValLoss<MSECrossValLoss> {
     public static Supplier<MSECrossValLoss> supplier = new Supplier<MSECrossValLoss>() {
         @Override
         public MSECrossValLoss get() {
@@ -14,7 +14,7 @@ public class MSECrossValLoss extends CrossValLoss<MSECrossValLoss> {
         }
     };
 
-    private int total = 0;
+    private double total = 0;
     private double totalErrorSquared = 0.0;
 
     @Override

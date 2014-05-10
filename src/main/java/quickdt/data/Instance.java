@@ -6,12 +6,14 @@ public class Instance extends AbstractInstance implements Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
+    private static final double DEFAULT_WEIGHT = 1.0;
+
     private Instance() {
 
 	}
 
     public static Instance create(final String classification, final Serializable... inputs) {
-        return create(classification, 1.0, inputs);
+        return create(classification, DEFAULT_WEIGHT, inputs);
     }
 
     public static Instance create(final String classification, final double weight, final Serializable... inputs) {
@@ -19,11 +21,11 @@ public class Instance extends AbstractInstance implements Serializable {
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
 		}
-		return new Instance(a, classification);
+		return new Instance(a, classification, weight);
 	}
 
     public Instance(final Attributes attributes, final Serializable classification) {
-        this(attributes, classification, 1.0);
+        this(attributes, classification, DEFAULT_WEIGHT);
     }
 
     public Instance(final Attributes attributes, final Serializable classification, final double weight) {
