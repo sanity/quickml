@@ -66,7 +66,7 @@ public class AttributeImportanceFinder {
             final ArrayList<Serializable> samplesForAttribute = Lists.newArrayList(samplerForAttributeToExclude.getSamples());
             if (samplesForAttribute.size() < 2) continue;
             Iterable<AbstractInstance> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
-            double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
+            double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, scrambledTestingSet);
             logger.info("Attribute \""+attributeToExclude+"\" score is "+score);
             scores.add(new AttributeScore(attributeToExclude, score));
         }
