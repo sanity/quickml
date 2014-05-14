@@ -1,12 +1,11 @@
-package quickdt;
+package quickdt.predictiveModels.decisionTree;
 
 import com.beust.jcommander.internal.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
+import quickdt.Misc;
 import quickdt.data.Instance;
-import quickdt.predictiveModels.decisionTree.Tree;
-import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 

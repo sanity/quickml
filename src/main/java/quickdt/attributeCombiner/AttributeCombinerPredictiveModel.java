@@ -20,6 +20,10 @@ public class AttributeCombinerPredictiveModel implements PredictiveModel {
         this.attributeEnricher = attributeEnricher;
     }
 
+    public PredictiveModel getWrappedPredictiveModel() {
+        return predictiveModel;
+    }
+
     @Override
     public double getProbability(final Attributes attributes, final Serializable classification) {
         return predictiveModel.getProbability(attributeEnricher.apply(attributes), classification);

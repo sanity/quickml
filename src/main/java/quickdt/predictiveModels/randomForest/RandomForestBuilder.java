@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -72,8 +73,22 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
 
     // Submit all tree building jobs to the executor
-    for (int idx = 0; idx < numTrees; idx++) {
-      final int treeIndex = idx;
+    for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
+      Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(trainingData);
+      treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
+    }
+
+    // Collect all completed trees. Will block until complete
+    for (Future<Tree> treeFuture : treeFutures) {
+      collectTreeFutures(trees, treeFuture);
+    }
+    
+    executorService.shutdown();
+
+    return new RandomForest(trees);
+  }
+
+    private Iterable<? extends AbstractInstance> shuffleTrainingData(Iterable<? extends AbstractInstance> trainingData) {
         Iterable<? extends AbstractInstance> treeTrainingData;
         final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
         if (bagSize > 0) {
@@ -89,18 +104,26 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
       } else {
           treeTrainingData = trainingData;
       }
-      treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
+        return treeTrainingData;
     }
 
-    // Collect all completed trees. Will block until complete
-    for (Future<Tree> treeFuture : treeFutures) {
-      collectTreeFutures(trees, treeFuture);
-    }
-    
-    executorService.shutdown();
+    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
+        RandomForest randomForest = (RandomForest) predictiveModel;
+        List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(randomForest.trees.size());
+        int treeIndex = 0;
+        for(Tree tree : randomForest.trees) {
+            Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(trainingData);
+            treeFutures.add(submitTreeUpdate(tree, treeTrainingData, treeIndex));
+            treeIndex++;
+        }
 
-    return new RandomForest(trees);
-  }
+        List<Tree> trees = Lists.newArrayListWithCapacity(randomForest.trees.size());
+
+        // Collect all completed trees. Will block until complete
+        for (Future<Tree> treeFuture : treeFutures) {
+            collectTreeFutures(trees, treeFuture);
+        }
+    }
 
   private Future<Tree> submitTreeBuild(final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
     return executorService.submit(new Callable<Tree>() {
@@ -111,9 +134,24 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     });
   }
 
+  private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
+      return executorService.submit(new Callable<Tree>() {
+          @Override
+          public Tree call() throws Exception {
+              return updateModel(tree, trainingData, treeIndex);
+          }
+      });
+  }
+
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
+  }
+
+  private Tree updateModel(Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
+      logger.info("Building tree {} of {}", treeIndex, numTrees);
+      treeBuilder.updatePredictiveModel(tree, trainingData);
+      return tree;
   }
 
   private void collectTreeFutures(List<Tree> trees, Future<Tree> treeFuture) {

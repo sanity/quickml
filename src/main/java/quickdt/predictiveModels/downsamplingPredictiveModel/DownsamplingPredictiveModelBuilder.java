@@ -9,6 +9,7 @@ import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -50,6 +51,11 @@ public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilde
         final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
+    }
+
+    @Override
+    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
+        throw new NotImplementedException();
     }
 
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {

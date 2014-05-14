@@ -27,7 +27,7 @@ public class Leaf extends Node {
 	 * How many training examples matched this leaf? A higher number indicates a
 	 * more confident getBestClassification.
 	 */
-	public final double exampleCount;
+	public double exampleCount;
     /**
      * The actual getBestClassification counts
      */
@@ -44,6 +44,11 @@ public class Leaf extends Node {
          exampleCount = classificationCounts.getTotal();
          this.depth = depth;
 	}
+
+    public void addInstance(AbstractInstance instance) {
+        classificationCounts.addClassification(instance.getClassification(), instance.getWeight());
+        exampleCount++;
+    }
 
     /**
      *

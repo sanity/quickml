@@ -7,6 +7,7 @@ import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -40,6 +41,11 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
         createCalibrator(trainingInstances);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
+    }
+
+    @Override
+    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
+        throw new NotImplementedException();
     }
 
     private void createCalibrator(Iterable<? extends AbstractInstance> trainingInstances) {

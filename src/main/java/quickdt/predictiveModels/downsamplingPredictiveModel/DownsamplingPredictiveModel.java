@@ -27,8 +27,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
     public double getProbability(final Attributes attributes, final Serializable classification) {
         Preconditions.checkArgument(!classification.equals(majorityClassification), "Only requesting the probability of the minority classification is currently supported (requested %s)", classification);
         double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, classification);
-        double correctedProbability = Utils.correctProbability(dropProbability, uncorrectedProbability);
-        return correctedProbability;
+        return Utils.correctProbability(dropProbability, uncorrectedProbability);
     }
 
     @Override
