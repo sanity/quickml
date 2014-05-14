@@ -108,6 +108,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     }
 
     public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
+        executorService = Executors.newFixedThreadPool(executorThreadCount);
         RandomForest randomForest = (RandomForest) predictiveModel;
         List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(randomForest.trees.size());
         int treeIndex = 0;
@@ -149,7 +150,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   }
 
   private Tree updateModel(Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
-      logger.info("Building tree {} of {}", treeIndex, numTrees);
+      logger.info("Updating tree {} of {}", treeIndex, numTrees);
       treeBuilder.updatePredictiveModel(tree, trainingData);
       return tree;
   }
