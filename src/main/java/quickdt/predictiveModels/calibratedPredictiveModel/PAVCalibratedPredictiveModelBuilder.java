@@ -18,7 +18,7 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
     private int binsInCalibrator = 5;
     private PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
 
-    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder predictiveModelBuilder) {
+    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
         this.predictiveModelBuilder = predictiveModelBuilder;
     }
 
