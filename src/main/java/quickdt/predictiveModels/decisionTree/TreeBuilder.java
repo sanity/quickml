@@ -7,7 +7,6 @@ import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
@@ -20,6 +19,7 @@ import java.util.Map.Entry;
 public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
+    public static final int RESERVOIR_SIZE = 1000;
 
     private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
@@ -61,34 +61,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return this;
     }
 
-    public void updatePredictiveModel(PredictiveModel predictiveModel, final Iterable<? extends AbstractInstance> trainingData) {
-        Tree tree = (Tree) predictiveModel;
-        for(AbstractInstance instance : trainingData) {
-            addInstanceToNode(tree.node, instance);
-        }
-    }
-
-    private void addInstanceToNode(Node node, AbstractInstance instance) {
-        if (node instanceof Leaf) {
-            Leaf leaf = (Leaf) node;
-            leaf.addInstance(instance);
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            if (branch.getInPredicate().apply(instance)) {
-                addInstanceToNode(branch.trueChild, instance);
-            } else {
-                addInstanceToNode(branch.falseChild, instance);
-            }
-        }
-    }
-
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(1000);
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
             reservoirSampler.sample(((Number) instance.getAttributes().get(attribute)).doubleValue());
         }
@@ -103,7 +82,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<Double>(1000);
+                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
                         rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
                     reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
@@ -138,7 +117,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return split;
     }
 
-    protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
@@ -248,6 +227,50 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             }
         }
         return smallTrainingSet;
+    }
+
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> trainingData) {
+        //first move all the data into the leaves
+        for(AbstractInstance instance : trainingData) {
+            addInstanceToNode(tree.node, instance);
+        }
+        //now split the leaves as appropriate
+        splitNode(tree.node);
+    }
+
+    private void splitNode(Node node) {
+        if (node instanceof Leaf) {
+            Leaf leaf = (Leaf) node;
+            if (leaf.getData().size() > (minLeafInstances * 2) && leaf.depth < maxDepth) {
+                Node newNode = buildTree(leaf.parent, leaf.getData(), leaf.depth, createNumericSplits(leaf.getData()));
+                if (leaf.parent != null) {
+                    Branch branch = (Branch) leaf.parent;
+                    if(branch.trueChild == leaf) {
+                        branch.trueChild = newNode;
+                    } else {
+                        branch.falseChild = newNode;
+                    }
+                }
+            }
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            splitNode(branch.trueChild);
+            splitNode(branch.falseChild);
+        }
+    }
+
+    private void addInstanceToNode(Node node, AbstractInstance instance) {
+        if (node instanceof Leaf) {
+            Leaf leaf = (Leaf) node;
+            leaf.addInstance(instance);
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            if (branch.getInPredicate().apply(instance)) {
+                addInstanceToNode(branch.trueChild, instance);
+            } else {
+                addInstanceToNode(branch.falseChild, instance);
+            }
+        }
     }
 
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {

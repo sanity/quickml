@@ -7,7 +7,9 @@ import quickdt.data.HashMapAttributes;
 import quickdt.data.Instance;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Chris on 5/14/2014.
@@ -15,7 +17,7 @@ import java.util.List;
 public class TreeBuilderTestUtils {
 
     public static List<Instance> getInstances(int numInstances) {
-        final List<Instance> instances = Lists.newArrayList();
+        final List<Instance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);
@@ -25,7 +27,7 @@ public class TreeBuilderTestUtils {
     }
 
     public static List<Instance> getIntegerInstances(int numInstances) {
-        final List<Instance> instances = Lists.newArrayList();
+        final List<Instance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);

@@ -5,6 +5,9 @@ import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
@@ -39,11 +42,16 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    @Override
     public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
         CalibratedPredictiveModel calibratedPredictiveModel = (CalibratedPredictiveModel) predictiveModel;
         updateCalibrator(calibratedPredictiveModel, trainingData);
-        predictiveModelBuilder.updatePredictiveModel(calibratedPredictiveModel.predictiveModel, trainingData);
+        if (predictiveModelBuilder instanceof RandomForestBuilder) {
+            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
+            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, trainingData);
+        } else if (predictiveModelBuilder instanceof TreeBuilder) {
+            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
+            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, trainingData);
+        }
     }
 
     private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {

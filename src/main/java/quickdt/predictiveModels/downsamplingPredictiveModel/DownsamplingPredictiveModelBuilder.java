@@ -53,11 +53,6 @@ public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilde
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
     }
 
-    @Override
-    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
-        throw new NotImplementedException();
-    }
-
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;

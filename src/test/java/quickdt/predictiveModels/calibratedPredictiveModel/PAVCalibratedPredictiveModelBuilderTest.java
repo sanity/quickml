@@ -31,13 +31,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
 
         final List<Tree> trees = randomForest.trees;
         final int treeSize = trees.size();
-        final double treeMeanDepth = trees.get(0).node.meanDepth();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
-
-        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        cpmb.updatePredictiveModel(calibratedPredictiveModel, newInstances);
-        Assert.assertEquals(treeSize, trees.size(), "Forest size should be the same after update");
-        Assert.assertNotEquals(treeMeanDepth, trees.get(0).node.meanDepth(), "Mean depth should change after update");
     }
 }

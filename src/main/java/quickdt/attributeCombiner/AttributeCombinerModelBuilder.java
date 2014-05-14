@@ -67,15 +67,4 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
 
         return new AttributeEnricher(attributePreprocessors);
     }
-
-    @Override
-    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
-        AttributeCombinerPredictiveModel attributeCombinerPredictiveModel = (AttributeCombinerPredictiveModel) predictiveModel;
-        final AttributeEnricher attributeEnricher = getAttributeEnricher(trainingData);
-        final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(trainingData, new InstanceModifier(attributeEnricher)));
-
-        PredictiveModel wrappedPredictiveModel = attributeCombinerPredictiveModel.getWrappedPredictiveModel();
-        wrappedBuilder.updatePredictiveModel(wrappedPredictiveModel, enrichedTrainingData);
-    }
-
 }

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -88,6 +87,27 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     return new RandomForest(trees);
   }
 
+  public void updatePredictiveModel(RandomForest randomForest, final Iterable<? extends AbstractInstance> trainingData) {
+      executorService = Executors.newFixedThreadPool(executorThreadCount);
+      logger.info("Updating random forest with {} trees", numTrees);
+
+      List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
+      List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
+
+      // Submit all tree building jobs to the executor
+      for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
+          Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(trainingData);
+          treeFutures.add(submitTreeUpdate(randomForest.trees.get(treeIndex), treeTrainingData, treeIndex));
+      }
+
+      // Collect all completed trees. Will block until complete
+      for (Future<Tree> treeFuture : treeFutures) {
+          collectTreeFutures(trees, treeFuture);
+      }
+
+      executorService.shutdown();
+  }
+
     private Iterable<? extends AbstractInstance> shuffleTrainingData(Iterable<? extends AbstractInstance> trainingData) {
         Iterable<? extends AbstractInstance> treeTrainingData;
         final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
@@ -107,25 +127,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
         return treeTrainingData;
     }
 
-    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
-        executorService = Executors.newFixedThreadPool(executorThreadCount);
-        RandomForest randomForest = (RandomForest) predictiveModel;
-        List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(randomForest.trees.size());
-        int treeIndex = 0;
-        for(Tree tree : randomForest.trees) {
-            Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(trainingData);
-            treeFutures.add(submitTreeUpdate(tree, treeTrainingData, treeIndex));
-            treeIndex++;
-        }
-
-        List<Tree> trees = Lists.newArrayListWithCapacity(randomForest.trees.size());
-
-        // Collect all completed trees. Will block until complete
-        for (Future<Tree> treeFuture : treeFutures) {
-            collectTreeFutures(trees, treeFuture);
-        }
-    }
-
   private Future<Tree> submitTreeBuild(final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
     return executorService.submit(new Callable<Tree>() {
       @Override
@@ -135,21 +136,21 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
     });
   }
 
-  private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
-      return executorService.submit(new Callable<Tree>() {
-          @Override
-          public Tree call() throws Exception {
-              return updateModel(tree, trainingData, treeIndex);
-          }
-      });
-  }
+    private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
+        return executorService.submit(new Callable<Tree>() {
+            @Override
+            public Tree call() throws Exception {
+                return updateModel(tree, trainingData, treeIndex);
+            }
+        });
+    }
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
   }
 
-  private Tree updateModel(Tree tree, final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
+  private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
       logger.info("Updating tree {} of {}", treeIndex, numTrees);
       treeBuilder.updatePredictiveModel(tree, trainingData);
       return tree;
