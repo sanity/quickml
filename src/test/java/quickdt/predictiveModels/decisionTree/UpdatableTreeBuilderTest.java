@@ -33,7 +33,7 @@ public class UpdatableTreeBuilderTest {
         final Tree newTree = utb.buildPredictiveModel(newInstances);
         Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
         Assert.assertNotEquals(nodeSize, tree.node.size(), "Expected new nodes");
-        Assert.assertNotEquals(nodeMeanDepth, tree.node.meanDepth(), "Expected enw mean depth");
+        Assert.assertNotEquals(nodeMeanDepth, tree.node.meanDepth(), "Expected new mean depth");
 	}
 
 
