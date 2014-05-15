@@ -2,14 +2,11 @@ package quickdt.predictiveModels.decisionTree;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.testng.internal.annotations.Sets;
-import quickdt.Misc;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
 import java.util.List;
-import java.util.Set;
 
 
 public class UpdatableTreeBuilderTest {
@@ -34,5 +31,5 @@ public class UpdatableTreeBuilderTest {
         Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
         Assert.assertNotEquals(nodeSize, tree.node.size(), "Expected new nodes");
         Assert.assertNotEquals(nodeMeanDepth, tree.node.meanDepth(), "Expected new mean depth");
-	}
+    }
 }

@@ -245,16 +245,23 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         for(AbstractInstance instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
-        //now split the leaves as appropriate
+        //now split the leaves further if possible
         splitNode(tree.node, trainingData);
     }
 
+    /**
+     * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
+     * provided build a tree from the leaf if possible
+     * @param node The node we are attempting to further split
+     * @param trainingData The full training data list
+     */
     private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             if (leaf.exampleCount > (minLeafInstances * 2) && leaf.depth < maxDepth) {
                 Iterable<? extends AbstractInstance> leafData = getData(leaf.trainingDataIndexes, trainingData);
                 Node newNode = buildTree(leaf.parent, leafData, leaf.depth, createNumericSplits(leafData));
+                //build a new node and place it where this node was
                 if (leaf.parent != null) {
                     Branch branch = (Branch) leaf.parent;
                     if(branch.trueChild == leaf) {
