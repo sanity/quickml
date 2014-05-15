@@ -35,22 +35,34 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return this;
     }
 
+    public PAVCalibratedPredictiveModelBuilder updatable(boolean updatable) {
+        if (predictiveModelBuilder instanceof RandomForestBuilder) {
+            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
+            randomForestBuilder.updatable(updatable);
+        } else if (predictiveModelBuilder instanceof TreeBuilder) {
+            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
+            treeBuilder.updatable(updatable);
+        }
+        return this;
+    }
+
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable <? extends AbstractInstance> trainingInstances) {
+
         PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
         Calibrator calibrator = createCalibrator(predictiveModel, trainingInstances);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
+    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData) {
         CalibratedPredictiveModel calibratedPredictiveModel = (CalibratedPredictiveModel) predictiveModel;
-        updateCalibrator(calibratedPredictiveModel, trainingData);
+        updateCalibrator(calibratedPredictiveModel, newData);
         if (predictiveModelBuilder instanceof RandomForestBuilder) {
             RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, trainingData);
+            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData, trainingData);
         } else if (predictiveModelBuilder instanceof TreeBuilder) {
             TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, trainingData);
+            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData);
         }
     }
 

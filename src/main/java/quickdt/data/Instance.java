@@ -51,6 +51,7 @@ public class Instance extends AbstractInstance implements Serializable {
 	private Serializable classification;
     private double weight;
 
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

@@ -13,6 +13,15 @@ public class UpdatableLeaf extends Leaf {
 
     public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance> instances, int depth) {
         super(parent, instances, depth);
+        for(AbstractInstance instance : instances) {
+            addInstance(instance);
+        }
+    }
+
+    public void addInstance(AbstractInstance instance) {
+        classificationCounts.addClassification(instance.getClassification(), instance.getWeight());
+        trainingDataIndexes.add(instance.index);
+        exampleCount++;
     }
 
     @Override

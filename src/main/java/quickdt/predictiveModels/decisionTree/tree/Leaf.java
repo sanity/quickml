@@ -7,8 +7,6 @@ import quickdt.data.Attributes;
 
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,8 +15,6 @@ public class Leaf extends Node {
 	private static final long serialVersionUID = -5617660873196498754L;
 
     private static final AtomicLong guidCounter = new AtomicLong(0);
-
-    private List<AbstractInstance> data;
 
     public final long guid;
 
@@ -47,21 +43,8 @@ public class Leaf extends Node {
         Preconditions.checkState(classificationCounts.getTotal() > 0, "Classifications must be > 0");
          exampleCount = classificationCounts.getTotal();
          this.depth = depth;
-        this.data = new LinkedList<>();
-        for(AbstractInstance instance : instances) {
-            data.add(instance);
-        }
 	}
 
-    public void addInstance(AbstractInstance instance) {
-        classificationCounts.addClassification(instance.getClassification(), instance.getWeight());
-        data.add(instance);
-        exampleCount++;
-    }
-
-    public List<? extends AbstractInstance> getData() {
-        return data;
-    }
     /**
      *
      * @return The most likely classification

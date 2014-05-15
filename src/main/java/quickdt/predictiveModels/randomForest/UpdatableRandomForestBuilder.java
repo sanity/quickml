@@ -16,7 +16,7 @@ public class UpdatableRandomForestBuilder extends UpdatablePredictiveModelBuilde
 
     public UpdatableRandomForestBuilder(RandomForestBuilder randomForestBuilder, Integer rebuildThreshold) {
         super(rebuildThreshold);
-        this.randomForestBuilder = randomForestBuilder;
+        this.randomForestBuilder = randomForestBuilder.updatable(true);
     }
 
     @Override
@@ -25,8 +25,8 @@ public class UpdatableRandomForestBuilder extends UpdatablePredictiveModelBuilde
     }
 
     @Override
-    public void updatePredictiveModel(RandomForest predictiveModel, Iterable<? extends AbstractInstance> trainingData) {
-        randomForestBuilder.updatePredictiveModel(predictiveModel, trainingData);
+    public void updatePredictiveModel(RandomForest predictiveModel, Iterable<? extends AbstractInstance> newData) {
+        randomForestBuilder.updatePredictiveModel(predictiveModel, newData, this.trainingData);
     }
 
 }

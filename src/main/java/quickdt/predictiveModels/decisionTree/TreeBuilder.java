@@ -27,6 +27,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 5;
     private int minLeafInstances = 0;
+    private boolean updatable;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
@@ -58,6 +59,11 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     public TreeBuilder minimumScore(double minimumScore) {
         this.minimumScore = minimumScore;
+        return this;
+    }
+
+    public TreeBuilder updatable(boolean updatable) {
+        this.updatable = updatable;
         return this;
     }
 
@@ -119,8 +125,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
-        final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
+        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
+        final Leaf thisLeaf;
+        if (updatable) {
+            thisLeaf = new UpdatableLeaf(parent, trainingData, depth);
+        } else {
+            thisLeaf = new Leaf(parent, trainingData, depth);
+        }
 
         if (depth >= maxDepth) {
             return thisLeaf;
@@ -229,20 +240,21 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return smallTrainingSet;
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> trainingData) {
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData) {
         //first move all the data into the leaves
-        for(AbstractInstance instance : trainingData) {
+        for(AbstractInstance instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
         //now split the leaves as appropriate
-        splitNode(tree.node);
+        splitNode(tree.node, trainingData);
     }
 
-    private void splitNode(Node node) {
-        if (node instanceof Leaf) {
-            Leaf leaf = (Leaf) node;
-            if (leaf.getData().size() > (minLeafInstances * 2) && leaf.depth < maxDepth) {
-                Node newNode = buildTree(leaf.parent, leaf.getData(), leaf.depth, createNumericSplits(leaf.getData()));
+    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            if (leaf.exampleCount > (minLeafInstances * 2) && leaf.depth < maxDepth) {
+                Iterable<? extends AbstractInstance> leafData = getData(leaf.trainingDataIndexes, trainingData);
+                Node newNode = buildTree(leaf.parent, leafData, leaf.depth, createNumericSplits(leafData));
                 if (leaf.parent != null) {
                     Branch branch = (Branch) leaf.parent;
                     if(branch.trueChild == leaf) {
@@ -254,14 +266,22 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             }
         } else if (node instanceof Branch) {
             Branch branch = (Branch) node;
-            splitNode(branch.trueChild);
-            splitNode(branch.falseChild);
+            splitNode(branch.trueChild, trainingData);
+            splitNode(branch.falseChild, trainingData);
         }
     }
 
+    private Iterable<? extends AbstractInstance> getData(Collection<Integer> indexes, List<? extends AbstractInstance> trainingData) {
+        List<AbstractInstance> data = Lists.newArrayList();
+        for(Integer index : indexes) {
+            data.add(trainingData.get(index));
+        }
+        return data;
+    }
+
     private void addInstanceToNode(Node node, AbstractInstance instance) {
-        if (node instanceof Leaf) {
-            Leaf leaf = (Leaf) node;
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
             leaf.addInstance(instance);
         } else if (node instanceof Branch) {
             Branch branch = (Branch) node;
