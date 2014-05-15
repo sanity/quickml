@@ -11,8 +11,6 @@ import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import java.util.List;
 
-//import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
-
 /**
  * Created by ian on 2/28/14.
  */
@@ -83,10 +81,11 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
         DataSplit dataSplit = new DataSplit();
         int count = 0;
         for (AbstractInstance instance : data) {
-            if (count%folds == foldNumber) //(count > testSetLowerBound && count < testSetUpperBound)//
+            if (count%folds == foldNumber) {//(count > testSetLowerBound && count < testSetUpperBound)//
                 dataSplit.validation.add(instance);
-            else
+            } else {
                 dataSplit.training.add(instance);
+            }
             count++;
         }
         return dataSplit;
