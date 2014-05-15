@@ -30,8 +30,9 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
     }
 
     public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
-        if (binsInCalibrator!=null)
+        if (binsInCalibrator!=null) {
             this.binsInCalibrator = binsInCalibrator;
+        }
         return this;
     }
 
@@ -48,7 +49,6 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
 
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable <? extends AbstractInstance> trainingInstances) {
-
         PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
         Calibrator calibrator = createCalibrator(predictiveModel, trainingInstances);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
@@ -101,8 +101,9 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
     }
 
     private double getGroundTruth(Serializable classification) {
-        if (!(classification instanceof Double) && !(classification instanceof Integer))
+        if (!(classification instanceof Double) && !(classification instanceof Integer)) {
             throw new RuntimeException("classification is not an instance of Integer or Double.  Classification value is " + classification);
+        }
         return ((Number)(classification)).doubleValue();
     }
 }
