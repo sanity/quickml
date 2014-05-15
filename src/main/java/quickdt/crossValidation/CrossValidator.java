@@ -67,7 +67,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(CrossValidator.cl
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
             crossValLoss = lossObjectSupplier.get();
             for (AbstractInstance instance : dataSplit.validation) {
-                crossValLoss.addLossFromInstance(predictiveModel.getProbability(instance.getAttributes(), instance.getClassification()), instance.getWeight());
+                crossValLoss.addLoss(instance, predictiveModel);
             }
             runningLoss+=crossValLoss.getTotalLoss();
 
