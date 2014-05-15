@@ -2,8 +2,6 @@ package quickdt.predictiveModels.calibratedPredictiveModel;
 
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
-import quickdt.predictiveModels.randomForest.RandomForest;
-import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 
 /**
@@ -12,13 +10,13 @@ import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private final PAVCalibratedPredictiveModelBuilder pavCalibratedPredictiveModelBuilder;
 
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder randomForestBuilder) {
-        this(randomForestBuilder, null);
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder) {
+        this(calibratedPredictiveModelBuilder, null);
     }
 
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder randomForestBuilder, Integer rebuildThreshold) {
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, Integer rebuildThreshold) {
         super(rebuildThreshold);
-        this.pavCalibratedPredictiveModelBuilder = randomForestBuilder;
+        this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder;
     }
 
     @Override
