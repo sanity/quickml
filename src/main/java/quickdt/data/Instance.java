@@ -19,7 +19,7 @@ public class Instance extends AbstractInstance implements Serializable {
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
 		}
-		return new Instance(a, classification);
+		return new Instance(a, classification, weight);
 	}
 
     public Instance(final Attributes attributes, final Serializable classification) {
