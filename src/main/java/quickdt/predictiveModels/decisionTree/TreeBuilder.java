@@ -27,7 +27,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 5;
     private int minLeafInstances = 0;
-    private boolean updatable;
+    private boolean updatable = false;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));

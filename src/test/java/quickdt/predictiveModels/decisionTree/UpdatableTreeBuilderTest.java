@@ -35,25 +35,4 @@ public class UpdatableTreeBuilderTest {
         Assert.assertNotEquals(nodeSize, tree.node.size(), "Expected new nodes");
         Assert.assertNotEquals(nodeMeanDepth, tree.node.meanDepth(), "Expected new mean depth");
 	}
-
-
-
-    @Test(enabled = false)
-	public void multiScorerBmiTest() {
-		final Set<Instance> instances = Sets.newHashSet();
-
-		for (int x = 0; x < 10000; x++) {
-			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
-			final double weight = 120 + Misc.random.nextInt(110);
-			final Instance instance = Instance.create(TreeBuilderTestUtils.bmiHealthy(weight, height), "weight", weight, "height", height);
-			instances.add(instance);
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-			final Tree tree = tb.buildPredictiveModel(instances);
-			System.out.println("SplitDiffScorer node size: " + tree.node.size());
-		}
-	}
-
-
 }
