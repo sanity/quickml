@@ -72,6 +72,15 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData) {
+        //first move all the data into the leaves
+        for(AbstractInstance instance : newData) {
+            addInstanceToNode(tree.node, instance);
+        }
+        //now split the leaves further if possible
+        splitNode(tree.node, trainingData);
+    }
+
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
@@ -240,66 +249,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return smallTrainingSet;
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData) {
-        //first move all the data into the leaves
-        for(AbstractInstance instance : newData) {
-            addInstanceToNode(tree.node, instance);
-        }
-        //now split the leaves further if possible
-        splitNode(tree.node, trainingData);
-    }
-
-    /**
-     * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
-     * provided build a tree from the leaf if possible
-     * @param node The node we are attempting to further split
-     * @param trainingData The full training data list
-     */
-    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
-        if (node instanceof UpdatableLeaf) {
-            UpdatableLeaf leaf = (UpdatableLeaf) node;
-            if (leaf.exampleCount > (minLeafInstances * 2) && leaf.depth < maxDepth) {
-                Iterable<? extends AbstractInstance> leafData = getData(leaf.trainingDataIndexes, trainingData);
-                Node newNode = buildTree(leaf.parent, leafData, leaf.depth, createNumericSplits(leafData));
-                //build a new node and place it where this node was
-                if (leaf.parent != null) {
-                    Branch branch = (Branch) leaf.parent;
-                    if(branch.trueChild == leaf) {
-                        branch.trueChild = newNode;
-                    } else {
-                        branch.falseChild = newNode;
-                    }
-                }
-            }
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            splitNode(branch.trueChild, trainingData);
-            splitNode(branch.falseChild, trainingData);
-        }
-    }
-
-    private Iterable<? extends AbstractInstance> getData(Collection<Integer> indexes, List<? extends AbstractInstance> trainingData) {
-        List<AbstractInstance> data = Lists.newArrayList();
-        for(Integer index : indexes) {
-            data.add(trainingData.get(index));
-        }
-        return data;
-    }
-
-    private void addInstanceToNode(Node node, AbstractInstance instance) {
-        if (node instanceof UpdatableLeaf) {
-            UpdatableLeaf leaf = (UpdatableLeaf) node;
-            leaf.addInstance(instance);
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            if (branch.getInPredicate().apply(instance)) {
-                addInstanceToNode(branch.trueChild, instance);
-            } else {
-                addInstanceToNode(branch.falseChild, instance);
-            }
-        }
-    }
-
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
         //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
@@ -407,6 +356,91 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             }
         }
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
+    }
+
+    /**
+     * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
+     * provided build a tree from the leaf if possible. If a branch has only leaves as direct children, this will combine the data from the leaves
+     * and recreate the branch
+     * @param node The node we are attempting to further split
+     * @param trainingData The full training data list
+     */
+    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            if (leaf.parent != null) {
+                Branch branch = (Branch) leaf.parent;
+                Branch parent;
+                Node toReplace;
+
+                if (shouldCombineData(branch)) {
+                    parent = (Branch) branch.parent;
+                    toReplace = branch;
+                } else {
+                    parent = branch;
+                    toReplace = leaf;
+                }
+                Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
+                Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
+                if(parent.trueChild == toReplace) {
+                    parent.trueChild = newNode;
+                } else {
+                    parent.falseChild = newNode;
+                }
+            }
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            splitNode(branch.trueChild, trainingData);
+            //only split false child if we aren't combining leaves
+            if (!shouldCombineData(branch)) {
+                splitNode(branch.falseChild, trainingData);
+            }
+
+        }
+    }
+
+    private boolean shouldCombineData(Branch branch) {
+        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf;
+    }
+
+    /**
+     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
+     * @param trainingData full set of trainingData
+     */
+    private Collection<AbstractInstance> getData(Node node, List<? extends AbstractInstance> trainingData) {
+        List<AbstractInstance> data = Lists.newArrayList();
+        Collection<Integer> indexes = getIndexes(node);
+
+        for(Integer index : indexes) {
+            data.add(trainingData.get(index));
+        }
+        return data;
+    }
+
+    private Collection<Integer> getIndexes(Node node) {
+        Collection<Integer> indexes;
+        if (node instanceof UpdatableLeaf) {
+            indexes = (((UpdatableLeaf) node).trainingDataIndexes);
+        } else {
+            Branch branch = (Branch) node;
+            indexes = ((UpdatableLeaf) branch.trueChild).trainingDataIndexes;
+            indexes.addAll(((UpdatableLeaf) branch.falseChild).trainingDataIndexes);
+        }
+        return indexes;
+    }
+
+    private void addInstanceToNode(Node node, AbstractInstance instance) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            leaf.addInstance(instance);
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            if (branch.getInPredicate().apply(instance)) {
+                addInstanceToNode(branch.trueChild, instance);
+            } else {
+                addInstanceToNode(branch.falseChild, instance);
+            }
+        }
     }
 
     public static class AttributeCharacteristics {
