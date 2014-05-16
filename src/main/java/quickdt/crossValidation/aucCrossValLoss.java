@@ -16,6 +16,6 @@ public class aucCrossValLoss implements CrossValLoss
         for (AbstractInstance instance : crossValSet) {
             auc.add((Double) instance.getClassification() == 1.0 ? 1 : 0, predictiveModel.getProbability(instance.getAttributes(), 1.0));
         }
-        return auc.auc();
+        return 1-auc.auc();
     }
 }
