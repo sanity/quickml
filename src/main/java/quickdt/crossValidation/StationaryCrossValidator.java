@@ -64,6 +64,8 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
             runningLoss+=crossValLoss.getLoss(dataSplit.validation, predictiveModel);
+            logger.info("running loss: "+runningLoss);
+
         }
         final double averageLoss = runningLoss / foldsUsed;
         logger.info("Average loss: "+averageLoss);

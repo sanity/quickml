@@ -1,14 +1,38 @@
 package quickdt.experiments;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import quickdt.crossValidation.CrossValidator;
+import quickdt.crossValidation.RMSECrossValLoss;
+import quickdt.crossValidation.StationaryCrossValidator;
+import quickdt.crossValidation.aucCrossValLoss;
+import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+
+import java.util.List;
+
 /**
  * Created by alexanderhawk on 1/16/14.
  */
 public class ExperimentDriver {
+    private static final Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
+
+
     public static void main(String[] args) {
-        ProbDistOfSumOfIndepRandVars x = new ProbDistOfSumOfIndepRandVars(100000, 5, 20, 2, 5, .005, 16);
+        String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "favorite_soccer_team_id", "user_iq"};
+        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(40000, .005, bidRequestAttributes);
+        List<AbstractInstance> trainingData = trainingDataGenerator.createTrainingData();
+        RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
+        CrossValidator crossValidator = new StationaryCrossValidator(4,3,new aucCrossValLoss());
+        double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
+        logger.info("total loss " + totalLoss);
+    }
+      /*  ProbDistOfSumOfIndepRandVars x = new ProbDistOfSumOfIndepRandVars(100000, 5, 20, 2, 5, .005, 16);
         x.getAverageDeviationInPredictedProbabilities(400, 0.0015, true);
 
-/*
 
       //  ProbDistOfVarMultivariateGaussian x = new ProbDistOfVarMultivariateGaussian(400000, 3, 5, 4, 3, 4, 5, 1.5, 100000, .5, 0.5);
       //  x.getAverageDeviationInPredictedProbabilities(100, 0.0001, true);
@@ -31,10 +55,16 @@ public class ExperimentDriver {
 
         //get prob for each .
     }
-    private static RandomForest getRandomForest(List<Instance> trainingData, int maxDepth, int numTrees) {
+   */
+    private static RandomForest getRandomForest(List<AbstractInstance> trainingData, int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
-*/    }
+    }
+    private static RandomForestBuilder getRandomForestBuilder(int maxDepth, int numTrees) {
+        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
+        RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
+        return randomForestBuilder;
+    }
 
 }

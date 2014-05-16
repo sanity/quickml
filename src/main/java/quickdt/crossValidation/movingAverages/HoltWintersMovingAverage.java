@@ -1,4 +1,4 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.movingAverages;
 
 import java.util.List;
 

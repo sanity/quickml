@@ -7,7 +7,7 @@ import quickdt.data.Attributes;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public class sampleDateTimeExtactor implements DateTimeExtractor {
+public class SampleDateTimeExtractor implements DateTimeExtractor {
     @Override
     public DateTime extractDateTime(AbstractInstance instance){
         Attributes attributes = instance.getAttributes();

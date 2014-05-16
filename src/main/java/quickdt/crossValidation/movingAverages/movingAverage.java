@@ -1,4 +1,4 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.movingAverages;
 
 /**
  * Created by alexanderhawk on 4/29/14.

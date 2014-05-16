@@ -3,6 +3,7 @@ package quickdt.crossValidation;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
+import quickdt.crossValidation.movingAverages.MovingAverage;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
@@ -14,8 +15,10 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/17/14.
  */
-public class TemporalReweighter {
 
+
+public class TemporalReweighter {
+/*
         private Iterable<? extends AbstractInstance> trainingData;
         private final double testWindow = 7;
         private double minutesInValidationSet;
@@ -151,6 +154,6 @@ public class TemporalReweighter {
             }
 
         }
-
+*/
     }
 
