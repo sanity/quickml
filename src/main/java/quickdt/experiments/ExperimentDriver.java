@@ -2,10 +2,7 @@ package quickdt.experiments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.crossValidation.CrossValidator;
-import quickdt.crossValidation.RMSECrossValLoss;
-import quickdt.crossValidation.StationaryCrossValidator;
-import quickdt.crossValidation.aucCrossValLoss;
+import quickdt.crossValidation.*;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -22,11 +19,28 @@ public class ExperimentDriver {
 
 
     public static void main(String[] args) {
+        int numTraniningExamples = 20000;
         String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "favorite_soccer_team_id", "user_iq"};
-        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(40000, .005, bidRequestAttributes);
+        TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(numTraniningExamples, .005, bidRequestAttributes);
         List<AbstractInstance> trainingData = trainingDataGenerator.createTrainingData();
+        int minuteInMillis = 60000;
+        int instanceNumber = 0;
+        for (AbstractInstance instance : trainingData) {
+            instance.getAttributes().put("currentTimeMillis", minuteInMillis * instanceNumber);
+            instanceNumber++;
+        }
+        logger.info("trainingDataSize " + trainingData.size());
         RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
-        CrossValidator crossValidator = new StationaryCrossValidator(4,3,new aucCrossValLoss());
+//       randomForestBuilder.buildPredictiveModel(trainingData);
+//       CrossValidator crossValidator = new StationaryCrossValidator(4,3,new aucCrossValLoss());
+//       should it be number of time slices or minutes in a time slice? total minutes in a time slice
+//       number in minute.  Or should the number of samples be the invariant?  this is good on a number of levels.
+// First, need a min number of samples to eliminate the noise of the cross validation set? No..not really cuz we are averaging the loss
+        //in practice the time between checks will be the invariant.  But, yes,
+        // //the weight of the cv should be factored into the running average
+
+         CrossValidator crossValidator = new OutOfTimeCrossValidator(new aucCrossValLoss(), 0.25, 1000, new TestDateTimeExtractor()); //number of validation time slices
+
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         logger.info("total loss " + totalLoss);
     }
