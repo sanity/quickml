@@ -19,7 +19,7 @@ import java.util.List;
 
 public class TemporalReweighter {
 /*
-        private Iterable<? extends AbstractInstance> trainingData;
+        private Iterable<? extends AbstractInstance> allTrainingData;
         private final double testWindow = 7;
         private double minutesInValidationSet;
         private double testFraction;
@@ -34,9 +34,9 @@ public class TemporalReweighter {
 
         private double timeIntervalOfData;
 
-        public TemporalReweighter(PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> trainingData, CrossValLoss lossObject){
+        public TemporalReweighter(PredictiveModelBuilder<PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData, CrossValLoss lossObject){
             this.predictiveModelBuilder = predictiveModelBuilder;
-            this.trainingData = trainingData;
+            this.allTrainingData = allTrainingData;
             this.lossObject = lossObject;
             this.timeIntervalOfData = createTimedInstances();
         }
@@ -44,7 +44,7 @@ public class TemporalReweighter {
         private double createTimedInstances() {
             double mostRecent;
             double arrivalTimeInMinutes;
-            for(AbstractInstance instance : trainingData)  {
+            for(AbstractInstance instance : allTrainingData)  {
                  arrivalTimeInMinutes = getArrivalTimeInMinutes(instance);
                  allTrainingDataWithTimes.add(new InstanceWithTime(arrivalTimeInMinutes, instance));
             }

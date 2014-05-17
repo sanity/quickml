@@ -19,7 +19,7 @@ public class ExperimentDriver {
 
 
     public static void main(String[] args) {
-        int numTraniningExamples = 20000;
+        int numTraniningExamples = 40000;
         String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "favorite_soccer_team_id", "user_iq"};
         TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(numTraniningExamples, .005, bidRequestAttributes);
         List<AbstractInstance> trainingData = trainingDataGenerator.createTrainingData();
@@ -39,7 +39,7 @@ public class ExperimentDriver {
         //in practice the time between checks will be the invariant.  But, yes,
         // //the weight of the cv should be factored into the running average
 
-         CrossValidator crossValidator = new OutOfTimeCrossValidator(new aucCrossValLoss(), 0.25, 1000, new TestDateTimeExtractor()); //number of validation time slices
+         CrossValidator crossValidator = new OutOfTimeCrossValidator(new LogCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
 
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         logger.info("total loss " + totalLoss);
