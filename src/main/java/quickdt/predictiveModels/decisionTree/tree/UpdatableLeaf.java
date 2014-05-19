@@ -15,7 +15,6 @@ public class UpdatableLeaf extends Leaf {
         super(parent, instances, depth);
         for(AbstractInstance instance : instances) {
             this.instances.add(instance);
-
         }
     }
 
@@ -24,7 +23,6 @@ public class UpdatableLeaf extends Leaf {
         this.instances.add(instance);
         exampleCount++;
     }
-
 
     @Override
     public boolean equals(Object o) {

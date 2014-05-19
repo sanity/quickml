@@ -29,7 +29,6 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
     private final DateTimeExtractor dateTimeExtractor;
     final Period durationOfValidationSet;
-    private DateTime maxTime;
     private double weightOfValidationSet;
     private int currentTrainingSetSize = 0;
 
@@ -62,7 +61,6 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
     private void initializeTrainingAndValidationSets(Iterable<? extends AbstractInstance> rawTrainingData) {
         setAndSortAllTrainingData(rawTrainingData);
-        setMaxValidationTime();
 
         int initialTrainingSetSize = getInitialSizeForTrainData();
         trainingDataToAddToPredictiveModel = Lists.<AbstractInstance>newArrayListWithExpectedSize(initialTrainingSetSize);
@@ -80,24 +78,23 @@ public class OutOfTimeCrossValidator extends CrossValidator {
             } else if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet)) {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
-            } else
+            } else {
                 break;
+            }
         }
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
-
-        return;
     }
 
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
         currentTrainingSetSize += trainingDataToAddToPredictiveModel.size();
-        return;
     }
 
     private void updateCrossValidationSet() {
         clearValidationSet();
-        if (!newValidationSetExists())
+        if (!newValidationSetExists()) {
             return;
+        }
         DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(currentTrainingSetSize));
         DateTime leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
         for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
@@ -107,19 +104,15 @@ public class OutOfTimeCrossValidator extends CrossValidator {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
             }
-            else
+            else {
                 break;
+            }
         }
     }
 
     private void clearValidationSet() {
         weightOfValidationSet = 0;
         validationSet = Lists.<AbstractInstance>newArrayList();
-    }
-
-    private void setMaxValidationTime() {
-        AbstractInstance latestInstance = allTrainingData.get(allTrainingData.size() - 1);
-        maxTime = dateTimeExtractor.extractDateTime(latestInstance);
     }
 
     private int getInitialSizeForTrainData() {
@@ -140,20 +133,22 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
     private void setAndSortAllTrainingData(Iterable<? extends AbstractInstance> rawTrainingData) {
         this.allTrainingData = Lists.<AbstractInstance>newArrayList();
-        for (AbstractInstance instance : rawTrainingData)
+        for (AbstractInstance instance : rawTrainingData) {
             this.allTrainingData.add(instance);
+        }
 
         Comparator<AbstractInstance> comparator = new Comparator<AbstractInstance>() {
             @Override
             public int compare(AbstractInstance o1, AbstractInstance o2) {
                 DateTime firstInstance = dateTimeExtractor.extractDateTime(o1);
                 DateTime secondInstance = dateTimeExtractor.extractDateTime(o2);
-                if (firstInstance.isAfter(secondInstance))
+                if (firstInstance.isAfter(secondInstance)) {
                     return 1;
-                else if (firstInstance.isEqual(secondInstance))
+                } else if (firstInstance.isEqual(secondInstance)) {
                     return 0;
-                else
+                } else {
                     return -1;
+                }
             }
         };
 
