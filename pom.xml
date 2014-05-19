@@ -88,7 +88,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-<<<<<<< HEAD
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>1.5.2</version>
@@ -96,12 +95,7 @@
         <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-core</artifactId>
-            <version>0.8</version>
-=======
-            <groupId>org.apache.mahout</groupId>
-            <artifactId>mahout-core</artifactId>
             <version>0.9</version>
->>>>>>> d1b6903a40c8cd359bcd02fc34b837f41f48f1e9
         </dependency>
     </dependencies>
 
