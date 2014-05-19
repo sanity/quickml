@@ -14,7 +14,7 @@ public class UpdatableLeaf extends Leaf {
     public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance> instances, int depth) {
         super(parent, instances, depth);
         for(AbstractInstance instance : instances) {
-            addInstance(instance);
+            trainingDataIndexes.add(instance.index);
         }
     }
 
