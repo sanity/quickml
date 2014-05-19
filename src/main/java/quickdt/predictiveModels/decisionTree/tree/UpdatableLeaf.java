@@ -3,26 +3,28 @@ package quickdt.predictiveModels.decisionTree.tree;
 import quickdt.data.AbstractInstance;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedList;
 
 /**
  * Created by Chris on 5/14/2014.
  */
 public class UpdatableLeaf extends Leaf {
-    public final Collection<Integer> trainingDataIndexes = new HashSet<>();
+    public final Collection<AbstractInstance> instances = new LinkedList<>();
 
     public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance> instances, int depth) {
         super(parent, instances, depth);
         for(AbstractInstance instance : instances) {
-            trainingDataIndexes.add(instance.index);
+            this.instances.add(instance);
+
         }
     }
 
     public void addInstance(AbstractInstance instance) {
         classificationCounts.addClassification(instance.getClassification(), instance.getWeight());
-        trainingDataIndexes.add(instance.index);
+        this.instances.add(instance);
         exampleCount++;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -32,8 +34,7 @@ public class UpdatableLeaf extends Leaf {
 
         UpdatableLeaf that = (UpdatableLeaf) o;
 
-        if (!trainingDataIndexes.equals(that.trainingDataIndexes))
-            return false;
+        if (!instances.equals(that.instances)) return false;
 
         return true;
     }
@@ -41,7 +42,7 @@ public class UpdatableLeaf extends Leaf {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + trainingDataIndexes.hashCode();
+        result = 31 * result + instances.hashCode();
         return result;
     }
 }

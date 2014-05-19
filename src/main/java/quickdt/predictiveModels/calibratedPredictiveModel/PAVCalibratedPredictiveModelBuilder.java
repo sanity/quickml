@@ -54,15 +54,24 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    public void updatePredictiveModel(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData) {
-        CalibratedPredictiveModel calibratedPredictiveModel = (CalibratedPredictiveModel) predictiveModel;
+    public void updatePredictiveModel(CalibratedPredictiveModel calibratedPredictiveModel, Iterable<? extends AbstractInstance> newData) {
         updateCalibrator(calibratedPredictiveModel, newData);
         if (predictiveModelBuilder instanceof RandomForestBuilder) {
             RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData, trainingData);
+            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData);
         } else if (predictiveModelBuilder instanceof TreeBuilder) {
             TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData);
+            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData);
+        }
+    }
+
+    public void stripData(CalibratedPredictiveModel calibratedPredictiveModel) {
+        if (predictiveModelBuilder instanceof RandomForestBuilder) {
+            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
+            randomForestBuilder.stripData((RandomForest)calibratedPredictiveModel.predictiveModel);
+        } else if (predictiveModelBuilder instanceof TreeBuilder) {
+            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
+            treeBuilder.stripData((Tree)calibratedPredictiveModel.predictiveModel);
         }
     }
 

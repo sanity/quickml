@@ -3,8 +3,6 @@ package quickdt.predictiveModels.decisionTree;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
-import java.util.List;
-
 /**
  * Created by Chris on 5/14/2014.
  */
@@ -15,8 +13,8 @@ public class UpdatableTreeBuilder extends UpdatablePredictiveModelBuilder<Tree> 
         this(treeBuilder, null);
     }
 
-    public UpdatableTreeBuilder(TreeBuilder treeBuilder, Integer rebuildThreshold) {
-        super(rebuildThreshold);
+    public UpdatableTreeBuilder(TreeBuilder treeBuilder, Tree tree) {
+        super(tree);
         this.treeBuilder = treeBuilder.updatable(true);
     }
 
@@ -26,6 +24,11 @@ public class UpdatableTreeBuilder extends UpdatablePredictiveModelBuilder<Tree> 
     }
 
     public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData) {
-        treeBuilder.updatePredictiveModel(tree, newData, this.trainingData);
+        treeBuilder.updatePredictiveModel(tree, newData);
+    }
+
+    @Override
+    public void stripData(Tree predictiveModel) {
+        treeBuilder.stripData(predictiveModel);
     }
 }

@@ -26,8 +26,8 @@ public class UpdatableRandomForestBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
 
         final List<Tree> trees = randomForest.trees;
-        final int treeSize = trees.size();
-        final int firstTreeNodeSize = trees.get(0).node.size();
+        int treeSize = trees.size();
+        int firstTreeNodeSize = trees.get(0).node.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
@@ -36,5 +36,11 @@ public class UpdatableRandomForestBuilderTest {
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
         Assert.assertNotEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected new nodes");
+
+        treeSize = newRandomForest.trees.size();
+        firstTreeNodeSize = newRandomForest.trees.get(0).node.size();
+        urfb.stripData(newRandomForest);
+        Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same trees");
+        Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 }

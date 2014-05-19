@@ -14,8 +14,8 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
         this(calibratedPredictiveModelBuilder, null);
     }
 
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, Integer rebuildThreshold) {
-        super(rebuildThreshold);
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel) {
+        super(calibratedPredictiveModel);
         this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder.updatable(true);
     }
 
@@ -26,7 +26,12 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
 
     @Override
     public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData) {
-        pavCalibratedPredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, this.trainingData);
+        pavCalibratedPredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData);
+    }
+
+    @Override
+    public void stripData(CalibratedPredictiveModel predictiveModel) {
+        pavCalibratedPredictiveModelBuilder.stripData(predictiveModel);
     }
 
 }
