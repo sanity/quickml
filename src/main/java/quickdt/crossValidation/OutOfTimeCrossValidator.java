@@ -47,14 +47,13 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
-        while (true) {
-            PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel); //use online predictiveModelBuilder
+        while (!validationSet.isEmpty()) {
+            PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
             runningLoss += crossValLoss.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
-            logger.info("running Loss: " + runningLoss / runningWeightOfValidationSet);
-            updateCrossValidationAndTrainingSets();
-            if (validationSet.size() == 0)
-                break;
+            logger.info("running Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+            updateTrainingSet();
+            updateCrossValidationSet();
         }
         final double averageLoss = runningLoss / runningWeightOfValidationSet;
         logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
@@ -78,7 +77,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
             timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet)) {
                 trainingDataToAddToPredictiveModel.add(instance);
-            } else if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet) && !timeOfInstance.isAfter(maxTime)) { //the negation of the isAfter() call is equivalent to <=
+            } else if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet)) {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
             } else
@@ -89,28 +88,28 @@ public class OutOfTimeCrossValidator extends CrossValidator {
         return;
     }
 
-    private void updateCrossValidationAndTrainingSets() {
+    private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
         currentTrainingSetSize += trainingDataToAddToPredictiveModel.size();
+        return;
+    }
 
+    private void updateCrossValidationSet() {
         clearValidationSet();
         if (!newValidationSetExists())
             return;
-
         DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(currentTrainingSetSize));
-        DateTime leastUpperBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
-
+        DateTime leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
         for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
             AbstractInstance instance = allTrainingData.get(i);
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
-            if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet) && !timeOfInstance.isAfter(maxTime))  {
+            if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
             }
             else
                 break;
         }
-        return;
     }
 
     private void clearValidationSet() {
@@ -136,10 +135,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
     }
 
     private boolean newValidationSetExists() {
-        if (currentTrainingSetSize >= allTrainingData.size()) {
-            return false;
-        } else
-            return true;
+        return currentTrainingSetSize < allTrainingData.size();
     }
 
     private void setAndSortAllTrainingData(Iterable<? extends AbstractInstance> rawTrainingData) {

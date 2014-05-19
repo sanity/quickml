@@ -31,7 +31,7 @@ public class OutOfTimeCrossValidatorRunner {
         }
         logger.info("trainingDataSize " + trainingData.size());
         RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
-        CrossValidator crossValidator = new OutOfTimeCrossValidator(new LogCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        CrossValidator crossValidator = new OutOfTimeCrossValidator(new AucCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
 
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
     }

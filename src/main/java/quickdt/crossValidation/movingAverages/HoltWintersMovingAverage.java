@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/29/14.
  */
-public class HoltWintersMovingAverage {
+public class HoltWintersMovingAverage implements MovingAverage  {
     double average = 0;
     private double alpha;
     private double beta;
