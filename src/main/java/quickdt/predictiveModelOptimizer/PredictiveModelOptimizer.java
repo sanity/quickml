@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
-import quickdt.crossValidation.CrossValidator;
+import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.*;
 
@@ -18,21 +18,21 @@ import java.util.Map;
 public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends PredictiveModelBuilder<PM>> {
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
     private final PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder;
-    private final CrossValidator crossValidator;
+    private final StationaryCrossValidator crossValidator;
     private final Map<String, FieldValueRecommender> valueRecommenders;
     private final Iterable<? extends AbstractInstance> trainingData;
     private Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
     private volatile boolean hasRun = false;
 
     public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData) {
-        this(predictiveModelBuilderBuilder, trainingData, new CrossValidator(4));
+        this(predictiveModelBuilderBuilder, trainingData, new StationaryCrossValidator(4));
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, StationaryCrossValidator crossValidator) {
         this(predictiveModelBuilderBuilder, trainingData, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, StationaryCrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
         this.crossValidator = crossValidator;

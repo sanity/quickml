@@ -1,6 +1,5 @@
 package quickdt.crossValidation;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,19 +19,15 @@ public class CrossValidatorTest {
 
     @Test
     public void testCrossValidator() {
-        Supplier supplier = Mockito.mock(Supplier.class);
         CrossValLoss crossValLoss = Mockito.mock(CrossValLoss.class);
 
-        Mockito.when(supplier.get()).thenReturn(crossValLoss);
-
         int folds = 4;
-        CrossValidator crossValidator = new CrossValidator(folds, folds, supplier);
+        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLoss);
         TreeBuilder treeBuilder = new TreeBuilder();
         List<AbstractInstance> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
-        Mockito.verify(crossValLoss, Mockito.times(instances.size())).addLoss(Mockito.any(AbstractInstance.class), Mockito.any(PredictiveModel.class));
-        Mockito.verify(crossValLoss, Mockito.times(folds)).getTotalLoss();
+        Mockito.verify(crossValLoss, Mockito.times(folds)).getLoss(Mockito.<List<AbstractInstance>>any(), Mockito.any(PredictiveModel.class));
     }
 
     private List<AbstractInstance> getInstances() {

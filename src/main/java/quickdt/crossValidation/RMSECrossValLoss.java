@@ -1,23 +1,20 @@
 package quickdt.crossValidation;
 
-import com.google.common.base.Supplier;
+import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.PredictiveModel;
+
+import java.util.List;
 
 /**
  * Created by ian on 2/28/14.
  */
 public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
-    public static Supplier<RMSECrossValLoss> supplier = new Supplier<RMSECrossValLoss>() {
-         @Override
-         public RMSECrossValLoss get() {
-             return new RMSECrossValLoss();
-         }
-     };
 
     private MSECrossValLoss mseCrossValLoss = new MSECrossValLoss();
 
     @Override
-    public void addLossFromInstance(final double probabilityOfCorrectInstance, double weight) {
-        mseCrossValLoss.addLossFromInstance(probabilityOfCorrectInstance, weight);
+    public double getLossFromInstance(final double probabilityOfCorrectInstance, double weight) {
+        return mseCrossValLoss.getLossFromInstance(probabilityOfCorrectInstance, weight);
     }
 
     @Override
@@ -25,12 +22,12 @@ public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
         return mseCrossValLoss.compareTo(o.mseCrossValLoss);
     }
     @Override
-    public double getTotalLoss() {
-        return Math.sqrt(mseCrossValLoss.getTotalLoss());
+    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+        return Math.sqrt(super.getLoss(crossValSet, predictiveModel));
     }
 
     @Override
     public String toString() {
-        return "RMSE: "+ getTotalLoss();
+        return "RMSE: "+ super.totalLoss;
     }
 }

@@ -11,17 +11,16 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
+public class WeightedAUCCrossValLoss implements CrossValLoss {
     private final Serializable positiveClassification;
     private Set<Serializable> classifications = new HashSet<Serializable>();
     private List<AUCData> aucDataList = new ArrayList<AUCData>();
 
-    public AUCCrossValLoss(Serializable positiveClassification) {
+    public WeightedAUCCrossValLoss(Serializable positiveClassification) {
         this.positiveClassification = positiveClassification;
     }
 
-    @Override
-    public void addLoss(AbstractInstance abstractInstance, PredictiveModel predictiveModel) {
+    private void addLoss(AbstractInstance abstractInstance, PredictiveModel predictiveModel) {
         classifications.add(abstractInstance.getClassification());
         if (classifications.size() > 2) {
             throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
@@ -30,7 +29,10 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
     }
 
     @Override
-    public double getTotalLoss() {
+    public double getLoss(List<AbstractInstance> instances, PredictiveModel predictiveModel) {
+        for (AbstractInstance instance : instances) {
+            addLoss(instance, predictiveModel);
+        }
         if (aucDataList.isEmpty()) {
             throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
         }
@@ -127,12 +129,6 @@ public class AUCCrossValLoss implements CrossValLoss<AUCCrossValLoss> {
             sumXY += ((aucPoint1.getFalsePositiveRate() - aucPoint0.getFalsePositiveRate())*(aucPoint1.getTruePositiveRate()+aucPoint0.getTruePositiveRate()));
         }
         return (2.0 - sumXY) / 2.0;
-    }
-
-
-    @Override
-    public int compareTo(AUCCrossValLoss o) {
-        return 1 - Double.compare(this.getTotalLoss(), o.getTotalLoss());
     }
 
     protected static class AUCPoint {

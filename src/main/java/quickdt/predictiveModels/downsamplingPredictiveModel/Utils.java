@@ -5,6 +5,6 @@ package quickdt.predictiveModels.downsamplingPredictiveModel;
  */
 class Utils {
     public static double correctProbability(final double dropProbability, final double uncorrectedProbability) {
-        return (dropProbability - 1.0)*uncorrectedProbability / (dropProbability * uncorrectedProbability - 1.0);
+        return (1.0 - dropProbability)*uncorrectedProbability / (1.0 - dropProbability * uncorrectedProbability);
     }
 }
