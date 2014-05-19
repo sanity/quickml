@@ -9,12 +9,14 @@ import quickdt.predictiveModels.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by Chris on 5/5/2014.
  */
-public class AUCCrossValLossTest {
+public class WeightedAUCCrossValLossTest {
 
     @Test(expected = RuntimeException.class)
     public void testOnlySupportBinaryClassifications() {
@@ -29,9 +31,11 @@ public class AUCCrossValLossTest {
         AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance3.getClassification()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        crossValLoss.addLoss(instance, predictiveModel);
-        crossValLoss.addLoss(instance2, predictiveModel);
-        crossValLoss.addLoss(instance3, predictiveModel);
+        List<AbstractInstance> instances = new LinkedList<>();
+        instances.add(instance);
+        instances.add(instance2);
+        instances.add(instance3);
+        crossValLoss.getLoss(instances, predictiveModel);
     }
 
     @Test
@@ -65,15 +69,16 @@ public class AUCCrossValLossTest {
         Mockito.when(instance4.getWeight()).thenReturn(1.0);
         Mockito.when(instance4.getAttributes()).thenReturn(test1Attributes);
 
-        crossValLoss.addLoss(instance, predictiveModel);
-        crossValLoss.addLoss(instance2, predictiveModel);
-        crossValLoss.addLoss(instance3, predictiveModel);
-        crossValLoss.addLoss(instance4, predictiveModel);
+        List<AbstractInstance> instances = new LinkedList<>();
+        instances.add(instance);
+        instances.add(instance2);
+        instances.add(instance3);
+        instances.add(instance4);
 
         //AUC Points at 0:0 .5:0 .5:.5 1:.5 1:1
         double expectedArea = .75;
 
-        Assert.assertEquals(expectedArea, crossValLoss.getLoss());
+        Assert.assertEquals(expectedArea, crossValLoss.getLoss(instances, predictiveModel));
     }
 
     @Test
@@ -145,7 +150,7 @@ public class AUCCrossValLossTest {
     @Test(expected = IllegalStateException.class)
     public void testTotalLossNoData() {
         WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
-        crossValLoss.getLoss();
+        crossValLoss.getLoss(Collections.EMPTY_LIST, Mockito.mock(PredictiveModel.class));
     }
 
     private List<WeightedAUCCrossValLoss.AUCData> getAucDataList() {

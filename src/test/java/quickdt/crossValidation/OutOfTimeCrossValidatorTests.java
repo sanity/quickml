@@ -44,7 +44,7 @@ public class OutOfTimeCrossValidatorTests {
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
 
-        crossValidator = new OutOfTimeCrossValidator(new AucCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        crossValidator = new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
 
