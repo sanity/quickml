@@ -27,7 +27,7 @@ public class AttributeImportanceFinder {
     }
 
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
         return determineAttributeImportance(new StationaryCrossValidator(4, 1), predictiveModelBuilder, trainingData);
     }
 

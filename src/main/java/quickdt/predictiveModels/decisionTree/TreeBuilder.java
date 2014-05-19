@@ -146,25 +146,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             thisLeaf = new Leaf(parent, trainingData, depth);
         }
 
-        Branch bestNode = null;
-        double bestScore = 0;
-        for (final Entry<String, AttributeCharacteristics> e : attributeCharacteristics.entrySet()) {
-            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability)
-                continue;
-
-            Pair<? extends Branch, Double> thisPair = null;
-
-            if (!smallTrainingSet && e.getValue().isNumber) {
-                thisPair = createNumericNode(parent, e.getKey(), trainingData, splits.get(e.getKey()));
-            }
-
-            if (thisPair == null || thisPair.getValue1() == 0) {
-                thisPair = createCategoricalNode(parent, e.getKey(), trainingData);
-            }
-            if (thisPair.getValue1() > bestScore) {
-                bestScore = thisPair.getValue1();
-                bestNode = thisPair.getValue0();
-            }
+        if (depth >= maxDepth) {
+            return thisLeaf;
         }
 
         Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
@@ -291,7 +274,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
-      //  logger.debug("Creating categorical node for attribute {}", attribute);
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
             values.add(instance.getAttributes().get(attribute));
