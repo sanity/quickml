@@ -7,6 +7,9 @@ import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by Chris on 5/5/2014.
  */
@@ -31,9 +34,10 @@ public class MSECrossValLossTest {
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         Mockito.when(instance2.getAttributes()).thenReturn(test2Attributes);
 
-        crossValLoss.addLoss(instance, predictiveModel);
-        crossValLoss.addLoss(instance2, predictiveModel);
+        List<AbstractInstance> instances = new LinkedList<>();
+        instances.add(instance);
+        instances.add(instance2);
 
-        Assert.assertEquals(0.125, crossValLoss.getTotalLoss());
+        Assert.assertEquals(0.125, crossValLoss.getLoss(instances, predictiveModel));
     }
 }

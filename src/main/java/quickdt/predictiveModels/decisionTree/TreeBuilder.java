@@ -146,8 +146,25 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             thisLeaf = new Leaf(parent, trainingData, depth);
         }
 
-        if (depth >= maxDepth) {
-            return thisLeaf;
+        Branch bestNode = null;
+        double bestScore = 0;
+        for (final Entry<String, AttributeCharacteristics> e : attributeCharacteristics.entrySet()) {
+            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability)
+                continue;
+
+            Pair<? extends Branch, Double> thisPair = null;
+
+            if (!smallTrainingSet && e.getValue().isNumber) {
+                thisPair = createNumericNode(parent, e.getKey(), trainingData, splits.get(e.getKey()));
+            }
+
+            if (thisPair == null || thisPair.getValue1() == 0) {
+                thisPair = createCategoricalNode(parent, e.getKey(), trainingData);
+            }
+            if (thisPair.getValue1() > bestScore) {
+                bestScore = thisPair.getValue1();
+                bestNode = thisPair.getValue0();
+            }
         }
 
         Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
@@ -274,18 +291,19 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
     protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
+      //  logger.debug("Creating categorical node for attribute {}", attribute);
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
             values.add(instance.getAttributes().get(attribute));
         }
         double score = 0;
-        final Set<Serializable> bestSoFar = Sets.newHashSet();
+        final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
 
-        ClassificationCounter inCounts = new ClassificationCounter();
+        ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
                 .countAllByAttributeValues(instances, attribute);
-        ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0();
-        final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1();
+        ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
+        final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
 
         while (true) {
             double bestScore = 0;
@@ -294,6 +312,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
                 if (testValCounts == null) { // Also a kludge, figure out why
                     // this would happen
+                    //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
                     continue;
                 }
                 if (this.minCategoricalAttributeValueOccurances > 0) {

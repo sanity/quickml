@@ -3,8 +3,8 @@ package quickdt;
 import com.google.common.collect.Lists;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.*;
-import quickdt.crossValidation.CrossValidator;
 import quickdt.predictiveModels.decisionTree.Scorer;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
@@ -33,7 +33,7 @@ public class Benchmarks {
     }
 
     private static void testWithInstances(String dsName, final List<AbstractInstance> instances) {
-        CrossValidator crossValidator = new CrossValidator();
+        StationaryCrossValidator crossValidator = new StationaryCrossValidator();
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
             final TreeBuilder singleTreeBuilder = new TreeBuilder(scorer);

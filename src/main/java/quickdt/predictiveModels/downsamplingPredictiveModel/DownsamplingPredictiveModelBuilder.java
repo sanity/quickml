@@ -17,17 +17,17 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilder<DownsamplingPredictiveModel> {
+public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBuilder<DownsamplingPredictiveModel> {
 
     private static final  Logger logger =  LoggerFactory.getLogger(DownsamplingPredictiveModelBuilder.class);
 
-    private final double minorityInstanceProportion;
+    private final double targetMinorityProportion;
     private final PredictiveModelBuilder<?> predictiveModelBuilder;
 
-    public DownsamplingPredictiveModelBuilder(PredictiveModelBuilder<?> predictiveModelBuilder, double minorityInstanceProportion) {
+    public DownsamplingPredictiveModelBuilder(PredictiveModelBuilder<?> predictiveModelBuilder, double targetMinorityProportion) {
         this.predictiveModelBuilder = predictiveModelBuilder;
-        Preconditions.checkArgument(minorityInstanceProportion > 0 && minorityInstanceProportion < 1, "minorityInstanceProportion must be between 0 and 1 (was %s)", minorityInstanceProportion);
-        this.minorityInstanceProportion = minorityInstanceProportion;
+        Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
+        this.targetMinorityProportion = targetMinorityProportion;
     }
 
     @Override
@@ -37,13 +37,13 @@ public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilde
         final Map.Entry<Serializable, Double> majorityEntry = Misc.getEntryWithHighestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
         final double majorityProportion = majorityEntry.getValue();
-        final double minorityProportion = 1.0 - majorityProportion;
-        if (minorityProportion >= minorityInstanceProportion) {
+        final double naturalMinorityProportion = 1.0 - majorityProportion;
+        if (naturalMinorityProportion >= targetMinorityProportion) {
             final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
             return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, 0);
         }
 
-        final double dropProbability = 1.0 - ((minorityProportion - minorityProportion*minorityInstanceProportion) / (minorityInstanceProportion - minorityInstanceProportion*minorityProportion));
+        final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
 
         Iterable<? extends AbstractInstance> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
