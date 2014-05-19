@@ -15,6 +15,4 @@ public abstract class AbstractInstance {
     public abstract Serializable getClassification();
 
     public abstract double getWeight();
-
-    public transient int index;
 }
