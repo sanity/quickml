@@ -5,13 +5,13 @@ import com.google.common.base.Preconditions;
 /**
  * Created by alexanderhawk on 4/10/14.
  */
-public class LogCrossValLoss extends CrossValLoss<LogCrossValLoss> {
+public class LogCrossValLoss extends OnlineCrossValLoss<LogCrossValLoss> {
 
     public static final double DEFAULT_MIN_PROBABILITY = 10e-8;
     double totalLogLoss = 0;
     private double total = 0;
-    public  double minProbability;
-    public  double maxError;
+    public final double minProbability;
+    public final double maxError;
 
     public LogCrossValLoss() {
         this(DEFAULT_MIN_PROBABILITY);

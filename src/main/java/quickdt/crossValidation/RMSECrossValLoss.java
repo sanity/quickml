@@ -5,7 +5,7 @@ import com.google.common.base.Supplier;
 /**
  * Created by ian on 2/28/14.
  */
-public class RMSECrossValLoss extends CrossValLoss<RMSECrossValLoss> {
+public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
     public static Supplier<RMSECrossValLoss> supplier = new Supplier<RMSECrossValLoss>() {
          @Override
          public RMSECrossValLoss get() {

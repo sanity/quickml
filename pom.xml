@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickdt</groupId>
     <artifactId>quickdt</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
@@ -27,7 +27,12 @@
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
-            <version>2.1.0</version>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.amazonaws</groupId>
+        	<artifactId>aws-java-sdk</artifactId>
+        	<version>1.0.002</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -81,6 +86,11 @@
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-core</artifactId>
+            <version>0.9</version>
         </dependency>
     </dependencies>
 
