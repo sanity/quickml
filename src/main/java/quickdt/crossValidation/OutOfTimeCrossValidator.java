@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class OutOfTimeCrossValidator extends CrossValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(StationaryCrossValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 
     List<AbstractInstance> allTrainingData;
     List<AbstractInstance> trainingDataToAddToPredictiveModel;
@@ -46,11 +46,17 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
-        while (!validationSet.isEmpty()) {
-            PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            runningLoss += crossValLoss.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
-            runningWeightOfValidationSet += weightOfValidationSet;
-            logger.info("running Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+        while (!validationSet.isEmpty() || currentTrainingSetSize < allTrainingData.size() - 1) {
+            PredictiveModel predictiveModel = null;
+            if (!trainingDataToAddToPredictiveModel.isEmpty()) {
+                 predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+            }
+
+            if(predictiveModel != null && !validationSet.isEmpty()) {
+                runningLoss += crossValLoss.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
+                runningWeightOfValidationSet += weightOfValidationSet;
+                logger.info("running Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+            }
             updateTrainingSet();
             updateCrossValidationSet();
         }
@@ -87,7 +93,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
-        currentTrainingSetSize += trainingDataToAddToPredictiveModel.size();
+        currentTrainingSetSize += Math.max(1, trainingDataToAddToPredictiveModel.size());
     }
 
     private void updateCrossValidationSet() {

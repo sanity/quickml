@@ -17,7 +17,7 @@ import java.util.List;
  * Created by alexanderhawk on 5/17/14.
  */
 public class OutOfTimeCrossValidatorTests {
-    private static final Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
+    private static final Logger logger =  LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
     List<AbstractInstance> trainingData;
 
     @Before
