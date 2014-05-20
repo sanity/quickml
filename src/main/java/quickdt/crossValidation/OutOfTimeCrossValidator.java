@@ -46,7 +46,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
-        while (!validationSet.isEmpty() || currentTrainingSetSize < allTrainingData.size() - 1) {
+        while (currentTrainingSetSize < allTrainingData.size() - 1) {
             PredictiveModel predictiveModel = null;
             if (!trainingDataToAddToPredictiveModel.isEmpty()) {
                  predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
