@@ -27,7 +27,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
     private static final int MAX_ITERATIONS = 10;
     private int maxIterations;
     public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData) {
-        this(predictiveModelBuilderBuilder, trainingData, new StationaryCrossValidator(4));
+        this(predictiveModelBuilderBuilder, trainingData, new StationaryCrossValidator());
     }
 
     public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator) {
