@@ -54,14 +54,14 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    public void updatePredictiveModel(CalibratedPredictiveModel calibratedPredictiveModel, Iterable<? extends AbstractInstance> newData) {
+    public void updatePredictiveModel(CalibratedPredictiveModel calibratedPredictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         updateCalibrator(calibratedPredictiveModel, newData);
         if (predictiveModelBuilder instanceof RandomForestBuilder) {
             RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData);
+            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
         } else if (predictiveModelBuilder instanceof TreeBuilder) {
             TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData);
+            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
         }
     }
 

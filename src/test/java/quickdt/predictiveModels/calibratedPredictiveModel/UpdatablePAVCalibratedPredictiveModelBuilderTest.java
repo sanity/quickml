@@ -18,8 +18,35 @@ import java.util.List;
  */
 public class UpdatablePAVCalibratedPredictiveModelBuilderTest {
     @Test
-    public void simpleBmiTest() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(10000);
+    public void simpleBmiTestSplit() throws Exception {
+        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final RandomForestBuilder rfb = new RandomForestBuilder(tb);
+        final PAVCalibratedPredictiveModelBuilder cpmb = new PAVCalibratedPredictiveModelBuilder(rfb);
+        final UpdatablePAVCalibratedPredictiveModelBuilder ucpmb = new UpdatablePAVCalibratedPredictiveModelBuilder(cpmb, null, 1);
+        final long startTime = System.currentTimeMillis();
+        final CalibratedPredictiveModel calibratedPredictiveModel = ucpmb.buildPredictiveModel(instances);
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+
+        TreeBuilderTestUtils.serializeDeserialize(randomForest);
+
+        final List<Tree> trees = randomForest.trees;
+        final int treeSize = trees.size();
+        final int firstTreeNodeSize = trees.get(0).node.size();
+        Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
+        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+
+        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final CalibratedPredictiveModel newCalibratedPredictiveModel = ucpmb.buildPredictiveModel(newInstances);
+        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
+        Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
+        Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
+        Assert.assertNotEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected new nodes");
+    }
+
+    @Test
+    public void simpleBmiTestNoSplit() throws Exception {
+        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final PAVCalibratedPredictiveModelBuilder cpmb = new PAVCalibratedPredictiveModelBuilder(rfb);
@@ -36,11 +63,11 @@ public class UpdatablePAVCalibratedPredictiveModelBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(10000);
+        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final CalibratedPredictiveModel newCalibratedPredictiveModel = ucpmb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
         Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
-        Assert.assertNotEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected new nodes");
+        Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 }

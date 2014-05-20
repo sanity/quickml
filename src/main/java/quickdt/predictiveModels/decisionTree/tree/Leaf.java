@@ -36,14 +36,18 @@ public class Leaf extends Node {
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
     public Leaf(Node parent, final Iterable<? extends AbstractInstance> instances, final int depth) {
+        this(parent, ClassificationCounter.countAll(instances), depth);
+        Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
+	}
+
+    public Leaf(Node parent, final ClassificationCounter classificationCounts, final int depth) {
         super(parent);
         guid = guidCounter.incrementAndGet();
-        Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
-        classificationCounts = ClassificationCounter.countAll(instances);
+        this.classificationCounts = classificationCounts;
         Preconditions.checkState(classificationCounts.getTotal() > 0, "Classifications must be > 0");
-         exampleCount = classificationCounts.getTotal();
-         this.depth = depth;
-	}
+        exampleCount = classificationCounts.getTotal();
+        this.depth = depth;
+    }
 
     /**
      *

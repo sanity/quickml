@@ -3,6 +3,8 @@ package quickdt.predictiveModels.calibratedPredictiveModel;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
+import java.util.List;
+
 
 /**
  * Created by Chris on 5/14/2014.
@@ -11,11 +13,15 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
     private final PAVCalibratedPredictiveModelBuilder pavCalibratedPredictiveModelBuilder;
 
     public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder) {
-        this(calibratedPredictiveModelBuilder, null);
+        this(calibratedPredictiveModelBuilder, null, null, null);
     }
 
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel) {
-        super(calibratedPredictiveModel);
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, Integer rebuildThreshold, Integer splitThreshold) {
+        this(calibratedPredictiveModelBuilder, null, rebuildThreshold, splitThreshold);
+    }
+
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel, Integer rebuildThreshold, Integer splitThreshold) {
+        super(calibratedPredictiveModel, rebuildThreshold, splitThreshold);
         this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder.updatable(true);
     }
 
@@ -25,8 +31,8 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
     }
 
     @Override
-    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData) {
-        pavCalibratedPredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData);
+    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        pavCalibratedPredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
 
     @Override

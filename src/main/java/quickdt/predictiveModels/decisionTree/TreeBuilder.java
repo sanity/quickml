@@ -72,13 +72,15 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData) {
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         //first move all the data into the leaves
         for(AbstractInstance instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
         //now split the leaves further if possible
-        splitNode(tree.node);
+        if (splitNodes) {
+            splitNode(tree.node, trainingData);
+        }
     }
 
     public void stripData(Tree tree) {
@@ -369,7 +371,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
      * and recreate the branch
      * @param node The node we are attempting to further split
      */
-    private void splitNode(Node node) {
+    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             if (leaf.parent != null) {
@@ -384,7 +386,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                     parent = branch;
                     toReplace = leaf;
                 }
-                Collection<AbstractInstance> leafData = getData(toReplace);
+                Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
                 if(parent.trueChild == toReplace) {
                     parent.trueChild = newNode;
@@ -394,10 +396,10 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
             }
         } else if (node instanceof Branch) {
             Branch branch = (Branch) node;
-            splitNode(branch.trueChild);
+            splitNode(branch.trueChild, trainingData);
             //only split false child if we aren't combining leaves
             if (!shouldCombineData(branch)) {
-                splitNode(branch.falseChild);
+                splitNode(branch.falseChild, trainingData);
             }
 
         }
@@ -407,16 +409,30 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf;
     }
 
-    private Collection<AbstractInstance> getData(Node node) {
-        Collection<AbstractInstance> data = null;
-        if (node instanceof UpdatableLeaf) {
-            data = (((UpdatableLeaf) node).instances);
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            data = ((UpdatableLeaf) branch.trueChild).instances;
-            data.addAll(((UpdatableLeaf) branch.falseChild).instances);
+    /**
+     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
+     * @param trainingData full set of trainingData
+     */
+    private Collection<AbstractInstance> getData(Node node, List<? extends AbstractInstance> trainingData) {
+        List<AbstractInstance> data = Lists.newArrayList();
+        Collection<Integer> indexes = getIndexes(node);
+
+        for(Integer index : indexes) {
+            data.add(trainingData.get(index));
         }
         return data;
+    }
+
+    private Collection<Integer> getIndexes(Node node) {
+        Collection<Integer> indexes = Collections.EMPTY_LIST;
+        if (node instanceof UpdatableLeaf) {
+            indexes = (((UpdatableLeaf) node).trainingDataIndexes);
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            indexes = ((UpdatableLeaf) branch.trueChild).trainingDataIndexes;
+            indexes.addAll(((UpdatableLeaf) branch.falseChild).trainingDataIndexes);
+        }
+        return indexes;
     }
 
     private void addInstanceToNode(Node node, AbstractInstance instance) {
@@ -437,7 +453,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             Branch branch = (Branch) leaf.parent;
-            Leaf newLeaf = new Leaf(leaf.parent, leaf.instances, leaf.depth);
+            Leaf newLeaf = new Leaf(leaf.parent, leaf.classificationCounts, leaf.depth);
             if(branch.trueChild == node) {
                 branch.trueChild = newLeaf;
             } else {
