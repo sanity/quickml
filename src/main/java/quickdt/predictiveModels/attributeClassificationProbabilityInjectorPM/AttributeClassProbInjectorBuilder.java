@@ -94,6 +94,9 @@ public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder
         return new AttributeClassProbInjectorPM(predictiveModel, attributeValueProbabilitiesByAttribute);
     }
 
+    /**
+     * Keeps a running average of the classificationMatch value, weighted accordingly
+     */
     private static class ProbCounter {
         private double sum = 0;
         private double total = 0;
