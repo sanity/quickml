@@ -1,10 +1,11 @@
-package quickdt.predictiveModels.attributeClassificationProbabilityInjectorPM;
+package quickdt.predictiveModels.featureEngineering.probabilityInjector;
 
-import com.google.common.collect.*;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Instance;
-import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
+import quickdt.predictiveModels.featureEngineering.FeatureEngineeringPredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -13,9 +14,10 @@ import java.util.Set;
 /**
  * Created by ian on 5/19/14.
  */
-public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder<AttributeClassProbInjectorPM> {
+public class ProbabilityInjectorBuilder extends FeatureEngineeringPredictiveModelBuilder {
 
-    private final PredictiveModelBuilder<?> wrappedBuilder;
+    private static final int DEFAULT_MAX_VALUE_COUNT = 20000;
+
     private final Set<String> attributeKeysToInject;
     private final Serializable classification;
     private final int maxValueCount;
@@ -25,8 +27,8 @@ public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder
      * @param attributeKeysToInject
      * @param classification
      */
-    public AttributeClassProbInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
-        this(wrappedBuilder, attributeKeysToInject, classification, 20000);
+    public ProbabilityInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
+        this(wrappedBuilder, attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
     }
 
     /**
@@ -34,15 +36,15 @@ public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder
      * @param classification
      * @param maxValueCount
      */
-    public AttributeClassProbInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
-        this.wrappedBuilder = wrappedBuilder;
+    public ProbabilityInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
+        super(wrappedBuilder);
         this.attributeKeysToInject = attributeKeysToInject;
         this.classification = classification;
         this.maxValueCount = maxValueCount;
     }
 
     @Override
-    public AttributeClassProbInjectorPM buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
@@ -62,6 +64,7 @@ public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder
                 if (attributeValueProbabilities.size() > maxValueCount) {
                     attributesWithTooManyValues.add(attributeKey);
                     valueProbCountersByAttribute.remove(attributeKey);
+                    continue;
                 }
                 Serializable value = instance.getAttributes().get(attributeKey);
                 if (value == null) {
@@ -87,11 +90,7 @@ public class AttributeClassProbInjectorBuilder implements PredictiveModelBuilder
             attributeValueProbabilitiesByAttribute.put(attributeValueProbEntry.getKey(), probabilitiesByValue);
         }
 
-        Iterable<Instance> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(attributeValueProbabilitiesByAttribute));
-
-        PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
-
-        return new AttributeClassProbInjectorPM(predictiveModel, attributeValueProbabilitiesByAttribute);
+        return new ProbabilityInjectingEnricher(attributeValueProbabilitiesByAttribute);
     }
 
     /**
