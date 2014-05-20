@@ -34,7 +34,8 @@ public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveMod
 
     @Override
     public PAVCalibratedPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        return new PAVCalibratedPredictiveModelBuilder().binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
+        return new PAVCalibratedPredictiveModelBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig))
+                .binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
     }
 }
 
