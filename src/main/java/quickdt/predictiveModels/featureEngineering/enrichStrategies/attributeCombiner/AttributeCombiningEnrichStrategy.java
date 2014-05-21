@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by ian on 5/21/14.
+ * An AttributesEnrichStrategy that takes several lists of attribute keys, and combines
+ * the values of each of those attributes into a new attribute.
  */
 public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrategy {
     private final Set<List<String>> attributesToCombine;

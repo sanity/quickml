@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by ian on 5/21/14.
+ * See {@link quickdt.predictiveModels.featureEngineering.enrichStrategies.attributeCombiner.AttributeCombiningEnrichStrategy}
  */
 public class AttributeCombiningEnricher implements AttributesEnricher {
     private static final long serialVersionUID = -7735359633536109195L;
