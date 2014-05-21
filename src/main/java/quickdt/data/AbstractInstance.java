@@ -16,5 +16,5 @@ public abstract class AbstractInstance {
 
     public abstract double getWeight();
 
-    public transient int index;
+    public int index;
 }
