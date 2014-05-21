@@ -1,4 +1,4 @@
-package quickdt.predictiveModels.featureEngineering.probabilityInjector;
+package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
 import quickdt.data.Attributes;
 import quickdt.data.HashMapAttributes;

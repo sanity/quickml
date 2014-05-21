@@ -1,4 +1,4 @@
-package quickdt.predictiveModels.featureEngineering.probabilityInjector;
+package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
 import com.beust.jcommander.internal.Maps;
 import junit.framework.Assert;

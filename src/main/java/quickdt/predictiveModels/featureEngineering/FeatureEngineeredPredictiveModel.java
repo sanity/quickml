@@ -5,6 +5,7 @@ import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by ian on 5/20/14.
@@ -12,17 +13,26 @@ import java.io.Serializable;
 public class FeatureEngineeredPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 7279329500376419142L;
     private final PredictiveModel wrappedModel;
-    private final AttributesEnricher attributesEnricher;
+    private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel wrappedModel, AttributesEnricher attributesEnricher) {
+    public FeatureEngineeredPredictiveModel(PredictiveModel wrappedModel, List<AttributesEnricher> attributesEnrichers) {
         this.wrappedModel = wrappedModel;
-        this.attributesEnricher = attributesEnricher;
+        this.attributesEnrichers = attributesEnrichers;
     }
 
 
     @Override
     public double getProbability(final Attributes attributes, final Serializable classification) {
-        return wrappedModel.getProbability(attributesEnricher.apply(attributes), classification);
+        Attributes enrichedAttributes = enrichAttributes(attributes);
+        return wrappedModel.getProbability(enrichedAttributes, classification);
+    }
+
+    private Attributes enrichAttributes(final Attributes attributes) {
+        Attributes enrichedAttributes = attributes;
+        for (AttributesEnricher attributesEnricher : attributesEnrichers) {
+            enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
+        }
+        return enrichedAttributes;
     }
 
     @Override
@@ -32,6 +42,6 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel {
 
     @Override
     public Serializable getClassificationByMaxProb(final Attributes attributes) {
-        return wrappedModel.getClassificationByMaxProb(attributesEnricher.apply(attributes));
+        return wrappedModel.getClassificationByMaxProb(enrichAttributes(attributes));
     }
 }

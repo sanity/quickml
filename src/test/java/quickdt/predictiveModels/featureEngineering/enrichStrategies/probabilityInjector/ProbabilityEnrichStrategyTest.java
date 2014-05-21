@@ -1,4 +1,4 @@
-package quickdt.predictiveModels.featureEngineering.probabilityInjector;
+package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Sets;
@@ -10,7 +10,7 @@ import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
 import java.util.List;
 
-public class ProbabilityInjectorBuilderTest {
+public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
@@ -19,8 +19,8 @@ public class ProbabilityInjectorBuilderTest {
         trainingData.add(Instance.create("true", "k1", 1, "k2", 2));
         trainingData.add(Instance.create("false", "k1", 2, "k2", 2));
         trainingData.add(Instance.create("false", "k1", 1, "k2", 2));
-        ProbabilityInjectorBuilder probabilityInjectorBuilder = new ProbabilityInjectorBuilder(new TreeBuilder(), Sets.newHashSet("k1", "k2"), "true");
-        final AttributesEnricher attributesEnricher = probabilityInjectorBuilder.createAttributesEnricher(trainingData);
+        ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(new TreeBuilder(), Sets.newHashSet("k1", "k2"), "true");
+        final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {
             Attributes inputAttributes = new HashMapAttributes();
             inputAttributes.put("k1", 1);

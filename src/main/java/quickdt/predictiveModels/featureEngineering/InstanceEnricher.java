@@ -1,24 +1,28 @@
 package quickdt.predictiveModels.featureEngineering;
 
 import com.google.common.base.Function;
-import quickdt.data.AbstractInstance;
-import quickdt.data.Instance;
+import quickdt.data.*;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Created by ian on 5/20/14.
  */
 public class InstanceEnricher implements Function<AbstractInstance, Instance> {
-    private final AttributesEnricher attributesEnricher;
+    private final List<AttributesEnricher> attributesEnrichers;
 
-    public InstanceEnricher(AttributesEnricher attributesEnricher) {
-        this.attributesEnricher = attributesEnricher;
+    public InstanceEnricher(List<AttributesEnricher> attributesEnrichers) {
+        this.attributesEnrichers = attributesEnrichers;
     }
 
     @Nullable
     @Override
     public Instance apply(@Nullable final AbstractInstance instance) {
-        return new Instance(attributesEnricher.apply(instance.getAttributes()), instance.getClassification(), instance.getWeight());
+        Attributes enrichedAttributes = instance.getAttributes();
+        for (AttributesEnricher attributesEnricher : attributesEnrichers) {
+            enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
+        }
+        return new Instance(enrichedAttributes, instance.getClassification(), instance.getWeight());
     }
 }

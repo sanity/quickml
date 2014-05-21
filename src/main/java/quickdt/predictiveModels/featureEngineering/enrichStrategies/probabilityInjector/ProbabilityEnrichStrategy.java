@@ -1,11 +1,10 @@
-package quickdt.predictiveModels.featureEngineering.probabilityInjector;
+package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
-import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
-import quickdt.predictiveModels.featureEngineering.FeatureEngineeringPredictiveModelBuilder;
+import quickdt.predictiveModels.featureEngineering.*;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.Set;
 /**
  * Created by ian on 5/19/14.
  */
-public class ProbabilityInjectorBuilder extends FeatureEngineeringPredictiveModelBuilder {
+public class ProbabilityEnrichStrategy implements AttributesEnricherBuildStrategy {
 
     private static final int DEFAULT_MAX_VALUE_COUNT = 20000;
 
@@ -27,8 +26,8 @@ public class ProbabilityInjectorBuilder extends FeatureEngineeringPredictiveMode
      * @param attributeKeysToInject
      * @param classification
      */
-    public ProbabilityInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
-        this(wrappedBuilder, attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
+    public ProbabilityEnrichStrategy(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
+        this(attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
     }
 
     /**
@@ -36,15 +35,14 @@ public class ProbabilityInjectorBuilder extends FeatureEngineeringPredictiveMode
      * @param classification
      * @param maxValueCount
      */
-    public ProbabilityInjectorBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
-        super(wrappedBuilder);
+    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
         this.attributeKeysToInject = attributeKeysToInject;
         this.classification = classification;
         this.maxValueCount = maxValueCount;
     }
 
     @Override
-    protected AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();

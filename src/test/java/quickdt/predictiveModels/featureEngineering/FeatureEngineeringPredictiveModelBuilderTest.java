@@ -1,6 +1,6 @@
 package quickdt.predictiveModels.featureEngineering;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickdt.data.*;
 import quickdt.predictiveModels.PredictiveModel;
@@ -15,23 +15,18 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     @Test
     public void simpleTest() {
-        TestFEPMB testFEPMB = new TestFEPMB(new TestPMBuilder());
+        TestAEBS testFEPMB = new TestAEBS();
         List<Instance> trainingData = Lists.newArrayList();
         trainingData.add(new Instance(new HashMapAttributes(), 1));
-        final FeatureEngineeredPredictiveModel pm = testFEPMB.buildPredictiveModel(trainingData);
-        final Attributes emptyAttributes = trainingData.get(0).getAttributes();
-        pm.getProbability(emptyAttributes, 1);
-        pm.getClassificationByMaxProb(emptyAttributes);
+        FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(new TestPMBuilder(), Lists.newArrayList(new TestAEBS()));
+        final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
+        predictiveModel.getProbability(trainingData.get(0).getAttributes(), 1);
     }
 
-    public static class TestFEPMB extends FeatureEngineeringPredictiveModelBuilder {
-
-        public TestFEPMB(final PredictiveModelBuilder<?> wrappedBuilder) {
-            super(wrappedBuilder);
-        }
+    public static class TestAEBS implements AttributesEnricherBuildStrategy {
 
         @Override
-        public AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData) {
+        public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -45,6 +40,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
                 }
             };
         }
+
     }
 
     public static class TestPMBuilder implements PredictiveModelBuilder<TestPM> {
