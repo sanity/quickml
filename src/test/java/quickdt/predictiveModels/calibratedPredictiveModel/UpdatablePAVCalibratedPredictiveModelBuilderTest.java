@@ -24,6 +24,7 @@ public class UpdatablePAVCalibratedPredictiveModelBuilderTest {
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final PAVCalibratedPredictiveModelBuilder cpmb = new PAVCalibratedPredictiveModelBuilder(rfb);
         final UpdatablePAVCalibratedPredictiveModelBuilder ucpmb = new UpdatablePAVCalibratedPredictiveModelBuilder(cpmb);
+        ucpmb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = ucpmb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
