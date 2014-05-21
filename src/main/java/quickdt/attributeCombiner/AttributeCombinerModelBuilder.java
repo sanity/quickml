@@ -43,6 +43,16 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
 
     @Override
     public AttributeCombinerPredictiveModel buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+        final AttributeEnricher attributeEnricher = getAttributeEnricher(trainingData);
+        final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(trainingData, new InstanceModifier(attributeEnricher)));
+
+        logger.info("Building main predictive model");
+        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
+
+        return new AttributeCombinerPredictiveModel(predictiveModel, attributeEnricher);
+    }
+
+    private AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
         List<AttributePreprocessor> attributePreprocessors = Lists.newArrayList();
         for (List<String> attributes : attributesToCombine) {
             final String key = Joiner.on('|').join(attributes);
@@ -55,13 +65,6 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
             attributePreprocessors.add(attributePreprocessor);
         }
 
-        final AttributeEnricher attributeEnricher = new AttributeEnricher(attributePreprocessors);
-        final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(trainingData, new InstanceModifier(attributeEnricher)));
-
-        logger.info("Building main predictive model");
-        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
-
-        return new AttributeCombinerPredictiveModel(predictiveModel, attributeEnricher);
+        return new AttributeEnricher(attributePreprocessors);
     }
-
 }

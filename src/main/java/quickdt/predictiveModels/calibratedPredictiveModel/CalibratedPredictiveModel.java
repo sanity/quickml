@@ -19,7 +19,6 @@ public class CalibratedPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 8291739965981425742L;
     public Calibrator calibrator;
     public PredictiveModel predictiveModel;
-    int binsInCalibrator = 20;
 
     public CalibratedPredictiveModel (PredictiveModel predictiveModel, Calibrator calibrator) {
         Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
@@ -29,8 +28,7 @@ public class CalibratedPredictiveModel implements PredictiveModel {
 
     public double getProbability(Attributes attributes, Serializable classification) {
         double rawProbability = predictiveModel.getProbability(attributes, classification);
-        double probability = calibrator.correct(rawProbability);
-        return probability;
+        return calibrator.correct(rawProbability);
     }
 
 
