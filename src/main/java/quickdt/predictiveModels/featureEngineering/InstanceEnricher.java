@@ -3,7 +3,6 @@ package quickdt.predictiveModels.featureEngineering;
 import com.google.common.base.Function;
 import quickdt.data.*;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -16,9 +15,8 @@ public class InstanceEnricher implements Function<AbstractInstance, Instance> {
         this.attributesEnrichers = attributesEnrichers;
     }
 
-    @Nullable
     @Override
-    public Instance apply(@Nullable final AbstractInstance instance) {
+    public Instance apply(final AbstractInstance instance) {
         Attributes enrichedAttributes = instance.getAttributes();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
