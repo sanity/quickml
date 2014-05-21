@@ -12,24 +12,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * If the split node threshold is passed the leaves will be rebuilt
  */
 public abstract class UpdatablePredictiveModelBuilder<PM extends PredictiveModel> implements PredictiveModelBuilder<PM> {
+    private static final String MAX_DEPTH = "maxDepth";
+    private static final String MIN_SCORE = "minScore";
+
     protected List<AbstractInstance> trainingData;
     protected PM predictiveModel;
-    protected final Integer rebuildThreshold;
-    protected final Integer splitNodeThreshold;
+    protected Integer rebuildThreshold;
+    protected Integer splitNodeThreshold;
     protected int buildCount = 0;
 
     public UpdatablePredictiveModelBuilder(PM predictiveModel) {
-        this(predictiveModel, null, null);
-    }
-
-    public UpdatablePredictiveModelBuilder(Integer rebuildThreshold) {
-        this(null, rebuildThreshold, null);
-    }
-
-    public UpdatablePredictiveModelBuilder(PM predictiveModel, Integer rebuildThreshold, Integer splitNodeThreshold) {
         this.predictiveModel = predictiveModel;
+    }
+
+    public UpdatablePredictiveModelBuilder rebuildThreshold(Integer rebuildThreshold) {
         this.rebuildThreshold = rebuildThreshold;
+        return this;
+    }
+
+    public UpdatablePredictiveModelBuilder splitNodeThreshold(Integer splitNodeThreshold) {
         this.splitNodeThreshold = splitNodeThreshold;
+        return this;
     }
 
     public abstract PM buildUpdatablePredictiveModel(Iterable<? extends AbstractInstance> trainingData);

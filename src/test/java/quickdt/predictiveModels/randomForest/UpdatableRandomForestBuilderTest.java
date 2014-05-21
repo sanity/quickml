@@ -19,7 +19,8 @@ public class UpdatableRandomForestBuilderTest {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
-        final UpdatableRandomForestBuilder urfb = new UpdatableRandomForestBuilder(rfb, null, 1);
+        final UpdatableRandomForestBuilder urfb = new UpdatableRandomForestBuilder(rfb);
+        urfb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = urfb.buildPredictiveModel(instances);
 

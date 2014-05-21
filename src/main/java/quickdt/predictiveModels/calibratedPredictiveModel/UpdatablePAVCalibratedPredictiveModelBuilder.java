@@ -13,15 +13,11 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
     private final PAVCalibratedPredictiveModelBuilder pavCalibratedPredictiveModelBuilder;
 
     public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder) {
-        this(calibratedPredictiveModelBuilder, null, null, null);
+        this(calibratedPredictiveModelBuilder, null);
     }
 
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, Integer rebuildThreshold, Integer splitThreshold) {
-        this(calibratedPredictiveModelBuilder, null, rebuildThreshold, splitThreshold);
-    }
-
-    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel, Integer rebuildThreshold, Integer splitThreshold) {
-        super(calibratedPredictiveModel, rebuildThreshold, splitThreshold);
+    public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel) {
+        super(calibratedPredictiveModel);
         this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder.updatable(true);
     }
 

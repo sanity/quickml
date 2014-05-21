@@ -2,6 +2,7 @@ package quickdt.predictiveModels.randomForest;
 
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
 import java.util.List;
 
@@ -13,15 +14,11 @@ public class UpdatableRandomForestBuilder extends UpdatablePredictiveModelBuilde
     private final RandomForestBuilder randomForestBuilder;
 
     public UpdatableRandomForestBuilder(RandomForestBuilder randomForestBuilder) {
-        this(randomForestBuilder, null, null, null);
+        this(randomForestBuilder, null);
     }
 
-    public UpdatableRandomForestBuilder(RandomForestBuilder randomForestBuilder, Integer rebuildThreshold, Integer splitThreshold) {
-        this(randomForestBuilder, null, rebuildThreshold, splitThreshold);
-    }
-
-    public UpdatableRandomForestBuilder(RandomForestBuilder randomForestBuilder, RandomForest randomForest, Integer rebuildThreshold, Integer splitThreshold) {
-        super(randomForest, rebuildThreshold, splitThreshold);
+    public UpdatableRandomForestBuilder(RandomForestBuilder randomForestBuilder, RandomForest randomForest) {
+        super(randomForest);
         this.randomForestBuilder = randomForestBuilder.updatable(true);
     }
 

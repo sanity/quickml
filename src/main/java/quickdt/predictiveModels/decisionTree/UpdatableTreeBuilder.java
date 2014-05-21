@@ -12,15 +12,11 @@ public class UpdatableTreeBuilder extends UpdatablePredictiveModelBuilder<Tree> 
     private final TreeBuilder treeBuilder;
 
     public UpdatableTreeBuilder(TreeBuilder treeBuilder) {
-        this(treeBuilder, null, null, null);
+        this(treeBuilder, null);
     }
 
-    public UpdatableTreeBuilder(TreeBuilder treeBuilder, Integer rebuildThreshold, Integer splitThreshold) {
-        this(treeBuilder, null, rebuildThreshold, splitThreshold);
-    }
-
-    public UpdatableTreeBuilder(TreeBuilder treeBuilder, Tree tree, Integer rebuildThreshold, Integer splitThreshold) {
-        super(tree, rebuildThreshold, splitThreshold);
+    public UpdatableTreeBuilder(TreeBuilder treeBuilder, Tree tree) {
+        super(tree);
         this.treeBuilder = treeBuilder.updatable(true);
     }
 

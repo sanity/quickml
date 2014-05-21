@@ -14,7 +14,8 @@ public class UpdatableTreeBuilderTest {
 	public void simpleBmiTestSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
 		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        final UpdatableTreeBuilder utb = new UpdatableTreeBuilder(tb, null, 1);
+        final UpdatableTreeBuilder utb = new UpdatableTreeBuilder(tb);
+        utb.splitNodeThreshold(1);
 		final long startTime = System.currentTimeMillis();
         final Tree tree = utb.buildPredictiveModel(instances);
 
@@ -72,7 +73,8 @@ public class UpdatableTreeBuilderTest {
     public void simpleBmiTestRebuild() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        final UpdatableTreeBuilder utb = new UpdatableTreeBuilder(tb, 1, null);
+        final UpdatableTreeBuilder utb = new UpdatableTreeBuilder(tb);
+        utb.rebuildThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = utb.buildPredictiveModel(instances);
 
