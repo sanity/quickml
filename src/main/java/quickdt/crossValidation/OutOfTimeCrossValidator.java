@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class OutOfTimeCrossValidator extends CrossValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(StationaryCrossValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 
     List<AbstractInstance> allTrainingData;
     List<AbstractInstance> trainingDataToAddToPredictiveModel;
@@ -80,24 +80,23 @@ public class OutOfTimeCrossValidator extends CrossValidator {
             } else if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet)) {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
-            } else
+            } else {
                 break;
+            }
         }
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
-
-        return;
     }
 
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
         currentTrainingSetSize += trainingDataToAddToPredictiveModel.size();
-        return;
     }
 
     private void updateCrossValidationSet() {
         clearValidationSet();
-        if (!newValidationSetExists())
+        if (!newValidationSetExists()) {
             return;
+        }
         DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(currentTrainingSetSize));
         DateTime leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
         for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
@@ -107,8 +106,9 @@ public class OutOfTimeCrossValidator extends CrossValidator {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
             }
-            else
+            else {
                 break;
+            }
         }
     }
 
@@ -140,20 +140,22 @@ public class OutOfTimeCrossValidator extends CrossValidator {
 
     private void setAndSortAllTrainingData(Iterable<? extends AbstractInstance> rawTrainingData) {
         this.allTrainingData = Lists.<AbstractInstance>newArrayList();
-        for (AbstractInstance instance : rawTrainingData)
+        for (AbstractInstance instance : rawTrainingData) {
             this.allTrainingData.add(instance);
+        }
 
         Comparator<AbstractInstance> comparator = new Comparator<AbstractInstance>() {
             @Override
             public int compare(AbstractInstance o1, AbstractInstance o2) {
                 DateTime firstInstance = dateTimeExtractor.extractDateTime(o1);
                 DateTime secondInstance = dateTimeExtractor.extractDateTime(o2);
-                if (firstInstance.isAfter(secondInstance))
+                if (firstInstance.isAfter(secondInstance)) {
                     return 1;
-                else if (firstInstance.isEqual(secondInstance))
+                } else if (firstInstance.isEqual(secondInstance)) {
                     return 0;
-                else
+                } else {
                     return -1;
+                }
             }
         };
 

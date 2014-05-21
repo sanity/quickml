@@ -5,28 +5,29 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
 public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
-    private static final Logger logger = LoggerFactory.getLogger(TreeBuilder.class);
-
     public static final int ORDINAL_TEST_SPLITS = 5;
+    public static final int SMALL_TRAINING_SET_LIMIT = 10;
+    public static final int RESERVOIR_SIZE = 1000;
+
     private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 5;
     private int minLeafInstances = 0;
+    private boolean updatable = false;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
@@ -61,47 +62,51 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return this;
     }
 
+    public TreeBuilder updatable(boolean updatable) {
+        this.updatable = updatable;
+        return this;
+    }
+
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        //first move all the data into the leaves
+        for(AbstractInstance instance : newData) {
+            addInstanceToNode(tree.node, instance);
+        }
+        //now split the leaves further if possible
+        if (splitNodes) {
+            splitNode(tree.node, trainingData);
+        }
+    }
+
+    public void stripData(Tree tree) {
+        stripNode(tree.node);
+    }
+
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
-     //   logger.debug("Creating numeric split for attribute {}", attribute);
-        final ReservoirSampler<Double> rs = new ReservoirSampler<Double>(1000);
-        for (final AbstractInstance i : trainingData) {
-            rs.sample(((Number) i.getAttributes().get(attribute)).doubleValue());
-        }
-        final ArrayList<Double> al = Lists.newArrayList();
-        for (final Double d : rs.getSamples()) {
-            al.add(d);
-        }
-        if (al.isEmpty()) {
-            throw new RuntimeException("Split list empty");
-        }
-        Collections.sort(al);
-
-        final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-        for (int x = 0; x < split.length; x++) {
-            split[x] = al.get((x + 1) * al.size() / (split.length + 1));
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+        for (final AbstractInstance instance : trainingData) {
+            reservoirSampler.sample(((Number) instance.getAttributes().get(attribute)).doubleValue());
         }
 
-//        logger.debug("Created numeric split for attribute {}: {}", attribute, Arrays.toString(split));
-        return split;
+        return getSplit(reservoirSampler);
     }
 
     private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
-     //   logger.debug("Creating numeric splits");
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        for (final AbstractInstance i : trainingData) {
-            for (final Entry<String, Serializable> e : i.getAttributes().entrySet()) {
-                if (e.getValue() instanceof Number) {
-                    ReservoirSampler<Double> rs = rsm.get(e.getKey());
-                    if (rs == null) {
-                        rs = new ReservoirSampler<Double>(1000);
-                        rsm.put(e.getKey(), rs);
+        for (final AbstractInstance instance : trainingData) {
+            for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
+                if (attributeEntry.getValue() instanceof Number) {
+                    ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
+                    if (reservoirSampler == null) {
+                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+                        rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
-                    rs.sample(((Number) e.getValue()).doubleValue());
+                    reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
                 }
             }
         }
@@ -109,104 +114,77 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         final Map<String, double[]> splits = Maps.newHashMap();
 
         for (final Entry<String, ReservoirSampler<Double>> e : rsm.entrySet()) {
-            final ArrayList<Double> al = Lists.newArrayList();
-            for (final Double d : e.getValue().getSamples()) {
-                al.add(d);
-            }
-            Collections.sort(al);
-
-            final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-            for (int x = 0; x < split.length; x++) {
-                split[x] = al.get((x + 1) * al.size() / (split.length + 2));
-            }
-
+            final double[] split = getSplit(e.getValue());
             splits.put(e.getKey(), split);
         }
         return splits;
     }
 
-    protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+    private double[] getSplit(ReservoirSampler<Double> reservoirSampler) {
+        final ArrayList<Double> splitList = Lists.newArrayList();
+        for (final Double sample : reservoirSampler.getSamples()) {
+            splitList.add(sample);
+        }
+        if (splitList.isEmpty()) {
+            throw new RuntimeException("Split list empty");
+        }
+        Collections.sort(splitList);
+
+        final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
+        final int indexMultiplier = splitList.size() / (split.length + 2);
+        for (int x = 0; x < split.length; x++) {
+            split[x] = splitList.get((x + 1) * indexMultiplier);
+        }
+        return split;
+    }
+
+    private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth +". Can't build a tree with no training data" );
-        final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
+        Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
+        final Leaf thisLeaf;
+        if (updatable) {
+            thisLeaf = new UpdatableLeaf(parent, trainingData, depth);
+        } else {
+            thisLeaf = new Leaf(parent, trainingData, depth);
+        }
 
         if (depth >= maxDepth) {
             return thisLeaf;
         }
 
-        //should not be doing the following operation every time we call buildTree
-        Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
-
-        boolean smallTrainingSet = true;
-        int tsCount = 0;
-        for (final AbstractInstance i : trainingData) {
-            tsCount++;
-            if (tsCount > 10) {
-                smallTrainingSet = false;
-                break;
-            }
-        }
-
-        Branch bestNode = null;
-        double bestScore = 0;
-        for (final Entry<String, AttributeCharacteristics> e : attributeCharacteristics.entrySet()) {
-            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability)
-                continue;
-
-            Pair<? extends Branch, Double> thisPair = null;
-
-            if (!smallTrainingSet && e.getValue().isNumber) {
-                thisPair = createNumericNode(parent, e.getKey(), trainingData, splits.get(e.getKey()));
-            }
-
-            if (thisPair == null || thisPair.getValue1() == 0) {
-                thisPair = createCategoricalNode(parent, e.getKey(), trainingData);
-            }
-            if (thisPair.getValue1() > bestScore) { //should this be less than?
-                bestScore = thisPair.getValue1();
-                bestNode = thisPair.getValue0();
-            }
-        }
+        Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
+        Branch bestNode = bestPair != null ? bestPair.getValue0() : null;
+        double bestScore = bestPair != null ? bestPair.getValue1() : 0;
 
         // If we were unable to find a useful branch, return the leaf
-        if (bestNode == null || bestScore < minimumScore)
+        if (bestNode == null || bestScore < minimumScore) {
             // Its a bad sign when this happens, normally something to debug
             return thisLeaf;
+        }
 
-        double[] oldSplit = null;
-
-        final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
-                bestNode.getInPredicate()));
-
+        final LinkedList<? extends AbstractInstance> trueTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData, bestNode.getInPredicate()));
         if (trueTrainingSet.size() < this.minLeafInstances) {
             return thisLeaf;
         }
 
-        double trueWeight = 0;
-        for (AbstractInstance instance : trueTrainingSet)
-            trueWeight += instance.getWeight();
-
-        final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData,
-                bestNode.getOutPredicate()));
-
+        final LinkedList<? extends AbstractInstance> falseTrainingSet = Lists.newLinkedList(Iterables.filter(trainingData, bestNode.getOutPredicate()));
         if (falseTrainingSet.size() < this.minLeafInstances) {
             return thisLeaf;
         }
 
-        double falseWeight = 0;
-        for (AbstractInstance instance : falseTrainingSet)
-            falseWeight += instance.getWeight();
-
+        double trueWeight = getTotalWeight(trueTrainingSet);
+        double falseWeight = getTotalWeight(falseTrainingSet);
         if (trueWeight == 0 || falseWeight ==0) {
             return thisLeaf;
         }
 
+        double[] oldSplit = null;
         // We want to temporarily replace the split for an attribute for
         // descendants of an numeric branch, first the true split
         if (bestNode instanceof NumericBranch) {
-            final NumericBranch ob = (NumericBranch) bestNode;
-            oldSplit = splits.get(ob.attribute);
-            splits.put(ob.attribute, createNumericSplit(trueTrainingSet, ob.attribute));
+            final NumericBranch bestBranch = (NumericBranch) bestNode;
+            oldSplit = splits.get(bestBranch.attribute);
+            splits.put(bestBranch.attribute, createNumericSplit(trueTrainingSet, bestBranch.attribute));
         }
 
         // Recurse down the true branch
@@ -214,8 +192,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
         // And now replace the old split if this is an NumericBranch
         if (bestNode instanceof NumericBranch) {
-            final NumericBranch ob = (NumericBranch) bestNode;
-            splits.put(ob.attribute, createNumericSplit(falseTrainingSet, ob.attribute));
+            final NumericBranch bestBranch = (NumericBranch) bestNode;
+            splits.put(bestBranch.attribute, createNumericSplit(falseTrainingSet, bestBranch.attribute));
         }
 
         // Recurse down the false branch
@@ -223,15 +201,61 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
 
         // And now replace the original split if this is an NumericBranch
         if (bestNode instanceof NumericBranch) {
-            final NumericBranch ob = (NumericBranch) bestNode;
-            splits.put(ob.attribute, oldSplit);
+            final NumericBranch bestBranch = (NumericBranch) bestNode;
+            splits.put(bestBranch.attribute, oldSplit);
         }
 
         return bestNode;
     }
 
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends AbstractInstance> trainingData, final Map<String, double[]> splits) {
+        //should not be doing the following operation every time we call buildTree
+        Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
+
+        boolean smallTrainingSet = isSmallTrainingSet(trainingData);
+        Pair<? extends Branch, Double> bestPair = null;
+        for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
+            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {
+                continue;
+            }
+
+            Pair<? extends Branch, Double> thisPair = null;
+
+            if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
+                thisPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
+            }
+            if (thisPair == null || thisPair.getValue1() == 0) {
+                thisPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
+            }
+            if (bestPair == null || thisPair.getValue1() > bestPair.getValue1()) {
+                bestPair = thisPair;
+            }
+        }
+        return bestPair;
+    }
+
+    private double getTotalWeight(List<? extends AbstractInstance> trainingSet) {
+        double trueWeight = 0;
+        for (AbstractInstance instance : trainingSet) {
+            trueWeight += instance.getWeight();
+        }
+        return trueWeight;
+    }
+
+    private boolean isSmallTrainingSet(Iterable<? extends AbstractInstance> trainingData) {
+        boolean smallTrainingSet = true;
+        int tsCount = 0;
+        for (final AbstractInstance abstractInstance : trainingData) {
+            tsCount++;
+            if (tsCount > SMALL_TRAINING_SET_LIMIT) {
+                smallTrainingSet = false;
+                break;
+            }
+        }
+        return smallTrainingSet;
+    }
+
     private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
-    //    logger.debug("Surveying training data");
         //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
@@ -247,14 +271,12 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 }
             }
         }
-//        logger.debug("Survey complete");
         return attributeCharacteristics;
     }
 
     protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
-      //  logger.debug("Creating categorical node for attribute {}", attribute);
-        final Set<Serializable> values = Sets.newHashSet(); //unique attribute values
+        final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
             values.add(instance.getAttributes().get(attribute));
         }
@@ -283,7 +305,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 final ClassificationCounter testInCounts = inCounts.add(testValCounts);
                 final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
-
                 final double thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
 
                 if (thisScore > bestScore) {
@@ -302,7 +323,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 break;
             }
         }
-       // logger.debug("Created categorical node for attribute {}", attribute);
         return Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
     }
 
@@ -319,8 +339,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     protected Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances,
                                                                final double[] splits) {
-//        logger.debug("Creating numeric node for attribute {}", attribute);
-
         double bestScore = 0;
         double bestThreshold = 0;
 
@@ -332,30 +350,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 continue;
             }
             lastThreshold = threshold;
-            final Iterable<? extends AbstractInstance> inSet = Iterables.filter(instances, new Predicate<AbstractInstance>() {
-
-                @Override
-                public boolean apply(final AbstractInstance input) {
-                    try {
-                        return ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
-                    } catch (final ClassCastException e) { // Kludge, need to
-                        // handle better
-                        return false;
-                    }
-                }
-            });
-            final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new Predicate<AbstractInstance>() {
-
-                @Override
-                public boolean apply(final AbstractInstance input) {
-                    try {
-                        return ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
-                    } catch (final ClassCastException e) { // Kludge, need to
-                        // handle better
-                        return false;
-                    }
-                }
-            });
+            final Iterable<? extends AbstractInstance> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
+            final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
@@ -366,12 +362,154 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                 bestThreshold = threshold;
             }
         }
-//        logger.debug("Created numeric node for attribute {}", attribute);
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
+    }
+
+    /**
+     * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
+     * provided build a tree from the leaf if possible. If a branch has only leaves as direct children, this will combine the data from the leaves
+     * and recreate the branch
+     * @param node The node we are attempting to further split
+     */
+    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            if (leaf.parent != null) {
+                Branch branch = (Branch) leaf.parent;
+                Branch parent;
+                Node toReplace;
+                //determine if we are combining leaves and will be replacing the parent branch or if we are replacing just this leaf
+                if (shouldCombineData(branch)) {
+                    parent = (Branch) branch.parent;
+                    toReplace = branch;
+                } else {
+                    parent = branch;
+                    toReplace = leaf;
+                }
+                Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
+                Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
+                if(parent.trueChild == toReplace) {
+                    parent.trueChild = newNode;
+                } else {
+                    parent.falseChild = newNode;
+                }
+            }
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            splitNode(branch.trueChild, trainingData);
+            //only split false child if we aren't combining leaves
+            if (!shouldCombineData(branch)) {
+                splitNode(branch.falseChild, trainingData);
+            }
+
+        }
+    }
+
+    private boolean shouldCombineData(Branch branch) {
+        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf;
+    }
+
+    /**
+     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
+     * @param trainingData full set of trainingData
+     */
+    private Collection<AbstractInstance> getData(Node node, List<? extends AbstractInstance> trainingData) {
+        List<AbstractInstance> data = Lists.newArrayList();
+        Collection<Integer> indexes = getIndexes(node);
+
+        for(Integer index : indexes) {
+            data.add(trainingData.get(index));
+        }
+        return data;
+    }
+
+    private Collection<Integer> getIndexes(Node node) {
+        Collection<Integer> indexes = Collections.EMPTY_LIST;
+        if (node instanceof UpdatableLeaf) {
+            indexes = (((UpdatableLeaf) node).trainingDataIndexes);
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            indexes = ((UpdatableLeaf) branch.trueChild).trainingDataIndexes;
+            indexes.addAll(((UpdatableLeaf) branch.falseChild).trainingDataIndexes);
+        }
+        return indexes;
+    }
+
+    private void addInstanceToNode(Node node, AbstractInstance instance) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            leaf.addInstance(instance);
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            if (branch.getInPredicate().apply(instance)) {
+                addInstanceToNode(branch.trueChild, instance);
+            } else {
+                addInstanceToNode(branch.falseChild, instance);
+            }
+        }
+    }
+
+    private void stripNode(Node node) {
+        if (node instanceof UpdatableLeaf) {
+            UpdatableLeaf leaf = (UpdatableLeaf) node;
+            Branch branch = (Branch) leaf.parent;
+            Leaf newLeaf = new Leaf(leaf.parent, leaf.classificationCounts, leaf.depth);
+            if(branch.trueChild == node) {
+                branch.trueChild = newLeaf;
+            } else {
+                branch.falseChild = newLeaf;
+            }
+        } else if (node instanceof Branch) {
+            Branch branch = (Branch) node;
+            stripNode(branch.trueChild);
+            stripNode(branch.falseChild);
+        }
     }
 
     public static class AttributeCharacteristics {
         public boolean isNumber = true;
+    }
+
+    private class GreaterThanThresholdPredicate implements Predicate<AbstractInstance> {
+
+        private final String attribute;
+        private final double threshold;
+
+        public GreaterThanThresholdPredicate(String attribute, double threshold) {
+            this.attribute = attribute;
+            this.threshold = threshold;
+        }
+
+        @Override
+        public boolean apply(@Nullable AbstractInstance input) {
+            try {
+                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
+            } catch (final ClassCastException e) { // Kludge, need to
+                // handle better
+                return false;
+            }
+        }
+    }
+
+    private class LessThanEqualThresholdPredicate implements Predicate<AbstractInstance> {
+
+        private final String attribute;
+        private final double threshold;
+
+        public LessThanEqualThresholdPredicate(String attribute, double threshold) {
+            this.attribute = attribute;
+            this.threshold = threshold;
+        }
+
+        @Override
+        public boolean apply(@Nullable AbstractInstance input) {
+            try {
+                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
+            } catch (final ClassCastException e) { // Kludge, need to
+                // handle better
+                return false;
+            }
+        }
     }
 
 }
