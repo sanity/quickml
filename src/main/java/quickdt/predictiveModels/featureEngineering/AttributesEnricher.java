@@ -6,7 +6,8 @@ import quickdt.data.Attributes;
 import java.io.Serializable;
 
 /**
- * Created by ian on 5/20/14.
+ * A Function that will take a set of attributes, and return a set of attributes that will
+ * be enhanced in some way determined by the specific implementation.
  */
 public interface AttributesEnricher extends Function<Attributes, Attributes>, Serializable {
 }

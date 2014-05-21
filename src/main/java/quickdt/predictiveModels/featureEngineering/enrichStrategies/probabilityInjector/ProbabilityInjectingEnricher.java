@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * Created by ian on 5/20/14.
+ * See {@link quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector.ProbabilityEnrichStrategy}
  */
 public class ProbabilityInjectingEnricher implements AttributesEnricher {
     public static final String KEY_APPEND_STRING = "-PROB";

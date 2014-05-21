@@ -11,9 +11,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by ian on 5/19/14.
+ * This strategy will inject new attributes for a particular set of existing attributes corresponding to
+ * the probability of a specified classification given the value associated with that attribute.  So, for example,
+ * if we are predicting a person's likelihood to have an illness based on a variety of factors including gender,
+ * and a generic male's overall probability of having the illness is 0.2 based on our training data, then it will
+ * enrich with an attribute like "male-PROB"=0.2.
  */
-public class ProbabilityEnrichStrategy implements AttributesEnricherBuildStrategy {
+public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
 
     private static final int DEFAULT_MAX_VALUE_COUNT = 20000;
 
@@ -23,17 +27,24 @@ public class ProbabilityEnrichStrategy implements AttributesEnricherBuildStrateg
 
     /**
      *
-     * @param attributeKeysToInject
-     * @param classification
+     * @param attributeKeysToInject The attributes to enrich with probabilities
+     * @param classification The classification whose probability we should use.  If there are only two
+     *                       classifications then it doesn't particularly matter which one we use.  If there
+     *                       are more than two you might wish to create multiple enrich strategies, each
+     *                       looking at a different classification.
      */
     public ProbabilityEnrichStrategy(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
         this(attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
     }
 
     /**
-     *  @param attributeKeysToInject
-     * @param classification
-     * @param maxValueCount
+     * @param attributeKeysToInject The attributes to enrich with probabilities
+     * @param classification The classification whose probability we should use.  If there are only two
+     *                       classifications then it doesn't particularly matter which one we use.  If there
+     *                       are more than two you might wish to create multiple enrich strategies, each
+     *                       looking at a different classification.
+     * @param maxValueCount This is the maximum number of values an attribute can have before it will be
+     *                      ignored by ProbabilityEnrichStrategy.  If unspecified the default is 20,000.
      */
     public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
         this.attributeKeysToInject = attributeKeysToInject;

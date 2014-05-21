@@ -23,7 +23,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         predictiveModel.getProbability(trainingData.get(0).getAttributes(), 1);
     }
 
-    public static class TestAEBS implements AttributesEnricherBuildStrategy {
+    public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
         public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {

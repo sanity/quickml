@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by ian on 5/20/14.
+ * A predictive model that wraps another predictive model but modifies the input
+ * Attributes based on one or more "enrichers".  This objected is created by a
+ * {@link FeatureEngineeringPredictiveModelBuilder}.
  */
 public class FeatureEngineeredPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 7279329500376419142L;
@@ -19,7 +21,6 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel {
         this.wrappedModel = wrappedModel;
         this.attributesEnrichers = attributesEnrichers;
     }
-
 
     @Override
     public double getProbability(final Attributes attributes, final Serializable classification) {
