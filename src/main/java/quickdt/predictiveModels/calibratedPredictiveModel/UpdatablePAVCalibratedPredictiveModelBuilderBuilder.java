@@ -1,10 +1,7 @@
 package quickdt.predictiveModels.calibratedPredictiveModel;
 
-import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
-import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
-import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
 import java.util.Map;
 
@@ -13,9 +10,17 @@ import java.util.Map;
  */
 public class UpdatablePAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, UpdatablePAVCalibratedPredictiveModelBuilder> {
     private final PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder;
+    private final Integer rebuildThreshold;
+    private final Integer splitThreshold;
 
     public UpdatablePAVCalibratedPredictiveModelBuilderBuilder(PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder) {
+        this(pavCalibratedPredictiveModelBuilderBuilder, null, null);
+    }
+
+    public UpdatablePAVCalibratedPredictiveModelBuilderBuilder(PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder, Integer rebuildThreshold, Integer splitThreshold) {
         this.pavCalibratedPredictiveModelBuilderBuilder = pavCalibratedPredictiveModelBuilderBuilder;
+        this.rebuildThreshold = rebuildThreshold;
+        this.splitThreshold = splitThreshold;
     }
 
     @Override
@@ -25,7 +30,7 @@ public class UpdatablePAVCalibratedPredictiveModelBuilderBuilder implements Pred
 
     @Override
     public UpdatablePAVCalibratedPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        return new UpdatablePAVCalibratedPredictiveModelBuilder(pavCalibratedPredictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig));
+        return new UpdatablePAVCalibratedPredictiveModelBuilder(pavCalibratedPredictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig), rebuildThreshold, splitThreshold);
     }
 }
 
