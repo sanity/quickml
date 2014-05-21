@@ -27,16 +27,16 @@ public class ClassificationCounter implements Serializable {
 			final Iterable<? extends AbstractInstance> instances, final String attribute) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
-		for (final AbstractInstance i : instances) {
-			final Serializable attrVal = i.getAttributes().get(attribute);
+		for (final AbstractInstance instance : instances) {
+			final Serializable attrVal = instance.getAttributes().get(attribute);
 			if (attrVal != null) {
 				ClassificationCounter cc = result.get(attrVal);
 				if (cc == null) {
 					cc = new ClassificationCounter();
 					result.put(attrVal, cc);
 				}
-				cc.addClassification(i.getClassification(), i.getWeight());
-				totals.addClassification(i.getClassification(), i.getWeight());
+				cc.addClassification(instance.getClassification(), instance.getWeight());
+				totals.addClassification(instance.getClassification(), instance.getWeight());
 			}
 		}
 		return Pair.with(totals, result);
@@ -53,8 +53,8 @@ public class ClassificationCounter implements Serializable {
 
 	public static ClassificationCounter countAll(final Iterable<? extends AbstractInstance> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
-		for (final AbstractInstance i : instances) {
-			result.addClassification(i.getClassification(), i.getWeight());
+		for (final AbstractInstance instance : instances) {
+			result.addClassification(instance.getClassification(), instance.getWeight());
 		}
 		return result;
 	}
@@ -64,11 +64,11 @@ public class ClassificationCounter implements Serializable {
 	}
 
 	public double getCount(final Serializable classification) {
-		Number c = counts.get(classification);
-        if (c == null) {
+		Number count = counts.get(classification);
+        if (count == null) {
             return 0;
         } else {
-            return c.doubleValue();
+            return count.doubleValue();
         }
 	}
 

@@ -12,11 +12,11 @@ public class Instance extends AbstractInstance implements Serializable {
 
 	}
 
-    public static Instance create(final String classification, final Serializable... inputs) {
+    public static Instance create(final Serializable classification, final Serializable... inputs) {
         return create(classification, DEFAULT_WEIGHT, inputs);
     }
 
-    public static Instance create(final String classification, final double weight, final Serializable... inputs) {
+    public static Instance create(final Serializable classification, final double weight, final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);

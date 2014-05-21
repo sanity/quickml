@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.*;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
@@ -26,7 +27,7 @@ public class AttributeImportanceFinder {
     }
 
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
         return determineAttributeImportance(new StationaryCrossValidator(4, 1), predictiveModelBuilder, trainingData);
     }
 
@@ -66,7 +67,7 @@ public class AttributeImportanceFinder {
             final ArrayList<Serializable> samplesForAttribute = Lists.newArrayList(samplerForAttributeToExclude.getSamples());
             if (samplesForAttribute.size() < 2) continue;
             Iterable<AbstractInstance> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
-            double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
+            double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, scrambledTestingSet);
             logger.info("Attribute \""+attributeToExclude+"\" score is "+score);
             scores.add(new AttributeScore(attributeToExclude, score));
         }
@@ -88,7 +89,7 @@ public class AttributeImportanceFinder {
         public AbstractInstance apply(final AbstractInstance instance) {
             Attributes randomizedAttributes = new HashMapAttributes();
             randomizedAttributes.putAll(instance.getAttributes());
-            final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(Math.max(1, attributeValueSamples.size())));
+            final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
             return new Instance(randomizedAttributes, instance.getClassification());
         }
