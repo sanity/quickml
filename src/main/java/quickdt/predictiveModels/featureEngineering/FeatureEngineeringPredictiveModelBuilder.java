@@ -28,5 +28,5 @@ public abstract class FeatureEngineeringPredictiveModelBuilder implements Predic
         return new FeatureEngineeredPredictiveModel(predictiveModel, attributesEnricher);
     }
 
-    public abstract AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData);
+    protected abstract AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData);
 }

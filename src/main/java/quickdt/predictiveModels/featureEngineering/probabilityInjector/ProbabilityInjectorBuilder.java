@@ -44,7 +44,7 @@ public class ProbabilityInjectorBuilder extends FeatureEngineeringPredictiveMode
     }
 
     @Override
-    public AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData) {
+    protected AttributesEnricher createAttributesEnricher(final Iterable<? extends AbstractInstance> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
