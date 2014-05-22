@@ -99,16 +99,18 @@ public class OutOfTimeCrossValidator extends CrossValidator {
         }
         DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(currentTrainingSetSize));
         DateTime leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
-        for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
-            AbstractInstance instance = allTrainingData.get(i);
-            DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
-            if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
-                validationSet.add(instance);
-                weightOfValidationSet += instance.getWeight();
+
+        while(validationSet.isEmpty()) {
+            for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
+                AbstractInstance instance = allTrainingData.get(i);
+                DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
+                if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
+                    validationSet.add(instance);
+                    weightOfValidationSet += instance.getWeight();
+                } else
+                    break;
             }
-            else {
-                break;
-            }
+            leastOuterBoundOfValidationSet = leastOuterBoundOfValidationSet.plus(durationOfValidationSet);
         }
     }
 

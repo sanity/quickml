@@ -5,9 +5,12 @@ import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.*;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilder;
 
 import java.util.List;
 
@@ -30,21 +33,23 @@ public class OutOfTimeCrossValidatorRunner {
             instanceNumber++;
         }
         logger.info("trainingDataSize " + trainingData.size());
-        RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
+        PredictiveModelBuilder predictiveModelBuilder = getRandomForestBuilder(5, 5);
         CrossValidator crossValidator = new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLoss(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
 
-        double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
+        double totalLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
+
     }
 
     private static RandomForest getRandomForest(List<AbstractInstance> trainingData, int maxDepth, int numTrees) {
-        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
+        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7).minLeafInstances(20);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
     }
-    private static RandomForestBuilder getRandomForestBuilder(int maxDepth, int numTrees) {
-        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
+    private static PredictiveModelBuilder getRandomForestBuilder(int maxDepth, int numTrees) {
+        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7).minLeafInstances(20);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
-        return randomForestBuilder;
+        UpdatableRandomForestBuilder updatableRandomForestBuilder = (UpdatableRandomForestBuilder) new UpdatableRandomForestBuilder(randomForestBuilder).rebuildThreshold(2).splitNodeThreshold(2);
+        return updatableRandomForestBuilder;
     }
 
 }

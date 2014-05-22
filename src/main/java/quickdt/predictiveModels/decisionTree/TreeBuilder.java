@@ -406,7 +406,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     }
 
     private boolean shouldCombineData(Branch branch) {
-        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf;
+        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf  && branch.parent!=null;
     }
 
     /**
