@@ -4,13 +4,14 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModel;
 
 import java.util.Map;
 
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<DownsamplingPredictiveModel, DownsamplingPredictiveModelBuilder> {
+public class DownsamplingPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<WrappedPredictiveModel, DownsamplingPredictiveModelBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
     private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;

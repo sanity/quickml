@@ -5,30 +5,20 @@ import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
-import quickdt.predictiveModels.decisionTree.Tree;
-import quickdt.predictiveModels.decisionTree.TreeBuilder;
-import quickdt.predictiveModels.downsamplingPredictiveModel.DownsamplingPredictiveModel;
-import quickdt.predictiveModels.downsamplingPredictiveModel.DownsamplingPredictiveModelBuilder;
-import quickdt.predictiveModels.randomForest.RandomForest;
-import quickdt.predictiveModels.randomForest.RandomForestBuilder;
+import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModel;
+import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by alexanderhawk on 3/10/14.
- * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
+ * Created by chrisreeves on 5/22/14.
  */
-public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuilder<CalibratedPredictiveModel> {
+public class PAVCalibratedPredictiveModelBuilder extends WrappedPredictiveModelBuilder {
     private int binsInCalibrator = 5;
-    private PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
-        this.predictiveModelBuilder = predictiveModelBuilder;
-    }
-
-    public PAVCalibratedPredictiveModelBuilder() {
-        this.predictiveModelBuilder = new RandomForestBuilder();
+        super(predictiveModelBuilder);
     }
 
     public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
@@ -38,43 +28,17 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return this;
     }
 
-    public PAVCalibratedPredictiveModelBuilder updatable(boolean updatable) {
-        predictiveModelBuilder.updatable(true);
-        return this;
-    }
-
     @Override
-    public CalibratedPredictiveModel buildPredictiveModel(Iterable <? extends AbstractInstance> trainingInstances) {
-        PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
-        Calibrator calibrator = createCalibrator(predictiveModel, trainingInstances);
+    public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
+        PredictiveModel predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
+        Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    public void updatePredictiveModel(CalibratedPredictiveModel calibratedPredictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
-        updateCalibrator(calibratedPredictiveModel, newData);
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
-        } else if (predictiveModelBuilder instanceof DownsamplingPredictiveModelBuilder) {
-            DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = (DownsamplingPredictiveModelBuilder) predictiveModelBuilder;
-            downsamplingPredictiveModelBuilder.updatePredictiveModel((DownsamplingPredictiveModel)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
-        }
-    }
-
-    public void stripData(CalibratedPredictiveModel calibratedPredictiveModel) {
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.stripData((RandomForest)calibratedPredictiveModel.predictiveModel);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.stripData((Tree)calibratedPredictiveModel.predictiveModel);
-        } else if (predictiveModelBuilder instanceof DownsamplingPredictiveModelBuilder) {
-            DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = (DownsamplingPredictiveModelBuilder) predictiveModelBuilder;
-            downsamplingPredictiveModelBuilder.stripData((DownsamplingPredictiveModel)calibratedPredictiveModel.predictiveModel);
-        }
+    @Override
+    public void updatePredictiveModel(WrappedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        updateCalibrator(predictiveModel, newData);
+        super.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
 
     private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
@@ -82,10 +46,10 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
     }
 
-    private void updateCalibrator(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    private void updateCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
 
-        PAVCalibrator calibrator = (PAVCalibrator)predictiveModel.calibrator;
+        PAVCalibrator calibrator = (PAVCalibrator)((CalibratedPredictiveModel)predictiveModel).calibrator;
         for(PAVCalibrator.Observation observation : mobservations) {
             calibrator.addObservation(observation);
         }

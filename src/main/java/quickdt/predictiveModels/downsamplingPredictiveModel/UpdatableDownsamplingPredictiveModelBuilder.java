@@ -15,9 +15,10 @@ public class UpdatableDownsamplingPredictiveModelBuilder extends UpdatablePredic
         this(DownsamplingPredictiveModelBuilder, null);
     }
 
-    public UpdatableDownsamplingPredictiveModelBuilder(DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder1, DownsamplingPredictiveModel DownsamplingPredictiveModel) {
+    public UpdatableDownsamplingPredictiveModelBuilder(DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder, DownsamplingPredictiveModel DownsamplingPredictiveModel) {
         super(DownsamplingPredictiveModel);
-        this.downsamplingPredictiveModelBuilder = downsamplingPredictiveModelBuilder1.updatable(true);
+        downsamplingPredictiveModelBuilder.updatable(true);
+        this.downsamplingPredictiveModelBuilder = downsamplingPredictiveModelBuilder;
     }
 
     @Override

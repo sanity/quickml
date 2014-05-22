@@ -8,23 +8,23 @@ import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModelBuilder;
 
 import java.util.List;
 
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<FeatureEngineeredPredictiveModel> {
+public class FeatureEngineeringPredictiveModelBuilder extends WrappedPredictiveModelBuilder {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
 
-    private final PredictiveModelBuilder<?> wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<?> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+        super(wrappedBuilder);
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
-        this.wrappedBuilder = wrappedBuilder;
         this.enrichStrategies = enrichStrategies;
     }
 
@@ -38,14 +38,8 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
         final Iterable<Instance> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
-        PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
+        PredictiveModel predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(enrichedTrainingData);
 
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
-    }
-
-    @Override
-    public PredictiveModelBuilder updatable(boolean updatable) {
-        wrappedBuilder.updatable(updatable);
-        return this;
     }
 }

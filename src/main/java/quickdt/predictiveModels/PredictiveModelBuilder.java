@@ -2,6 +2,8 @@ package quickdt.predictiveModels;
 
 import quickdt.data.AbstractInstance;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: janie
@@ -12,4 +14,6 @@ import quickdt.data.AbstractInstance;
 public interface PredictiveModelBuilder<PM extends PredictiveModel> {
     PM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData);
     PredictiveModelBuilder updatable(boolean updatable);
+    void updatePredictiveModel(PM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes);
+    void stripData(PM predictiveModel);
 }

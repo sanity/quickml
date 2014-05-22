@@ -60,6 +60,16 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         public PredictiveModelBuilder updatable(boolean updatable) {
             return this;
         }
+
+        @Override
+        public void updatePredictiveModel(TestPM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+
+        }
+
+        @Override
+        public void stripData(TestPM predictiveModel) {
+
+        }
     }
 
     public static class TestPM implements PredictiveModel {

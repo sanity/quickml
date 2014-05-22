@@ -18,7 +18,8 @@ public class UpdatablePAVCalibratedPredictiveModelBuilder extends UpdatablePredi
 
     public UpdatablePAVCalibratedPredictiveModelBuilder(PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder, CalibratedPredictiveModel calibratedPredictiveModel) {
         super(calibratedPredictiveModel);
-        this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder.updatable(true);
+        calibratedPredictiveModelBuilder.updatable(true);
+        this.pavCalibratedPredictiveModelBuilder = calibratedPredictiveModelBuilder;
     }
 
     @Override
