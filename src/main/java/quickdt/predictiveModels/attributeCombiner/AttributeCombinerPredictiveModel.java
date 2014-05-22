@@ -1,4 +1,4 @@
-package quickdt.attributeCombiner;
+package quickdt.predictiveModels.attributeCombiner;
 
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
