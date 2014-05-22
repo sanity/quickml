@@ -35,6 +35,10 @@ public abstract class UpdatablePredictiveModelBuilder<PM extends PredictiveModel
         return this;
     }
 
+    public PredictiveModelBuilder updatable(boolean updatable) {
+        return this;
+    }
+
     public abstract PM buildUpdatablePredictiveModel(Iterable<? extends AbstractInstance> trainingData);
     public abstract void updatePredictiveModel(PM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes);
     public abstract void stripData(PM predictiveModel);

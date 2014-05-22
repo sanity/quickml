@@ -7,6 +7,8 @@ import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.downsamplingPredictiveModel.DownsamplingPredictiveModel;
+import quickdt.predictiveModels.downsamplingPredictiveModel.DownsamplingPredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
@@ -37,13 +39,7 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
     }
 
     public PAVCalibratedPredictiveModelBuilder updatable(boolean updatable) {
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatable(updatable);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatable(updatable);
-        }
+        predictiveModelBuilder.updatable(true);
         return this;
     }
 
@@ -62,6 +58,9 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         } else if (predictiveModelBuilder instanceof TreeBuilder) {
             TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
             treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
+        } else if (predictiveModelBuilder instanceof DownsamplingPredictiveModelBuilder) {
+            DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = (DownsamplingPredictiveModelBuilder) predictiveModelBuilder;
+            downsamplingPredictiveModelBuilder.updatePredictiveModel((DownsamplingPredictiveModel)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
         }
     }
 
@@ -72,6 +71,9 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         } else if (predictiveModelBuilder instanceof TreeBuilder) {
             TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
             treeBuilder.stripData((Tree)calibratedPredictiveModel.predictiveModel);
+        } else if (predictiveModelBuilder instanceof DownsamplingPredictiveModelBuilder) {
+            DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = (DownsamplingPredictiveModelBuilder) predictiveModelBuilder;
+            downsamplingPredictiveModelBuilder.stripData((DownsamplingPredictiveModel)calibratedPredictiveModel.predictiveModel);
         }
     }
 

@@ -11,4 +11,5 @@ import quickdt.data.AbstractInstance;
  */
 public interface PredictiveModelBuilder<PM extends PredictiveModel> {
     PM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData);
+    PredictiveModelBuilder updatable(boolean updatable);
 }

@@ -9,15 +9,22 @@ import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.calibratedPredictiveModel.CalibratedPredictiveModel;
+import quickdt.predictiveModels.calibratedPredictiveModel.PAVCalibratedPredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.Tree;
+import quickdt.predictiveModels.decisionTree.TreeBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ian on 4/22/14.
  */
-public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBuilder<DownsamplingPredictiveModel> {
+public class DownsamplingPredictiveModelBuilder implements PredictiveModelBuilder<DownsamplingPredictiveModel> {
 
     private static final  Logger logger =  LoggerFactory.getLogger(DownsamplingPredictiveModelBuilder.class);
 
@@ -50,6 +57,38 @@ public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBui
         final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
+    }
+
+    @Override
+    public DownsamplingPredictiveModelBuilder updatable(boolean updatable) {
+        predictiveModelBuilder.updatable(true);
+        return this;
+    }
+
+    public void updatePredictiveModel(DownsamplingPredictiveModel predictiveModel, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if(predictiveModelBuilder instanceof PAVCalibratedPredictiveModelBuilder) {
+            PAVCalibratedPredictiveModelBuilder pavCalibratedPredictiveModelBuilder = (PAVCalibratedPredictiveModelBuilder) predictiveModelBuilder;
+            pavCalibratedPredictiveModelBuilder.updatePredictiveModel((CalibratedPredictiveModel)predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        } else if(predictiveModelBuilder instanceof RandomForestBuilder) {
+            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
+            randomForestBuilder.updatePredictiveModel((RandomForest)predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        } else if(predictiveModelBuilder instanceof TreeBuilder) {
+            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
+            treeBuilder.updatePredictiveModel((Tree)predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        }
+    }
+
+    public void stripData(DownsamplingPredictiveModel predictiveModel) {
+        if(predictiveModelBuilder instanceof PAVCalibratedPredictiveModelBuilder) {
+            PAVCalibratedPredictiveModelBuilder pavCalibratedPredictiveModelBuilder = (PAVCalibratedPredictiveModelBuilder) predictiveModelBuilder;
+            pavCalibratedPredictiveModelBuilder.stripData((CalibratedPredictiveModel)predictiveModel.wrappedPredictiveModel);
+        } else if(predictiveModelBuilder instanceof RandomForestBuilder) {
+            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
+            randomForestBuilder.stripData((RandomForest)predictiveModel.wrappedPredictiveModel);
+        } else if(predictiveModelBuilder instanceof TreeBuilder) {
+            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
+            treeBuilder.stripData((Tree)predictiveModel.wrappedPredictiveModel);
+        }
     }
 
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {
