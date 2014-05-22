@@ -5,8 +5,7 @@ import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModel;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,11 +13,12 @@ import java.util.List;
 /**
  * Created by chrisreeves on 5/22/14.
  */
-public class PAVCalibratedPredictiveModelBuilder extends WrappedPredictiveModelBuilder {
+public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
+    private PredictiveModelBuilder predictiveModelBuilder;
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
-        super(predictiveModelBuilder);
+        this.predictiveModelBuilder = predictiveModelBuilder;
     }
 
     public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
@@ -30,20 +30,30 @@ public class PAVCalibratedPredictiveModelBuilder extends WrappedPredictiveModelB
 
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
-        PredictiveModel predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
+        PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
         Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
     @Override
-    public void updatePredictiveModel(WrappedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
-        updateCalibrator(predictiveModel, newData);
-        super.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
+    public PredictiveModelBuilder<CalibratedPredictiveModel> updatable(boolean updatable) {
+        predictiveModelBuilder.updatable(updatable);
+        return this;
     }
 
-    private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
-        return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
+    @Override
+    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            updateCalibrator(predictiveModel, newData);
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.predictiveModel, newData, trainingData, splitNodes);
+        }
+    }
+
+    @Override
+    public void stripData(CalibratedPredictiveModel predictiveModel) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.predictiveModel);
+        }
     }
 
     private void updateCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
@@ -55,7 +65,13 @@ public class PAVCalibratedPredictiveModelBuilder extends WrappedPredictiveModelB
         }
     }
 
-    private List<PAVCalibrator.Observation> getObservations(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+
+    private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+        return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
+    }
+
+    protected List<PAVCalibrator.Observation> getObservations(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = Lists.<PAVCalibrator.Observation>newArrayList();
         double prediction = 0;
         double groundTruth = 0;

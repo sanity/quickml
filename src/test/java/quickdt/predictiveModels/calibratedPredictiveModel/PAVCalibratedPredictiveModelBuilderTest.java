@@ -5,6 +5,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
+import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
@@ -33,5 +34,61 @@ public class PAVCalibratedPredictiveModelBuilderTest {
         final int treeSize = trees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+    }
+
+    @Test
+    public void simpleBmiTestSplit() throws Exception {
+        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
+        wb.splitNodeThreshold(1);
+        final long startTime = System.currentTimeMillis();
+        final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+
+        TreeBuilderTestUtils.serializeDeserialize(randomForest);
+
+        final List<Tree> trees = randomForest.trees;
+        final int treeSize = trees.size();
+        final int firstTreeNodeSize = trees.get(0).node.size();
+        Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
+        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+
+        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final CalibratedPredictiveModel newCalibratedPredictiveModel = wb.buildPredictiveModel(newInstances);
+        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
+        Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
+        Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
+        Assert.assertNotEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected new nodes");
+    }
+
+    @Test
+    public void simpleBmiTestNoSplit() throws Exception {
+        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final long startTime = System.currentTimeMillis();
+        final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+
+        TreeBuilderTestUtils.serializeDeserialize(randomForest);
+
+        final List<Tree> trees = randomForest.trees;
+        final int treeSize = trees.size();
+        final int firstTreeNodeSize = trees.get(0).node.size();
+        Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
+        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+
+        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final CalibratedPredictiveModel newCalibratedPredictiveModel = wb.buildPredictiveModel(newInstances);
+        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
+        Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
+        Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
+        Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
+    }
+
+    private WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> getWrappedUpdatablePredictiveModelBuilder() {
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final RandomForestBuilder urfb = new RandomForestBuilder(tb);
+        final PAVCalibratedPredictiveModelBuilder ucpmb = new PAVCalibratedPredictiveModelBuilder(urfb);
+        return new WrappedUpdatablePredictiveModelBuilder<>(ucpmb);
     }
 }

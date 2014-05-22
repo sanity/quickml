@@ -13,7 +13,5 @@ import java.util.List;
  */
 public interface PredictiveModelBuilder<PM extends PredictiveModel> {
     PM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData);
-    PredictiveModelBuilder updatable(boolean updatable);
-    void updatePredictiveModel(PM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes);
-    void stripData(PM predictiveModel);
+    PredictiveModelBuilder<PM> updatable(boolean updatable);
 }

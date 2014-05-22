@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
 
@@ -16,7 +17,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
+public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
@@ -87,6 +88,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         stripNode(tree.node);
     }
 
+
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
@@ -96,7 +98,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return getSplit(reservoirSampler);
     }
 
-    private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
+    protected Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final AbstractInstance instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
@@ -138,7 +140,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+    protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;

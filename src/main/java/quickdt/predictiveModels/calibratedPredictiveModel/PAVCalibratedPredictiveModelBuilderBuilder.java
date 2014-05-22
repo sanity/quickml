@@ -4,15 +4,15 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModel;
 
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/10/14.
  */
-public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<WrappedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
+public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
     private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
 
     private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
@@ -35,7 +35,7 @@ public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveMod
 
     @Override
     public PAVCalibratedPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        return new PAVCalibratedPredictiveModelBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig))
+        return new PAVCalibratedPredictiveModelBuilder((UpdatablePredictiveModelBuilder) wrappedBuilderBuilder.buildBuilder(predictiveModelConfig))
                 .binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
     }
 }

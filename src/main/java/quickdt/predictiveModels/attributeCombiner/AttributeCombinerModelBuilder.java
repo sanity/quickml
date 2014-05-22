@@ -8,10 +8,9 @@ import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModel;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModelBuilder;
 
 import java.util.List;
 import java.util.Set;
@@ -19,22 +18,23 @@ import java.util.Set;
 /**
  * Created by ian on 3/28/14.
  */
-public class AttributeCombinerModelBuilder extends WrappedPredictiveModelBuilder {
-    private static final  Logger logger =  LoggerFactory.getLogger(AttributeCombinerModelBuilder.class);
+public class AttributeCombinerModelBuilder implements UpdatablePredictiveModelBuilder<AttributeCombinerPredictiveModel> {
+    private static final  Logger logger = LoggerFactory.getLogger(AttributeCombinerModelBuilder.class);
 
     private final TreeBuilder preBuilder;
+    private final PredictiveModelBuilder wrappedBuilder;
     private final Set<List<String>> attributesToCombine;
 
     public AttributeCombinerModelBuilder(Set<Set<String>> attributesToCombine) {
         this(new RandomForestBuilder(), attributesToCombine);
     }
 
-    public AttributeCombinerModelBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {
+    public AttributeCombinerModelBuilder(PredictiveModelBuilder wrappedBuilder, Set<Set<String>> attributesToCombine) {
         this(new TreeBuilder().maxDepth(3), wrappedBuilder, attributesToCombine);
     }
 
-    public AttributeCombinerModelBuilder(TreeBuilder preBuilder, PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {
-        super(wrappedBuilder);
+    public AttributeCombinerModelBuilder(TreeBuilder preBuilder, PredictiveModelBuilder<PredictiveModel> wrappedBuilder, Set<Set<String>> attributesToCombine) {
+        this.wrappedBuilder = wrappedBuilder;
         this.preBuilder = preBuilder;
         this.attributesToCombine = Sets.newHashSet();
         for (Set<String> attributes : attributesToCombine) {
@@ -48,20 +48,19 @@ public class AttributeCombinerModelBuilder extends WrappedPredictiveModelBuilder
         final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(trainingData, new InstanceModifier(attributeEnricher)));
 
         logger.info("Building main predictive model");
-        final PredictiveModel predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(enrichedTrainingData);
+        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
         return new AttributeCombinerPredictiveModel(predictiveModel, attributeEnricher);
     }
 
     @Override
-    public void updatePredictiveModel(WrappedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
-        final AttributeEnricher attributeEnricher = getAttributeEnricher(newData);
-        final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(newData, new InstanceModifier(attributeEnricher)));
-        super.updatePredictiveModel(predictiveModel, enrichedTrainingData, trainingData, splitNodes);
+    public PredictiveModelBuilder<AttributeCombinerPredictiveModel> updatable(boolean updatable) {
+        wrappedBuilder.updatable(updatable);
+        return this;
     }
 
 
-    private AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
+    protected AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
         List<AttributePreprocessor> attributePreprocessors = Lists.newArrayList();
         for (List<String> attributes : attributesToCombine) {
             final String key = Joiner.on('|').join(attributes);
@@ -76,4 +75,22 @@ public class AttributeCombinerModelBuilder extends WrappedPredictiveModelBuilder
 
         return new AttributeEnricher(attributePreprocessors);
     }
+
+    @Override
+    public void updatePredictiveModel(AttributeCombinerPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
+            final AttributeEnricher attributeEnricher = getAttributeEnricher(newData);
+            final Iterable<Instance> enrichedTrainingData = Lists.newLinkedList(Iterables.transform(newData, new InstanceModifier(attributeEnricher)));
+            ((UpdatablePredictiveModelBuilder)wrappedBuilder).updatePredictiveModel(predictiveModel.predictiveModel, enrichedTrainingData, trainingData, splitNodes);
+        }
+    }
+
+    @Override
+    public void stripData(AttributeCombinerPredictiveModel predictiveModel) {
+        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder)wrappedBuilder).stripData(predictiveModel.predictiveModel);
+        }
+    }
+
+
 }

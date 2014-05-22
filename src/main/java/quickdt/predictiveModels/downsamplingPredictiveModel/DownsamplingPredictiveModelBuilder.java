@@ -7,21 +7,23 @@ import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
-import quickdt.predictiveModels.wrappedPredictiveModel.WrappedPredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingPredictiveModelBuilder extends WrappedPredictiveModelBuilder {
+public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<DownsamplingPredictiveModel> {
 
     private final double targetMinorityProportion;
+    private final PredictiveModelBuilder<?> predictiveModelBuilder;
 
     public DownsamplingPredictiveModelBuilder(PredictiveModelBuilder<?> predictiveModelBuilder, double targetMinorityProportion) {
-        super(predictiveModelBuilder);
+        this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
     }
@@ -35,7 +37,7 @@ public class DownsamplingPredictiveModelBuilder extends WrappedPredictiveModelBu
         final double majorityProportion = majorityEntry.getValue();
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
-            final PredictiveModel wrappedPredictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
+            final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
             return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, 0);
         }
 
@@ -43,9 +45,15 @@ public class DownsamplingPredictiveModelBuilder extends WrappedPredictiveModelBu
 
         Iterable<? extends AbstractInstance> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
-        final PredictiveModel wrappedPredictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
+        final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
+    }
+
+    @Override
+    public PredictiveModelBuilder<DownsamplingPredictiveModel> updatable(boolean updatable) {
+        predictiveModelBuilder.updatable(updatable);
+        return this;
     }
 
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {
@@ -65,5 +73,19 @@ public class DownsamplingPredictiveModelBuilder extends WrappedPredictiveModelBu
             classificationProportions.put(classCount.getKey(),  classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;
+    }
+
+    @Override
+    public void updatePredictiveModel(DownsamplingPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        }
+    }
+
+    @Override
+    public void stripData(DownsamplingPredictiveModel predictiveModel) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedPredictiveModel);
+        }
     }
 }
