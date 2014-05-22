@@ -22,18 +22,18 @@ public class AttributeCombinerModelBuilder implements UpdatablePredictiveModelBu
     private static final  Logger logger = LoggerFactory.getLogger(AttributeCombinerModelBuilder.class);
 
     private final TreeBuilder preBuilder;
-    private final PredictiveModelBuilder wrappedBuilder;
+    private final PredictiveModelBuilder<?> wrappedBuilder;
     private final Set<List<String>> attributesToCombine;
 
     public AttributeCombinerModelBuilder(Set<Set<String>> attributesToCombine) {
         this(new RandomForestBuilder(), attributesToCombine);
     }
 
-    public AttributeCombinerModelBuilder(PredictiveModelBuilder wrappedBuilder, Set<Set<String>> attributesToCombine) {
+    public AttributeCombinerModelBuilder(PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {
         this(new TreeBuilder().maxDepth(3), wrappedBuilder, attributesToCombine);
     }
 
-    public AttributeCombinerModelBuilder(TreeBuilder preBuilder, PredictiveModelBuilder<PredictiveModel> wrappedBuilder, Set<Set<String>> attributesToCombine) {
+    public AttributeCombinerModelBuilder(TreeBuilder preBuilder, PredictiveModelBuilder<?> wrappedBuilder, Set<Set<String>> attributesToCombine) {
         this.wrappedBuilder = wrappedBuilder;
         this.preBuilder = preBuilder;
         this.attributesToCombine = Sets.newHashSet();
@@ -59,8 +59,7 @@ public class AttributeCombinerModelBuilder implements UpdatablePredictiveModelBu
         return this;
     }
 
-
-    protected AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
+    private AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
         List<AttributePreprocessor> attributePreprocessors = Lists.newArrayList();
         for (List<String> attributes : attributesToCombine) {
             final String key = Joiner.on('|').join(attributes);

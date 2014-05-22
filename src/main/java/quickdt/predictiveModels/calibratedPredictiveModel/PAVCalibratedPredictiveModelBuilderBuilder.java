@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
-import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveMod
 
     @Override
     public PAVCalibratedPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        return new PAVCalibratedPredictiveModelBuilder((UpdatablePredictiveModelBuilder) wrappedBuilderBuilder.buildBuilder(predictiveModelConfig))
+        return new PAVCalibratedPredictiveModelBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig))
                 .binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
     }
 }

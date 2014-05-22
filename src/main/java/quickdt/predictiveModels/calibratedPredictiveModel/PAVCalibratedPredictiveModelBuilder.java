@@ -6,6 +6,7 @@ import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
+import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,10 @@ import java.util.List;
 public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
     private PredictiveModelBuilder predictiveModelBuilder;
+
+    public PAVCalibratedPredictiveModelBuilder() {
+        this(new RandomForestBuilder());
+    }
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
         this.predictiveModelBuilder = predictiveModelBuilder;

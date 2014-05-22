@@ -11,8 +11,8 @@ import java.io.Serializable;
  */
 public class AttributeCombinerPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 5365821854303467792L;
-    private final AttributeEnricher attributeEnricher;
     public final PredictiveModel predictiveModel;
+    private final AttributeEnricher attributeEnricher;
 
     public AttributeCombinerPredictiveModel(final PredictiveModel predictiveModel, final AttributeEnricher attributeEnricher) {
         this.predictiveModel = predictiveModel;
@@ -25,7 +25,7 @@ public class AttributeCombinerPredictiveModel implements PredictiveModel {
     }
 
     @Override
-    public void dump(PrintStream printStream) {
+    public void dump(final PrintStream printStream) {
         predictiveModel.dump(printStream);
     }
 

@@ -12,8 +12,8 @@ import java.util.Map;
  */
 public class DownsamplingPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<DownsamplingPredictiveModel, DownsamplingPredictiveModelBuilder> {
 
-    protected static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    protected final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
+    private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
+    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
 
     public DownsamplingPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;

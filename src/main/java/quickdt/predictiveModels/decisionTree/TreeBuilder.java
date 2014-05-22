@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
+public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
@@ -98,7 +98,7 @@ public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
         return getSplit(reservoirSampler);
     }
 
-    protected Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
+    private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final AbstractInstance instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
@@ -140,7 +140,7 @@ public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
         return split;
     }
 
-    protected Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
@@ -276,7 +276,7 @@ public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
         return attributeCharacteristics;
     }
 
-    protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
@@ -338,7 +338,7 @@ public class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
         return lowestClassificationCount < minCategoricalAttributeValueOccurances;
     }
 
-    protected Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances,
                                                                final double[] splits) {
         double bestScore = 0;
