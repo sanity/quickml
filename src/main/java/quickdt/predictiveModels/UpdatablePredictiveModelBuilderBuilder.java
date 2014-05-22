@@ -15,8 +15,8 @@ public abstract class UpdatablePredictiveModelBuilderBuilder {
     public static final String SPLIT_THRESHOLD = "splitThreshold";
 
     public Map<String, FieldValueRecommender> addUpdatableParamters(Map<String, FieldValueRecommender> map) {
-        map.put(REBUILD_THRESHOLD, new FixedOrderRecommender(null, 5));
-        map.put(SPLIT_THRESHOLD, new FixedOrderRecommender(null, 1, 5));
+        map.put(REBUILD_THRESHOLD, new FixedOrderRecommender(0, 5));
+        map.put(SPLIT_THRESHOLD, new FixedOrderRecommender(0, 1, 5));
         return map;
     }
 

@@ -49,11 +49,11 @@ public abstract class UpdatablePredictiveModelBuilder<PM extends PredictiveModel
         appendTrainingData(newData);
 
         //check if we want to build a new predictive model or update existing
-        if (predictiveModel == null || (rebuildThreshold != null && buildCount > rebuildThreshold)) {
+        if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold != 0 && buildCount > rebuildThreshold)) {
             buildCount = 1;
             predictiveModel = buildUpdatablePredictiveModel(trainingData);
         } else {
-            boolean splitNodes = splitNodeThreshold != null && buildCount % splitNodeThreshold == 0;
+            boolean splitNodes = splitNodeThreshold != null && splitNodeThreshold != 0 && buildCount % splitNodeThreshold == 0;
             updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
         }
 
