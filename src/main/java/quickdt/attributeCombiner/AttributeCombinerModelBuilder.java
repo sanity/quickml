@@ -52,6 +52,12 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
         return new AttributeCombinerPredictiveModel(predictiveModel, attributeEnricher);
     }
 
+    @Override
+    public PredictiveModelBuilder updatable(boolean updatable) {
+        wrappedBuilder.updatable(true);
+        return this;
+    }
+
     private AttributeEnricher getAttributeEnricher(Iterable<? extends AbstractInstance> trainingData) {
         List<AttributePreprocessor> attributePreprocessors = Lists.newArrayList();
         for (List<String> attributes : attributesToCombine) {
