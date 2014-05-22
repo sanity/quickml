@@ -27,18 +27,27 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
         HashMapAttributes outputAttributes = new HashMapAttributes();
         outputAttributes.putAll(inputAttributes);
         for (List<String> attributeKeys : attributesToCombine) {
+            if (attributesNotCombinable(attributeKeys, inputAttributes))
+                continue;
             StringBuilder values = new StringBuilder();
             for (String attributeKey : attributeKeys) {
                 Serializable value = inputAttributes.get(attributeKey);
                 if (value != null && value.toString().length() > 0) {
                     values.append(value.toString());
                 } else {
-                    values.append("-");
+                    values.append("-"); // don't need on last attribute.
                 }
             }
             outputAttributes.put(Joiner.on('-').join(attributeKeys), values.toString());
         }
         return outputAttributes;
+    }
+
+    private boolean attributesNotCombinable(List<String> attributeKeys, @Nullable final Attributes inputAttributes) {
+        for (String attribute : attributeKeys)
+            if (!inputAttributes.containsKey(attribute))
+                return true;
+        return false;
     }
 
     @Override
