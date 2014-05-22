@@ -42,4 +42,10 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
     }
+
+    @Override
+    public PredictiveModelBuilder updatable(boolean updatable) {
+        wrappedBuilder.updatable(updatable);
+        return this;
+    }
 }

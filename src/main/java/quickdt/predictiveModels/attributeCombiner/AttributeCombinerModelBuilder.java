@@ -54,7 +54,7 @@ public class AttributeCombinerModelBuilder implements PredictiveModelBuilder<Att
 
     @Override
     public PredictiveModelBuilder updatable(boolean updatable) {
-        wrappedBuilder.updatable(true);
+        wrappedBuilder.updatable(updatable);
         return this;
     }
 
