@@ -35,7 +35,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
                 if (value != null && value.toString().length() > 0) {
                     values.append(value.toString());
                 } else {
-                    values.append("-"); // don't need on last attribute.
+                    values.append("-"); 
                 }
             }
             outputAttributes.put(Joiner.on('-').join(attributeKeys), values.toString());
