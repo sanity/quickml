@@ -9,6 +9,10 @@ import java.util.Map;
 public class UpdatableRandomForestBuilderBuilder extends UpdatablePredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<RandomForest, UpdatableRandomForestBuilder> {
     private final RandomForestBuilderBuilder randomForestBuilderBuilder;
 
+    public UpdatableRandomForestBuilderBuilder() {
+        this(new RandomForestBuilderBuilder());
+    }
+
     public UpdatableRandomForestBuilderBuilder(RandomForestBuilderBuilder randomForestBuilderBuilder) {
         this.randomForestBuilderBuilder = randomForestBuilderBuilder;
     }

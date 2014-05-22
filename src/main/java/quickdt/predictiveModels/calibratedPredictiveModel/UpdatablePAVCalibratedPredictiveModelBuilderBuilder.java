@@ -12,6 +12,10 @@ import java.util.Map;
 public class UpdatablePAVCalibratedPredictiveModelBuilderBuilder extends UpdatablePredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, UpdatablePAVCalibratedPredictiveModelBuilder> {
     private final PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder;
 
+    public UpdatablePAVCalibratedPredictiveModelBuilderBuilder() {
+        this(new PAVCalibratedPredictiveModelBuilderBuilder());
+    }
+
     public UpdatablePAVCalibratedPredictiveModelBuilderBuilder(PAVCalibratedPredictiveModelBuilderBuilder pavCalibratedPredictiveModelBuilderBuilder) {
         this.pavCalibratedPredictiveModelBuilderBuilder = pavCalibratedPredictiveModelBuilderBuilder;
     }

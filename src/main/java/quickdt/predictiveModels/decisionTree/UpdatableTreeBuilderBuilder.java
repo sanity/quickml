@@ -9,6 +9,10 @@ import java.util.Map;
 public class UpdatableTreeBuilderBuilder extends UpdatablePredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, UpdatableTreeBuilder> {
     private final TreeBuilderBuilder treeBuilderBuilder;
 
+    public UpdatableTreeBuilderBuilder() {
+        this(new TreeBuilderBuilder());
+    }
+
     public UpdatableTreeBuilderBuilder(TreeBuilderBuilder treeBuilderBuilder) {
         this.treeBuilderBuilder = treeBuilderBuilder;
     }
