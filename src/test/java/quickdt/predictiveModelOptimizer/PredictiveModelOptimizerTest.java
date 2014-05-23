@@ -8,8 +8,10 @@ import quickdt.Benchmarks;
 import quickdt.crossValidation.LogCrossValLoss;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
+import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,13 +36,13 @@ public class PredictiveModelOptimizerTest {
     }
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
-        final RandomForestBuilderBuilder predictiveModelBuilderBuilder = new RandomForestBuilderBuilder();
+        final UpdatableRandomForestBuilderBuilder predictiveModelBuilderBuilder = new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder());
         final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLoss());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
-        final RandomForestBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
+        final WrappedUpdatablePredictiveModelBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
         double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
         double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
         logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
