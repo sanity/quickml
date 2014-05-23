@@ -14,32 +14,32 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> implements UpdatablePredictiveModelBuilder<PM> {
     protected List<AbstractInstance> trainingData;
     protected PM predictiveModel;
-    private final UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder;
+    private final UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
     protected Integer splitNodeThreshold;
     protected int buildCount = 0;
 
-    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder) {
+    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder) {
         this(updatablePredictiveModelBuilder, null);
     }
 
-    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder, PM predictiveModel) {
+    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder, PM predictiveModel) {
         this.updatablePredictiveModelBuilder = updatablePredictiveModelBuilder;
         this.predictiveModel = predictiveModel;
         updatablePredictiveModelBuilder.updatable(true);
     }
 
-    public WrappedUpdatablePredictiveModelBuilder rebuildThreshold(Integer rebuildThreshold) {
+    public WrappedUpdatablePredictiveModelBuilder<PM> rebuildThreshold(Integer rebuildThreshold) {
         this.rebuildThreshold = rebuildThreshold;
         return this;
     }
 
-    public WrappedUpdatablePredictiveModelBuilder splitNodeThreshold(Integer splitNodeThreshold) {
+    public WrappedUpdatablePredictiveModelBuilder<PM> splitNodeThreshold(Integer splitNodeThreshold) {
         this.splitNodeThreshold = splitNodeThreshold;
         return this;
     }
 
-    public WrappedUpdatablePredictiveModelBuilder updatable(boolean updatable) {
+    public WrappedUpdatablePredictiveModelBuilder<PM> updatable(boolean updatable) {
         return this;
     }
 
@@ -56,7 +56,7 @@ public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> 
         //check if we want to build a new predictive model or update existing
         if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold != 0 && buildCount > rebuildThreshold)) {
             buildCount = 1;
-            predictiveModel = (PM) buildUpdatablePredictiveModel(trainingData);
+            predictiveModel = buildUpdatablePredictiveModel(trainingData);
         } else {
             boolean splitNodes = splitNodeThreshold != null && splitNodeThreshold != 0 && buildCount % splitNodeThreshold == 0;
             updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
@@ -65,7 +65,7 @@ public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> 
         return predictiveModel;
     }
 
-    private PredictiveModel buildUpdatablePredictiveModel(List<AbstractInstance> trainingData) {
+    private PM buildUpdatablePredictiveModel(List<AbstractInstance> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
