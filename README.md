@@ -210,7 +210,8 @@ Usage of the bagging is quite straight forward. Set up a `TreeBuilder` and if yo
 
 ```java
 import quickdt.*;
-import quickdt.randomForest.*;
+import quickdt.data.*;
+import quickdt.predictiveModels.randomForest.*;
 
 TreeBuilder treeBuilder = new TreeBuilder()
 	.ignoreAttributeAtNodeProbability(0.7);
