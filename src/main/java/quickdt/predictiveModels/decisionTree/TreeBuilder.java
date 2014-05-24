@@ -90,7 +90,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
-            reservoirSampler.sample(((Number) instance.getAttributes().get(attribute)).doubleValue());
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = 0;
+            reservoirSampler.sample(((Number) value).doubleValue());
         }
 
         return getSplit(reservoirSampler);
