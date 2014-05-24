@@ -483,7 +483,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
+                final Serializable value = input.getAttributes().get(attribute);
+                if (value == null) return true;
+                return input != null && ((Number) value).doubleValue() > threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;
@@ -504,7 +506,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
+                final Serializable value = input.getAttributes().get(attribute);
+                if (value == null) return false;
+                return input != null && ((Number) value).doubleValue() <= threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;
