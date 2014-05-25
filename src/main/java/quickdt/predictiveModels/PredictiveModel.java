@@ -4,6 +4,7 @@ import quickdt.data.Attributes;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +14,9 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public interface PredictiveModel extends Serializable {
-    double getProbability(Attributes attributes, Serializable classification);  //refactor to getUncalibratedProbability()
+    double getProbability(Attributes attributes, Serializable classification);
+
+    Map<Serializable, Double> getProbabilitiesByClassification(Attributes attributes);
 
     public void dump(PrintStream printStream);
 

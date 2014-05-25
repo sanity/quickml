@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/10/14.
  * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
+ * It currently has some severe implementation problems and it's use is not recommended.
  */
 public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
@@ -102,6 +103,7 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
                 r.printStackTrace();
                 System.exit(0);
             }
+            // TODO: We can't assume that the classification will be 1.0
             prediction = predictiveModel.getProbability(instance.getAttributes(), 1.0);
             observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
