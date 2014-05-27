@@ -1,4 +1,4 @@
-package quickdt.attributeCombiner;
+package quickdt.predictiveModels.attributeCombiner;
 
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
@@ -11,11 +11,10 @@ import java.io.Serializable;
  */
 public class AttributeCombinerPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 5365821854303467792L;
-    private final PredictiveModel predictiveModel;
+    public final PredictiveModel predictiveModel;
     private final AttributeEnricher attributeEnricher;
 
     public AttributeCombinerPredictiveModel(final PredictiveModel predictiveModel, final AttributeEnricher attributeEnricher) {
-
         this.predictiveModel = predictiveModel;
         this.attributeEnricher = attributeEnricher;
     }

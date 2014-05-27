@@ -2,11 +2,15 @@ package quickdt.predictiveModels.randomForest;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
-import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
+import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 
 import java.util.Map;
 
-public class UpdatableRandomForestBuilderBuilder extends UpdatablePredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<RandomForest, UpdatableRandomForestBuilder> {
+/**
+ * Created by Chris on 5/22/2014.
+ */
+public class UpdatableRandomForestBuilderBuilder implements PredictiveModelBuilderBuilder {
     private final RandomForestBuilderBuilder randomForestBuilderBuilder;
 
     public UpdatableRandomForestBuilderBuilder(RandomForestBuilderBuilder randomForestBuilderBuilder) {
@@ -15,14 +19,16 @@ public class UpdatableRandomForestBuilderBuilder extends UpdatablePredictiveMode
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
-        return addUpdatableParamters(randomForestBuilderBuilder.createDefaultParametersToOptimize());
+        Map<String, FieldValueRecommender> map = randomForestBuilderBuilder.createDefaultParametersToOptimize();
+        UpdatablePredictiveModelBuilderBuilderUtils.addUpdatableParamters(map);
+        return map;
     }
 
     @Override
-    public UpdatableRandomForestBuilder buildBuilder(Map<String, Object> predictiveModelParameters) {
-        RandomForestBuilder randomForestBuilder = randomForestBuilderBuilder.buildBuilder(predictiveModelParameters);
-        UpdatableRandomForestBuilder updatableRandomForestBuilder = new UpdatableRandomForestBuilder(randomForestBuilder, null);
-        applyUpdatableConfig(updatableRandomForestBuilder, predictiveModelParameters);
-        return updatableRandomForestBuilder;
+    public WrappedUpdatablePredictiveModelBuilder buildBuilder(Map predictiveModelConfig) {
+        RandomForestBuilder randomForestBuilder = randomForestBuilderBuilder.buildBuilder(predictiveModelConfig);
+        WrappedUpdatablePredictiveModelBuilder wrappedBuilder = new WrappedUpdatablePredictiveModelBuilder(randomForestBuilder);
+        UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
+        return wrappedBuilder;
     }
 }

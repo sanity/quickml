@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class DownsamplingPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = -265699047882740160L;
 
-    private final PredictiveModel wrappedPredictiveModel;
+    public final PredictiveModel wrappedPredictiveModel;
     private final Serializable majorityClassification;
     private final double dropProbability;
 

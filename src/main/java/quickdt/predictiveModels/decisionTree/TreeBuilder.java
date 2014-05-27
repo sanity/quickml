@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
 
@@ -16,7 +17,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
+public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
@@ -86,6 +87,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
     public void stripData(Tree tree) {
         stripNode(tree.node);
     }
+
 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
@@ -274,7 +276,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return attributeCharacteristics;
     }
 
-    protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
@@ -336,7 +338,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return lowestClassificationCount < minCategoricalAttributeValueOccurances;
     }
 
-    protected Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances,
                                                                final double[] splits) {
         double bestScore = 0;

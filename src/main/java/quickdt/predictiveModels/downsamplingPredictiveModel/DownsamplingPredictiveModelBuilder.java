@@ -3,23 +3,21 @@ package quickdt.predictiveModels.downsamplingPredictiveModel;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ian on 4/22/14.
  */
-public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBuilder<DownsamplingPredictiveModel> {
-
-    private static final  Logger logger =  LoggerFactory.getLogger(DownsamplingPredictiveModelBuilder.class);
+public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<DownsamplingPredictiveModel> {
 
     private final double targetMinorityProportion;
     private final PredictiveModelBuilder<?> predictiveModelBuilder;
@@ -52,6 +50,12 @@ public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBui
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
     }
 
+    @Override
+    public PredictiveModelBuilder<DownsamplingPredictiveModel> updatable(boolean updatable) {
+        predictiveModelBuilder.updatable(updatable);
+        return this;
+    }
+
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
@@ -69,5 +73,19 @@ public class    DownsamplingPredictiveModelBuilder implements PredictiveModelBui
             classificationProportions.put(classCount.getKey(),  classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;
+    }
+
+    @Override
+    public void updatePredictiveModel(DownsamplingPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        }
+    }
+
+    @Override
+    public void stripData(DownsamplingPredictiveModel predictiveModel) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedPredictiveModel);
+        }
     }
 }

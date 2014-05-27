@@ -31,11 +31,12 @@ public class CalibratedPredictiveModel implements PredictiveModel {
         return calibrator.correct(rawProbability);
     }
 
-
+    @Override
     public void dump(PrintStream printStream) {
         predictiveModel.dump(printStream);
     }
 
+    @Override
     public Serializable getClassificationByMaxProb(Attributes attributes) {
         return predictiveModel.getClassificationByMaxProb(attributes);
     }

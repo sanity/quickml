@@ -1,4 +1,4 @@
-package quickdt.attributeCombiner;
+package quickdt.predictiveModels.attributeCombiner;
 
 import com.google.common.base.Function;
 import quickdt.data.*;

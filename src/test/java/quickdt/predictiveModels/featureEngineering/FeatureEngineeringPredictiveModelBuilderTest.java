@@ -55,6 +55,12 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
             return new TestPM();
         }
+
+        @Override
+        public TestPMBuilder updatable(boolean updatable) {
+            return this;
+        }
+
     }
 
     public static class TestPM implements PredictiveModel {
