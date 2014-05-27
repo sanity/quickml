@@ -6,6 +6,7 @@ import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created by ian on 4/22/14.
@@ -28,6 +29,16 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
         Preconditions.checkArgument(!classification.equals(majorityClassification), "Only requesting the probability of the minority classification is currently supported (requested %s)", classification);
         double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, classification);
         return Utils.correctProbability(dropProbability, uncorrectedProbability);
+    }
+
+    /**
+     * Unsupported at this time, will throw UnsupportedOperationException
+     * @param attributes
+     * @return
+     */
+    @Override
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
