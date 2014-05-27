@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Load training data in from redshift.
@@ -39,10 +36,19 @@ public class CSVToMap {
      * @return a list of maps
      */
     public static List<Map<String, Serializable>> loadRows(String inputFile) {
-        ArrayList<Map<String, Serializable>> rawData = new ArrayList<>();
-        CSVReader csvReader = new CSVReader(createReader(inputFile), '|');
-        while (csvReader.hasNext()) {
-            Map<String, Serializable> rowMap = convertRowToMap(csvReader.next());
+        List<Map<String, Serializable>> rawData = new ArrayList<>();
+        List<String[]> rowData = new LinkedList<>();
+        try (CSVReader csvReader = new CSVReader(createReader(inputFile), '|')) {
+            while (csvReader.hasNext()) {
+                rowData.add(csvReader.next());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        for(String[] row : rowData) {
+            Map<String, Serializable> rowMap = convertRowToMap(row);
             if (rowMap != null) {
                 rawData.add(rowMap);
             }

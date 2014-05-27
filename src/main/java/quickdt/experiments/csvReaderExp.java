@@ -15,7 +15,6 @@ import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.downsamplingPredictiveModel.Utils;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
-import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilder;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ public class csvReaderExp {
         List<Instance> instances = convertRawMapToInstance(instanceMaps);
         logger.info("got instances");
 
-        HashMap<String, ClicksAndImps> uniqueBrowsers = new HashMap<>();
+        /*HashMap<String, ClicksAndImps> uniqueBrowsers = new HashMap<>();
         for (Instance instance : instances) {
             String browser = (String) instance.getAttributes().get("an_browser");
             double click = (Double)instance.getClassification();
@@ -62,10 +61,10 @@ public class csvReaderExp {
 
             double dropProbability = .01;
             Utils.correctProbability(dropProbability, uncorrectedProbability);
-        }
+        }*/
     }
 
-    private static List<Instance> convertRawMapToInstance(List<Map<String,Serializable>> rawMaps) {
+    public static List<Instance> convertRawMapToInstance(List<Map<String,Serializable>> rawMaps) {
         List<Instance> instances = Lists.newArrayList();
         Attributes attributes;
         Instance instance;
@@ -84,18 +83,5 @@ public class csvReaderExp {
 
 
     }
-
-    private static RandomForest getRandomForest(List<AbstractInstance> trainingData, int maxDepth, int numTrees) {
-        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7).minLeafInstances(20);
-        RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
-        return randomForestBuilder.buildPredictiveModel(trainingData);
-    }
-    private static PredictiveModelBuilder getRandomForestBuilder(int maxDepth, int numTrees) {
-        TreeBuilder treeBuilder = new TreeBuilder().ignoreAttributeAtNodeProbability(.7).minLeafInstances(20);
-        RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
-        UpdatableRandomForestBuilder updatableRandomForestBuilder = (UpdatableRandomForestBuilder) new UpdatableRandomForestBuilder(randomForestBuilder).rebuildThreshold(2).splitNodeThreshold(2);
-        return updatableRandomForestBuilder;
-    }
-
 }
 

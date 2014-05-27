@@ -13,29 +13,28 @@ import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.calibratedPredictiveModel.PAVCalibratedPredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.calibratedPredictiveModel.UpdatablePAVCalibratedPredictiveModelBuilderBuilder;
-import quickdt.predictiveModels.decisionTree.TreeBuilderBuilder;
 import quickdt.predictiveModels.downsamplingPredictiveModel.DownsamplingPredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by chrisreeves on 5/23/14.
  */
 public class PredictiveModelOptimizerRunner {
 
-    private static final Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizer.class);
+    private static final Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerRunner.class);
 
 
     public static void main(String[] args) throws IOException {
         List<PredictiveModelBuilderBuilder> builderBuilders = getPredictiveModelBuilderBuilders();
-        Iterable<? extends AbstractInstance> trainingData = getTrainingData("/Users/chrisreeves/Downloads/redshift_training_data.csv");
+        Iterable<? extends AbstractInstance> trainingData = getTrainingData("data/redshift_training_data.csv");
         List<BidderConfiguration> configurations = Lists.newLinkedList();
 
         for(PredictiveModelBuilderBuilder builderBuilder : builderBuilders) {
@@ -52,26 +51,25 @@ public class PredictiveModelOptimizerRunner {
                 return o1.loss.compareTo(o2.loss);
             }
         });
+
+        logger.info(configurations.get(0).builderBuilder.toString() + " loss:" + configurations.get(0).loss + " " + configurations.get(0).optimalParameters);
+        logger.info(configurations.get(configurations.size() - 1).builderBuilder.toString() + " loss:" + configurations.get(configurations.size()-1).loss + " " + configurations.get(configurations.size()-1).optimalParameters);
     }
 
     private static CrossValidator getCrossValidator() {
-        return new OutOfTimeCrossValidator(new RMSECrossValLoss(), 0.25, 30, new TrainingDateTimeExtractor());
+        return new OutOfTimeCrossValidator(new WeightedAUCCrossValLoss(1.0), 0.25, 30, new TrainingDateTimeExtractor());
     }
 
     private static List<PredictiveModelBuilderBuilder> getPredictiveModelBuilderBuilders() {
         List<PredictiveModelBuilderBuilder> builderBuilders = Lists.newLinkedList();
-        builderBuilders.add(new TreeBuilderBuilder());
-        //builderBuilders.add(new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder()));
-        //builderBuilders.add(new UpdatablePAVCalibratedPredictiveModelBuilderBuilder(new PAVCalibratedPredictiveModelBuilderBuilder()));
-        //builderBuilders.add(new DownsamplingPredictiveModelBuilderBuilder(new PAVCalibratedPredictiveModelBuilderBuilder()));
+        builderBuilders.add(new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder()));
         return builderBuilders;
     }
 
     private static Iterable<? extends AbstractInstance> getTrainingData(String filename) throws IOException {
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(filename);
-        logger.info("Read " + instanceMaps.size() + " from instances " + filename);
         List<Instance> instances = csvReaderExp.convertRawMapToInstance(instanceMaps);
-        System.out.println("Loaded " + instances.size() + " instances");
+        logger.info("Read " + instances.size() + " instances");
         return instances;
     }
 
@@ -88,11 +86,17 @@ public class PredictiveModelOptimizerRunner {
     }
 
     private static class TrainingDateTimeExtractor implements DateTimeExtractor {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
         public DateTime extractDateTime(AbstractInstance instance) {
             Attributes attributes = instance.getAttributes();
-            int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");
-            return new DateTime(currentTimeMillis);
+            try {
+                Date currentTimeMillis = dateFormat.parse((String)attributes.get("created_at"));
+                return new DateTime(currentTimeMillis);
+            } catch (ParseException e) {
+                logger.error("Error parsing date", e);
+            }
+            return new DateTime();
         }
     }
 }
