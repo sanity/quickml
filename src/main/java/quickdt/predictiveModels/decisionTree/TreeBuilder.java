@@ -280,7 +280,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
                                                                final Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
-            values.add(instance.getAttributes().get(attribute));
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = Double.MIN_VALUE;
+            values.add(value);
         }
         double score = 0;
         final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
