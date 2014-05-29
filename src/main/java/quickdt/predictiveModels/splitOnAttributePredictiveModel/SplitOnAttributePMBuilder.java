@@ -52,4 +52,9 @@ public class SplitOnAttributePMBuilder implements PredictiveModelBuilder<SplitOn
         final PredictiveModel defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
         return new SplitOnAttributePM(attributeKey, splitModels, defaultPM);
     }
+
+    @Override
+    public PredictiveModelBuilder<SplitOnAttributePM> updatable(final boolean updatable) {
+        throw new UnsupportedOperationException();
+    }
 }
