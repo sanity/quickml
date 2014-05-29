@@ -43,11 +43,12 @@ public class CalibratedPredictiveModel implements PredictiveModel {
         throw new UnsupportedOperationException();
     }
 
-
+    @Override
     public void dump(PrintStream printStream) {
         predictiveModel.dump(printStream);
     }
 
+    @Override
     public Serializable getClassificationByMaxProb(Attributes attributes) {
         return predictiveModel.getClassificationByMaxProb(attributes);
     }
