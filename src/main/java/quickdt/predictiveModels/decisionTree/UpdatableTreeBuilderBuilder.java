@@ -2,11 +2,15 @@ package quickdt.predictiveModels.decisionTree;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
-import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
 
 import java.util.Map;
 
-public class UpdatableTreeBuilderBuilder extends UpdatablePredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, UpdatableTreeBuilder> {
+/**
+ * Created by Chris on 5/22/2014.
+ */
+public class UpdatableTreeBuilderBuilder implements PredictiveModelBuilderBuilder {
     private final TreeBuilderBuilder treeBuilderBuilder;
 
     public UpdatableTreeBuilderBuilder(TreeBuilderBuilder treeBuilderBuilder) {
@@ -15,14 +19,16 @@ public class UpdatableTreeBuilderBuilder extends UpdatablePredictiveModelBuilder
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
-        return addUpdatableParamters(treeBuilderBuilder.createDefaultParametersToOptimize());
+        Map<String, FieldValueRecommender> map = treeBuilderBuilder.createDefaultParametersToOptimize();
+        UpdatablePredictiveModelBuilderBuilderUtils.addUpdatableParamters(map);
+        return map;
     }
 
     @Override
-    public UpdatableTreeBuilder buildBuilder(final Map<String, Object> cfg) throws NullPointerException {
-        final TreeBuilder builder = treeBuilderBuilder.buildBuilder(cfg);
-        UpdatableTreeBuilder updatableTreeBuilder = new UpdatableTreeBuilder(builder, null);
-        applyUpdatableConfig(updatableTreeBuilder, cfg);
-        return updatableTreeBuilder;
+    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
+        TreeBuilder treeBuilder = treeBuilderBuilder.buildBuilder(predictiveModelConfig);
+        PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(treeBuilder);
+        UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
+        return wrappedBuilder;
     }
 }
