@@ -2,8 +2,8 @@ package quickdt.predictiveModels.calibratedPredictiveModel;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ public class UpdatablePAVCalibratedPredictiveModelBuilderBuilder implements Pred
     }
 
     @Override
-    public WrappedUpdatablePredictiveModelBuilder buildBuilder(Map predictiveModelConfig) {
+    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
         PAVCalibratedPredictiveModelBuilder calibratedPredictiveModelBuilder = pavCalibratedPredictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
-        WrappedUpdatablePredictiveModelBuilder wrappedBuilder = new WrappedUpdatablePredictiveModelBuilder(calibratedPredictiveModelBuilder);
+        PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(calibratedPredictiveModelBuilder);
         UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
         return wrappedBuilder;
     }

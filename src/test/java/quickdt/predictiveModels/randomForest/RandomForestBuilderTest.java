@@ -4,8 +4,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Attributes;
 import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
@@ -42,7 +42,7 @@ public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final WrappedUpdatablePredictiveModelBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -68,16 +68,16 @@ public class RandomForestBuilderTest {
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private WrappedUpdatablePredictiveModelBuilder<RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).updatable(true);
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        return new WrappedUpdatablePredictiveModelBuilder<>(urfb);
+        return new PredictiveModelWithDataBuilder<>(urfb);
     }
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final WrappedUpdatablePredictiveModelBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
 

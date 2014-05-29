@@ -53,6 +53,8 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             updateCalibrator(predictiveModel, newData);
             ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.predictiveModel, newData, trainingData, splitNodes);
+        } else {
+            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
@@ -60,6 +62,8 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     public void stripData(CalibratedPredictiveModel predictiveModel) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.predictiveModel);
+        } else {
+            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }
     }
 

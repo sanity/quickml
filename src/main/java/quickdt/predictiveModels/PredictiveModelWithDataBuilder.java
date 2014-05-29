@@ -10,7 +10,7 @@ import java.util.List;
  * The builder will keep track of the number of times the model has been built, and if the rebuild threshold is passed the model will be rebuilt
  * If the split node threshold is passed the leaves will be rebuilt
  */
-public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> implements UpdatablePredictiveModelBuilder<PM> {
+public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implements UpdatablePredictiveModelBuilder<PM> {
     protected List<AbstractInstance> trainingData;
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder;
@@ -18,27 +18,27 @@ public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> 
     protected Integer splitNodeThreshold;
     protected int buildCount = 0;
 
-    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder) {
+    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder) {
         this(updatablePredictiveModelBuilder, null);
     }
 
-    public WrappedUpdatablePredictiveModelBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder, PM predictiveModel) {
+    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder, PM predictiveModel) {
         this.updatablePredictiveModelBuilder = updatablePredictiveModelBuilder;
         this.predictiveModel = predictiveModel;
         updatablePredictiveModelBuilder.updatable(true);
     }
 
-    public WrappedUpdatablePredictiveModelBuilder<PM> rebuildThreshold(Integer rebuildThreshold) {
+    public PredictiveModelWithDataBuilder<PM> rebuildThreshold(Integer rebuildThreshold) {
         this.rebuildThreshold = rebuildThreshold;
         return this;
     }
 
-    public WrappedUpdatablePredictiveModelBuilder<PM> splitNodeThreshold(Integer splitNodeThreshold) {
+    public PredictiveModelWithDataBuilder<PM> splitNodeThreshold(Integer splitNodeThreshold) {
         this.splitNodeThreshold = splitNodeThreshold;
         return this;
     }
 
-    public WrappedUpdatablePredictiveModelBuilder<PM> updatable(boolean updatable) {
+    public PredictiveModelWithDataBuilder<PM> updatable(boolean updatable) {
         return this;
     }
 
