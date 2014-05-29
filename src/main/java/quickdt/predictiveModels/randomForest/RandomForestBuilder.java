@@ -123,20 +123,20 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
 
     protected Iterable<? extends AbstractInstance> shuffleTrainingData(Iterable<? extends AbstractInstance> trainingData) {
         Iterable<? extends AbstractInstance> treeTrainingData;
-        final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
-        if (bagSize > 0) {
-          ArrayList<AbstractInstance> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
-          for (AbstractInstance instance : Iterables.limit(trainingData, bagSize)) {
-              treeTrainingDataArrayList.add(instance);
-          }
-          for (AbstractInstance instance : trainingData) {
-              int position = Misc.random.nextInt(bagSize);
-              treeTrainingDataArrayList.add(position, instance);
-          }
-          treeTrainingData = treeTrainingDataArrayList;
-      } else {
-          treeTrainingData = trainingData;
-      }
+        if (baggingSampleSize > 0) {
+            final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
+            ArrayList<AbstractInstance> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
+            for (AbstractInstance instance : Iterables.limit(trainingData, bagSize)) {
+                treeTrainingDataArrayList.add(instance);
+            }
+            for (AbstractInstance instance : trainingData) {
+                int position = Misc.random.nextInt(bagSize);
+                treeTrainingDataArrayList.add(position, instance);
+            }
+            treeTrainingData = treeTrainingDataArrayList;
+        } else {
+            treeTrainingData = trainingData;
+        }
         return treeTrainingData;
     }
 

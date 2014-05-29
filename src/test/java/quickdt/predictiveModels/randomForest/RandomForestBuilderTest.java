@@ -41,7 +41,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         final WrappedUpdatablePredictiveModelBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -55,7 +55,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
@@ -76,7 +76,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         final WrappedUpdatablePredictiveModelBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -89,7 +89,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");

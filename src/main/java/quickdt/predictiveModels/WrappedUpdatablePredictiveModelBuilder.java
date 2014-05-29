@@ -4,7 +4,6 @@ import quickdt.data.AbstractInstance;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * PredictiveModelBuilder that supports adding data to predictive models
@@ -49,7 +48,7 @@ public class WrappedUpdatablePredictiveModelBuilder<PM extends PredictiveModel> 
         }
 
         if (trainingData == null) {
-            trainingData = new CopyOnWriteArrayList<>();
+            trainingData = new ArrayList<>();
         }
         appendTrainingData(newData);
 

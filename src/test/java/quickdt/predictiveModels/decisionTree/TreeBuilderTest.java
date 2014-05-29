@@ -53,7 +53,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         final WrappedUpdatablePredictiveModelBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
