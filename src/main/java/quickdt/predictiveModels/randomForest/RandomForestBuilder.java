@@ -167,11 +167,24 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         });
     }
 
+<<<<<<< HEAD
     private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> newData, int treeIndex, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         logger.info("Updating tree {} of {}", treeIndex, numTrees);
         treeBuilder.updatePredictiveModel(tree, newData, trainingData, splitNodes);
         return tree;
     }
+=======
+  private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
+    logger.info("Building tree {} of {}", treeIndex, numTrees);
+    return treeBuilder.buildPredictiveModel(trainingData);
+  }
+
+  private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> newData, int treeIndex, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+      logger.info("Updating tree {} of {}", treeIndex, numTrees);
+      treeBuilder.updatePredictiveModel(tree, newData, trainingData, splitNodes);
+      return tree;
+  }
+>>>>>>> parent of 5d93f69... Merge branch 'master' of /Users/chrisreeves/IdeaProjects/quickdt with conflicts.
 
     private Tree stripModel(Tree tree, int treeIndex) {
         logger.info("Stripping tree {} of {}", treeIndex, numTrees);
@@ -179,6 +192,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         return tree;
     }
 
+<<<<<<< HEAD
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
@@ -186,6 +200,9 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
 
 
     protected void collectTreeFutures(List<Tree> trees, List<Future<Tree>> treeFutures) {
+=======
+    private void collectTreeFutures(List<Tree> trees, List<Future<Tree>> treeFutures) {
+>>>>>>> parent of 5d93f69... Merge branch 'master' of /Users/chrisreeves/IdeaProjects/quickdt with conflicts.
         for (Future<Tree> treeFuture : treeFutures) {
             collectTreeFutures(trees, treeFuture);
         }
