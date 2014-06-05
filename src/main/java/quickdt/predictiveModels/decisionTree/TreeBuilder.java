@@ -218,18 +218,27 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
         Pair<? extends Branch, Double> bestPair = null;
+
+
+
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
             if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {
                 continue;
             }
 
             Pair<? extends Branch, Double> thisPair = null;
+            Pair<? extends Branch, Double> numericPair = null;
+            Pair<? extends Branch, Double> categoricalPair = null;
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
-                thisPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
+                numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
             }
-            if (thisPair == null || thisPair.getValue1() == 0) {
-                thisPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
+            categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
+
+            if (numericPair == null) {
+                thisPair = categoricalPair;
+            }  else {
+                thisPair = (numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
             }
             if (bestPair == null || thisPair.getValue1() > bestPair.getValue1()) {
                 bestPair = thisPair;
