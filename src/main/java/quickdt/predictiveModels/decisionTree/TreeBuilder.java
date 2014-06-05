@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
 
@@ -16,7 +17,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
+public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
@@ -87,10 +88,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         stripNode(tree.node);
     }
 
+
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
-            reservoirSampler.sample(((Number) instance.getAttributes().get(attribute)).doubleValue());
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = 0;
+            reservoirSampler.sample(((Number) value).doubleValue());
         }
 
         return getSplit(reservoirSampler);
@@ -274,11 +278,13 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return attributeCharacteristics;
     }
 
-    protected Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
-            values.add(instance.getAttributes().get(attribute));
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = Double.MIN_VALUE;
+            values.add(value);
         }
         double score = 0;
         final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
@@ -336,7 +342,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         return lowestClassificationCount < minCategoricalAttributeValueOccurances;
     }
 
-    protected Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                                final Iterable<? extends AbstractInstance> instances,
                                                                final double[] splits) {
         double bestScore = 0;
@@ -483,7 +489,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
+                Serializable value = input.getAttributes().get(attribute);
+                if (value == null) value = 0;
+                return input != null && ((Number) value).doubleValue() > threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;
@@ -504,7 +512,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Tree> {
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
+                Serializable value = input.getAttributes().get(attribute);
+                if (value == null) value = 0;
+                return input != null && ((Number) value).doubleValue() <= threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;

@@ -6,6 +6,7 @@ import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Map;
 
 
 /**
@@ -26,16 +27,28 @@ public class CalibratedPredictiveModel implements PredictiveModel {
         this.calibrator = calibrator;
     }
 
+    // FIXME: This assumes that the second parameter will always be the same.
     public double getProbability(Attributes attributes, Serializable classification) {
         double rawProbability = predictiveModel.getProbability(attributes, classification);
         return calibrator.correct(rawProbability);
     }
 
+    /**
+     * Unsupported at this time, will throw UnsupportedOperationException
+     * @param attributes
+     * @return
+     */
+    @Override
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
     public void dump(PrintStream printStream) {
         predictiveModel.dump(printStream);
     }
 
+    @Override
     public Serializable getClassificationByMaxProb(Attributes attributes) {
         return predictiveModel.getClassificationByMaxProb(attributes);
     }

@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class FeatureEngineeringPredictiveModelBuilderTest {
 
@@ -55,6 +56,12 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
             return new TestPM();
         }
+
+        @Override
+        public TestPMBuilder updatable(boolean updatable) {
+            return this;
+        }
+
     }
 
     public static class TestPM implements PredictiveModel {
@@ -67,6 +74,11 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
                 throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
             }
             return 0;
+        }
+
+        @Override
+        public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

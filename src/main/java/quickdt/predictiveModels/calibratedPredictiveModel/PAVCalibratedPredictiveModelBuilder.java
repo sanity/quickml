@@ -5,9 +5,7 @@ import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
-import quickdt.predictiveModels.decisionTree.Tree;
-import quickdt.predictiveModels.decisionTree.TreeBuilder;
-import quickdt.predictiveModels.randomForest.RandomForest;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
@@ -16,17 +14,18 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/10/14.
  * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
+ * It currently has some severe implementation problems and it's use is not recommended.
  */
-public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuilder<CalibratedPredictiveModel> {
+public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
-    private PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder;
+    private PredictiveModelBuilder predictiveModelBuilder;
+
+    public PAVCalibratedPredictiveModelBuilder() {
+        this(new RandomForestBuilder());
+    }
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
         this.predictiveModelBuilder = predictiveModelBuilder;
-    }
-
-    public PAVCalibratedPredictiveModelBuilder() {
-        this.predictiveModelBuilder = new RandomForestBuilder();
     }
 
     public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
@@ -36,60 +35,54 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
         return this;
     }
 
-    public PAVCalibratedPredictiveModelBuilder updatable(boolean updatable) {
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatable(updatable);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatable(updatable);
-        }
+    @Override
+    public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
+        PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
+        Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
+        return new CalibratedPredictiveModel(predictiveModel, calibrator);
+    }
+
+    @Override
+    public PredictiveModelBuilder<CalibratedPredictiveModel> updatable(boolean updatable) {
+        predictiveModelBuilder.updatable(updatable);
         return this;
     }
 
     @Override
-    public CalibratedPredictiveModel buildPredictiveModel(Iterable <? extends AbstractInstance> trainingInstances) {
-        PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingInstances);
-        Calibrator calibrator = createCalibrator(predictiveModel, trainingInstances);
-        return new CalibratedPredictiveModel(predictiveModel, calibrator);
-    }
-
-    public void updatePredictiveModel(CalibratedPredictiveModel calibratedPredictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
-        updateCalibrator(calibratedPredictiveModel, newData);
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.updatePredictiveModel((RandomForest)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.updatePredictiveModel((Tree)calibratedPredictiveModel.predictiveModel, newData, trainingData, splitNodes);
+    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            updateCalibrator(predictiveModel, newData);
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.predictiveModel, newData, trainingData, splitNodes);
+        } else {
+            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
-    public void stripData(CalibratedPredictiveModel calibratedPredictiveModel) {
-        if (predictiveModelBuilder instanceof RandomForestBuilder) {
-            RandomForestBuilder randomForestBuilder = (RandomForestBuilder) predictiveModelBuilder;
-            randomForestBuilder.stripData((RandomForest)calibratedPredictiveModel.predictiveModel);
-        } else if (predictiveModelBuilder instanceof TreeBuilder) {
-            TreeBuilder treeBuilder = (TreeBuilder) predictiveModelBuilder;
-            treeBuilder.stripData((Tree)calibratedPredictiveModel.predictiveModel);
+    @Override
+    public void stripData(CalibratedPredictiveModel predictiveModel) {
+        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.predictiveModel);
+        } else {
+            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }
     }
+
+    private void updateCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+
+        PAVCalibrator calibrator = (PAVCalibrator)((CalibratedPredictiveModel)predictiveModel).calibrator;
+        for(PAVCalibrator.Observation observation : mobservations) {
+            calibrator.addObservation(observation);
+        }
+    }
+
 
     private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
         return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
     }
 
-    private void updateCalibrator(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
-
-        PAVCalibrator calibrator = (PAVCalibrator)predictiveModel.calibrator;
-        for(PAVCalibrator.Observation observation : mobservations) {
-            calibrator.addObservation(observation);
-        }
-    }
-
-    private List<PAVCalibrator.Observation> getObservations(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    protected List<PAVCalibrator.Observation> getObservations(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = Lists.<PAVCalibrator.Observation>newArrayList();
         double prediction = 0;
         double groundTruth = 0;
@@ -102,6 +95,7 @@ public class PAVCalibratedPredictiveModelBuilder implements PredictiveModelBuild
                 r.printStackTrace();
                 System.exit(0);
             }
+            // TODO: We can't assume that the classification will be 1.0
             prediction = predictiveModel.getProbability(instance.getAttributes(), 1.0);
             observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
