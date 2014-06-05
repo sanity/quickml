@@ -56,6 +56,27 @@ public class RandomForest implements PredictiveModel {
     }
 
     @Override
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        Map<Serializable, Double> sumsByClassification = Maps.newHashMap();
+        for (Tree tree : trees) {
+            final Map<Serializable, Double> treeProbs = tree.getProbabilitiesByClassification(attributes);
+            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
+                Double sum = sumsByClassification.get(tpe.getKey());
+                if (sum == null) sum = 0.0;
+                sum += tpe.getValue();
+                sumsByClassification.put(tpe.getKey(), sum);
+            }
+        }
+
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
+            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
+        }
+
+        return probsByClassification;
+    }
+
+    @Override
     public Serializable getClassificationByMaxProb(Attributes attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (Tree tree : trees) {
@@ -96,4 +117,5 @@ public class RandomForest implements PredictiveModel {
     public int hashCode() {
         return trees.hashCode();
     }
+
 }

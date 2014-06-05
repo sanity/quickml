@@ -6,6 +6,7 @@ import quickdt.predictiveModels.PredictiveModel;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A predictive model that wraps another predictive model but modifies the input
@@ -26,6 +27,11 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel {
     public double getProbability(final Attributes attributes, final Serializable classification) {
         Attributes enrichedAttributes = enrichAttributes(attributes);
         return wrappedModel.getProbability(enrichedAttributes, classification);
+    }
+
+    @Override
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        return wrappedModel.getProbabilitiesByClassification(attributes);
     }
 
     private Attributes enrichAttributes(final Attributes attributes) {
