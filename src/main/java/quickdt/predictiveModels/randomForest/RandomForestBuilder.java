@@ -167,6 +167,11 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
         });
     }
 
+    private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> newData, int treeIndex, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+        //logger.debug("Updating tree {} of {}", treeIndex, numTrees);
+        treeBuilder.updatePredictiveModel(tree, newData, trainingData, splitNodes);
+        return tree;
+    }
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
     logger.info("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
@@ -179,11 +184,19 @@ public class RandomForestBuilder implements PredictiveModelBuilder<RandomForest>
   }
 
     private Tree stripModel(Tree tree, int treeIndex) {
+        //logger.debug("Stripping tree {} of {}", treeIndex, numTrees);
         logger.info("Stripping tree {} of {}", treeIndex, numTrees);
         treeBuilder.stripData(tree);
         return tree;
     }
 
+  private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
+    //logger.debug("Building tree {} of {}", treeIndex, numTrees);
+    return treeBuilder.buildPredictiveModel(trainingData);
+  }
+
+
+    protected void collectTreeFutures(List<Tree> trees, List<Future<Tree>> treeFutures) {
     private void collectTreeFutures(List<Tree> trees, List<Future<Tree>> treeFutures) {
         for (Future<Tree> treeFuture : treeFutures) {
             collectTreeFutures(trees, treeFuture);
