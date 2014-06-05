@@ -26,9 +26,7 @@ public class TreeBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(node);
 
         final int nodeSize = node.size();
-        final double nodeMeanDepth = node.meanDepth();
 		Assert.assertTrue(nodeSize < 400, "Tree size should be less than 400 nodes");
-		Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
 		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 	}
 

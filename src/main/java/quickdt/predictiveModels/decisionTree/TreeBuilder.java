@@ -238,7 +238,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             if (numericPair == null) {
                 thisPair = categoricalPair;
             }  else {
-                thisPair = (numericPair.getValue1() < categoricalPair.getValue1()) ? numericPair : categoricalPair;
+                thisPair = (numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
             }
             if (bestPair == null || thisPair.getValue1() > bestPair.getValue1()) {
                 bestPair = thisPair;
