@@ -14,7 +14,7 @@ If you are unfamiliar with Decision Tree Learning, it's the process of building 
 on training data that you feed it.  [Learn more on Wikipedia](http://en.wikipedia.org/wiki/Decision_tree_learning).
 
 QuickDT is a Java Decision Tree Learning library designed to be flexible, easy to use, fast, and effective.  QuickDT was originally
-written by [Ian Clarke](http://blog.locut.us/), with significant contributions by Alex Hawk and Chris Reeves.  The initial public release was on 2011-09-21.
+written by [Ian Clarke](http://blog.locut.us/), with significant contributions by Alex Hawk and Chris Reeves of [OneSpot](http://onespot.com/).  The initial public release was on 2011-09-21.
 
 QuickDT also supports Random Decision Forests, which deliver a significant improvement in predictive performance by combining
 multiple decision trees. QuickDT also includes functionality to easily do cross-validation in a flexible but easy-to-use manner.
@@ -55,7 +55,7 @@ And this dependency:
 <dependency>
 	<groupId>quickdt</groupId>
 	<artifactId>quickdt</artifactId>
-	<version>0.1.6.1</version>
+	<version>0.1.8.6</version>
 </dependency>
 ```
 
@@ -210,7 +210,8 @@ Usage of the bagging is quite straight forward. Set up a `TreeBuilder` and if yo
 
 ```java
 import quickdt.*;
-import quickdt.randomForest.*;
+import quickdt.data.*;
+import quickdt.predictiveModels.randomForest.*;
 
 TreeBuilder treeBuilder = new TreeBuilder()
 	.ignoreAttributeAtNodeProbability(0.7);

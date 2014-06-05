@@ -2,8 +2,8 @@ package quickdt.predictiveModels.randomForest;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ public class UpdatableRandomForestBuilderBuilder implements PredictiveModelBuild
     }
 
     @Override
-    public WrappedUpdatablePredictiveModelBuilder buildBuilder(Map predictiveModelConfig) {
+    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
         RandomForestBuilder randomForestBuilder = randomForestBuilderBuilder.buildBuilder(predictiveModelConfig);
-        WrappedUpdatablePredictiveModelBuilder wrappedBuilder = new WrappedUpdatablePredictiveModelBuilder(randomForestBuilder);
+        PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(randomForestBuilder);
         UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
         return wrappedBuilder;
     }

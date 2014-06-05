@@ -2,8 +2,8 @@ package quickdt.predictiveModels.downsamplingPredictiveModel;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ public class UpdatableDownsamplingPredictiveModelBuilderBuilder implements Predi
     }
 
     @Override
-    public WrappedUpdatablePredictiveModelBuilder buildBuilder(Map predictiveModelConfig) {
+    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
         DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = downsamplingPredictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
-        WrappedUpdatablePredictiveModelBuilder wrappedBuilder = new WrappedUpdatablePredictiveModelBuilder(downsamplingPredictiveModelBuilder);
+        PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(downsamplingPredictiveModelBuilder);
         UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
         return wrappedBuilder;
     }

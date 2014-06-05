@@ -2,8 +2,8 @@ package quickdt.predictiveModels.decisionTree;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilderUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 
 import java.util.Map;
 
@@ -25,9 +25,9 @@ public class UpdatableTreeBuilderBuilder implements PredictiveModelBuilderBuilde
     }
 
     @Override
-    public WrappedUpdatablePredictiveModelBuilder buildBuilder(Map predictiveModelConfig) {
+    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
         TreeBuilder treeBuilder = treeBuilderBuilder.buildBuilder(predictiveModelConfig);
-        WrappedUpdatablePredictiveModelBuilder wrappedBuilder = new WrappedUpdatablePredictiveModelBuilder(treeBuilder);
+        PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(treeBuilder);
         UpdatablePredictiveModelBuilderBuilderUtils.applyUpdatableConfig(wrappedBuilder, predictiveModelConfig);
         return wrappedBuilder;
     }

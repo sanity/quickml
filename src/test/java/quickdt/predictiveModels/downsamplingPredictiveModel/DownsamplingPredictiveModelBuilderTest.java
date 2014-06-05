@@ -14,6 +14,7 @@ import quickdt.predictiveModels.PredictiveModelBuilder;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
@@ -63,6 +64,11 @@ public class DownsamplingPredictiveModelBuilderTest {
         @Override
         public double getProbability(final Attributes attributes, final Serializable classification) {
             return prediction;
+        }
+
+        @Override
+        public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

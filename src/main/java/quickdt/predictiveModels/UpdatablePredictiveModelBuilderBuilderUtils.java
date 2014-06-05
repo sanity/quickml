@@ -20,7 +20,7 @@ public class UpdatablePredictiveModelBuilderBuilderUtils {
         return map;
     }
 
-    public static void applyUpdatableConfig(WrappedUpdatablePredictiveModelBuilder predictiveModelBuilder, final Map<String, Object> predictiveModelConfig) {
+    public static void applyUpdatableConfig(PredictiveModelWithDataBuilder predictiveModelBuilder, final Map<String, Object> predictiveModelConfig) {
         final Integer rebuildThreshold = (Integer) predictiveModelConfig.get(REBUILD_THRESHOLD);
         final Integer splitNodeThreshold = (Integer) predictiveModelConfig.get(SPLIT_THRESHOLD);
         predictiveModelBuilder.rebuildThreshold(rebuildThreshold).splitNodeThreshold(splitNodeThreshold);

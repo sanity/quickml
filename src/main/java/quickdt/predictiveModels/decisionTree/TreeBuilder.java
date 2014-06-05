@@ -92,7 +92,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
-            reservoirSampler.sample(((Number) instance.getAttributes().get(attribute)).doubleValue());
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = 0;
+            reservoirSampler.sample(((Number) value).doubleValue());
         }
 
         return getSplit(reservoirSampler);
@@ -280,7 +282,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                                                                final Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
-            values.add(instance.getAttributes().get(attribute));
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = Double.MIN_VALUE;
+            values.add(value);
         }
         double score = 0;
         final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
@@ -485,7 +489,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() > threshold;
+                Serializable value = input.getAttributes().get(attribute);
+                if (value == null) value = 0;
+                return input != null && ((Number) value).doubleValue() > threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;
@@ -506,7 +512,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                return input != null && ((Number) input.getAttributes().get(attribute)).doubleValue() <= threshold;
+                Serializable value = input.getAttributes().get(attribute);
+                if (value == null) value = 0;
+                return input != null && ((Number) value).doubleValue() <= threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;

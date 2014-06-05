@@ -79,6 +79,8 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     public void updatePredictiveModel(DownsamplingPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
+        } else {
+            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
@@ -86,6 +88,8 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     public void stripData(DownsamplingPredictiveModel predictiveModel) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedPredictiveModel);
+        } else {
+            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }
     }
 }

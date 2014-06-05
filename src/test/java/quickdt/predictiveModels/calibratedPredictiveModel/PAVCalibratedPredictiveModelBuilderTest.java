@@ -4,8 +4,8 @@ package quickdt.predictiveModels.calibratedPredictiveModel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
@@ -39,7 +39,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
@@ -64,7 +64,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
@@ -85,10 +85,10 @@ public class PAVCalibratedPredictiveModelBuilderTest {
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private WrappedUpdatablePredictiveModelBuilder<CalibratedPredictiveModel> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<CalibratedPredictiveModel> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final PAVCalibratedPredictiveModelBuilder ucpmb = new PAVCalibratedPredictiveModelBuilder(urfb);
-        return new WrappedUpdatablePredictiveModelBuilder<>(ucpmb);
+        return new PredictiveModelWithDataBuilder<>(ucpmb);
     }
 }

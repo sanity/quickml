@@ -5,8 +5,8 @@ import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 import quickdt.Misc;
 import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
-import quickdt.predictiveModels.WrappedUpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 
@@ -53,8 +53,8 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
-        final WrappedUpdatablePredictiveModelBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -83,7 +83,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final WrappedUpdatablePredictiveModelBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
 
@@ -111,7 +111,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestRebuild() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final WrappedUpdatablePredictiveModelBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.rebuildThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -129,9 +129,9 @@ public class TreeBuilderTest {
         Assert.assertFalse(tree == newTree, "Expect new tree to be built");
     }
 
-    private WrappedUpdatablePredictiveModelBuilder<Tree> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<Tree> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        return new WrappedUpdatablePredictiveModelBuilder<>(tb);
+        return new PredictiveModelWithDataBuilder<>(tb);
     }
 
 }
