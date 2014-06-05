@@ -25,7 +25,7 @@ public class WeightedAUCCrossValLoss implements CrossValLoss {
         if (classifications.size() > 2) {
             throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
         }
-        aucDataList.add(new AUCData(abstractInstance.getClassification(), abstractInstance.getWeight(), predictiveModel.getProbability(abstractInstance.getAttributes(), positiveClassification)));
+        aucDataList.add(new AUCData(abstractInstance.getClassification(), abstractInstance.getWeight(), predictiveModel.getProbability(abstractInstance.getAttributes(), abstractInstance.getClassification())));
     }
 
     @Override
