@@ -44,10 +44,12 @@ public class WeightedAUCCrossValLossTest {
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
         Attributes test1Attributes = Mockito.mock(Attributes.class);
         Attributes test2Attributes = Mockito.mock(Attributes.class);
-        Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.2);
-        Mockito.when(predictiveModel.getProbability(test1Attributes, "test0")).thenReturn(0.3);
-        Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.4);
-        Mockito.when(predictiveModel.getProbability(test2Attributes, "test0")).thenReturn(0.5);
+        Attributes test3Attributes = Mockito.mock(Attributes.class);
+        Attributes test4Attributes = Mockito.mock(Attributes.class);
+        Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.5);
+        Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.3);
+        Mockito.when(predictiveModel.getProbability(test3Attributes, "test1")).thenReturn(0.4);
+        Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);
 
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance.getClassification()).thenReturn("test1");
@@ -62,12 +64,12 @@ public class WeightedAUCCrossValLossTest {
         AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance3.getClassification()).thenReturn("test0");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        Mockito.when(instance3.getAttributes()).thenReturn(test2Attributes);
+        Mockito.when(instance3.getAttributes()).thenReturn(test3Attributes);
 
         AbstractInstance instance4 = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance4.getClassification()).thenReturn("test0");
         Mockito.when(instance4.getWeight()).thenReturn(1.0);
-        Mockito.when(instance4.getAttributes()).thenReturn(test1Attributes);
+        Mockito.when(instance4.getAttributes()).thenReturn(test4Attributes);
 
         List<AbstractInstance> instances = new LinkedList<>();
         instances.add(instance);
@@ -75,8 +77,8 @@ public class WeightedAUCCrossValLossTest {
         instances.add(instance3);
         instances.add(instance4);
 
-        //AUC Points at 0:0 .5:0 .5:.5 1:.5 1:1
-        double expectedArea = .75;
+        //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
+        double expectedArea = .25;
 
         Assert.assertEquals(expectedArea, crossValLoss.getLoss(instances, predictiveModel));
     }
