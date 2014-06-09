@@ -39,7 +39,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
             final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
-            return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
+            return new DownsamplingPredictiveModel(wrappedPredictiveModel, minorityEntry.getKey(), 0);
         }
 
         final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
@@ -48,7 +48,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
 
         final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
-        return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
+        return new DownsamplingPredictiveModel(wrappedPredictiveModel, minorityEntry.getKey(), dropProbability);
     }
 
     @Override

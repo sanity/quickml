@@ -14,13 +14,11 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = -265699047882740160L;
 
     public final PredictiveModel wrappedPredictiveModel;
-    private final Serializable majorityClassification;
     private final Serializable minorityClassification;
     private final double dropProbability;
 
-    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
+    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable minorityClassification, final double dropProbability) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
-        this.majorityClassification = majorityClassification;
         this.minorityClassification = minorityClassification;
         this.dropProbability = dropProbability;
     }
@@ -29,10 +27,10 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
     public double getProbability(final Attributes attributes, final Serializable classification) {
         double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
-        if (classification.equals(majorityClassification)) {
-            return 1 - probabilityOfMinorityInstance;
-        } else {
+        if (classification.equals(minorityClassification)) {
             return probabilityOfMinorityInstance;
+        } else {
+            return 1 - probabilityOfMinorityInstance;
         }
 
     }
@@ -49,7 +47,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
 
     @Override
     public void dump(final PrintStream printStream) {
-        printStream.println("Will correct for downsampling with drop probability "+dropProbability+" for majority classification "+majorityClassification);
+        printStream.println("Will correct for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification);
         wrappedPredictiveModel.dump(printStream);
     }
 
