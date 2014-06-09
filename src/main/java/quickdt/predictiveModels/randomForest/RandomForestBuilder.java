@@ -130,7 +130,8 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
                 treeTrainingDataArrayList.add(instance);
             }
             for (AbstractInstance instance : trainingData) {
-                int position = Misc.random.nextInt(bagSize);
+                //TODO: using bagSize here was getting indexOutOfBounds, can't figure out why
+                int position = Misc.random.nextInt(treeTrainingDataArrayList.size());
                 treeTrainingDataArrayList.add(position, instance);
             }
             treeTrainingData = treeTrainingDataArrayList;
