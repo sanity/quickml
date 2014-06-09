@@ -144,6 +144,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
     private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
+        int debugDepth = 1;
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
         if (updatable) {
