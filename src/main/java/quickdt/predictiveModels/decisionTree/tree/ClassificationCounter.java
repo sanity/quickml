@@ -41,7 +41,7 @@ public class ClassificationCounter implements Serializable {
 		}
 		return Pair.with(totals, result);
 	}
-
+//whats the diff between the map returned here and counts other than type?
     public Map<Serializable, Double> getCounts() {
         Map<Serializable, Double> ret = Maps.newHashMap();
         for (Entry<Serializable, Number> serializableNumberEntry : counts.entrySet()) {

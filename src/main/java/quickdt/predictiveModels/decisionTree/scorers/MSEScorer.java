@@ -34,7 +34,7 @@ public class MSEScorer implements Scorer {
     private double getTotalError(ClassificationCounter cc) {
         double totalError = 0;
         for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
-            double error = 1.0 - ((cc.getCount(e.getKey()) - crossValidationInstanceCorrection) / (cc.getTotal() - crossValidationInstanceCorrection));
+            double error = (cc.getTotal()>0) ? 1.0 - cc.getCount(e.getKey())/cc.getTotal() : 0;
             double errorSquared = error*error;
             totalError += errorSquared * e.getValue();
         }
