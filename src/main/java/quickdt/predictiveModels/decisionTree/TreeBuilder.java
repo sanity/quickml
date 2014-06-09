@@ -314,7 +314,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
         Serializable bestVal;
         double thisScore = -1.0;
-        List<Double> scores = Lists.newArrayList();
         while (true) {
             double bestScore = 0;
             bestVal = null;
@@ -333,7 +332,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
                 thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
-                scores.add(thisScore);
 
                 if (thisScore > bestScore) {
                     bestScore = thisScore;

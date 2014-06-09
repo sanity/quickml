@@ -33,7 +33,7 @@ public class TreeTests {
             e.printStackTrace();
         }
 
-        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(4).ignoreAttributeAtNodeProbability(.9).minCategoricalAttributeValueOccurances(0);
+        TreeBuilder treeBuilder = new TreeBuilder().maxDepth(4).ignoreAttributeAtNodeProbability(.7).minCategoricalAttributeValueOccurances(0);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(20);
         RandomForest randomForest = randomForestBuilder.buildPredictiveModel(trainingData);
         randomForest.dump(System.out, 20);

@@ -41,7 +41,8 @@ public class RandomForest implements PredictiveModel {
         for (Tree tree : trees) {
             printStream.print("depth " + tree.node.meanDepth() + "\n");
         }
-//        for (int i = 0; i < numTrees; i++)            trees.get(i).dump(printStream);
+        for (int i = 0; i < numTrees; i++)
+           trees.get(i).dump(printStream);
     }
 
     @Override
