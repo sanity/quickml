@@ -13,34 +13,37 @@ import java.util.*;
  */
 public class WeightedAUCCrossValLoss implements CrossValLoss {
     private final Serializable positiveClassification;
-    private Set<Serializable> classifications = new HashSet<Serializable>();
-    private List<AUCData> aucDataList = new ArrayList<AUCData>();
 
     public WeightedAUCCrossValLoss(Serializable positiveClassification) {
         this.positiveClassification = positiveClassification;
     }
 
-    private void addLoss(AbstractInstance abstractInstance, PredictiveModel predictiveModel) {
-        classifications.add(abstractInstance.getClassification());
-        if (classifications.size() > 2) {
-            throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
-        }
-        aucDataList.add(new AUCData(abstractInstance.getClassification(), abstractInstance.getWeight(), predictiveModel.getProbability(abstractInstance.getAttributes(), positiveClassification)));
-    }
-
     @Override
     public double getLoss(List<AbstractInstance> instances, PredictiveModel predictiveModel) {
-        for (AbstractInstance instance : instances) {
-            addLoss(instance, predictiveModel);
+        if (instances.isEmpty()) {
+            throw new IllegalStateException("Tried to get loss from empty data set");
         }
-        if (aucDataList.isEmpty()) {
-            throw new IllegalStateException("Tried to get AUC but nothing has been reported to AUCCrossValLoss");
-        }
+
+        List<AUCData> aucDataList = getAucDataList(instances, predictiveModel);
+
         sortDataByProbability(aucDataList);
 
         ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
 
         return getAUCLoss(aucPoints);
+    }
+
+    private List<AUCData> getAucDataList(List<AbstractInstance> instances, PredictiveModel predictiveModel) {
+        List<AUCData> aucDataList = new ArrayList<AUCData>();
+        Set<Serializable> classifications = new HashSet<Serializable>();
+        for (AbstractInstance instance : instances) {
+            classifications.add(instance.getClassification());
+            if (classifications.size() > 2) {
+                throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
+            }
+            aucDataList.add(new AUCData(instance.getClassification(), instance.getWeight(), predictiveModel.getProbability(instance.getAttributes(), positiveClassification)));
+        }
+        return aucDataList;
     }
 
     protected ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {

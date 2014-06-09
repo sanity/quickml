@@ -51,7 +51,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
             runningLoss += crossValLoss.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
-            logger.info("running Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+            logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
             updateTrainingSet();
             updateCrossValidationSet();
         }

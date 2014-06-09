@@ -130,7 +130,8 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
                 treeTrainingDataArrayList.add(instance);
             }
             for (AbstractInstance instance : trainingData) {
-                int position = Misc.random.nextInt(bagSize);
+                //TODO: using bagSize here was getting indexOutOfBounds, can't figure out why
+                int position = Misc.random.nextInt(treeTrainingDataArrayList.size());
                 treeTrainingDataArrayList.add(position, instance);
             }
             treeTrainingData = treeTrainingDataArrayList;
@@ -168,19 +169,19 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
     }
 
     private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> newData, int treeIndex, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
-        logger.info("Updating tree {} of {}", treeIndex, numTrees);
+        logger.debug("Updating tree {} of {}", treeIndex, numTrees);
         treeBuilder.updatePredictiveModel(tree, newData, trainingData, splitNodes);
         return tree;
     }
 
     private Tree stripModel(Tree tree, int treeIndex) {
-        logger.info("Stripping tree {} of {}", treeIndex, numTrees);
+        logger.debug("Stripping tree {} of {}", treeIndex, numTrees);
         treeBuilder.stripData(tree);
         return tree;
     }
 
   private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
-    logger.info("Building tree {} of {}", treeIndex, numTrees);
+    logger.debug("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
   }
 

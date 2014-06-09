@@ -33,12 +33,13 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
         final Map.Entry<Serializable, Double> majorityEntry = Misc.getEntryWithHighestValue(classificationProportions).get();
+        final Map.Entry<Serializable, Double> minorityEntry = Misc.getEntryWithLowestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
         final double majorityProportion = majorityEntry.getValue();
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
             final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
-            return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, 0);
+            return new DownsamplingPredictiveModel(wrappedPredictiveModel, minorityEntry.getKey(), 0);
         }
 
         final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
@@ -47,7 +48,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
 
         final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
-        return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, dropProbability);
+        return new DownsamplingPredictiveModel(wrappedPredictiveModel, minorityEntry.getKey(), dropProbability);
     }
 
     @Override

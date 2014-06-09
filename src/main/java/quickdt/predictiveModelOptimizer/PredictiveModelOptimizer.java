@@ -38,7 +38,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
         this(MAX_ITERATIONS, predictiveModelBuilderBuilder, trainingData, crossValidator, valueRecommenders);
     }
 
-        public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderBuilder<PM, PMB> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance> trainingData, CrossValidator crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
         this.crossValidator = crossValidator;
@@ -63,7 +63,6 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
         }
         return determineOptimalConfiguration(startingConfiguration);
     }
-
 
     public Map<String, Object> determineOptimalConfiguration(Map<String, Object> startingConfiguration) {
         Map<String, Object> bestConfigurationSoFar = startingConfiguration;
