@@ -1,6 +1,5 @@
 package quickdt.predictiveModels.downsamplingPredictiveModel;
 
-import com.google.common.base.Preconditions;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
@@ -16,19 +15,26 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
 
     public final PredictiveModel wrappedPredictiveModel;
     private final Serializable majorityClassification;
+    private final Serializable minorityClassification;
     private final double dropProbability;
 
-    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable majorityClassification, final double dropProbability) {
+    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.majorityClassification = majorityClassification;
+        this.minorityClassification = minorityClassification;
         this.dropProbability = dropProbability;
     }
 
     @Override
     public double getProbability(final Attributes attributes, final Serializable classification) {
-        Preconditions.checkArgument(!classification.equals(majorityClassification), "Only requesting the probability of the minority classification is currently supported (requested %s)", classification);
-        double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, classification);
-        return Utils.correctProbability(dropProbability, uncorrectedProbability);
+        double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, minorityClassification);
+        double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
+        if (classification.equals(majorityClassification)) {
+            return 1 - probabilityOfMinorityInstance;
+        } else {
+            return probabilityOfMinorityInstance;
+        }
+
     }
 
     /**
