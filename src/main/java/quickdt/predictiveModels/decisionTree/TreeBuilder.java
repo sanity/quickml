@@ -135,7 +135,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         Collections.sort(splitList);
 
         final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 2);
+        final int indexMultiplier = splitList.size() / (split.length + 1);
         for (int x = 0; x < split.length; x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);
         }
