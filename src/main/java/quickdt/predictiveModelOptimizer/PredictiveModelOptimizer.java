@@ -64,11 +64,6 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel, PMB extends Pr
         return determineOptimalConfiguration(startingConfiguration);
     }
 
-    public Double getLoss(Map<String, Object> configuration) {
-        return configurationLosses.get(configuration);
-    }
-
-
     public Map<String, Object> determineOptimalConfiguration(Map<String, Object> startingConfiguration) {
         Map<String, Object> bestConfigurationSoFar = startingConfiguration;
         int iterations = 0;
