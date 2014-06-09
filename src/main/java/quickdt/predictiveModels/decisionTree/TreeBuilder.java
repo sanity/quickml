@@ -26,7 +26,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
-    private int minCategoricalAttributeValueOccurances = 5;
+    private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
     private boolean updatable = false;
 
@@ -135,7 +135,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         Collections.sort(splitList);
 
         final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 1);
+        final int indexMultiplier = splitList.size() / (split.length + 2);
         for (int x = 0; x < split.length; x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);
         }
