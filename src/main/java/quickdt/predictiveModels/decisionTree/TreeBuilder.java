@@ -237,19 +237,19 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
                 numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
+            } else {
+                categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             }
-            categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
 
-            if (numericPair == null) {
-                thisPair = categoricalPair;
-            }  else {
-                thisPair = (numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
+            if (numericPair != null) {
+                thisPair = numericPair;
+            } else {
+                thisPair = categoricalPair;//(numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
             }
-            if (bestPair == null || thisPair.getValue1() > bestPair.getValue1()) {
+            if (bestPair == null || (thisPair != null && bestPair != null && thisPair.getValue1() > bestPair.getValue1())) {
                 bestPair = thisPair;
             }
         }
-    //    boolean testVal = bestPair ==null && attributesConsidered >0;
         return bestPair;
     }
 
