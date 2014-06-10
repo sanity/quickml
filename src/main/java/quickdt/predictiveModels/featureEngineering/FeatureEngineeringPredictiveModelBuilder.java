@@ -45,7 +45,6 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
     @Override
     public PredictiveModelBuilder<FeatureEngineeredPredictiveModel> updatable(boolean updatable) {
-        wrappedBuilder.updatable(updatable);
-        return this;
+        throw new UnsupportedOperationException();
     }
 }
