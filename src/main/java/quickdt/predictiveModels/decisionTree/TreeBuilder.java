@@ -26,12 +26,12 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
-    private int minCategoricalAttributeValueOccurances = 5;
+    private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
     private boolean updatable = false;
 
     public TreeBuilder() {
-        this(new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
+        this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
     }
 
     public TreeBuilder(final Scorer scorer) {
@@ -135,7 +135,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         Collections.sort(splitList);
 
         final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 2);
+        final int indexMultiplier = splitList.size() / (split.length + 1);
         for (int x = 0; x < split.length; x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);
         }
@@ -144,6 +144,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
     private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
+        int debugDepth = 0;
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
         if (updatable) {
@@ -162,7 +163,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         // If we were unable to find a useful branch, return the leaf
         if (bestNode == null || bestScore < minimumScore) {
-            // Its a bad sign when this happens, normally something to debug
+            // will be null if all attributes are ignored, and best score will be 0 if
+            //1 of 3 things happen: (1) all instances in the node have the same classification, (2) each attribute tried has just 1 observed value
+            //(3) subsets with the same attribute value have the same distribution of classifications
             return thisLeaf;
         }
 
@@ -219,12 +222,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
         Pair<? extends Branch, Double> bestPair = null;
 
+        int attributesConsidered=0;
 
 
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
             if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {
                 continue;
             }
+            attributesConsidered++;
 
             Pair<? extends Branch, Double> thisPair = null;
             Pair<? extends Branch, Double> numericPair = null;
@@ -232,15 +237,16 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
                 numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
+            } else {
+                categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             }
-            categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
 
-            if (numericPair == null) {
-                thisPair = categoricalPair;
-            }  else {
-                thisPair = (numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
+            if (numericPair != null) {
+                thisPair = numericPair;
+            } else {
+                thisPair = categoricalPair;//(numericPair.getValue1() > categoricalPair.getValue1()) ? numericPair : categoricalPair;
             }
-            if (bestPair == null || thisPair.getValue1() > bestPair.getValue1()) {
+            if (bestPair == null || (thisPair != null && bestPair != null && thisPair.getValue1() > bestPair.getValue1())) {
                 bestPair = thisPair;
             }
         }
@@ -296,17 +302,22 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             values.add(value);
         }
         double score = 0;
+
         final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
 
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
                 .countAllByAttributeValues(instances, attribute);
         ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
-        final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
+        boolean allSameClass = outCounts.allClassifications().size()==1;
 
+        final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
+        Serializable bestVal;
+        double thisScore = -1.0;
         while (true) {
             double bestScore = 0;
-            Serializable bestVal = null;
+            bestVal = null;
+            //values should be greater than 1
             for (final Serializable testVal : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
                 if (testValCounts == null) { // Also a kludge, figure out why
@@ -320,7 +331,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 final ClassificationCounter testInCounts = inCounts.add(testValCounts);
                 final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
-                final double thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
+                thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
 
                 if (thisScore > bestScore) {
                     bestScore = thisScore;
@@ -334,11 +345,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 final ClassificationCounter bestValOutcomeCounts = valueOutcomeCounts.get(bestVal);
                 inCounts = inCounts.add(bestValOutcomeCounts);
                 outCounts = outCounts.subtract(bestValOutcomeCounts);
+
             } else {
                 break;
             }
         }
-        return Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
+        Pair<CategoricalBranch, Double> bestPair =  Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
+ //       boolean testVal=bestSoFar.size()==0 && values.size()>1 && !allSameClass;
+        return bestPair;
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {

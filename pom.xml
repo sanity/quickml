@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickdt</groupId>
     <artifactId>quickdt</artifactId>
-    <version>0.1.8.9</version>
+    <version>0.1.9.0</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
@@ -91,6 +91,11 @@
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.3.2</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
