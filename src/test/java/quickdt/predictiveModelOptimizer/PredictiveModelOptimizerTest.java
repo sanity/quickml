@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
-import quickdt.crossValidation.LogCrossValLoss;
+import quickdt.crossValidation.RMSECrossValLoss;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
@@ -37,23 +37,16 @@ public class PredictiveModelOptimizerTest {
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final UpdatableRandomForestBuilderBuilder predictiveModelBuilderBuilder = new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder());
-        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLoss());
+        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new RMSECrossValLoss());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
         final PredictiveModelWithDataBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
         double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
-        int failureCount = 0;
-        for(int i = 0; i < 5; i++) {
-            double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
-            logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
-            if (optimizedLoss > defaultLoss) {
-                failureCount++;
-            }
-        }
-
-        Assert.assertTrue(failureCount<2, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss 4 in 5 times");
+        double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
+        logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
+        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss (" + optimizedLoss + ")");
     }
 
 }
