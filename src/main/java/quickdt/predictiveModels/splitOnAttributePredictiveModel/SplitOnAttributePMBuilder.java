@@ -4,15 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ian on 5/29/14.
@@ -24,10 +23,14 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     private final String attributeKey;
     private final PredictiveModelBuilder<?> wrappedBuilder;
+    private final long minimumAmountCrossData;
+    private final double percentCrossData;
 
-    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder) {
+    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
+        this.minimumAmountCrossData = minimumAmountCrossData;
+        this.percentCrossData = percentCrossData;
     }
 
     @Override
@@ -47,6 +50,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     private Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData(Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData = Maps.newHashMap();
+        List<AbstractInstance> allData = new ArrayList<>();
         for (AbstractInstance instance : trainingData) {
             Serializable value = instance.getAttributes().get(attributeKey);
             if (value == null) value = NO_VALUE_PLACEHOLDER;
@@ -56,8 +60,31 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
                 splitTrainingData.put(value, splitData);
             }
             splitData.add(instance);
+            allData.add(instance);
         }
+
+        crossPollinateData(splitTrainingData, allData);
         return splitTrainingData;
+    }
+
+    private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, List<AbstractInstance> allData) {
+        for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
+            long amountCrossData = (long) Math.max(entry.getValue().size() * percentCrossData, minimumAmountCrossData);
+            //using a set to prevent duplicate data
+            Set<AbstractInstance> crossData = new HashSet<AbstractInstance>();
+            long attempts = 0;
+            //get random selection of data to cross pollinate
+            while(crossData.size() < amountCrossData && attempts < amountCrossData*2) {
+                //keep track of attempts as a secondary break condition
+                attempts++;
+                AbstractInstance instance = allData.get(Misc.random.nextInt(allData.size()));
+                if (!instance.getAttributes().get(attributeKey).equals(entry.getKey())) {
+                    crossData.add(instance);
+                }
+            }
+            //cross pollinate data
+            entry.getValue().addAll(crossData);
+        }
     }
 
     @Override

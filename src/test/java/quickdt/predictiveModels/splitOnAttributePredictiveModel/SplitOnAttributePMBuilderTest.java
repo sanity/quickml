@@ -23,13 +23,12 @@ public class SplitOnAttributePMBuilderTest {
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb);
+        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1);
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM splitOnAttributePM = cpmb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) splitOnAttributePM.getDefaultPM();
 
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
-
         final List<Tree> trees = randomForest.trees;
         final int treeSize = trees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
@@ -88,7 +87,7 @@ public class SplitOnAttributePMBuilderTest {
     private PredictiveModelWithDataBuilder<SplitOnAttributePM > getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb);
+        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb, 10, 0.1);
         return new PredictiveModelWithDataBuilder<>(ucpmb);
     }
 }
