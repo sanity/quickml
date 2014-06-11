@@ -15,10 +15,12 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
 
     public final PredictiveModel wrappedPredictiveModel;
     private final Serializable minorityClassification;
+    private final Serializable majorityClassification;
     private final double dropProbability;
 
-    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable minorityClassification, final double dropProbability) {
+    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
+        this.majorityClassification = majorityClassification;
         this.minorityClassification = minorityClassification;
         this.dropProbability = dropProbability;
     }
@@ -54,5 +56,13 @@ public class DownsamplingPredictiveModel implements PredictiveModel {
     @Override
     public Serializable getClassificationByMaxProb(final Attributes attributes) {
         return wrappedPredictiveModel.getClassificationByMaxProb(attributes);
+    }
+
+    public double getDropProbability() {
+        return dropProbability;
+    }
+
+    public Serializable getMajorityClassification() {
+        return majorityClassification;
     }
 }

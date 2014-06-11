@@ -22,7 +22,6 @@ public class SplitOnAttributePM implements PredictiveModel {
         this.defaultPM = defaultPM;
     }
 
-
     @Override
     public double getProbability(final Attributes attributes, final Serializable classification) {
         return getModelForAttributes(attributes).getProbability(attributes, classification);
@@ -46,6 +45,14 @@ public class SplitOnAttributePM implements PredictiveModel {
     @Override
     public Serializable getClassificationByMaxProb(final Attributes attributes) {
         return getModelForAttributes(attributes).getClassificationByMaxProb(attributes);
+    }
+
+    public PredictiveModel getDefaultPM() {
+        return defaultPM;
+    }
+
+    public Map<Serializable, PredictiveModel> getSplitModels() {
+        return splitModels;
     }
 
     private PredictiveModel getModelForAttributes(Attributes attributes) {

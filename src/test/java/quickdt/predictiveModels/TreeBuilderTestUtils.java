@@ -21,7 +21,7 @@ public class TreeBuilderTestUtils {
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);
-            instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height));
+            instances.add(Instance.create(bmiHealthy(weight, height), "weight", weight, "height", height, "gender", Misc.random.nextInt(2)));
         }
         return instances;
     }
