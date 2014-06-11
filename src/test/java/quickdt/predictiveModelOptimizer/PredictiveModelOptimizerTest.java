@@ -23,7 +23,7 @@ import java.util.Map;
 public class PredictiveModelOptimizerTest {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
-    @Test(enabled = false)
+    @Test
     public void irisTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
@@ -44,9 +44,16 @@ public class PredictiveModelOptimizerTest {
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
         final PredictiveModelWithDataBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
         double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
-        double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
-        logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
-        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss (" + optimizedLoss + ")");
+        int failureCount = 0;
+        for(int i = 0; i < 5; i++) {
+            double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
+            logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
+            if (optimizedLoss > defaultLoss) {
+                failureCount++;
+            }
+        }
+
+        Assert.assertTrue(failureCount<2, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss 4 in 5 times");
     }
 
 }
