@@ -4,11 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.Misc;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -67,24 +67,41 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         return splitTrainingData;
     }
 
+    /*
+    * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
+    * selecting that ratio from outside sets
+    * */
     private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, List<AbstractInstance> allData) {
         for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
-            long amountCrossData = (long) Math.max(entry.getValue().size() * percentCrossData, minimumAmountCrossData);
-            //using a set to prevent duplicate data
-            Set<AbstractInstance> crossData = new HashSet<AbstractInstance>();
-            long attempts = 0;
-            //get random selection of data to cross pollinate
-            while(crossData.size() < amountCrossData && attempts < amountCrossData*2) {
-                //keep track of attempts as a secondary break condition
-                attempts++;
-                AbstractInstance instance = allData.get(Misc.random.nextInt(allData.size()));
-                if (!instance.getAttributes().get(attributeKey).equals(entry.getKey())) {
+            ClassificationCounter classificationCounter = ClassificationCounter.countAll(entry.getValue());
+            long amountCrossData = (long) Math.max(classificationCounter.getTotal() * percentCrossData, minimumAmountCrossData);
+            Set<AbstractInstance> crossData = new HashSet<>();
+            ClassificationCounter crossDataCount = new ClassificationCounter();
+            for(AbstractInstance instance : allData) {
+                if(shouldAddInstance(entry.getKey(), instance, classificationCounter, crossDataCount, amountCrossData)) {
                     crossData.add(instance);
+                    crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
+                }
+                if(crossDataCount.getTotal() >= amountCrossData) {
+                    break;
                 }
             }
             //cross pollinate data
             entry.getValue().addAll(crossData);
         }
+    }
+
+    /*
+     * Add instances such that the ratio of classifications is unchanged
+    * */
+    private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter classificationCounter, ClassificationCounter crossDataCount, long amountCrossData) {
+        if (!instance.getAttributes().get(attributeKey).equals(attributeValue)) {
+            double targetCount = classificationCounter.getCount(instance.getClassification()) / classificationCounter.getTotal() * amountCrossData;
+            if (targetCount > crossDataCount.getCount(instance.getClassification())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
