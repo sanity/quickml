@@ -23,7 +23,7 @@ import java.util.Map;
 public class PredictiveModelOptimizerTest {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
-    @Test
+    @Test(enabled = false)
     public void irisTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
