@@ -231,7 +231,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
-            boolean instanceIsInTheSupportingDataSet = isSplitPredictiveModel && instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            boolean instanceIsInTheSupportingDataSet =  isSplitPredictiveModel
+                                                        && bestNode.attribute != splitAttribute
+                                                        && !instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             }
