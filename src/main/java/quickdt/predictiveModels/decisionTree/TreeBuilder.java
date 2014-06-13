@@ -20,7 +20,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
-    public static final Serializable MISSING_VALUE = Double.MIN_VALUE;
+    public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
