@@ -50,7 +50,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     private Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData(Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData = Maps.newHashMap();
-        List<AbstractInstance> allData = new ArrayList<>();
+        ArrayList<AbstractInstance> allData = new ArrayList<>();
         for (AbstractInstance instance : trainingData) {
             Serializable value = instance.getAttributes().get(attributeKey);
             if (value == null) value = NO_VALUE_PLACEHOLDER;
@@ -71,13 +71,14 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
     * selecting that ratio from outside sets
     * */
-    private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, List<AbstractInstance> allData) {
+    private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, ArrayList<AbstractInstance> allData) {
         for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
             ClassificationCounter classificationCounter = ClassificationCounter.countAll(entry.getValue());
             long amountCrossData = (long) Math.max(classificationCounter.getTotal() * percentCrossData, minimumAmountCrossData);
             Set<AbstractInstance> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
-            for(AbstractInstance instance : allData) {
+            for(int i = allData.size()-1; i >= 0; i--) {
+                AbstractInstance instance = allData.get(i);
                 if(shouldAddInstance(entry.getKey(), instance, classificationCounter, crossDataCount, amountCrossData)) {
                     crossData.add(instance);
                     crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
