@@ -17,7 +17,7 @@ public final class CategoricalBranch extends Branch {
 	}
 
 	@Override
-	protected boolean decide(final Attributes attributes) {
+	public boolean decide(final Attributes attributes) {
 		return inSet.contains(attributes.get(attribute));
 	}
 

@@ -4,11 +4,13 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickdt.collections.ValueSummingMap;
 import quickdt.data.AbstractInstance;
+import static quickdt.predictiveModels.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 
 public class ClassificationCounter implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
@@ -27,21 +29,21 @@ public class ClassificationCounter implements Serializable {
 			final Iterable<? extends AbstractInstance> instances, final String attribute) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
-		for (final AbstractInstance instance : instances) {
+		Serializable missingValue = MISSING_VALUE;
+        for (final AbstractInstance instance : instances) {
 			final Serializable attrVal = instance.getAttributes().get(attribute);
-			if (attrVal != null) {
-				ClassificationCounter cc = result.get(attrVal);
-				if (cc == null) {
+            ClassificationCounter cc = (attrVal!=null) ? result.get(attrVal) : result.get(missingValue);
+            if (cc == null) {
 					cc = new ClassificationCounter();
-					result.put(attrVal, cc);
-				}
-				cc.addClassification(instance.getClassification(), instance.getWeight());
-				totals.addClassification(instance.getClassification(), instance.getWeight());
-			}
+                    Serializable newKey = (attrVal != null) ? attrVal : missingValue;
+					result.put(newKey, cc);
+		    }
+			cc.addClassification(instance.getClassification(), instance.getWeight());
+			totals.addClassification(instance.getClassification(), instance.getWeight());
 		}
 		return Pair.with(totals, result);
 	}
-//whats the diff between the map returned here and counts other than type?
+
     public Map<Serializable, Double> getCounts() {
         Map<Serializable, Double> ret = Maps.newHashMap();
         for (Entry<Serializable, Number> serializableNumberEntry : counts.entrySet()) {
