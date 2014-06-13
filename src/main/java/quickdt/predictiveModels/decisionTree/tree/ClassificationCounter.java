@@ -26,16 +26,21 @@ public class ClassificationCounter implements Serializable {
     }
 
 	public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-			final Iterable<? extends AbstractInstance> instances, final String attribute) {
+			final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
-		Serializable missingValue = MISSING_VALUE;
         for (final AbstractInstance instance : instances) {
 			final Serializable attrVal = instance.getAttributes().get(attribute);
-            ClassificationCounter cc = (attrVal!=null) ? result.get(attrVal) : result.get(missingValue);
-            if (cc == null) {
+            ClassificationCounter cc = null;
+            boolean isAnAcceptableMissingValue = splitAttribute == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            if (attrVal!=null)
+                cc = result.get(attrVal);
+            else if (isAnAcceptableMissingValue)
+                cc = result.get(MISSING_VALUE);
+
+            if (cc == null || isAnAcceptableMissingValue) {
 					cc = new ClassificationCounter();
-                    Serializable newKey = (attrVal != null) ? attrVal : missingValue;
+                    Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
 					result.put(newKey, cc);
 		    }
 			cc.addClassification(instance.getClassification(), instance.getWeight());

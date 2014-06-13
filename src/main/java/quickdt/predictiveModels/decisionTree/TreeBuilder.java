@@ -350,7 +350,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
-                .countAllByAttributeValues(instances, attribute);
+                .countAllByAttributeValues(instances, attribute, splitAttribute, splitAttributeValue);
         ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
         boolean allSameClass = outCounts.allClassifications().size()==1;
 
@@ -581,7 +581,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             try {
                 Serializable value = input.getAttributes().get(attribute);
                 if (value == null) value = 0;
-                return input == null || ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
+                return (input == null && !isSplitPredictiveModel)|| ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;
