@@ -22,7 +22,7 @@ public final class CategoricalBranch extends Branch {
 		    Serializable attributeVal = attributes.get(attribute);
             if (attributeVal==null)
                 attributeVal = MISSING_VALUE;
-        return inSet.contains(attributes.get(attribute));
+        return inSet.contains(attributeVal);
 	}
 
 	@Override

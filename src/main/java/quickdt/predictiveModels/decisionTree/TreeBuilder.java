@@ -232,7 +232,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
             boolean instanceIsInTheSupportingDataSet =  isSplitPredictiveModel
-                                                        && bestNode.attribute != splitAttribute
+                                                        && !bestNode.attribute.equals(splitAttribute)
                                                         && !instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
@@ -248,7 +248,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //put instances without values for the split attribute in the true and false set in proper proportions.
         for (AbstractInstance instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size()/(trueTrainingSet.size() + falseTrainingSet.size());
-            Random rand = new Random();
+            Random rand = Misc.random;
             if (rand.nextDouble() < trueThreshold) {
                 trueTrainingSet.add(instance);
             }
@@ -401,7 +401,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         double lowestClassificationCount = Double.MAX_VALUE;
         for (double classificationCount : testValCounts.getCounts().values()) {
-            if (classificationCount < lowestClassificationCount) {
+            if (classificationCount < lowestClassificationCount) {//change to sum of classification counts being <minCatagorical.
                 lowestClassificationCount = classificationCount;
             }
         }
