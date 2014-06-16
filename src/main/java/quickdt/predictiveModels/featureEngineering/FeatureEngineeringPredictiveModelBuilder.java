@@ -9,6 +9,7 @@ import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -46,5 +47,10 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     @Override
     public PredictiveModelBuilder<FeatureEngineeredPredictiveModel> updatable(boolean updatable) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setID(Serializable id) {
+        wrappedBuilder.setID(id);
     }
 }

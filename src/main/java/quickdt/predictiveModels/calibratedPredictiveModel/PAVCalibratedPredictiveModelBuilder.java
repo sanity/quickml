@@ -67,6 +67,11 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         }
     }
 
+    @Override
+    public void setID(Serializable id) {
+        predictiveModelBuilder.setID(id);
+    }
+
     private void updateCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
 

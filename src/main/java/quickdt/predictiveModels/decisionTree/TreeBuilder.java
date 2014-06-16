@@ -31,10 +31,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
     private boolean updatable = false;
-    private boolean isSplitPredictiveModel = false;
     private String splitAttribute = null;
-    private Serializable splitAttributeValue = null;
     private Set<String> splitModelWhiteList;
+    private Serializable id;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -54,10 +53,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return this;
     }
 
-    public TreeBuilder splitPredictiveModel(String splitAttribute, Serializable splitAttributeValue, Set<String> splitModelWhiteList) {
-        this.isSplitPredictiveModel = true;
+    public TreeBuilder splitPredictiveModel(String splitAttribute, Set<String> splitModelWhiteList) {
         this.splitAttribute = splitAttribute;
-        this.splitAttributeValue = splitAttributeValue;
         this.splitModelWhiteList = splitModelWhiteList;
         return this;
     }
@@ -80,6 +77,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     public TreeBuilder updatable(boolean updatable) {
         this.updatable = updatable;
         return this;
+    }
+
+    @Override
+    public void setID(Serializable id) {
+        this.id = id;
     }
 
     @Override
@@ -250,8 +252,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
-            boolean instanceIsInTheSupportingDataSet =  isSplitPredictiveModel
-                                                        && !instance.getAttributes().get(splitAttribute).equals(splitAttributeValue)
+            boolean instanceIsInTheSupportingDataSet =  splitAttribute != null && id != null
+                                                        && !instance.getAttributes().get(splitAttribute).equals(id)
                                                         && !splitModelWhiteList.contains(bestNode.attribute);
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
@@ -369,7 +371,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
-                .countAllByAttributeValues(instances, attribute, splitAttribute, splitAttributeValue);
+                .countAllByAttributeValues(instances, attribute, splitAttribute, id);
         ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
         boolean allSameClass = outCounts.allClassifications().size()==1;
 
@@ -600,7 +602,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             try {
                 Serializable value = input.getAttributes().get(attribute);
                 if (value == null) value = 0;
-                return (input == null && !isSplitPredictiveModel)|| ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
+                return (input == null && splitAttribute != null)|| ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
                 return false;

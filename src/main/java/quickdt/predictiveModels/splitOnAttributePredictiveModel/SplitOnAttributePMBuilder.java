@@ -40,10 +40,12 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         Map<Serializable, PredictiveModel> splitModels = Maps.newHashMap();
         for (Map.Entry<Serializable, ArrayList<AbstractInstance>> trainingDataEntry : splitTrainingData.entrySet()) {
             logger.info("Building predictive model for "+attributeKey+"="+trainingDataEntry.getKey());
+            setID(trainingDataEntry.getKey());
             splitModels.put(trainingDataEntry.getKey(), wrappedBuilder.buildPredictiveModel(trainingDataEntry.getValue()));
         }
 
         logger.info("Building default predictive model");
+        setID(null);
         final PredictiveModel defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
         return new SplitOnAttributePM(attributeKey, splitModels, defaultPM);
     }
@@ -112,6 +114,11 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     }
 
     @Override
+    public void setID(Serializable id) {
+        wrappedBuilder.setID(id);
+    }
+
+    @Override
     public void updatePredictiveModel(SplitOnAttributePM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             Map<Serializable, ArrayList<AbstractInstance>> splitNewData = splitTrainingData(newData);
@@ -119,6 +126,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
                 PredictiveModel pm = predictiveModel.getSplitModels().get(newDataEntry.getKey());
                 if(pm == null) {
                     logger.info("Building predictive model for "+attributeKey+"="+newDataEntry.getKey());
+                    setID(newDataEntry.getKey());
                     pm = wrappedBuilder.buildPredictiveModel(newDataEntry.getValue());
                     predictiveModel.getSplitModels().put(newDataEntry.getKey(), pm);
                 } else {
@@ -127,6 +135,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
                 }
             }
             logger.info("Updating default predictive model");
+            setID(null);
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(predictiveModel.getDefaultPM(), newData, trainingData, splitNodes);
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
