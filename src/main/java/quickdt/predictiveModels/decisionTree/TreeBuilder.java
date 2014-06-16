@@ -7,6 +7,9 @@ import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
+import quickdt.data.Attributes;
+import quickdt.data.HashMapAttributes;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
@@ -31,6 +34,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private boolean isSplitPredictiveModel = false;
     private String splitAttribute = null;
     private Serializable splitAttributeValue = null;
+    private Set<String> splitModelWhiteList;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -50,10 +54,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return this;
     }
 
-    public TreeBuilder splitPredictiveModel(String splitAttribute, Serializable splitAttributeValue) {
+    public TreeBuilder splitPredictiveModel(String splitAttribute, Serializable splitAttributeValue, Set<String> splitModelWhiteList) {
         this.isSplitPredictiveModel = true;
         this.splitAttribute = splitAttribute;
         this.splitAttributeValue = splitAttributeValue;
+        this.splitModelWhiteList = splitModelWhiteList;
         return this;
     }
 
@@ -97,6 +102,20 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         stripNode(tree.node);
     }
 
+    private List<AbstractInstance> stripSupportingData(List<? extends AbstractInstance> unstrippedInstances) {
+        List<AbstractInstance> cleanSupportingData = new ArrayList<AbstractInstance>();
+        Attributes attributes;
+        for (AbstractInstance instance : unstrippedInstances) {
+            attributes = new HashMapAttributes();
+            for (String key : instance.getAttributes().keySet()) {
+                if (splitModelWhiteList.contains(key)) {
+                    attributes.put(key, instance.getAttributes().get(key));
+                }
+            }
+            cleanSupportingData.add(new Instance(attributes, instance.getClassification(), instance.getWeight()));
+        }
+        return cleanSupportingData;
+    }
 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
@@ -232,8 +251,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
             boolean instanceIsInTheSupportingDataSet =  isSplitPredictiveModel
-                                                        && !bestNode.attribute.equals(splitAttribute)
-                                                        && !instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+                                                        && !instance.getAttributes().get(splitAttribute).equals(splitAttributeValue)
+                                                        && !splitModelWhiteList.contains(bestNode.attribute);
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             }
