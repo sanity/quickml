@@ -5,6 +5,9 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
+import quickdt.data.Attributes;
+import quickdt.data.HashMapAttributes;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
@@ -25,12 +28,14 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     private final PredictiveModelBuilder<?> wrappedBuilder;
     private final long minimumAmountCrossData;
     private final double percentCrossData;
+    private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData) {
+    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
         this.minimumAmountCrossData = minimumAmountCrossData;
         this.percentCrossData = percentCrossData;
+        this.attributeWhiteList = attributeWhiteList;
     }
 
     @Override
@@ -71,7 +76,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     /*
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
-    * selecting that ratio from outside sets
+    * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that in in the white list
     * */
     private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, ArrayList<AbstractInstance> allData) {
         for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
@@ -82,7 +87,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
             for(int i = allData.size()-1; i >= 0; i--) {
                 AbstractInstance instance = allData.get(i);
                 if(shouldAddInstance(entry.getKey(), instance, classificationCounter, crossDataCount, amountCrossData)) {
-                    crossData.add(instance);
+                    crossData.add(cleanSupportingData(instance));
                     crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
                 }
                 if(crossDataCount.getTotal() >= amountCrossData) {
@@ -105,6 +110,16 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
             }
         }
         return false;
+    }
+
+    private AbstractInstance cleanSupportingData(AbstractInstance instance) {
+        Attributes attributes = new HashMapAttributes();
+        for (String key : instance.getAttributes().keySet()) {
+            if (attributeWhiteList.contains(key)) {
+                attributes.put(key, instance.getAttributes().get(key));
+            }
+        }
+        return new Instance(attributes, instance.getClassification(), instance.getWeight());
     }
 
     @Override

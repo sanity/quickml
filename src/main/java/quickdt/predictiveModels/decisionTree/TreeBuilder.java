@@ -104,21 +104,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         stripNode(tree.node);
     }
 
-    private List<AbstractInstance> stripSupportingData(List<? extends AbstractInstance> unstrippedInstances) {
-        List<AbstractInstance> cleanSupportingData = new ArrayList<AbstractInstance>();
-        Attributes attributes;
-        for (AbstractInstance instance : unstrippedInstances) {
-            attributes = new HashMapAttributes();
-            for (String key : instance.getAttributes().keySet()) {
-                if (splitModelWhiteList.contains(key)) {
-                    attributes.put(key, instance.getAttributes().get(key));
-                }
-            }
-            cleanSupportingData.add(new Instance(attributes, instance.getClassification(), instance.getWeight()));
-        }
-        return cleanSupportingData;
-    }
-
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
@@ -252,9 +237,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
-            boolean instanceIsInTheSupportingDataSet =  splitAttribute != null && id != null
-                                                        && !instance.getAttributes().get(splitAttribute).equals(id)
-                                                        && !splitModelWhiteList.contains(bestNode.attribute);
+            boolean instanceIsInTheSupportingDataSet =  splitAttribute != null && id != null //if using a split model
+                                                        && !instance.getAttributes().get(splitAttribute).equals(id) //and this data isn't part of this split (it is cross pollinated data)
+                                                        && !splitModelWhiteList.contains(bestNode.attribute); //and the attribute isn't in the whitelist
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             }
