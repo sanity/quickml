@@ -5,8 +5,8 @@ import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 
-import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by chrisreeves on 6/10/14.
@@ -16,10 +16,12 @@ public class SplitOnAttributePMBuilderBuilder implements PredictiveModelBuilderB
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
     private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
     private final String attributeKey;
+    private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributePMBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder, String attributeKey) {
+    public SplitOnAttributePMBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.attributeKey = attributeKey;
+        this.attributeWhiteList = attributeWhiteList;
     }
 
     @Override
@@ -34,6 +36,6 @@ public class SplitOnAttributePMBuilderBuilder implements PredictiveModelBuilderB
     @Override
     public SplitOnAttributePMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
         return new SplitOnAttributePMBuilder(attributeKey, wrappedBuilderBuilder.buildBuilder(predictiveModelConfig),
-                (Long) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA), (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA), Collections.EMPTY_SET);
+                (Long) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA), (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA), attributeWhiteList);
     }
 }
