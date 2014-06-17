@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -32,6 +34,6 @@ public class SplitOnAttributePMBuilderBuilder implements PredictiveModelBuilderB
     @Override
     public SplitOnAttributePMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
         return new SplitOnAttributePMBuilder(attributeKey, wrappedBuilderBuilder.buildBuilder(predictiveModelConfig),
-                (Long) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA), (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA));
+                (Long) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA), (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA), Collections.EMPTY_SET);
     }
 }

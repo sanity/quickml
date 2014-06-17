@@ -115,7 +115,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     private AbstractInstance cleanSupportingData(AbstractInstance instance) {
         Attributes attributes = new HashMapAttributes();
         for (String key : instance.getAttributes().keySet()) {
-            if (attributeWhiteList.contains(key)) {
+            if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
                 attributes.put(key, instance.getAttributes().get(key));
             }
         }

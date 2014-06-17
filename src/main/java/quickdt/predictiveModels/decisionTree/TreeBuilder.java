@@ -7,9 +7,6 @@ import com.twitter.common.stats.ReservoirSampler;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
@@ -239,6 +236,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         for (AbstractInstance instance : trainingData) {
             boolean instanceIsInTheSupportingDataSet =  splitAttribute != null && id != null //if using a split model
                                                         && !instance.getAttributes().get(splitAttribute).equals(id) //and this data isn't part of this split (it is cross pollinated data)
+                                                        && !splitModelWhiteList.isEmpty() //a white list is defined
                                                         && !splitModelWhiteList.contains(bestNode.attribute); //and the attribute isn't in the whitelist
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
