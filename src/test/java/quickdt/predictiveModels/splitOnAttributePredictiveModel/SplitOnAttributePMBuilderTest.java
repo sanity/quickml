@@ -22,12 +22,12 @@ import java.util.Set;
 public class SplitOnAttributePMBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
+        final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1, whiteList);
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM splitOnAttributePM = cpmb.buildPredictiveModel(instances);
@@ -90,11 +90,11 @@ public class SplitOnAttributePMBuilderTest {
     }
 
     private PredictiveModelWithDataBuilder<SplitOnAttributePM > getWrappedUpdatablePredictiveModelBuilder() {
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
+        final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb, 10, 0.1, whiteList);
         return new PredictiveModelWithDataBuilder<>(ucpmb);
     }
