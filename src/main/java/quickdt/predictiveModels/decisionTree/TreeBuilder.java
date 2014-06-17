@@ -102,10 +102,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         stripNode(tree.node);
     }
 
-    private List<AbstractInstance> stripSupportingData(List<? extends AbstractInstance> unstrippedInstances) {
+    public List<AbstractInstance> stripSupportingData(List<? extends AbstractInstance> unstrippedSupportingInstances) {
         List<AbstractInstance> cleanSupportingData = new ArrayList<AbstractInstance>();
         Attributes attributes;
-        for (AbstractInstance instance : unstrippedInstances) {
+        for (AbstractInstance instance : unstrippedSupportingInstances) {
             attributes = new HashMapAttributes();
             for (String key : instance.getAttributes().keySet()) {
                 if (splitModelWhiteList.contains(key)) {
