@@ -12,7 +12,9 @@ import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Chris on 5/14/2014.
@@ -20,10 +22,13 @@ import java.util.List;
 public class SplitOnAttributePMBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
+        Set<String> whiteList = new HashSet<>();
+        whiteList.add("weight");
+        whiteList.add("height");
         final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1);
+        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1, whiteList);
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM splitOnAttributePM = cpmb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) splitOnAttributePM.getDefaultPM();
@@ -85,9 +90,12 @@ public class SplitOnAttributePMBuilderTest {
     }
 
     private PredictiveModelWithDataBuilder<SplitOnAttributePM > getWrappedUpdatablePredictiveModelBuilder() {
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        Set<String> whiteList = new HashSet<>();
+        whiteList.add("weight");
+        whiteList.add("height");
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb, 10, 0.1);
+        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb, 10, 0.1, whiteList);
         return new PredictiveModelWithDataBuilder<>(ucpmb);
     }
 }

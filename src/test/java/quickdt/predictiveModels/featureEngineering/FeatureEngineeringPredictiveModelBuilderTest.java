@@ -62,6 +62,11 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
             return this;
         }
 
+        @Override
+        public void setID(Serializable id) {
+
+        }
+
     }
 
     public static class TestPM implements PredictiveModel {

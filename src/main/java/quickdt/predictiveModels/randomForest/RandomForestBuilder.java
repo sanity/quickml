@@ -11,6 +11,7 @@ import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -29,6 +30,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
   private int executorThreadCount = Runtime.getRuntime().availableProcessors();
   private ExecutorService executorService;
   private int baggingSampleSize = 0;
+  private Serializable id;
 
     public RandomForestBuilder() {
     this(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5));
@@ -68,10 +70,16 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
       return this;
   }
 
+    @Override
+    public void setID(Serializable id) {
+        treeBuilder.setID(id);
+    }
 
-  public synchronized RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+
+    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
     executorService = Executors.newFixedThreadPool(executorThreadCount);
     logger.info("Building random forest with {} trees", numTrees);
+    treeBuilder.setID(id);
 
     List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
     List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);

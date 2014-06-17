@@ -2,6 +2,7 @@ package quickdt.predictiveModels;
 
 import quickdt.data.AbstractInstance;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,4 +15,5 @@ import java.util.List;
 public interface PredictiveModelBuilder<PM extends PredictiveModel> {
     PM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData);
     PredictiveModelBuilder<PM> updatable(boolean updatable);
+    void setID(Serializable id);
 }

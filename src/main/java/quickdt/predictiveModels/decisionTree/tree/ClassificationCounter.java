@@ -32,7 +32,7 @@ public class ClassificationCounter implements Serializable {
         for (final AbstractInstance instance : instances) {
 			final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc = null;
-            boolean isAnAcceptableMissingValue = splitAttribute == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            boolean isAnAcceptableMissingValue = splitAttribute == null || splitAttributeValue == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
             if (attrVal!=null)
                 cc = result.get(attrVal);
             else if (isAnAcceptableMissingValue)
