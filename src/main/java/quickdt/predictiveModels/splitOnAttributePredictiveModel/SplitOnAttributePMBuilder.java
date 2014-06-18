@@ -26,16 +26,18 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     private final String attributeKey;
     private final PredictiveModelBuilder<?> wrappedBuilder;
-    private final long minimumAmountCrossData;
+    private final long minimumAmountTotalCrossData;
     private final double percentCrossData;
     private final Set<String> attributeWhiteList;
+    private final long minimumAmountCrossDataPerClassification;
 
-    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList) {
+    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, long minimumAmountCrossDataPerClassification) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
-        this.minimumAmountCrossData = minimumAmountCrossData;
+        this.minimumAmountTotalCrossData = minimumAmountCrossData;
         this.percentCrossData = percentCrossData;
         this.attributeWhiteList = attributeWhiteList;
+        this.minimumAmountCrossDataPerClassification = minimumAmountCrossDataPerClassification;
     }
 
     @Override
@@ -81,13 +83,13 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, ArrayList<AbstractInstance> allData) {
         for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
             ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue());
-            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountCrossData);
+            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);
             Set<AbstractInstance> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
                 AbstractInstance instance = allData.get(i);
                 double classificationRatio = splitClassificationCounter.getCount(instance.getClassification()) / splitClassificationCounter.getTotal();
-                double targetCount = classificationRatio * amountCrossData;
+                double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
                 if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
                     crossData.add(cleanSupportingData(instance));
                     crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
