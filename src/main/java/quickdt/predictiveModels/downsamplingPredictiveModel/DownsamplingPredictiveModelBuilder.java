@@ -57,6 +57,11 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         return this;
     }
 
+    @Override
+    public void setID(Serializable id) {
+        predictiveModelBuilder.setID(id);
+    }
+
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;

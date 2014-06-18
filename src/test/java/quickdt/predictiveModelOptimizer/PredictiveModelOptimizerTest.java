@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
-import quickdt.crossValidation.LogCrossValLoss;
+import quickdt.crossValidation.RMSECrossValLoss;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class PredictiveModelOptimizerTest {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
-    @Test
+    @Test(enabled = false)
     public void irisTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
@@ -37,7 +37,7 @@ public class PredictiveModelOptimizerTest {
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final UpdatableRandomForestBuilderBuilder predictiveModelBuilderBuilder = new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder());
-        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLoss());
+        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new RMSECrossValLoss());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);
