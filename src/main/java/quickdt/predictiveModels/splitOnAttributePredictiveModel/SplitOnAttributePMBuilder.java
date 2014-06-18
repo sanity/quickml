@@ -103,7 +103,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
      * Add instances such that the ratio of classifications is unchanged
     * */
     private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter classificationCounter, ClassificationCounter crossDataCount, long amountCrossData) {
-        if (!instance.getAttributes().get(attributeKey).equals(attributeValue)) {
+        if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             double targetCount = classificationCounter.getCount(instance.getClassification()) / classificationCounter.getTotal() * amountCrossData;
             if (targetCount > crossDataCount.getCount(instance.getClassification())) {
                 return true;
