@@ -384,6 +384,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                     bestVal = testVal;
                 }
             }
+
             if (bestScore > score) {
                 score = bestScore;
                 bestSoFar.add(bestVal);
@@ -396,6 +397,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 break;
             }
         }
+        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances)
+            return null;
         Pair<CategoricalBranch, Double> bestPair =  Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
  //       boolean testVal=bestSoFar.size()==0 && values.size()>1 && !allSameClass;
         return bestPair;
@@ -430,6 +433,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
+            if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances)
+                continue;
 
             final double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
 
@@ -438,6 +443,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 bestThreshold = threshold;
             }
         }
+        if (bestScore==0)
+            return null;
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
     }
 
