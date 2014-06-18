@@ -19,7 +19,7 @@ public abstract class Branch extends Node {
         this.attribute = attribute;
 	}
 
-	protected abstract boolean decide(Attributes attributes);
+	public abstract boolean decide(Attributes attributes);
 
 	@Override
 	public int size() {
