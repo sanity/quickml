@@ -80,13 +80,15 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     * */
     private void crossPollinateData(Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData, ArrayList<AbstractInstance> allData) {
         for(Map.Entry<Serializable, ArrayList<AbstractInstance>> entry : splitTrainingData.entrySet()) {
-            ClassificationCounter classificationCounter = ClassificationCounter.countAll(entry.getValue());
-            long amountCrossData = (long) Math.max(classificationCounter.getTotal() * percentCrossData, minimumAmountCrossData);
+            ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue());
+            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountCrossData);
             Set<AbstractInstance> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
                 AbstractInstance instance = allData.get(i);
-                if(shouldAddInstance(entry.getKey(), instance, classificationCounter, crossDataCount, amountCrossData)) {
+                double classificationRatio = splitClassificationCounter.getCount(instance.getClassification()) / splitClassificationCounter.getTotal();
+                double targetCount = classificationRatio * amountCrossData;
+                if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
                     crossData.add(cleanSupportingData(instance));
                     crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
                 }
@@ -102,9 +104,8 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     /*
      * Add instances such that the ratio of classifications is unchanged
     * */
-    private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter classificationCounter, ClassificationCounter crossDataCount, long amountCrossData) {
+    private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter crossDataCount, double targetCount) {
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
-            double targetCount = classificationCounter.getCount(instance.getClassification()) / classificationCounter.getTotal() * amountCrossData;
             if (targetCount > crossDataCount.getCount(instance.getClassification())) {
                 return true;
             }
