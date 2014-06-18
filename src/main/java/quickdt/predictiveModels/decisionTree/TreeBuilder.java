@@ -156,7 +156,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
     private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
                              final Map<String, double[]> splits) {
-        int debugDepth = 0;
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
         if (updatable) {
@@ -241,10 +240,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 supportingDataSet.add(instance);
             }
             else {
-                if (bestNode.decide(instance.getAttributes()))
+                if (bestNode.decide(instance.getAttributes())) {
                     trueTrainingSet.add(instance);
-                else
+                } else {
                     falseTrainingSet.add(instance);
+                }
             }
         }
 
@@ -268,14 +268,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
         Pair<? extends Branch, Double> bestPair = null;
 
-        int attributesConsidered=0;
-
-
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
             if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
                 continue;
             }
-            attributesConsidered++;
 
             Pair<? extends Branch, Double> thisPair = null;
             Pair<? extends Branch, Double> numericPair = null;
@@ -397,8 +393,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 break;
             }
         }
-        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances)
+        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
             return null;
+        }
         Pair<CategoricalBranch, Double> bestPair =  Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
  //       boolean testVal=bestSoFar.size()==0 && values.size()>1 && !allSameClass;
         return bestPair;
@@ -433,8 +430,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
-            if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances)
+            if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances) {
                 continue;
+            }
 
             final double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
 
@@ -443,8 +441,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 bestThreshold = threshold;
             }
         }
-        if (bestScore==0)
+        if (bestScore==0) {
             return null;
+        }
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
     }
 
@@ -570,7 +569,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                     return false;
                 }
                 Serializable value = input.getAttributes().get(attribute);
-                if (value == null) value = 0;
+                if (value == null) {
+                    value = 0;
+                }
                 return ((Number) value).doubleValue() > threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
@@ -596,7 +597,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                     return false;
                 }
                 Serializable value = input.getAttributes().get(attribute);
-                if (value == null) value = Double.MIN_VALUE;
+                if (value == null) {
+                    value = Double.MIN_VALUE;
+                }
                 return ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
