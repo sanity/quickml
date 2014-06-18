@@ -4,11 +4,13 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickdt.collections.ValueSummingMap;
 import quickdt.data.AbstractInstance;
+import static quickdt.predictiveModels.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 
 public class ClassificationCounter implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
@@ -24,20 +26,25 @@ public class ClassificationCounter implements Serializable {
     }
 
 	public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-			final Iterable<? extends AbstractInstance> instances, final String attribute) {
+			final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
 		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
-		for (final AbstractInstance instance : instances) {
+        for (final AbstractInstance instance : instances) {
 			final Serializable attrVal = instance.getAttributes().get(attribute);
-			if (attrVal != null) {
-				ClassificationCounter cc = result.get(attrVal);
-				if (cc == null) {
+            ClassificationCounter cc = null;
+            boolean isAnAcceptableMissingValue = splitAttribute == null || splitAttributeValue == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            if (attrVal!=null)
+                cc = result.get(attrVal);
+            else if (isAnAcceptableMissingValue)
+                cc = result.get(MISSING_VALUE);
+
+            if (cc == null || isAnAcceptableMissingValue) {
 					cc = new ClassificationCounter();
-					result.put(attrVal, cc);
-				}
-				cc.addClassification(instance.getClassification(), instance.getWeight());
-				totals.addClassification(instance.getClassification(), instance.getWeight());
-			}
+                    Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
+					result.put(newKey, cc);
+		    }
+			cc.addClassification(instance.getClassification(), instance.getWeight());
+			totals.addClassification(instance.getClassification(), instance.getWeight());
 		}
 		return Pair.with(totals, result);
 	}

@@ -2,6 +2,7 @@ package quickdt.predictiveModels;
 
 import quickdt.data.AbstractInstance;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,5 +89,10 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
     @Override
     public void stripData(PM predictiveModel) {
         updatablePredictiveModelBuilder.stripData(predictiveModel);
+    }
+
+    @Override
+    public void setID(Serializable id) {
+        updatablePredictiveModelBuilder.setID(id);
     }
 }

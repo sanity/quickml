@@ -2,6 +2,7 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.collect.Sets;
 import quickdt.data.Attributes;
+import static quickdt.predictiveModels.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -17,8 +18,11 @@ public final class CategoricalBranch extends Branch {
 	}
 
 	@Override
-	protected boolean decide(final Attributes attributes) {
-		return inSet.contains(attributes.get(attribute));
+	public boolean decide(final Attributes attributes) {
+		    Serializable attributeVal = attributes.get(attribute);
+            if (attributeVal==null)
+                attributeVal = MISSING_VALUE;
+        return inSet.contains(attributeVal);
 	}
 
 	@Override
