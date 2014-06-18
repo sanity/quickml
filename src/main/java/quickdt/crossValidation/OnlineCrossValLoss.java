@@ -12,7 +12,7 @@ public abstract class OnlineCrossValLoss<S extends CrossValLoss> implements Comp
     double totalLoss = 0;
     double weightOfAllInstances = 0;
     protected abstract double getLossFromInstance(double probabilityOfCorrectInstance, double weight);
-    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+    public double getLoss(List<? extends AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
         totalLoss = 0;
         weightOfAllInstances = 0;
         for (AbstractInstance instance : crossValSet) {

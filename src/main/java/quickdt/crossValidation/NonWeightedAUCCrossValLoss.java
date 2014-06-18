@@ -10,7 +10,7 @@ import java.util.List;
 public class NonWeightedAUCCrossValLoss  implements CrossValLoss {
 
     @Override
-    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+    public double getLoss(List<? extends AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
         Auc auc = new Auc();
         for (AbstractInstance instance : crossValSet) {
             auc.add((Double) instance.getClassification() == 1.0 ? 1 : 0, predictiveModel.getProbability(instance.getAttributes(), 1.0));

@@ -19,7 +19,7 @@ public class WeightedAUCCrossValLoss implements CrossValLoss {
     }
 
     @Override
-    public double getLoss(List<AbstractInstance> instances, PredictiveModel predictiveModel) {
+    public double getLoss(List<? extends AbstractInstance> instances, PredictiveModel predictiveModel) {
         if (instances.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
@@ -33,7 +33,7 @@ public class WeightedAUCCrossValLoss implements CrossValLoss {
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<AbstractInstance> instances, PredictiveModel predictiveModel) {
+    private List<AUCData> getAucDataList(List<? extends AbstractInstance> instances, PredictiveModel predictiveModel) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
         for (AbstractInstance instance : instances) {

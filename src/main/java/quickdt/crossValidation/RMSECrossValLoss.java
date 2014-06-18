@@ -22,7 +22,7 @@ public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
         return mseCrossValLoss.compareTo(o.mseCrossValLoss);
     }
     @Override
-    public double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
+    public double getLoss(List<? extends AbstractInstance> crossValSet, PredictiveModel predictiveModel) {
         return Math.sqrt(super.getLoss(crossValSet, predictiveModel));
     }
 

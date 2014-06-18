@@ -9,5 +9,5 @@ import java.util.List;
  * Created by alexanderhawk on 4/24/14.
  */
 public interface CrossValLoss {
-    public abstract double getLoss(List<AbstractInstance> crossValSet, PredictiveModel predictiveModel);
+    public abstract double getLoss(List<? extends AbstractInstance> crossValSet, PredictiveModel predictiveModel);
 }
