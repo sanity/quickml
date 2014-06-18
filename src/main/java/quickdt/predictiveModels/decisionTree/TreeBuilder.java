@@ -559,9 +559,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                if (input == null && splitAttribute != null) {
-                    return true;
-                } else if (input == null) {
+                if (input == null) {//consider deleting
                     return false;
                 }
                 Serializable value = input.getAttributes().get(attribute);
@@ -587,13 +585,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                if (input == null && splitAttribute != null) {
-                    return true;
-                } else if (input == null) {
+                if (input == null ) {
                     return false;
                 }
                 Serializable value = input.getAttributes().get(attribute);
-                if (value == null) value = 0;
+                if (value == null) value = Double.MIN_VALUE;
                 return ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
