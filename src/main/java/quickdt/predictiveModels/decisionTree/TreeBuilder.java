@@ -402,13 +402,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-        double lowestClassificationCount = Double.MAX_VALUE;
-        for (double classificationCount : testValCounts.getCounts().values()) {
-            if (classificationCount < lowestClassificationCount) {//change to sum of classification counts being <minCatagorical.
-                lowestClassificationCount = classificationCount;
-            }
-        }
-        return lowestClassificationCount < minCategoricalAttributeValueOccurances;
+        double totalCounts = testValCounts.getTotal();
+        return totalCounts < minCategoricalAttributeValueOccurances;
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
