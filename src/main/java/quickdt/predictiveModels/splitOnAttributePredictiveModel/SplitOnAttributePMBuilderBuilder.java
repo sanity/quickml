@@ -37,9 +37,9 @@ public class SplitOnAttributePMBuilderBuilder implements PredictiveModelBuilderB
 
     @Override
     public SplitOnAttributePMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        final long minAmountCrossData = (Long) predictiveModelConfig.get(MIN_AMOUNT_TOTAL_CROSS_DATA);
+        final int minAmountCrossData = (Integer) predictiveModelConfig.get(MIN_AMOUNT_TOTAL_CROSS_DATA);
         final double percentCrossData = (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA);
-        final long minAmountCrossDataClassification = (Long) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA_CLASSIFICATION);
+        final int minAmountCrossDataClassification = (Integer) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA_CLASSIFICATION);
         return new SplitOnAttributePMBuilder(attributeKey, wrappedBuilderBuilder.buildBuilder(predictiveModelConfig),
                 minAmountCrossData, percentCrossData, attributeWhiteList, minAmountCrossDataClassification);
     }

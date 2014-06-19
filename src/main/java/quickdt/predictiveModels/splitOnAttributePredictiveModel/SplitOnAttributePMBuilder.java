@@ -26,12 +26,12 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     private final String attributeKey;
     private final PredictiveModelBuilder<?> wrappedBuilder;
-    private final long minimumAmountTotalCrossData;
+    private final int minimumAmountTotalCrossData;
     private final double percentCrossData;
     private final Set<String> attributeWhiteList;
-    private final long minimumAmountCrossDataPerClassification;
+    private final int minimumAmountCrossDataPerClassification;
 
-    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, long minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, long minimumAmountCrossDataPerClassification) {
+    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<?> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
         this.minimumAmountTotalCrossData = minimumAmountCrossData;
