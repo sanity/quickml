@@ -15,6 +15,7 @@ public abstract class AbstractInstance {
     public abstract Serializable getClassification();
 
     public abstract double getWeight();
+    public abstract void setWeight(double weight);
 
     public int index;
 }

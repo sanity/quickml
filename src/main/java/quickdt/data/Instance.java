@@ -49,6 +49,11 @@ public class Instance extends AbstractInstance implements Serializable {
         return weight;
     }
 
+    @Override
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
     private Attributes attributes;
 	private Serializable classification;
     private double weight;
