@@ -9,9 +9,7 @@ import quickdt.predictiveModels.splitOnAttributePredictiveModel.SplitOnAttribute
 
 import java.util.Map;
 
-/**
- * Created by chrisreeves on 6/10/14.
- */
+
 public class UpdatableTemporallyReweightedPMBuilderBuilder implements PredictiveModelBuilderBuilder {
     private final TemporallyReweightedPMBuilderBuilder temporallyReweightedPMBuilderBuilder;
 

@@ -21,8 +21,8 @@ public class TemporallyReweightedPMBuilderBuilder implements PredictiveModelBuil
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
         Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
         parametersToOptimize.putAll(wrappedBuilderBuilder.createDefaultParametersToOptimize());
-        parametersToOptimize.put("halfLifeOfNegative", new FixedOrderRecommender(0, 100, 1000));
-        parametersToOptimize.put("halfLifeOfPositive", new FixedOrderRecommender(0, 100, 1000));
+        parametersToOptimize.put("halfLifeOfNegative", new FixedOrderRecommender(5, 10, 20));
+        parametersToOptimize.put("halfLifeOfPositive", new FixedOrderRecommender(5, 10, 20));
         return parametersToOptimize;
     }
 
