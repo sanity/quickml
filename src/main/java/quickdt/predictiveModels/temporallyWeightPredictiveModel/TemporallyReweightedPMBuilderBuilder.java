@@ -29,7 +29,7 @@ public class TemporallyReweightedPMBuilderBuilder implements PredictiveModelBuil
         return parametersToOptimize;
     }
 
-    @Override //set date time extractor to be correc
+    @Override
     public TemporallyReweightedPMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
         final double halfLifeOfPositive = (Double) predictiveModelConfig.get(HALF_LIFE_OF_POSITIVE);
         final double halfLifeOfNegative = (Double) predictiveModelConfig.get(HALF_LIFE_OF_NEGATIVE);
