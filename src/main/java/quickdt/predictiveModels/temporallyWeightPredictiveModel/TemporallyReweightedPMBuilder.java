@@ -20,8 +20,7 @@ import java.util.*;
  */
 public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<TemporallyReweightedPM> {
     private static final  Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
-    public static final double POSTIVE_CLASSIFICATION = 1.0;
-
+    private static final double POSITIVE_CLASSIFICATION = 1.0;
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
@@ -61,9 +60,9 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
 
     private void reweightTrainingData(Iterable<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
         for (AbstractInstance instance : sortedData) {
-            double decayConstant = (instance.getClassification().equals(POSTIVE_CLASSIFICATION)) ? decayConstantOfPositive : decayConstantOfNegative;
-            DateTime timOfInstance = dateTimeExtractor.extractDateTime(instance);
-            double hoursBack = Hours.hoursBetween(mostRecentInstance, timOfInstance).getHours();
+            double decayConstant = (instance.getClassification().equals(POSITIVE_CLASSIFICATION)) ? decayConstantOfPositive : decayConstantOfNegative;
+            DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
+            double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             instance.setWeight(newWeight);
         }
@@ -118,8 +117,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     public void stripData(TemporallyReweightedPM predictiveModel) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
                 ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getWrappedModel());
-            }
-        else {
+        } else {
             throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }
 
