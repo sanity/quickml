@@ -30,7 +30,7 @@ public class SparseVectorTest {
 //                String key = featureExtractionPipeline.getFeatureName((Integer)e.getKey());
                 if(feat == instance){
                     denseInstanceHmAttributes.put(key, 1.0);
-                    denseInstanceHmAttributes.put(key, 1.0);
+                    sparseInstanceHmAttributes.put(key, 1.0);
                 } else
                     denseInstanceHmAttributes.put(key, 0);
 
