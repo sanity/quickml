@@ -19,9 +19,7 @@ public final class CategoricalBranch extends Branch {
 
 	@Override
 	public boolean decide(final Attributes attributes) {
-		    Serializable attributeVal = attributes.get(attribute);
-            if (attributeVal==null)
-                attributeVal = MISSING_VALUE;
+        Serializable attributeVal = attributes.getOrDefault(attribute, MISSING_VALUE);
         return inSet.contains(attributeVal);
 	}
 

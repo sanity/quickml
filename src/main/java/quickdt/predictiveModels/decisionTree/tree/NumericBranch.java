@@ -21,8 +21,7 @@ public final class NumericBranch extends Branch {
 
 	@Override
 	public boolean decide(final Attributes attributes) {
-        Serializable value = attributes.get(attribute);
-        if (value == null) value = 0;
+        Serializable value = attributes.getOrDefault(attribute, 0);
         if (!(value instanceof Number)) {
             throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());
         }

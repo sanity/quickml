@@ -563,10 +563,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (input == null) {//consider deleting
                     return false;
                 }
-                Serializable value = input.getAttributes().get(attribute);
-                if (value == null) {
-                    value = 0;
-                }
+                Serializable value = input.getAttributes().getOrDefault(attribute, 0);
                 return ((Number) value).doubleValue() > threshold;
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
@@ -591,10 +588,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (input == null ) {
                     return false;
                 }
-                Serializable value = input.getAttributes().get(attribute);
-                if (value == null) {
-                    value = Double.MIN_VALUE;
-                }
+                Serializable value = input.getAttributes().getOrDefault(attribute, Double.MIN_VALUE);
                 return ((Number) value).doubleValue() <= threshold; //missing values should go the way of the outset.  Future improvement shoud allow missing values to go way of either inset or outset
             } catch (final ClassCastException e) { // Kludge, need to
                 // handle better
