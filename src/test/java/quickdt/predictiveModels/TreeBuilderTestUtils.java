@@ -1,6 +1,5 @@
 package quickdt.predictiveModels;
 
-import com.beust.jcommander.internal.Lists;
 import quickdt.Misc;
 import quickdt.data.Attributes;
 import quickdt.data.HashMapAttributes;
@@ -8,8 +7,8 @@ import quickdt.data.Instance;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Chris on 5/14/2014.
@@ -31,9 +30,18 @@ public class TreeBuilderTestUtils {
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);
+            Calendar calendar = Calendar.getInstance();
+            final int year = calendar.get(Calendar.YEAR);
+            final int month = calendar.get(Calendar.MONTH);
+            final int day = Misc.random.nextInt(28)+1;
+            final int hour = Misc.random.nextInt(24);
             final Attributes attributes = new HashMapAttributes();
             attributes.put("weight", weight);
             attributes.put("height", height);
+            attributes.put("timeOfArrival-year", year);
+            attributes.put("timeOfArrival-monthOfYear", month);
+            attributes.put("timeOfArrival-dayOfMonth", day);
+            attributes.put("timeOfArrival-hourOfDay", hour);
             instances.add(new Instance(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;

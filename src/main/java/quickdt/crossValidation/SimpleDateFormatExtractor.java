@@ -1,6 +1,7 @@
 package quickdt.crossValidation;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
@@ -23,7 +24,7 @@ public class SimpleDateFormatExtractor implements DateTimeExtractor {
         Attributes attributes = instance.getAttributes();
         try {
             Date currentTimeMillis = dateFormat.parse((String) attributes.get("created_at"));
-            return new DateTime(currentTimeMillis);
+            return new DateTime(currentTimeMillis, DateTimeZone.UTC);
         } catch (ParseException e) {
             logger.error("Error parsing date", e);
         }

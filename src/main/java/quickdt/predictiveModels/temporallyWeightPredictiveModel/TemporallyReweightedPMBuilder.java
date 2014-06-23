@@ -21,8 +21,8 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     private static final  Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
     public static final double POSTIVE_CLASSIFICATION = 1.0;
 
-    private double decayConstantOfPositive;
-    private double decayConstantNegative;
+    private double decayConstantOfPositive = 173; //approx 5 days
+    private double decayConstantNegative = 173; //approx 5 days
     private PredictiveModelBuilder<?> wrappedBuilder;
     private DateTimeExtractor dateTimeExtractor;
 
