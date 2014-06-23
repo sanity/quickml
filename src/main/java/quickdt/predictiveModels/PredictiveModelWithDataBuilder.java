@@ -85,6 +85,7 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
     public void updatePredictiveModel(PM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
+    public List<? extends AbstractInstance> getTrainingData() { return trainingData;}
 
     @Override
     public void stripData(PM predictiveModel) {
