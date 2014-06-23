@@ -1,21 +1,15 @@
 package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.mahout.classifier.df.builder.DecisionTreeBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.DateTimeExtractor;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
-import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 import quickdt.predictiveModels.splitOnAttributePredictiveModel.SplitOnAttributePM;
 
 import java.io.Serializable;
@@ -27,12 +21,13 @@ import java.util.*;
 public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<TemporallyReweightedPM> {
     private static final  Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
 
-    private double clickcHalfLife;
-    private double clickDecayConstant;
-    private double nonClickcHalfLife;
-    private double nonClickDecayConstant;
+    private double halfLifeOfPositive;
+    private double decayConstantOfPositive;
+    private double halfLifeOfNegative;
+    private double decayConstantNegative;
     private PredictiveModelBuilder<?> wrappedBuilder;
     private DateTimeExtractor dateTimeExtractor;
+    private Serializable iD;
 
 
     public TemporallyReweightedPMBuilder( PredictiveModelBuilder<?> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
@@ -40,16 +35,22 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         this.dateTimeExtractor = dateTimeExtractor;
     }
 
-    public TemporallyReweightedPMBuilder clickHalfLife(double clickcHalfLife) {
-        this.clickcHalfLife = clickcHalfLife;
-        this.clickDecayConstant = clickcHalfLife / Math.log(2);
+    public TemporallyReweightedPMBuilder halfLifeOfPositive(double halfLifeOfPositive) {
+        this.halfLifeOfPositive = halfLifeOfPositive;
+        this.decayConstantOfPositive = halfLifeOfPositive / Math.log(2);
         return this;
     }
 
-    public TemporallyReweightedPMBuilder nonClickHalfLife(double nonClickcHalfLife) {
-        this.nonClickcHalfLife = nonClickcHalfLife;
-        this.nonClickDecayConstant = nonClickcHalfLife / Math.log(2);
+    public TemporallyReweightedPMBuilder halfLifeOfNegative(double halfLifeOfNegative) {
+        this.halfLifeOfNegative = halfLifeOfNegative;
+        this.decayConstantNegative = halfLifeOfNegative / Math.log(2);
         return this;
+    }
+
+    //this function should not be in the PMB interface since it is specific to us.
+    @Override
+    public void setID(Serializable iD) {
+        this.iD = iD;
     }
 
     @Override
@@ -60,25 +61,20 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
     private ArrayList<AbstractInstance> reweightTrainingData(Iterable<? extends AbstractInstance> trainingData) {
-
         ArrayList<AbstractInstance> sortedData = sortTrainingData(trainingData);
-        reweight(sortedData, "positive");
-        reweight(sortedData, "negative");
+        applyTemporalReweighting(sortedData);
         return sortedData;
     }
 
     //refactor to adjust positives and negatives in same pass
-    private void reweight(List<? extends AbstractInstance> sortedData, String eventType) {
+    private void applyTemporalReweighting(List<? extends AbstractInstance> sortedData) {
         DateTime mostRecentInstance = dateTimeExtractor.extractDateTime(sortedData.get(sortedData.size()-1));
-        double eventClass = (eventType.equals("positive")) ? 1.0 : 0.0;
-        double decayConstant = (eventType.equals("positive")) ? clickDecayConstant : nonClickDecayConstant;
         for (AbstractInstance instance : sortedData) {
-            if (instance.getClassification()==eventClass){
-                DateTime timOfInstance = dateTimeExtractor.extractDateTime(instance);
-                double hoursBack = Minutes.minutesBetween(mostRecentInstance, timOfInstance).getMinutes();
-                double newWeight = instance.getWeight()*Math.exp(-1.0 * hoursBack / decayConstant);
-                instance.setWeight(newWeight);
-            }
+            double decayConstant = (instance.getClassification()==1.0) ? decayConstantOfPositive : decayConstantNegative;
+            DateTime timOfInstance = dateTimeExtractor.extractDateTime(instance);
+            double hoursBack = Minutes.minutesBetween(mostRecentInstance, timOfInstance).getMinutes();
+            double newWeight = instance.getWeight()*Math.exp(-1.0 * hoursBack / decayConstant);
+            instance.setWeight(newWeight);
         }
     }
     private ArrayList<AbstractInstance> sortTrainingData(Iterable<? extends AbstractInstance> trainingData) {
@@ -113,7 +109,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
 
-    //issues: have to get access to the data stored in the wrapped builder to reweight it.
+    //issues: have to get access to the data stored in the wrapped builder to applyTemporalReweighting it.
     @Override
     public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
@@ -123,10 +119,20 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
             PredictiveModel pm = predictiveModel.getWrappedModel();
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, reweightedTrainingData, trainingData, splitNodes);
             logger.info("Updating default predictive model");
-        }
-        else {
+        } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
+    }
+
+    @Override
+    public void stripData(TemporallyReweightedPM predictiveModel) {
+        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
+                ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getWrappedModel());
+            }
+        else {
+            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
+        }
+
     }
 
 }
