@@ -19,60 +19,49 @@ import java.util.*;
  */
 public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<TemporallyReweightedPM> {
     private static final  Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
+    public static final double POSTIVE_CLASSIFICATION = 1.0;
 
-    private double halfLifeOfPositiveInHours;
     private double decayConstantOfPositive;
-    private double halfLifeOfNegativeInHours;
     private double decayConstantNegative;
     private PredictiveModelBuilder<?> wrappedBuilder;
     private DateTimeExtractor dateTimeExtractor;
-    private Serializable iD;
 
 
-    public TemporallyReweightedPMBuilder( PredictiveModelBuilder<?> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedPMBuilder(PredictiveModelBuilder<?> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
         this.dateTimeExtractor = dateTimeExtractor;
     }
 
     public TemporallyReweightedPMBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
-        this.halfLifeOfPositiveInHours = halfLifeOfPositiveInDays*24;
+        double halfLifeOfPositiveInHours = halfLifeOfPositiveInDays*24;
         this.decayConstantOfPositive = halfLifeOfPositiveInHours / Math.log(2);
         return this;
     }
 
     public TemporallyReweightedPMBuilder halfLifeOfNegative(double halfLifeOfNegativeInDays) {
-        this.halfLifeOfNegativeInHours = halfLifeOfNegativeInDays;
+        double halfLifeOfNegativeInHours = halfLifeOfNegativeInDays*24;
         this.decayConstantNegative = halfLifeOfNegativeInHours / Math.log(2);
         return this;
     }
 
-    //this function should not be in the PMB interface since it is specific to us.
     @Override
     public void setID(Serializable iD) {
-        this.iD = iD;
+        wrappedBuilder.setID(iD);
     }
 
     @Override
     public TemporallyReweightedPM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
-        ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
-        for (AbstractInstance instance : trainingData)
-            trainingDataList.add(instance);
+        List<AbstractInstance> trainingDataList = iterableToArrayList(trainingData);
+
         DateTime mostRecent = dateTimeExtractor.extractDateTime(trainingDataList.get(trainingDataList.size() - 1));
-        trainingDataList = reweightTrainingData(trainingDataList, mostRecent);
-        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(trainingData);
+        reweightTrainingData(trainingDataList, mostRecent);
+        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedPM(predictiveModel);
     }
 
-    private ArrayList<AbstractInstance> reweightTrainingData(ArrayList<AbstractInstance> sortedData, DateTime mostRecentInstance) {
-        applyTemporalReweighting(sortedData, mostRecentInstance);
-        return sortedData;
-    }
-
-
-    //refactor to adjust positives and negatives in same pass
-    private void applyTemporalReweighting(List<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
+    private void reweightTrainingData(List<AbstractInstance> sortedData, DateTime mostRecentInstance) {
         for (AbstractInstance instance : sortedData) {
-            double decayConstant = (instance.getClassification()==1.0) ? decayConstantOfPositive : decayConstantNegative;
+            double decayConstant = (instance.getClassification().equals(POSTIVE_CLASSIFICATION)) ? decayConstantOfPositive : decayConstantNegative;
             DateTime timOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
@@ -80,11 +69,8 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         }
     }
 
-    private ArrayList<AbstractInstance> sortTrainingData(Iterable<? extends AbstractInstance> trainingData) {
-        List<AbstractInstance> sortedData = Lists.<AbstractInstance>newArrayList();
-        for (AbstractInstance instance : trainingData) {
-            sortedData.add(instance);
-        }
+    private List<AbstractInstance> sortTrainingData(Iterable<? extends AbstractInstance> trainingData) {
+        List<AbstractInstance> sortedData = iterableToArrayList(trainingData);
 
         Comparator<AbstractInstance> comparator = new Comparator<AbstractInstance>() {
             @Override
@@ -102,7 +88,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         };
 
         Collections.sort(sortedData, comparator);
-        return (ArrayList<AbstractInstance>)sortedData;
+        return sortedData;
 }
 
     @Override
@@ -115,25 +101,29 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     @Override
     public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ArrayList<AbstractInstance> trainingDataList = IterableToArrayList(trainingData);
-            ArrayList<AbstractInstance> sortedNewData = sortTrainingData(newData); //don't need to sort...just get max element
+            ArrayList<AbstractInstance> trainingDataList = iterableToArrayList(trainingData);
+            List<AbstractInstance> sortedNewData = sortTrainingData(newData); //don't need to sort...just get max element
             DateTime mostRecentInstance = dateTimeExtractor.extractDateTime(sortedNewData.get(sortedNewData.size()-1));
 
-            ArrayList<AbstractInstance> reweightedTrainingData = reweightTrainingData(trainingDataList, mostRecentInstance);  //is this needed?
-            ArrayList<AbstractInstance> reweightedNewTrainingData = reweightTrainingData(sortedNewData, mostRecentInstance);  //is this needed?
+            reweightTrainingData(trainingDataList, mostRecentInstance);  //is this needed?
+            reweightTrainingData(sortedNewData, mostRecentInstance);  //is this needed?
 
             PredictiveModel pm = predictiveModel.getWrappedModel();
-            ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, reweightedNewTrainingData, reweightedTrainingData, splitNodes);
+            ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, sortedNewData, trainingDataList, splitNodes);
             logger.info("Updating default predictive model");
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
-    private ArrayList<AbstractInstance> IterableToArrayList(List<? extends AbstractInstance> trainingData) {
+    private ArrayList<AbstractInstance> iterableToArrayList(Iterable<? extends AbstractInstance> trainingData) {
+        if (trainingData instanceof ArrayList) {
+            return (ArrayList<AbstractInstance>) trainingData;
+        }
         ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
-        for (AbstractInstance instance : trainingData)
+        for (AbstractInstance instance : trainingData) {
             trainingDataList.add(instance);
+        }
         return trainingDataList;
     }
 
