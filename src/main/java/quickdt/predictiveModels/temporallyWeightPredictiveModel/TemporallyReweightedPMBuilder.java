@@ -79,7 +79,6 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             DateTime mostRecentInstance = getMostRecentInstance(newData);
 
-            //Reweighting the 'original' training set might be a problem when splitting nodes on update
             List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecentInstance);
             List<AbstractInstance> newDataList = reweightTrainingData(newData, mostRecentInstance);
 
