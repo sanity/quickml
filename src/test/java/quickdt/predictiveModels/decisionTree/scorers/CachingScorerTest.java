@@ -22,11 +22,11 @@ public class CachingScorerTest {
         rb.buildPredictiveModel(instances);
         final long duration = System.currentTimeMillis() - startTime;
 
-        TreeBuilder tb2 = new TreeBuilder(new CachingScorer(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), 1000));
+        TreeBuilder tb2 = new TreeBuilder(new CachingScorer(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), 100));
         RandomForestBuilder rb2 = new RandomForestBuilder(tb2);
         final long startTime2 = System.currentTimeMillis();
         rb2.buildPredictiveModel(instances);
         final long duration2 = System.currentTimeMillis() - startTime2;
-        Assert.assertTrue(duration >= duration2, "Cached scorer should be faster");
+        Assert.assertTrue(duration >= duration2, "Cached scorer should be faster " + duration + " : " + duration2);
     }
 }
