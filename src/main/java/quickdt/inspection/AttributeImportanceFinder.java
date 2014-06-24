@@ -6,6 +6,7 @@ import com.twitter.common.stats.ReservoirSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
+import quickdt.crossValidation.CrossValidator;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.*;
 import quickdt.predictiveModels.PredictiveModel;
@@ -31,7 +32,7 @@ public class AttributeImportanceFinder {
         return determineAttributeImportance(new StationaryCrossValidator(4, 1), predictiveModelBuilder, trainingData);
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(StationaryCrossValidator crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
 
         Set<String> attributes = Sets.newHashSet();
         for (AbstractInstance instance : trainingData) {
