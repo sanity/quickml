@@ -1,37 +1,38 @@
 package quickdt.predictiveModels.decisionTree.scorers;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.javatuples.Pair;
 import quickdt.predictiveModels.decisionTree.Scorer;
 import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by chrisreeves on 6/23/14.
  */
 public class CachingScorer implements Scorer {
-    Map<Pair, Double> scores = new HashMap<>();
+    LoadingCache<Pair, Double> scores;
 
-    private final Scorer scorer;
-    private final int maxEntries;
-
-    public CachingScorer(Scorer scorer, int maxEntries) {
-        this.scorer = scorer;
-        this.maxEntries = maxEntries;
+    public CachingScorer(final Scorer scorer, int maxEntries) {
+        scores = CacheBuilder.newBuilder().maximumSize(maxEntries).build(new CacheLoader<Pair, Double>() {
+            @Override
+            public Double load(Pair key) throws Exception {
+                return scorer.scoreSplit((ClassificationCounter)key.getValue0(), (ClassificationCounter)key.getValue1());
+            }
+        });
     }
 
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
         Pair pair = Pair.with(a, b);
-        Double score = scores.get(pair);
-        if (score == null) {
-            score = scorer.scoreSplit(a, b);
-            scores.put(pair, score);
-            if (scores.size() > maxEntries) {
-                scores.clear();
-            }
+        try {
+            return scores.get(pair);
+        } catch (ExecutionException e) {
+            return Double.MIN_VALUE;
         }
-        return score;
     }
 }
