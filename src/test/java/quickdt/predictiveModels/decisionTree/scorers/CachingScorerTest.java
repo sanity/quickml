@@ -15,7 +15,7 @@ import java.util.List;
 public class CachingScorerTest {
     @Test
     public void timeTest() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(100000);
+        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
         TreeBuilder tb = new TreeBuilder(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
         RandomForestBuilder rb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
