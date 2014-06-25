@@ -16,5 +16,7 @@ public abstract class AbstractInstance {
 
     public abstract double getWeight();
 
+    public abstract AbstractInstance reweight(double newWeight);
+
     public int index;
 }

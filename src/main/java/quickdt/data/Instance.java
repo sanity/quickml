@@ -44,6 +44,10 @@ public class Instance extends AbstractInstance implements Serializable {
         return classification;
     }
 
+    public Instance reweight(double newWeight){
+        return new Instance(getAttributes(), getClassification(), newWeight);
+    }
+
     @Override
     public double getWeight() {
         return weight;

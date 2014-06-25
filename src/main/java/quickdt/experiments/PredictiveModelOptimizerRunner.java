@@ -118,7 +118,7 @@ public class PredictiveModelOptimizerRunner {
         }
     }
 
-    private static class TrainingDateTimeExtractor implements DateTimeExtractor {
+    public static class TrainingDateTimeExtractor implements DateTimeExtractor {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
         public DateTime extractDateTime(AbstractInstance instance) {

@@ -1,6 +1,7 @@
 package quickdt.crossValidation;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 
@@ -15,6 +16,6 @@ public class SampleDateTimeExtractor implements DateTimeExtractor {
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
         int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");
         int hour = (Integer)attributes.get("timeOfArrival-hourOfDay");
-        return new DateTime(year,month, day, hour, 0, 0, 0);
+        return new DateTime(year,month, day, hour, 0, 0, 0, DateTimeZone.UTC);
     }
 }
