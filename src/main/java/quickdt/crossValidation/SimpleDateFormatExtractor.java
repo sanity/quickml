@@ -20,7 +20,7 @@ public class SimpleDateFormatExtractor implements DateTimeExtractor {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String dateAttribute = "created_at";
 
-    public void dateFormat(String dateFormatString) {
+    public void setDateFormat(String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);
     }
 
