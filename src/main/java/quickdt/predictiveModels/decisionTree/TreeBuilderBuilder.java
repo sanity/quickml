@@ -4,6 +4,10 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.decisionTree.scorers.GiniImpurityScorer;
+import quickdt.predictiveModels.decisionTree.scorers.InformationGainScorer;
+import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
+import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
 import java.util.Map;
 
@@ -17,6 +21,7 @@ public class TreeBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, T
     private static final String MIN_SCORE = "minScore";
     private static final String MIN_CAT_ATTR_OCC = "minCatAttrOcc";
     private static final String MIN_LEAF_INSTANCES = "minLeafInstances";
+    private static final String SCORER= "scorer";
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
@@ -26,12 +31,13 @@ public class TreeBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, T
         parametersToOptimize.put(MIN_SCORE, new FixedOrderRecommender(0.00000000000001, -Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         parametersToOptimize.put(MIN_CAT_ATTR_OCC, new FixedOrderRecommender(5, 0, 1, 64, 1024, 4098));
         parametersToOptimize.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 10, 100, 1000, 10000, 100000));
+        parametersToOptimize.put(SCORER, new FixedOrderRecommender(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new SplitDiffScorer(), new InformationGainScorer(), new GiniImpurityScorer()));
         return parametersToOptimize;
     }
 
     @Override
     public TreeBuilder buildBuilder(final Map<String, Object> cfg) throws NullPointerException {
-        return new TreeBuilder()
+        return new TreeBuilder((Scorer)cfg.get(SCORER))
                 .ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB))
                 .maxDepth((Integer) cfg.get(MAX_DEPTH))
                 .minimumScore((Double) cfg.get(MIN_SCORE))
