@@ -20,12 +20,12 @@ public final class HashMapAttributes implements Attributes, Serializable {
     }
 
     public static Attributes create(final Serializable... inputs) {
-		final HashMapAttributes a = new HashMapAttributes();
-		for (int x = 0; x < inputs.length; x += 2) {
-			a.put((String) inputs[x], inputs[x + 1]);
-		}
-		return a;
-	}
+        final HashMapAttributes a = new HashMapAttributes();
+        for (int x = 0; x < inputs.length; x += 2) {
+            a.put((String) inputs[x], inputs[x + 1]);
+        }
+        return a;
+    }
 
     @Override
     public int size() {
@@ -39,7 +39,10 @@ public final class HashMapAttributes implements Attributes, Serializable {
 
     @Override
     public Serializable get(final Object key) {
-        return delegatedHashMap.get(key);
+        if(delegatedHashMap.containsKey(key))
+            return delegatedHashMap.get(key);
+        else
+            return 0;
     }
 
     @Override
