@@ -1,15 +1,16 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.hadoop.util.hash.Hash;
 import org.javatuples.Pair;
 import quickdt.collections.ValueSummingMap;
 import quickdt.data.AbstractInstance;
 import static quickdt.predictiveModels.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 
 public class ClassificationCounter implements Serializable {
@@ -24,10 +25,34 @@ public class ClassificationCounter implements Serializable {
         }
         return newCC;
     }
+    public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
+            final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
+        final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
+        final ClassificationCounter totals = new ClassificationCounter();
+        for (final AbstractInstance instance : instances) {
+            final Serializable attrVal = instance.getAttributes().get(attribute);
+            ClassificationCounter cc = null;
+            boolean isAnAcceptableMissingValue = splitAttribute == null || splitAttributeValue == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            if (attrVal!=null)
+                cc = result.get(attrVal);
+            else if (isAnAcceptableMissingValue)
+                cc = result.get(MISSING_VALUE);
 
-	public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-			final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
-		final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
+            if (cc == null || isAnAcceptableMissingValue) {
+                cc = new ClassificationCounter();
+                Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
+                result.put(newKey, cc);
+            }
+            cc.addClassification(instance.getClassification(), instance.getWeight());
+            totals.addClassification(instance.getClassification(), instance.getWeight());
+        }
+        return Pair.with(totals, result);
+    }
+
+	public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
+            final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable positiveClass) {
+
+        final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
 		final ClassificationCounter totals = new ClassificationCounter();
         for (final AbstractInstance instance : instances) {
 			final Serializable attrVal = instance.getAttributes().get(attribute);
@@ -46,7 +71,27 @@ public class ClassificationCounter implements Serializable {
 			cc.addClassification(instance.getClassification(), instance.getWeight());
 			totals.addClassification(instance.getClassification(), instance.getWeight());
 		}
-		return Pair.with(totals, result);
+
+        List<AttributeValueWithClassificationCounter> attributesWithClassificationCounters = Lists.newArrayList();
+        for(Serializable key : result.keySet()) {
+            attributesWithClassificationCounters.add(new AttributeValueWithClassificationCounter(key, result.get(key)));
+        }
+        Collections.sort(attributesWithClassificationCounters, new Comparator<AttributeValueWithClassificationCounter>() {
+            @Override
+            public int compare(AttributeValueWithClassificationCounter cc1, AttributeValueWithClassificationCounter cc2) {
+                double p1 = cc1.classificationCounter.getCount(positiveClass) / cc1.classificationCounter.getTotal();
+                double p2 = cc2.classificationCounter.getCount(positiveClass) / cc2.classificationCounter.getTotal();
+
+                if (p2 > p1)
+                    return 1;
+                else if (p1 == p2)
+                    return 0;
+                else
+                    return -1;
+            }
+        });
+
+		return Pair.with(totals, attributesWithClassificationCounters);
 	}
 
     public Map<Serializable, Double> getCounts() {
