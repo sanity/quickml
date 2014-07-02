@@ -354,7 +354,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
         double insetScore = Double.MAX_VALUE;
         while (true) {
-           com.google.common.base.Optional<ScoreValuePair> bestValueAndScore = Optional.absent();
+           com.google.common.base.Optional<ScoreValuePair> bestValueAndScore =  com.google.common.base.Optional.absent();
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
@@ -372,7 +372,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 double scoreWithThisValueAddedToInset = scorer.scoreSplit(testInCounts, testOutCounts);
 
                 if (!bestValueAndScore.isPresent() || scoreWithThisValueAddedToInset < bestValueAndScore.get().getScore()) {
-                    bestValueAndScore = Optional.of(new ScoreValuePair(scoreWithThisValueAddedToInset, thisValue));
+                    bestValueAndScore =  com.google.common.base.Optional.of(new ScoreValuePair(scoreWithThisValueAddedToInset, thisValue));
                 }
             }
 
