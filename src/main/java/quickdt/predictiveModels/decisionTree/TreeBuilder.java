@@ -405,14 +405,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             if (this.minCategoricalAttributeValueOccurances > 0) {
                 if (shouldWeIgnoreThisValue(testValCounts)) continue;
             }
-            final ClassificationCounter testInCounts = inCounts.add(testValCounts);
-            final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
+            inCounts = inCounts.add(testValCounts);
+            outCounts = outCounts.subtract(testValCounts);
 
             if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
                 continue;
             }
 
-            thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
+            thisScore = scorer.scoreSplit(inCounts, outCounts);
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
