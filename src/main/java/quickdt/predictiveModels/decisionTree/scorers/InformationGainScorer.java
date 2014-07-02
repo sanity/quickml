@@ -35,4 +35,9 @@ public class InformationGainScorer implements Scorer {
         double bAdjustedEntropy = (bSize / (aSize+bSize)) * bEntropy;
         return rootEntropy - aAdjustedEntropy - bAdjustedEntropy;
     }
+
+    @Override
+    public String toString() {
+        return "InformationGain";
+    }
 }

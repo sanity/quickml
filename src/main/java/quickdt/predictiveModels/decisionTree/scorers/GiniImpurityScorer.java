@@ -28,4 +28,8 @@ public class GiniImpurityScorer implements Scorer{
         return 1.0d - sum;
     }
 
+    @Override
+    public String toString() {
+        return "GiniImpurity";
+    }
 }
