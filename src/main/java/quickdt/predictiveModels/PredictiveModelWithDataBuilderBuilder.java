@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 7/2/14.
  */
-public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBuilderBuilder {
+public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBuilderBuilder<PredictiveModel, PredictiveModelWithDataBuilder<PredictiveModel>>{
     public static final String REBUILD_THRESHOLD = "rebuildThreshold";
     public static final String SPLIT_THRESHOLD = "splitThreshold";
 
@@ -30,7 +30,7 @@ public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBui
     }
 
     @Override
-    public PredictiveModelWithDataBuilder buildBuilder(Map predictiveModelConfig) {
+    public PredictiveModelWithDataBuilder<PredictiveModel> buildBuilder(Map<String, Object> predictiveModelConfig) {
         UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder = (UpdatablePredictiveModelBuilder) predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
         PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(updatablePredictiveModelBuilder);
         final Integer rebuildThreshold = (Integer) predictiveModelConfig.get(REBUILD_THRESHOLD);
