@@ -15,7 +15,7 @@ public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBui
     private final PredictiveModelBuilderBuilder<? extends PredictiveModel, UpdatablePredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder;
 
     /**
-     * @param predictiveModelBuilderBuilder predictive model builder must
+     * @param predictiveModelBuilderBuilder must build a builder that implements UpdatablePredictiveModelBuilder
      * */
     public PredictiveModelWithDataBuilderBuilder(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
