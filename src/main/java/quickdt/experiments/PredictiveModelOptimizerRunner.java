@@ -13,14 +13,13 @@ import quickdt.csvReader.CSVToMap;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.data.Instance;
-import quickdt.experiments.CsvReaderExp;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
-import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -95,7 +94,7 @@ public class PredictiveModelOptimizerRunner {
 
     private static List<PredictiveModelBuilderBuilder> getPredictiveModelBuilderBuilders() {
         List<PredictiveModelBuilderBuilder> builderBuilders = Lists.newLinkedList();
-        builderBuilders.add(new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder()));
+        builderBuilders.add(new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder()));
         return builderBuilders;
     }
 
