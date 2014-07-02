@@ -50,27 +50,11 @@ public class ClassificationCounter implements Serializable {
     }
 
 	public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable positiveClass) {
+            final Iterable<? extends AbstractInstance> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
 
-        final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
-		final ClassificationCounter totals = new ClassificationCounter();
-        for (final AbstractInstance instance : instances) {
-			final Serializable attrVal = instance.getAttributes().get(attribute);
-            ClassificationCounter cc = null;
-            boolean isAnAcceptableMissingValue = splitAttribute == null || splitAttributeValue == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
-            if (attrVal!=null)
-                cc = result.get(attrVal);
-            else if (isAnAcceptableMissingValue)
-                cc = result.get(MISSING_VALUE);
-
-            if (cc == null || isAnAcceptableMissingValue) {
-					cc = new ClassificationCounter();
-                    Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
-					result.put(newKey, cc);
-		    }
-			cc.addClassification(instance.getClassification(), instance.getWeight());
-			totals.addClassification(instance.getClassification(), instance.getWeight());
-		}
+        Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances,attribute,splitAttribute,splitAttributeValue);
+        final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
+		final ClassificationCounter totals = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue0();
 
         List<AttributeValueWithClassificationCounter> attributesWithClassificationCounters = Lists.newArrayList();
         for(Serializable key : result.keySet()) {
@@ -79,8 +63,8 @@ public class ClassificationCounter implements Serializable {
         Collections.sort(attributesWithClassificationCounters, new Comparator<AttributeValueWithClassificationCounter>() {
             @Override
             public int compare(AttributeValueWithClassificationCounter cc1, AttributeValueWithClassificationCounter cc2) {
-                double p1 = cc1.classificationCounter.getCount(positiveClass) / cc1.classificationCounter.getTotal();
-                double p2 = cc2.classificationCounter.getCount(positiveClass) / cc2.classificationCounter.getTotal();
+                double p1 = cc1.classificationCounter.getCount(minorityClassification) / cc1.classificationCounter.getTotal();
+                double p2 = cc2.classificationCounter.getCount(minorityClassification) / cc2.classificationCounter.getTotal();
 
                 if (p2 > p1)
                     return 1;

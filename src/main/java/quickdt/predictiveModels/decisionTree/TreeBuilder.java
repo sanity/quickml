@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
+import org.apache.commons.lang.mutable.MutableDouble;
+import org.apache.commons.lang.mutable.MutableInt;
+import org.apache.hadoop.util.hash.Hash;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
@@ -29,7 +32,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private int minLeafInstances = 0;
     private boolean updatable = false;
     private boolean binaryClassifications = true;
-    private Serializable positiveClassValue = new Double(1.0);
+    private Serializable minorityClassification;
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
@@ -47,8 +50,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return this;
     }
 
-    public TreeBuilder isBinary(boolean binaryClassifications, Serializable positiveClassValue) {
-        this.binaryClassifications = binaryClassifications;
+    public TreeBuilder disableBinaryClassificationStrategy(boolean disable) {
+        this.binaryClassifications = !disable;
         return this;
     }
 
@@ -90,6 +93,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+        setBinaryClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
@@ -103,6 +107,32 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             splitNode(tree.node, trainingData);
         }
     }
+
+    public void setBinaryClassificationProperties(Iterable<? extends AbstractInstance> trainingData) {
+
+        HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
+        for (AbstractInstance instance : trainingData) {
+            Serializable classification = instance.getClassification();
+            if (classifications.containsKey(classification)) {
+                classifications.get(classification).increment();
+            } else
+                classifications.put(classification, new MutableInt(1));
+
+            if (classifications.size() > 2) {
+                binaryClassifications = false;
+                return;
+            }
+        }
+
+        minorityClassification = null;
+        double minorityClassificationCount = 0;
+        for (Serializable val : classifications.keySet())
+            if (minorityClassification == null || classifications.get(val).doubleValue() < minorityClassificationCount) {
+                minorityClassification = val;
+                minorityClassificationCount = classifications.get(val).doubleValue();
+            }
+    }
+
 
     public void stripData(Tree tree) {
         stripNode(tree.node);
@@ -355,19 +385,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //get Pair of Sets of classification counters
         //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
 
-
-        final Set<Serializable> values = Sets.newHashSet();
-        for (final AbstractInstance instance : instances) {
-            Serializable value = instance.getAttributes().get(attribute);
-            if (value == null) value = MISSING_VALUE;
-            values.add(value);
-        }
-
         double thisScore = 0, bestScore = 0;
         final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
-                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, positiveClassValue);  //returs a list of ClassificationCounterList
+                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
 
         ClassificationCounter outCounts = valueOutcomeCountsPairs.getValue0(); //classification counter treating all values the same
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
@@ -413,14 +435,20 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return bestPair;
     }
 
-    private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
-                                                                 final Iterable<? extends AbstractInstance> instances) {
+    private Set<Serializable> createSetOfAttributeValues(String attribute, Iterable<? extends AbstractInstance> instances) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : instances) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = MISSING_VALUE;
             values.add(value);
         }
+        return values;
+    }
+
+    private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
+                                                                 final Iterable<? extends AbstractInstance> instances) {
+
+        Set<Serializable> values = createSetOfAttributeValues(attribute, instances);
         double score = 0;
 
         final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
