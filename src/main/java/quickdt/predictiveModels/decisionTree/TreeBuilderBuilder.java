@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.GiniImpurityScorer;
 import quickdt.predictiveModels.decisionTree.scorers.InformationGainScorer;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/12/14.
  */
-public class TreeBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, TreeBuilder> {
+public class TreeBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";

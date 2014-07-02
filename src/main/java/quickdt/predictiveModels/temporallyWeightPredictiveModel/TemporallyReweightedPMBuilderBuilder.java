@@ -5,11 +5,13 @@ import quickdt.crossValidation.SimpleDateFormatExtractor;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
+
 import java.util.Map;
 
 
 
-public class TemporallyReweightedPMBuilderBuilder implements PredictiveModelBuilderBuilder<TemporallyReweightedPM, TemporallyReweightedPMBuilder> {
+public class TemporallyReweightedPMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<TemporallyReweightedPM, TemporallyReweightedPMBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";

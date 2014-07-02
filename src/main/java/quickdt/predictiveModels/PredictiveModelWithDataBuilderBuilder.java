@@ -12,12 +12,9 @@ public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBui
     public static final String REBUILD_THRESHOLD = "rebuildThreshold";
     public static final String SPLIT_THRESHOLD = "splitThreshold";
 
-    private final PredictiveModelBuilderBuilder<? extends PredictiveModel, UpdatablePredictiveModelBuilder<? extends PredictiveModel>> predictiveModelBuilderBuilder;
+    private final UpdatablePredictiveModelBuilderBuilder predictiveModelBuilderBuilder;
 
-    /**
-     * @param predictiveModelBuilderBuilder must build a builder that implements UpdatablePredictiveModelBuilder
-     * */
-    public PredictiveModelWithDataBuilderBuilder(PredictiveModelBuilderBuilder predictiveModelBuilderBuilder) {
+    public PredictiveModelWithDataBuilderBuilder(UpdatablePredictiveModelBuilderBuilder predictiveModelBuilderBuilder) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
     }
 
@@ -31,7 +28,7 @@ public class PredictiveModelWithDataBuilderBuilder implements PredictiveModelBui
 
     @Override
     public PredictiveModelWithDataBuilder<PredictiveModel> buildBuilder(Map<String, Object> predictiveModelConfig) {
-        UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder = (UpdatablePredictiveModelBuilder) predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
+        UpdatablePredictiveModelBuilder updatablePredictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
         PredictiveModelWithDataBuilder wrappedBuilder = new PredictiveModelWithDataBuilder(updatablePredictiveModelBuilder);
         final Integer rebuildThreshold = (Integer) predictiveModelConfig.get(REBUILD_THRESHOLD);
         final Integer splitNodeThreshold = (Integer) predictiveModelConfig.get(SPLIT_THRESHOLD);
