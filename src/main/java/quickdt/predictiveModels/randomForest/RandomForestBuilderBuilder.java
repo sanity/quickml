@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilderBuilder;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class RandomForestBuilderBuilder implements PredictiveModelBuilderBuilder<RandomForest, RandomForestBuilder> {
+public class RandomForestBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private static final String BAG_SIZE = "bagSize";
     private final TreeBuilderBuilder treeBuilderBuilder;

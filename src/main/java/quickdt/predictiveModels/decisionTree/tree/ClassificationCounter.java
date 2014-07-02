@@ -32,13 +32,16 @@ public class ClassificationCounter implements Serializable {
         for (final AbstractInstance instance : instances) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc = null;
-            boolean isAnAcceptableMissingValue = splitAttribute == null || splitAttributeValue == null || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+            boolean acceptableMissingValue = attrVal ==null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
+
             if (attrVal!=null)
                 cc = result.get(attrVal);
-            else if (isAnAcceptableMissingValue)
+            else if (acceptableMissingValue)
                 cc = result.get(MISSING_VALUE);
+            else
+                continue;
 
-            if (cc == null || isAnAcceptableMissingValue) {
+            if (cc == null) {
                 cc = new ClassificationCounter();
                 Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
                 result.put(newKey, cc);
@@ -81,6 +84,12 @@ public class ClassificationCounter implements Serializable {
 
 		return Pair.with(totals, attributesWithClassificationCounters);
 	}
+
+    private static boolean isAnAcceptableMissingValue(AbstractInstance instance, String splitAttribute, Serializable splitAttributeValue){
+        return  splitAttribute == null
+                || splitAttributeValue == null
+                || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+    }
 
     public Map<Serializable, Double> getCounts() {
         Map<Serializable, Double> ret = Maps.newHashMap();

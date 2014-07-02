@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/10/14.
  */
-public class PAVCalibratedPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
+public class PAVCalibratedPredictiveModelBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
     private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
 
     private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;

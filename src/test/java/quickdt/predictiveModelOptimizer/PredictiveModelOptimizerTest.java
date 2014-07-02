@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
-import quickdt.crossValidation.RMSECrossValLoss;
+import quickdt.crossValidation.LogCrossValLoss;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
+import quickdt.predictiveModels.PredictiveModelWithDataBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
-import quickdt.predictiveModels.randomForest.UpdatableRandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class PredictiveModelOptimizerTest {
     private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
-    @Test(enabled = false)
+    @Test
     public void irisTest() throws IOException {
         final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
@@ -36,8 +36,8 @@ public class PredictiveModelOptimizerTest {
     }
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
-        final UpdatableRandomForestBuilderBuilder predictiveModelBuilderBuilder = new UpdatableRandomForestBuilderBuilder(new RandomForestBuilderBuilder());
-        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new RMSECrossValLoss());
+        final PredictiveModelWithDataBuilderBuilder predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder());
+        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLoss());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);

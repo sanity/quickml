@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 6/10/14.
  */
-public class SplitOnAttributePMBuilderBuilder implements PredictiveModelBuilderBuilder<SplitOnAttributePM, SplitOnAttributePMBuilder> {
+public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<SplitOnAttributePM, SplitOnAttributePMBuilder> {
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
