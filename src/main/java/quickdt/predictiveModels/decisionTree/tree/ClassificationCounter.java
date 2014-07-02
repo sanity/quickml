@@ -46,6 +46,10 @@ public class ClassificationCounter implements Serializable {
             cc.addClassification(instance.getClassification(), instance.getWeight());
             totals.addClassification(instance.getClassification(), instance.getWeight());
         }
+        double total = 0;
+        for (ClassificationCounter cc : result.values())
+            total += cc.getTotal();
+
         return Pair.with(totals, result);
     }
 
