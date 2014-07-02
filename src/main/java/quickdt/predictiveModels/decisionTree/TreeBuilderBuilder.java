@@ -31,7 +31,7 @@ public class TreeBuilderBuilder implements PredictiveModelBuilderBuilder<Tree, T
         parametersToOptimize.put(MIN_SCORE, new FixedOrderRecommender(0.00000000000001, -Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         parametersToOptimize.put(MIN_CAT_ATTR_OCC, new FixedOrderRecommender(5, 0, 1, 64, 1024, 4098));
         parametersToOptimize.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 10, 100, 1000, 10000, 100000));
-        parametersToOptimize.put(SCORER, new FixedOrderRecommender(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new SplitDiffScorer(), new InformationGainScorer(), new GiniImpurityScorer()));
+        parametersToOptimize.put(SCORER, new FixedOrderRecommender(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE), new SplitDiffScorer(), new InformationGainScorer(), new GiniImpurityScorer()));
         return parametersToOptimize;
     }
 
