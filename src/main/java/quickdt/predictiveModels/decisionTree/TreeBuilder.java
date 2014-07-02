@@ -343,9 +343,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                  final Iterable<? extends AbstractInstance> instances) {
         if (binaryClassifications) {
-          return createTwoClassCategoricalNode(parent, attribute, instances);
+              return createTwoClassCategoricalNode(parent, attribute, instances);
         } else {
-          return  createNClassCategoricalNode(parent, attribute, instances);
+              return   createNClassCategoricalNode(parent, attribute, instances);
         }
     }
 
@@ -364,10 +364,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
 
         double thisScore = 0, bestScore = 0;
-        final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
+        final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
-                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, new Double(1.0));  //returs a list of ClassificationCounterList
+                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, positiveClassValue);  //returs a list of ClassificationCounterList
 
         ClassificationCounter outCounts = valueOutcomeCountsPairs.getValue0(); //classification counter treating all values the same
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
@@ -375,8 +375,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         final List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters = valueOutcomeCountsPairs.getValue1(); //map of value _> classificationCounter
         Serializable lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;
 
-        for (final AttributeValueWithClassificationCounter attValWithClass : valuesWithClassificationCounters) {
-            final ClassificationCounter testValCounts = attValWithClass.classificationCounter;
+        for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
+            final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
             if (testValCounts == null) { // Also a kludge, figure out why
                 continue;
             }
@@ -386,16 +386,20 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             final ClassificationCounter testInCounts = inCounts.add(testValCounts);
             final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
 
+            if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
+                continue;
+            }
+
             thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
-                lastValOfInset = attValWithClass.attributeValue;
+                lastValOfInset = valueWithClassificationCounter.attributeValue;
             }
         }
 
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
-            bestSoFar.add(attributeValueWithClassificationCounter.attributeValue);
+            inSet.add(attributeValueWithClassificationCounter.attributeValue);
             if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset))
                 break;
         }
@@ -404,8 +408,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             return null;
         }
 
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), bestScore);
-        //       boolean testVal=bestSoFar.size()==0 && values.size()>1 && !allSameClass;
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet), bestScore);
+        //       boolean testVal=inSet.size()==0 && values.size()>1 && !allSameClass;
         return bestPair;
     }
 
