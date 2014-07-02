@@ -1,7 +1,6 @@
 package quickdt.predictiveModels.decisionTree;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
 import org.apache.commons.lang.mutable.MutableDouble;
@@ -24,6 +23,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     public static final int SMALL_TRAINING_SET_LIMIT = 10;
     public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
+    private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
@@ -373,9 +373,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                  final Iterable<? extends AbstractInstance> instances) {
         if (binaryClassifications) {
-              return createTwoClassCategoricalNode(parent, attribute, instances);
+            return createTwoClassCategoricalNode(parent, attribute, instances);
         } else {
-              return   createNClassCategoricalNode(parent, attribute, instances);
+            return createNClassCategoricalNode(parent, attribute, instances);
         }
     }
 
@@ -446,28 +446,29 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
-                                                                 final Iterable<? extends AbstractInstance> instances) {
+                                                                       final Iterable<? extends AbstractInstance> instances) {
 
-        Set<Serializable> values = createSetOfAttributeValues(attribute, instances);
+        final Set<Serializable> values = getAttrinbuteValues(instances, attribute);
+
+        if (insufficientTrainingDataGivenNumberOfAttributeValues(instances, values)) return null;
+
         double score = 0;
 
-        final Set<Serializable> bestSoFar = Sets.newHashSet(); //the in-set
+        final Set<Serializable> inValueSet = Sets.newHashSet(); //the in-set
 
-        ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
+        ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
+
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
                 .countAllByAttributeValues(instances, attribute, splitAttribute, id);
-        ClassificationCounter outCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
-        boolean allSameClass = outCounts.allClassifications().size()==1;
+        ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
-        Serializable bestVal;
-        double thisScore = -1.0;
+        double insetScore = Double.MAX_VALUE;
         while (true) {
-            double bestScore = 0;
-            bestVal = null;
+            com.google.common.base.Optional<ScoreValuePair> bestValueAndScore = com.google.common.base.Optional.absent();
             //values should be greater than 1
-            for (final Serializable testVal : values) {
-                final ClassificationCounter testValCounts = valueOutcomeCounts.get(testVal);
+            for (final Serializable thisValue : values) {
+                final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
                 if (testValCounts == null) { // Also a kludge, figure out why
                     // this would happen
                     //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
@@ -476,35 +477,55 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (this.minCategoricalAttributeValueOccurances > 0) {
                     if (shouldWeIgnoreThisValue(testValCounts)) continue;
                 }
-                final ClassificationCounter testInCounts = inCounts.add(testValCounts);
-                final ClassificationCounter testOutCounts = outCounts.subtract(testValCounts);
+                final ClassificationCounter testInCounts = inSetClassificationCounts.add(testValCounts);
+                final ClassificationCounter testOutCounts = outSetClassificationCounts.subtract(testValCounts);
 
-                thisScore = scorer.scoreSplit(testInCounts, testOutCounts);
+                double scoreWithThisValueAddedToInset = scorer.scoreSplit(testInCounts, testOutCounts);
 
-                if (thisScore > bestScore) {
-                    bestScore = thisScore;
-                    bestVal = testVal;
+                if (!bestValueAndScore.isPresent() || scoreWithThisValueAddedToInset < bestValueAndScore.get().getScore()) {
+                    bestValueAndScore = com.google.common.base.Optional.of(new ScoreValuePair(scoreWithThisValueAddedToInset, thisValue));
                 }
             }
 
-            if (bestScore > score) {
-                score = bestScore;
-                bestSoFar.add(bestVal);
-                values.remove(bestVal);
-                final ClassificationCounter bestValOutcomeCounts = valueOutcomeCounts.get(bestVal);
-                inCounts = inCounts.add(bestValOutcomeCounts);
-                outCounts = outCounts.subtract(bestValOutcomeCounts);
+            if (bestValueAndScore.isPresent() && bestValueAndScore.get().getScore() < insetScore) {
+                insetScore = bestValueAndScore.get().getScore();
+                final Serializable bestValue = bestValueAndScore.get().getValue();
+                inValueSet.add(bestValue);
+                values.remove(bestValue);
+                final ClassificationCounter bestValOutcomeCounts = valueOutcomeCounts.get(bestValue);
+                inSetClassificationCounts = inSetClassificationCounts.add(bestValOutcomeCounts);
+                outSetClassificationCounts = outSetClassificationCounts.subtract(bestValOutcomeCounts);
 
             } else {
                 break;
             }
         }
-        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
+        if (inSetClassificationCounts.getTotal() < minLeafInstances || outSetClassificationCounts.getTotal() < minLeafInstances) {
             return null;
         }
-        Pair<CategoricalBranch, Double> bestPair =  Pair.with(new CategoricalBranch(parent, attribute, bestSoFar), score);
-        //       boolean testVal=bestSoFar.size()==0 && values.size()>1 && !allSameClass;
+
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inValueSet), score);
         return bestPair;
+    }
+
+    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends AbstractInstance> trainingData, final Set<Serializable> values) {
+        final int averageInstancesPerValue = Iterables.size(trainingData) / values.size();
+        final boolean notEnoughTrainingDataGivenNumberOfValues = averageInstancesPerValue < Math.max(this.minCategoricalAttributeValueOccurances,
+                HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE);
+        if (notEnoughTrainingDataGivenNumberOfValues) {
+            return true;
+        }
+        return false;
+    }
+
+    private Set<Serializable> getAttrinbuteValues(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
+        final Set<Serializable> values = Sets.newHashSet();
+        for (final AbstractInstance instance : trainingData) {
+            Serializable value = instance.getAttributes().get(attribute);
+            if (value == null) value = MISSING_VALUE;
+            values.add(value);
+        }
+        return values;
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
@@ -513,8 +534,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
-                                                               final Iterable<? extends AbstractInstance> instances,
-                                                               final double[] splits) {
+                                                             final Iterable<? extends AbstractInstance> instances,
+                                                             final double[] splits) {
         double bestScore = 0;
         double bestThreshold = 0;
 
@@ -542,7 +563,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 bestThreshold = threshold;
             }
         }
-        if (bestScore==0) {
+        if (bestScore == 0) {
             return null;
         }
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
@@ -552,6 +573,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
      * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
      * provided build a tree from the leaf if possible. If a branch has only leaves as direct children, this will combine the data from the leaves
      * and recreate the branch
+     *
      * @param node The node we are attempting to further split
      */
     private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
@@ -571,7 +593,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 }
                 Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
-                if(parent.trueChild == toReplace) {
+                if (parent.trueChild == toReplace) {
                     parent.trueChild = newNode;
                 } else {
                     parent.falseChild = newNode;
@@ -589,18 +611,18 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private boolean shouldCombineData(Branch branch) {
-        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf  && branch.parent!=null;
+        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf && branch.parent != null;
     }
 
     /**
-     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
+     * @param node         a branch with UpdatableLeaf children or an UpdatableLeaf
      * @param trainingData full set of trainingData
      */
     private Collection<AbstractInstance> getData(Node node, List<? extends AbstractInstance> trainingData) {
         List<AbstractInstance> data = Lists.newArrayList();
         Collection<Integer> indexes = getIndexes(node);
 
-        for(Integer index : indexes) {
+        for (Integer index : indexes) {
             data.add(trainingData.get(index));
         }
         return data;
@@ -637,7 +659,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             Branch branch = (Branch) leaf.parent;
             Leaf newLeaf = new Leaf(leaf.parent, leaf.classificationCounts, leaf.depth);
-            if(branch.trueChild == node) {
+            if (branch.trueChild == node) {
                 branch.trueChild = newLeaf;
             } else {
                 branch.falseChild = newLeaf;
@@ -694,7 +716,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         @Override
         public boolean apply(@Nullable AbstractInstance input) {
             try {
-                if (input == null ) {
+                if (input == null) {
                     return false;
                 }
                 Serializable value = input.getAttributes().get(attribute);
@@ -706,6 +728,24 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 // handle better
                 return false;
             }
+        }
+    }
+
+    private class ScoreValuePair {
+        private double score;
+        private Serializable value;
+
+        private ScoreValuePair(final double score, final Serializable value) {
+            this.score = score;
+            this.value = value;
+        }
+
+        public double getScore() {
+            return score;
+        }
+
+        public Serializable getValue() {
+            return value;
         }
     }
 
