@@ -450,8 +450,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         if (insufficientTrainingDataGivenNumberOfAttributeValues(instances, values)) return null;
 
-        double score = 0;
-
         final Set<Serializable> inValueSet = Sets.newHashSet(); //the in-set
 
         ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
@@ -461,7 +459,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
-        double insetScore = Double.MAX_VALUE;
+        double insetScore = 0;
         while (true) {
             com.google.common.base.Optional<ScoreValuePair> bestValueAndScore = com.google.common.base.Optional.absent();
             //values should be greater than 1
