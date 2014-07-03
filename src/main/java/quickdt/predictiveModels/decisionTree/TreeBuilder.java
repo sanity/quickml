@@ -589,6 +589,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 }
                 Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
+                //replace the child that has the same reference as toReplace, intentionally checking reference using ==
                 if (parent.trueChild == toReplace) {
                     parent.trueChild = newNode;
                 } else {
