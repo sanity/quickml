@@ -108,7 +108,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
     }
 
-    public void setBinaryClassificationProperties(Iterable<? extends AbstractInstance> trainingData) {
+    private void setBinaryClassificationProperties(Iterable<? extends AbstractInstance> trainingData) {
 
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
         for (AbstractInstance instance : trainingData) {
@@ -270,9 +270,17 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         //put instances with attribute values into appropriate training sets
         for (AbstractInstance instance : trainingData) {
-            boolean instanceIsInTheSupportingDataSet = splitAttribute != null && id != null //if using a split model
-                    && !instance.getAttributes().get(splitAttribute).equals(id) //and this data isn't part of this split (it is cross pollinated data)
-                    && !splitModelWhiteList.contains(bestNode.attribute); //and the attribute isn't in the whitelist
+            boolean isASupportingInstanceFromADifferentSplit = false;
+            boolean instanceNotPermittedToContributeToInsetDefinition = false;
+            boolean usingSplitModel = splitAttribute != null && id != null;
+            if (usingSplitModel) {
+                isASupportingInstanceFromADifferentSplit = !instance.getAttributes().get(splitAttribute).equals(id);
+                instanceNotPermittedToContributeToInsetDefinition = !splitModelWhiteList.contains(bestNode.attribute);
+            }
+
+             boolean instanceIsInTheSupportingDataSet = usingSplitModel
+                     && isASupportingInstanceFromADifferentSplit
+                     && instanceNotPermittedToContributeToInsetDefinition; //and the attribute isn't in the whitelist
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             } else {
