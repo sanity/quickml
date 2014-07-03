@@ -104,7 +104,8 @@ public class Benchmarks {
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
             final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
-            AbstractInstance instance = new Instance(a, (String) jo.get("output"));
+            String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
+            AbstractInstance instance = new Instance(a,binaryClassification);
             instances.add(instance);
         }
 
