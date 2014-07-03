@@ -57,7 +57,7 @@ public class Benchmarks {
             String[] splitLine = line.split("\\s");
             HashMapAttributes hashMapAttributes = new HashMapAttributes();
             for (int x=0; x<8; x++) {
-                hashMapAttributes.put("attr"+x, splitLine[x]);
+                hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
             final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[8]);
             instances.add(instance);
