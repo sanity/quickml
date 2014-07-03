@@ -57,7 +57,7 @@ public class Benchmarks {
             String[] splitLine = line.split("\\s");
             HashMapAttributes hashMapAttributes = new HashMapAttributes();
             for (int x=0; x<8; x++) {
-                hashMapAttributes.put("attr"+x, splitLine[x]);
+                hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
             final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[8]);
             instances.add(instance);
@@ -104,7 +104,8 @@ public class Benchmarks {
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
             final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
-            AbstractInstance instance = new Instance(a, (String) jo.get("output"));
+            String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
+            AbstractInstance instance = new Instance(a, binaryClassification);
             instances.add(instance);
         }
 
