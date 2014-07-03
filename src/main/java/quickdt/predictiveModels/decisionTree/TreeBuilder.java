@@ -50,8 +50,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return this;
     }
 
-    public TreeBuilder disableBinaryClassificationStrategy(boolean disable) {
-        this.binaryClassifications = !disable;
+    public TreeBuilder binaryClassification(boolean binaryClassification) {
+        this.binaryClassifications = binaryClassification;
         return this;
     }
 
@@ -435,16 +435,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return bestPair;
     }
 
-    private Set<Serializable> createSetOfAttributeValues(String attribute, Iterable<? extends AbstractInstance> instances) {
-        final Set<Serializable> values = Sets.newHashSet();
-        for (final AbstractInstance instance : instances) {
-            Serializable value = instance.getAttributes().get(attribute);
-            if (value == null) value = MISSING_VALUE;
-            values.add(value);
-        }
-        return values;
-    }
-
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
                                                                        final Iterable<? extends AbstractInstance> instances) {
 
@@ -482,12 +472,12 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
                 double scoreWithThisValueAddedToInset = scorer.scoreSplit(testInCounts, testOutCounts);
 
-                if (!bestValueAndScore.isPresent() || scoreWithThisValueAddedToInset < bestValueAndScore.get().getScore()) {
+                if (!bestValueAndScore.isPresent() || scoreWithThisValueAddedToInset > bestValueAndScore.get().getScore()) {
                     bestValueAndScore = com.google.common.base.Optional.of(new ScoreValuePair(scoreWithThisValueAddedToInset, thisValue));
                 }
             }
 
-            if (bestValueAndScore.isPresent() && bestValueAndScore.get().getScore() < insetScore) {
+            if (bestValueAndScore.isPresent() && bestValueAndScore.get().getScore() > insetScore) {
                 insetScore = bestValueAndScore.get().getScore();
                 final Serializable bestValue = bestValueAndScore.get().getValue();
                 inValueSet.add(bestValue);
@@ -504,7 +494,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             return null;
         }
 
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inValueSet), score);
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inValueSet), insetScore);
         return bestPair;
     }
 
