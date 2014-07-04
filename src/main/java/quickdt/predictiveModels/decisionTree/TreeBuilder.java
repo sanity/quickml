@@ -1,11 +1,10 @@
 package quickdt.predictiveModels.decisionTree;
 
-import com.google.common.base.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.hadoop.util.hash.Hash;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
@@ -393,7 +392,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //get Pair of Sets of classification counters
         //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
 
-        double thisScore = 0, bestScore = 0;
+        double bestScore = 0;
         final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
@@ -420,7 +419,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 continue;
             }
 
-            thisScore = scorer.scoreSplit(inCounts, outCounts);
+            double thisScore = scorer.scoreSplit(inCounts, outCounts);
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
