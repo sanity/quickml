@@ -5,16 +5,16 @@ import com.google.common.base.Preconditions;
 /**
  * Created by alexanderhawk on 4/10/14.
  */
-public class LogCrossValLoss extends OnlineCrossValLoss<LogCrossValLoss> {
+public class LogCrossValLossFunction extends OnlineCrossValLossFunction<LogCrossValLossFunction> {
     private static final double DEFAULT_MIN_PROBABILITY = 10E-16;
     public  double minProbability;
     public  double maxError;
 
-    public LogCrossValLoss() {
+    public LogCrossValLossFunction() {
         this(DEFAULT_MIN_PROBABILITY);
     }
 
-    public LogCrossValLoss(double minProbability) {
+    public LogCrossValLossFunction(double minProbability) {
         this.minProbability = minProbability;
         maxError = -Math.log(minProbability);
     }
@@ -29,7 +29,7 @@ public class LogCrossValLoss extends OnlineCrossValLoss<LogCrossValLoss> {
 
     }
     @Override
-    public int compareTo(final LogCrossValLoss o) {
+    public int compareTo(final LogCrossValLossFunction o) {
         return 1 - Double.compare( super.totalLoss, o.totalLoss);
     }
 

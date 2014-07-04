@@ -19,15 +19,15 @@ public class CrossValidatorTest {
 
     @Test
     public void testCrossValidator() {
-        CrossValLoss crossValLoss = Mockito.mock(CrossValLoss.class);
+        CrossValLossFunction crossValLossFunction = Mockito.mock(CrossValLossFunction.class);
 
         int folds = 4;
-        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLoss);
+        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
         List<AbstractInstance> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
-        Mockito.verify(crossValLoss, Mockito.times(folds)).getLoss(Mockito.<List<AbstractInstance>>any(), Mockito.any(PredictiveModel.class));
+        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<AbstractInstance>>any(), Mockito.any(PredictiveModel.class));
     }
 
     private List<AbstractInstance> getInstances() {

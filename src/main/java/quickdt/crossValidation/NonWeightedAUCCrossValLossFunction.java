@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 5/17/14.
  */
-public class NonWeightedAUCCrossValLoss  implements CrossValLoss {
+public class NonWeightedAUCCrossValLossFunction implements CrossValLossFunction {
 
     @Override
     public double getLoss(List<? extends AbstractInstance> crossValSet, PredictiveModel predictiveModel) {

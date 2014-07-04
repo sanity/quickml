@@ -13,11 +13,11 @@ import java.util.List;
 /**
  * Created by Chris on 5/5/2014.
  */
-public class MSECrossValLossTest {
+public class MSECrossValLossFunctionTest {
 
     @Test
     public void testGetTotalLoss() {
-        MSECrossValLoss crossValLoss = new MSECrossValLoss();
+        MSECrossValLossFunction crossValLoss = new MSECrossValLossFunction();
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
         Attributes test1Attributes = Mockito.mock(Attributes.class);
         Attributes test2Attributes = Mockito.mock(Attributes.class);

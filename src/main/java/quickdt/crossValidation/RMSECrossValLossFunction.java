@@ -8,9 +8,9 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
+public class RMSECrossValLossFunction extends OnlineCrossValLossFunction<RMSECrossValLossFunction> {
 
-    private MSECrossValLoss mseCrossValLoss = new MSECrossValLoss();
+    private MSECrossValLossFunction mseCrossValLoss = new MSECrossValLossFunction();
 
     @Override
     public double getLossFromInstance(final double probabilityOfCorrectInstance, double weight) {
@@ -18,7 +18,7 @@ public class RMSECrossValLoss extends OnlineCrossValLoss<RMSECrossValLoss> {
     }
 
     @Override
-    public int compareTo(final RMSECrossValLoss o) {
+    public int compareTo(final RMSECrossValLossFunction o) {
         return mseCrossValLoss.compareTo(o.mseCrossValLoss);
     }
     @Override

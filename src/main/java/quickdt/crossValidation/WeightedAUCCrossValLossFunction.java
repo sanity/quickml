@@ -11,10 +11,10 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLoss implements CrossValLoss {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction {
     private final Serializable positiveClassification;
 
-    public WeightedAUCCrossValLoss(Serializable positiveClassification) {
+    public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
         this.positiveClassification = positiveClassification;
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public abstract class OnlineCrossValLoss<S extends CrossValLoss> implements Comparable<S>, CrossValLoss {
+public abstract class OnlineCrossValLossFunction<S extends CrossValLossFunction> implements Comparable<S>, CrossValLossFunction {
     double totalLoss = 0;
     double weightOfAllInstances = 0;
     protected abstract double getLossFromInstance(double probabilityOfCorrectInstance, double weight);

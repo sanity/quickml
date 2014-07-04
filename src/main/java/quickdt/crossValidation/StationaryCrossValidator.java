@@ -21,7 +21,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
     private int foldsUsed;
-    private CrossValLoss crossValLoss;
+    private CrossValLossFunction lossFunction;
 
     /**
      * Create a new CrossValidator using an RMSECrossValLoss, generating a getCrossValidatedLoss
@@ -29,32 +29,32 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
      * the Attributes in each Instance.
      */
     public StationaryCrossValidator() {
-        this(StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS, new RMSECrossValLoss());
+        this(StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS, new RMSECrossValLossFunction());
      }
     public StationaryCrossValidator(int folds) {
-        this(folds, new RMSECrossValLoss());
+        this(folds, new RMSECrossValLossFunction());
     }
 
     public StationaryCrossValidator(int folds, int foldsUsed) {
-        this(folds, foldsUsed, new RMSECrossValLoss());
+        this(folds, foldsUsed, new RMSECrossValLossFunction());
     }
     /**
      * Create a new CrossValidator
      * @param folds The number folds to be used in the cross validation procedure
      */
-    public StationaryCrossValidator(final int folds, CrossValLoss crossValLoss) {
+    public StationaryCrossValidator(final int folds, CrossValLossFunction lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = folds;
-        this.crossValLoss = crossValLoss;
+        this.lossFunction = lossFunction;
 
     }
 
-    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLoss crossValLoss) {
+    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = foldsUsed;
-        this.crossValLoss = crossValLoss;
+        this.lossFunction = lossFunction;
     }
 
     public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
@@ -63,7 +63,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            runningLoss+=crossValLoss.getLoss(dataSplit.validation, predictiveModel);
+            runningLoss+= lossFunction.getLoss(dataSplit.validation, predictiveModel);
             logger.info("running loss: "+runningLoss);
 
         }
