@@ -16,11 +16,11 @@ import java.util.List;
 /**
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossTest {
+public class WeightedAUCCrossValLossFunctionTest {
 
     @Test(expected = RuntimeException.class)
     public void testOnlySupportBinaryClassifications() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance.getClassification()).thenReturn("instance1");
@@ -40,7 +40,7 @@ public class WeightedAUCCrossValLossTest {
 
     @Test
     public void testGetTotalLoss() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
         Attributes test1Attributes = Mockito.mock(Attributes.class);
         Attributes test2Attributes = Mockito.mock(Attributes.class);
@@ -85,11 +85,11 @@ public class WeightedAUCCrossValLossTest {
 
     @Test
     public void testSortDataByProbability() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
-        List<WeightedAUCCrossValLoss.AUCData> aucDataList = getAucDataList();
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
+        List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = getAucDataList();
         crossValLoss.sortDataByProbability(aucDataList);
         double probability = 0;
-        for(WeightedAUCCrossValLoss.AUCData aucData : aucDataList) {
+        for(WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
             Assert.assertTrue(aucData.getProbability() >= probability);
             probability = aucData.getProbability();
         }
@@ -99,8 +99,8 @@ public class WeightedAUCCrossValLossTest {
     public void testGetAUCPoint() {
         //FPR = FP / (FP + TN)
         //TRP = TP / (TP + FN)
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
-        WeightedAUCCrossValLoss.AUCPoint aucPoint = crossValLoss.getAUCPoint(2, 2, 0, 1);
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
+        WeightedAUCCrossValLossFunction.AUCPoint aucPoint = crossValLoss.getAUCPoint(2, 2, 0, 1);
         Assert.assertEquals(1.0, aucPoint.getFalsePositiveRate());
         Assert.assertEquals(2.0/3.0, aucPoint.getTruePositiveRate());
         aucPoint = crossValLoss.getAUCPoint(2, 1, 1, 1);
@@ -116,10 +116,10 @@ public class WeightedAUCCrossValLossTest {
 
     @Test
     public void testGetAucPointsFromData() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
-        List<WeightedAUCCrossValLoss.AUCData> aucDataList = getAucDataList();
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
+        List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = getAucDataList();
         crossValLoss.sortDataByProbability(aucDataList);
-        ArrayList<WeightedAUCCrossValLoss.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
+        ArrayList<WeightedAUCCrossValLossFunction.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         //We should have the same number of points as data plus 1 for threshold 0
         Assert.assertEquals(aucDataList.size()+1, aucPoints.size());
         //0 false negative, 0 true negative, 4 true positive, 2 false positive: FPR = 2 / 2, TRP = 4 / 4 get(0)
@@ -143,7 +143,7 @@ public class WeightedAUCCrossValLossTest {
         Assert.assertEquals(1.0/4.0, aucPoints.get(5).getTruePositiveRate());
         Assert.assertEquals(0.0, aucPoints.get(6).getFalsePositiveRate());
         Assert.assertEquals(0.0, aucPoints.get(6).getTruePositiveRate());
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test1", 1.0, 0.8));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.8));
         aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         //Added data with same probability, should not result in new number of points but will change rates
         Assert.assertEquals(aucDataList.size(), aucPoints.size());
@@ -151,39 +151,39 @@ public class WeightedAUCCrossValLossTest {
 
     @Test(expected = IllegalStateException.class)
     public void testTotalLossNoData() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         crossValLoss.getLoss(Collections.EMPTY_LIST, Mockito.mock(PredictiveModel.class));
     }
 
-    private List<WeightedAUCCrossValLoss.AUCData> getAucDataList() {
-        List<WeightedAUCCrossValLoss.AUCData> aucDataList = new ArrayList<>();
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test1", 1.0, 0.5));
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test0", 1.0, 0.3));
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test0", 1.0, 0.6));
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test1", 1.0, 0.2));
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test1", 1.0, 0.7));
-        aucDataList.add(new WeightedAUCCrossValLoss.AUCData("test1", 1.0, 0.8));
+    private List<WeightedAUCCrossValLossFunction.AUCData> getAucDataList() {
+        List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = new ArrayList<>();
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.5));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test0", 1.0, 0.3));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test0", 1.0, 0.6));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.2));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.7));
+        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.8));
         return aucDataList;
     }
 
     @Test
     public void testAgainstMahout() {
-        WeightedAUCCrossValLoss crossValLoss = new WeightedAUCCrossValLoss("test1");
-        List<WeightedAUCCrossValLoss.AUCData> aucDataList = new ArrayList<>();
+        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
+        List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = new ArrayList<>();
         int dataSize = 9000; //mahout only stores 10000 data points, test against less than what they consider
         for(int i = 0; i < dataSize; i++) {
             String classification = "test0";
             if (i % 5 == 0) {
                 classification = "test1";
             }
-            aucDataList.add(new WeightedAUCCrossValLoss.AUCData(classification, 1.0, Math.random()));
+            aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData(classification, 1.0, Math.random()));
         }
         crossValLoss.sortDataByProbability(aucDataList);
-        ArrayList<WeightedAUCCrossValLoss.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
+        ArrayList<WeightedAUCCrossValLossFunction.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
 
         Auc auc = new Auc();
-        for(WeightedAUCCrossValLoss.AUCData aucData : aucDataList) {
+        for(WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
             auc.add("test1".equals(aucData.getClassification()) ? 1 : 0, aucData.getProbability());
         }
 

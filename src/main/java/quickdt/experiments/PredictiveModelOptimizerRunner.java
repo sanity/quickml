@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.crossValidation.DateTimeExtractor;
-import quickdt.crossValidation.NonWeightedAUCCrossValLoss;
+import quickdt.crossValidation.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.OutOfTimeCrossValidator;
 import quickdt.csvReader.CSVToMap;
 import quickdt.data.AbstractInstance;
@@ -89,7 +89,7 @@ public class PredictiveModelOptimizerRunner {
 
 
     private static CrossValidator getCrossValidator() {
-        return new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLoss(), 0.15, 30, new TrainingDateTimeExtractor());
+        return new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.15, 30, new TrainingDateTimeExtractor());
     }
 
     private static List<PredictiveModelBuilderBuilder> getPredictiveModelBuilderBuilders() {

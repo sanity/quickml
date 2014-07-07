@@ -24,7 +24,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
     List<AbstractInstance> trainingDataToAddToPredictiveModel;
     List<AbstractInstance> validationSet;
 
-    final private CrossValLoss crossValLoss;
+    final private CrossValLossFunction crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
 
     private final DateTimeExtractor dateTimeExtractor;
@@ -33,8 +33,8 @@ public class OutOfTimeCrossValidator extends CrossValidator {
     private double weightOfValidationSet;
     private int currentTrainingSetSize = 0;
 
-    public OutOfTimeCrossValidator(CrossValLoss crossValLoss, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
-        this.crossValLoss = crossValLoss;
+    public OutOfTimeCrossValidator(CrossValLossFunction crossValLossFunction, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
+        this.crossValLossFunction = crossValLossFunction;
         this.fractionOfDataForCrossValidation = fractionOfDataForCrossValidation;
         this.dateTimeExtractor = dateTimeExtractor;
         this.durationOfValidationSet = new Period(validationTimeSliceHours, 0, 0, 0);
@@ -49,7 +49,7 @@ public class OutOfTimeCrossValidator extends CrossValidator {
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            runningLoss += crossValLoss.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
+            runningLoss += crossValLossFunction.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
             updateTrainingSet();

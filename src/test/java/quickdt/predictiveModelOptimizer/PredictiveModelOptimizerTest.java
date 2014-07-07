@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
-import quickdt.crossValidation.LogCrossValLoss;
+import quickdt.crossValidation.LogCrossValLossFunction;
 import quickdt.crossValidation.StationaryCrossValidator;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
@@ -37,7 +37,7 @@ public class PredictiveModelOptimizerTest {
 
     private void testWithTrainingSet(final List<AbstractInstance> instances) {
         final PredictiveModelWithDataBuilderBuilder predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder());
-        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLoss());
+        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new LogCrossValLossFunction());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);

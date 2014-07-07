@@ -1,12 +1,11 @@
 package quickdt.crossValidation;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 
 /**
  * Created by ian on 2/28/14.
  */
-public class MSECrossValLoss extends OnlineCrossValLoss<MSECrossValLoss> {
+public class MSECrossValLossFunction extends OnlineCrossValLossFunction<MSECrossValLossFunction> {
 
     @Override
     public double getLossFromInstance(double probabilityOfCorrectInstance, double weight) {
@@ -19,7 +18,7 @@ public class MSECrossValLoss extends OnlineCrossValLoss<MSECrossValLoss> {
     }
 
     @Override
-    public int compareTo(final MSECrossValLoss o) {
+    public int compareTo(final MSECrossValLossFunction o) {
         return 1 - Double.compare(super.totalLoss, o.totalLoss);
     }
 

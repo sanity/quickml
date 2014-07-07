@@ -1,11 +1,10 @@
 package quickdt.predictiveModels.decisionTree;
 
-import com.google.common.base.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.hadoop.util.hash.Hash;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
@@ -393,7 +392,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //get Pair of Sets of classification counters
         //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
 
-        double thisScore = 0, bestScore = 0;
+        double bestScore = 0;
         final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
@@ -407,7 +406,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-            if (testValCounts == null) { // Also a kludge, figure out why
+            if (testValCounts == null || valueWithClassificationCounter.attributeValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
                 continue;
             }
             if (this.minCategoricalAttributeValueOccurances > 0) {
@@ -420,7 +419,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 continue;
             }
 
-            thisScore = scorer.scoreSplit(inCounts, outCounts);
+            double thisScore = scorer.scoreSplit(inCounts, outCounts);
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
@@ -465,7 +464,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
-                if (testValCounts == null) { // Also a kludge, figure out why
+                if (testValCounts == null|| thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
                     // this would happen
                     //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
                     continue;
@@ -589,6 +588,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 }
                 Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
+                //replace the child that has the same reference as toReplace, intentionally checking reference using ==
                 if (parent.trueChild == toReplace) {
                     parent.trueChild = newNode;
                 } else {
