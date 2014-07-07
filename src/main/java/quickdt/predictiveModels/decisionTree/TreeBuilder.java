@@ -465,7 +465,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
-                if (testValCounts == null) { // Also a kludge, figure out why
+                if (testValCounts == null|| thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
                     // this would happen
                     //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
                     continue;
