@@ -407,7 +407,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-            if (testValCounts == null) { // Also a kludge, figure out why
+            if (testValCounts == null || valueWithClassificationCounter.attributeValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
                 continue;
             }
             if (this.minCategoricalAttributeValueOccurances > 0) {
