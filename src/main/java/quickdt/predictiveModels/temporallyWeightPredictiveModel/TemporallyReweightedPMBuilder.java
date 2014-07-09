@@ -97,7 +97,6 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
 
             PredictiveModel pm = predictiveModel.getWrappedModel();
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataList, trainingDataList, splitNodes);
-            logger.info("Updating default predictive model");
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
