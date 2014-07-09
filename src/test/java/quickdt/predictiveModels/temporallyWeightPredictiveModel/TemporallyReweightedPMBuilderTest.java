@@ -8,12 +8,24 @@ import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by chrisreeves on 6/23/14.
  */
 public class TemporallyReweightedPMBuilderTest {
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testError3ClassificationsInDataSet() throws Exception {
+        final List<Instance> instances = new LinkedList<>();
+        instances.add(Instance.create("1", "2", "2"));
+        instances.add(Instance.create("2", "2", "2"));
+        instances.add(Instance.create("3", "2", "2"));
+        final TemporallyReweightedPMBuilder cpmb = new TemporallyReweightedPMBuilder(new TreeBuilder(), new SampleDateTimeExtractor());
+        cpmb.buildPredictiveModel(instances);
+    }
+
     @Test
     public void simpleBmiTest() throws Exception {
         final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(10000);

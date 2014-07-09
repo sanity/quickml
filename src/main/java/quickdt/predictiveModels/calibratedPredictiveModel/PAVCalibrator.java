@@ -102,7 +102,8 @@ public class PAVCalibrator implements Serializable, Calibrator {
                 return Math.max(input, calibrationSet.last().output);
             }
             catch (NoSuchElementException e){
-                System.out.println("break point me");
+                logger.warn("NoSuchElementException finding ceiling");
+                return input;
             }
 
         }

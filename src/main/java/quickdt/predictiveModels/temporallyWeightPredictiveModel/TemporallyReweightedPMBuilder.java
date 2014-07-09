@@ -1,5 +1,6 @@
 package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -11,6 +12,7 @@ import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -19,18 +21,22 @@ import java.util.*;
  * Created by ian on 5/29/14.
  */
 public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<TemporallyReweightedPM> {
-    private static final  Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
-    private static final double POSITIVE_CLASSIFICATION = 1.0;
+    private static final Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private PredictiveModelBuilder<?> wrappedBuilder;
-    private DateTimeExtractor dateTimeExtractor;
-
+    private final PredictiveModelBuilder<?> wrappedBuilder;
+    private final DateTimeExtractor dateTimeExtractor;
+    private final Serializable positiveClassification;
 
     public TemporallyReweightedPMBuilder(PredictiveModelBuilder<?> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
+        this(wrappedBuilder, dateTimeExtractor, 1.0);
+    }
+
+    public TemporallyReweightedPMBuilder(PredictiveModelBuilder<?> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
         this.wrappedBuilder = wrappedBuilder;
         this.dateTimeExtractor = dateTimeExtractor;
+        this.positiveClassification = positiveClassification;
     }
 
     public TemporallyReweightedPMBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
@@ -50,6 +56,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
 
     @Override
     public TemporallyReweightedPM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
+        validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
         List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecent);
         final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
@@ -59,13 +66,18 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     private List<AbstractInstance> reweightTrainingData(Iterable<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
         ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
         for (AbstractInstance instance : sortedData) {
-            double decayConstant = (instance.getClassification().equals(POSITIVE_CLASSIFICATION)) ? decayConstantOfPositive : decayConstantOfNegative;
+            double decayConstant = (instance.getClassification().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             trainingDataList.add(instance.reweight(newWeight));
         }
         return trainingDataList;
+    }
+
+    private void validateData(Iterable<? extends AbstractInstance> trainingData) {
+        ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
+        Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
 
     @Override
@@ -77,6 +89,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     @Override
     public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
+            validateData(newData);
             DateTime mostRecentInstance = getMostRecentInstance(newData);
 
             List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecentInstance);

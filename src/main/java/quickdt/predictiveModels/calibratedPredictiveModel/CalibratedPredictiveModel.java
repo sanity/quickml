@@ -18,19 +18,25 @@ import java.util.Map;
 */
 public class CalibratedPredictiveModel implements PredictiveModel {
     private static final long serialVersionUID = 8291739965981425742L;
-    public Calibrator calibrator;
-    public PredictiveModel predictiveModel;
+    public final Calibrator calibrator;
+    public final PredictiveModel predictiveModel;
+    public final Serializable positiveClassification;
 
-    public CalibratedPredictiveModel (PredictiveModel predictiveModel, Calibrator calibrator) {
+    public CalibratedPredictiveModel (PredictiveModel predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
         Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
         this.predictiveModel = predictiveModel;
         this.calibrator = calibrator;
+        this.positiveClassification = positiveClassification;
     }
 
-    // FIXME: This assumes that the second parameter will always be the same.
     public double getProbability(Attributes attributes, Serializable classification) {
-        double rawProbability = predictiveModel.getProbability(attributes, classification);
-        return calibrator.correct(rawProbability);
+        double rawProbability = predictiveModel.getProbability(attributes, positiveClassification);
+        double corrected = calibrator.correct(rawProbability);
+        if (classification.equals(positiveClassification)) {
+            return corrected;
+        } else {
+            return 1.0 - corrected;
+        }
     }
 
     /**
