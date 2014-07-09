@@ -5,8 +5,6 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.DateTimeExtractor;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
@@ -21,7 +19,6 @@ import java.util.*;
  * Created by ian on 5/29/14.
  */
 public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<TemporallyReweightedPM> {
-    private static final Logger logger =  LoggerFactory.getLogger(TemporallyReweightedPMBuilder.class);
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
