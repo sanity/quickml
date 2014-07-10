@@ -1,11 +1,13 @@
 package quickdt.predictiveModels.calibratedPredictiveModel;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
+import quickdt.predictiveModels.decisionTree.tree.ClassificationCounter;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
@@ -18,14 +20,20 @@ import java.util.List;
  */
 public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
-    private PredictiveModelBuilder predictiveModelBuilder;
+    private final PredictiveModelBuilder predictiveModelBuilder;
+    private final Serializable positiveClassification;
 
     public PAVCalibratedPredictiveModelBuilder() {
         this(new RandomForestBuilder());
     }
 
     public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
+        this(predictiveModelBuilder, 1.0);
+    }
+
+    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Serializable positiveClassification) {
         this.predictiveModelBuilder = predictiveModelBuilder;
+        this.positiveClassification = positiveClassification;
     }
 
     public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
@@ -37,9 +45,18 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
 
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
+        validateData(trainingData);
         PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
         Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
-        return new CalibratedPredictiveModel(predictiveModel, calibrator);
+        return new CalibratedPredictiveModel(predictiveModel, calibrator, positiveClassification);
+    }
+
+    private void validateData(Iterable<? extends AbstractInstance> trainingData) {
+        ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
+        Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
+        for(Serializable classification : classificationCounter.getCounts().keySet()) {
+            Preconditions.checkArgument(classification instanceof Double || classification instanceof Integer, "trainingData must contain only Double or Integer classifications (found %s)", classification.getClass());
+        }
     }
 
     @Override
@@ -51,6 +68,7 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     @Override
     public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
+            validateData(newData);
             updateCalibrator(predictiveModel, newData);
             ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.predictiveModel, newData, trainingData, splitNodes);
         } else {
@@ -93,25 +111,11 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         double groundTruth = 0;
         PAVCalibrator.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
-            try {
-                groundTruth = getGroundTruth(instance.getClassification());
-            }
-            catch (RuntimeException r){
-                r.printStackTrace();
-                System.exit(0);
-            }
-            // TODO: We can't assume that the classification will be 1.0
-            prediction = predictiveModel.getProbability(instance.getAttributes(), 1.0);
+            groundTruth = ((Number)(instance.getClassification())).doubleValue();
+            prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
             observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
         }
         return mobservations;
-    }
-
-    private double getGroundTruth(Serializable classification) {
-        if (!(classification instanceof Double) && !(classification instanceof Integer)) {
-            throw new RuntimeException("classification is not an instance of Integer or Double.  Classification value is " + classification);
-        }
-        return ((Number)(classification)).doubleValue();
     }
 }
