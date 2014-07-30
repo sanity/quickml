@@ -37,7 +37,7 @@ public class CrossValidatorTest {
 
             AbstractInstance instance = Mockito.mock(Instance.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
-            Mockito.when(instance.getObserveredValue()).thenReturn("class");
+            Mockito.when(instance.getLabel()).thenReturn("class");
             Mockito.when(instance.getAttributes()).thenReturn(attributes);
             instances.add(instance);
         }

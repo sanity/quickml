@@ -111,7 +111,7 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         double groundTruth = 0;
         PAVCalibrator.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
-            groundTruth = ((Number)(instance.getObserveredValue())).doubleValue();
+            groundTruth = ((Number)(instance.getLabel())).doubleValue();
             prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
             observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);

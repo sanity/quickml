@@ -23,13 +23,13 @@ public class WeightedAUCCrossValLossFunctionTest {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance.getObserveredValue()).thenReturn("instance1");
+        Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
         AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance2.getObserveredValue()).thenReturn("instance2");
+        Mockito.when(instance2.getLabel()).thenReturn("instance2");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance3.getObserveredValue()).thenReturn("instance3");
+        Mockito.when(instance3.getLabel()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
         List<AbstractInstance> instances = new LinkedList<>();
         instances.add(instance);
@@ -52,22 +52,22 @@ public class WeightedAUCCrossValLossFunctionTest {
         Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);
 
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance.getObserveredValue()).thenReturn("test1");
+        Mockito.when(instance.getLabel()).thenReturn("test1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
         Mockito.when(instance.getAttributes()).thenReturn(test1Attributes);
 
         AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance2.getObserveredValue()).thenReturn("test1");
+        Mockito.when(instance2.getLabel()).thenReturn("test1");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         Mockito.when(instance2.getAttributes()).thenReturn(test2Attributes);
 
         AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance3.getObserveredValue()).thenReturn("test0");
+        Mockito.when(instance3.getLabel()).thenReturn("test0");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
         Mockito.when(instance3.getAttributes()).thenReturn(test3Attributes);
 
         AbstractInstance instance4 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance4.getObserveredValue()).thenReturn("test0");
+        Mockito.when(instance4.getLabel()).thenReturn("test0");
         Mockito.when(instance4.getWeight()).thenReturn(1.0);
         Mockito.when(instance4.getAttributes()).thenReturn(test4Attributes);
 

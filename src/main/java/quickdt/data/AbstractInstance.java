@@ -1,5 +1,7 @@
 package quickdt.data;
 
+import quickdt.Label;
+
 import java.io.Serializable;
 
 /**
@@ -9,10 +11,10 @@ import java.io.Serializable;
  * Time: 1:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class AbstractInstance {
+public abstract class AbstractInstance<L extends Serializable> {
     public abstract Attributes getAttributes();
 
-    public abstract Serializable getObserveredValue();
+    public abstract Label<L> getLabel();
 
     public abstract double getWeight();
 

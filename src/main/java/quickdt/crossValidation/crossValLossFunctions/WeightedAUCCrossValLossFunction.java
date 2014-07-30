@@ -37,11 +37,11 @@ public class WeightedAUCCrossValLossFunction<T extends Classifier> implements Cl
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
         for (AbstractInstance instance : instances) {
-            classifications.add(instance.getObserveredValue());
+            classifications.add(instance.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
             }
-            aucDataList.add(new AUCData(instance.getObserveredValue(), instance.getWeight(), classifier.getProbability(instance.getAttributes(), positiveClassification)));
+            aucDataList.add(new AUCData(instance.getLabel(), instance.getWeight(), classifier.getProbability(instance.getAttributes(), positiveClassification)));
         }
         return aucDataList;
     }

@@ -14,8 +14,8 @@ import java.util.Map;
  * Time: 2:50 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface PredictiveModel<T extends Serializable> extends Serializable {
-    T predict(AbstractInstance instance);
+public interface PredictiveModel<P extends Serializable> extends Serializable {
+    Prediction<P> predictionForLabeledInstace(AbstractInstance instance);
     void dump(PrintStream printStream);
 
 }

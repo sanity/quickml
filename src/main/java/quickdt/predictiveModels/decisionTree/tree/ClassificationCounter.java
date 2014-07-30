@@ -45,8 +45,8 @@ public class ClassificationCounter implements Serializable {
                 Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
                 result.put(newKey, cc);
             }
-            cc.addClassification(instance.getObserveredValue(), instance.getWeight());
-            totals.addClassification(instance.getObserveredValue(), instance.getWeight());
+            cc.addClassification(instance.getLabel(), instance.getWeight());
+            totals.addClassification(instance.getLabel(), instance.getWeight());
         }
 
         return Pair.with(totals, result);
@@ -99,7 +99,7 @@ public class ClassificationCounter implements Serializable {
 	public static ClassificationCounter countAll(final Iterable<? extends AbstractInstance> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
 		for (final AbstractInstance instance : instances) {
-			result.addClassification(instance.getObserveredValue(), instance.getWeight());
+			result.addClassification(instance.getLabel(), instance.getWeight());
 		}
 		return result;
 	}

@@ -92,7 +92,7 @@ public class AttributeImportanceFinder {
             randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
-            return new Instance(randomizedAttributes, instance.getObserveredValue());
+            return new Instance(randomizedAttributes, instance.getLabel());
         }
     }
 

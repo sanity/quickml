@@ -35,7 +35,7 @@ public class Tree implements Classifier {
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getObserveredValue());
+        return getProbability(instance.getAttributes(), instance.getLabel());
     }
 
     @Override

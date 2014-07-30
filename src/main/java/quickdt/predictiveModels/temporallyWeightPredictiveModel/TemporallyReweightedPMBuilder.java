@@ -63,7 +63,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     private List<AbstractInstance> reweightTrainingData(Iterable<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
         ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
         for (AbstractInstance instance : sortedData) {
-            double decayConstant = (instance.getObserveredValue().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
+            double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);

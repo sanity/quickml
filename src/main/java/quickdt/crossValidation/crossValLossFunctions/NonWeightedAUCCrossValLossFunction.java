@@ -14,7 +14,7 @@ public class NonWeightedAUCCrossValLossFunction<T extends Classifier> implements
     public double getLoss(List<? extends AbstractInstance> crossValSet, T classifier)  {
         Auc auc = new Auc();
         for (AbstractInstance instance : crossValSet) {
-            auc.add((Double) instance.getObserveredValue() == 1.0 ? 1 : 0, classifier.getProbability(instance.getAttributes(), 1.0));
+            auc.add((Double) instance.getLabel() == 1.0 ? 1 : 0, classifier.getProbability(instance.getAttributes(), 1.0));
         }
         return 1 - auc.auc();
     }

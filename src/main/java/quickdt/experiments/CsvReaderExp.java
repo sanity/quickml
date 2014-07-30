@@ -51,7 +51,7 @@ public class CsvReaderExp {
 
         for (Instance instance : instances) {
             String browser = (String) instance.getAttributes().get("an_browser");
-            double click = (Double) instance.getObserveredValue();
+            double click = (Double) instance.getLabel();
 
             if (browser != null) {
                 int count = 0;

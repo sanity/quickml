@@ -3,7 +3,6 @@ package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.Classifier;
-import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -26,7 +25,7 @@ public class SplitOnAttributePM implements Classifier {
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getObserveredValue());
+        return getProbability(instance.getAttributes(), instance.getLabel());
     }
 
     @Override

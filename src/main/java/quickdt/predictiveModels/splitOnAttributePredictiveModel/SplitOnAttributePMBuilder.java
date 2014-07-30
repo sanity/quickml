@@ -88,11 +88,11 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
                 AbstractInstance instance = allData.get(i);
-                double classificationRatio = splitClassificationCounter.getCount(instance.getObserveredValue()) / splitClassificationCounter.getTotal();
+                double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal();
                 double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
                 if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
                     crossData.add(cleanSupportingData(instance));
-                    crossDataCount.addClassification(instance.getObserveredValue(), instance.getWeight());
+                    crossDataCount.addClassification(instance.getLabel(), instance.getWeight());
                 }
                 if(crossDataCount.getTotal() >= amountCrossData) {
                     break;
@@ -108,7 +108,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     * */
     private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter crossDataCount, double targetCount) {
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
-            if (targetCount > crossDataCount.getCount(instance.getObserveredValue())) {
+            if (targetCount > crossDataCount.getCount(instance.getLabel())) {
                 return true;
             }
         }
@@ -122,7 +122,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
                 attributes.put(key, instance.getAttributes().get(key));
             }
         }
-        return new Instance(attributes, instance.getObserveredValue(), instance.getWeight());
+        return new Instance(attributes, instance.getLabel(), instance.getWeight());
     }
 
     @Override

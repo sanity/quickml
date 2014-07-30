@@ -19,7 +19,7 @@ public class UpdatableLeaf extends Leaf {
     }
 
     public void addInstance(AbstractInstance instance) {
-        classificationCounts.addClassification(instance.getObserveredValue(), instance.getWeight());
+        classificationCounts.addClassification(instance.getLabel(), instance.getWeight());
         trainingDataIndexes.add(instance.index);
         exampleCount++;
     }

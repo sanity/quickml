@@ -66,10 +66,10 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (AbstractInstance instance : trainingData) {
-            AtomicLong count = classificationCounts.get(instance.getObserveredValue());
+            AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
                 count = new AtomicLong(0);
-                classificationCounts.put(instance.getObserveredValue(), count);
+                classificationCounts.put(instance.getLabel(), count);
             }
             count.incrementAndGet();
             total++;

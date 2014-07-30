@@ -6,7 +6,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.Classifier;
-import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 
@@ -35,7 +34,7 @@ public class RandomForest implements Classifier {
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getObserveredValue());
+        return getProbability(instance.getAttributes(), instance.getLabel());
     }
 
     public void dump(PrintStream printStream, int numTrees) {

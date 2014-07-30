@@ -40,7 +40,7 @@ public class DownsamplingPredictiveModelBuilderTest {
                 int total = 0, sum = 0;
                 for (AbstractInstance instance : instances) {
                     total++;
-                    if (instance.getObserveredValue().equals(true)) {
+                    if (instance.getLabel().equals(true)) {
                         sum++;
                     }
                 }

@@ -111,7 +111,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
         for (AbstractInstance instance : trainingData) {
-            Serializable classification = instance.getObserveredValue();
+            Serializable classification = instance.getLabel();
             if (classifications.containsKey(classification)) {
                 classifications.get(classification).increment();
             } else
