@@ -28,11 +28,11 @@ public class AttributeImportanceFinder {
     }
 
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel<Object>> predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
         return determineAttributeImportance(new StationaryCrossValidator(4, 1), predictiveModelBuilder, trainingData);
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
 
         Set<String> attributes = Sets.newHashSet();
         for (AbstractInstance instance : trainingData) {
@@ -92,7 +92,7 @@ public class AttributeImportanceFinder {
             randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
-            return new Instance(randomizedAttributes, instance.getClassification());
+            return new Instance(randomizedAttributes, instance.getObserveredValue());
         }
     }
 

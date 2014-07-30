@@ -59,7 +59,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
 
         for (AbstractInstance instance : trainingData) {
-            int classificationMatch = instance.getClassification().equals(classification) ? 1 : 0;
+            int classificationMatch = instance.getObserveredValue().equals(classification) ? 1 : 0;
             for (String attributeKey : attributeKeysToInject) {
                 if (attributesWithTooManyValues.contains(attributeKey)) {
                     continue;

@@ -12,7 +12,6 @@ import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
-import quickdt.predictiveModels.calibratedPredictiveModel.PAVCalibratedPredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
@@ -34,18 +33,18 @@ public class DownsamplingPredictiveModelBuilderTest {
     @Test
     public void simpleTest() {
         final PredictiveModelBuilder<?> predictiveModelBuilder = Mockito.mock(PredictiveModelBuilder.class);
-        when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<PredictiveModel>() {
+        when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<PredictiveModel<Object>>() {
             @Override
-            public PredictiveModel answer(final InvocationOnMock invocationOnMock) throws Throwable {
+            public PredictiveModel<Object> answer(final InvocationOnMock invocationOnMock) throws Throwable {
                 Iterable<AbstractInstance> instances = (Iterable<AbstractInstance>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
                 for (AbstractInstance instance : instances) {
                     total++;
-                    if (instance.getClassification().equals(true)) {
+                    if (instance.getObserveredValue().equals(true)) {
                         sum++;
                     }
                 }
-                PredictiveModel dumbPM = new SamePredictionPredictiveModel((double) sum / (double) total);
+                PredictiveModel<Object> dumbPM = new SamePredictionPredictiveModel((double) sum / (double) total);
                 return dumbPM;
             }
         });
@@ -54,7 +53,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         for (int x=0; x<10000; x++) {
             data.add(new Instance(new HashMapAttributes(), (Misc.random.nextDouble() < 0.05)));
         }
-        PredictiveModel predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
+        PredictiveModel<Object> predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(new HashMapAttributes(), Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
         Assert.assertTrue(String.format("Error should be < 0.1 but was %s (prob=%s, desired=0.05)", error, correctedMinorityInstanceOccurance), error < 0.01);
@@ -88,7 +87,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private static class SamePredictionPredictiveModel implements PredictiveModel {
+    private static class SamePredictionPredictiveModel implements PredictiveModel<Object> {
 
         private static final long serialVersionUID = 8241616760952568181L;
         private final double prediction;

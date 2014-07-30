@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
-import quickdt.crossValidation.DateTimeExtractor;
+import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
@@ -56,14 +56,14 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
         List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecent);
-        final PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
+        final PredictiveModel<Object> predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedPM(predictiveModel);
     }
 
     private List<AbstractInstance> reweightTrainingData(Iterable<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
         ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
         for (AbstractInstance instance : sortedData) {
-            double decayConstant = (instance.getClassification().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
+            double decayConstant = (instance.getObserveredValue().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
@@ -92,7 +92,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
             List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecentInstance);
             List<AbstractInstance> newDataList = reweightTrainingData(newData, mostRecentInstance);
 
-            PredictiveModel pm = predictiveModel.getWrappedModel();
+            PredictiveModel<Object> pm = predictiveModel.getWrappedModel();
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataList, trainingDataList, splitNodes);
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");

@@ -7,6 +7,6 @@ import quickdt.predictiveModels.PredictiveModelBuilder;
 /**
  * Created by alexanderhawk on 5/5/14.
  */
-public abstract class CrossValidator {
-    public abstract double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData);
+public abstract class CrossValidator<T extends PredictiveModel> {
+    public abstract double getCrossValidatedLoss(PredictiveModelBuilder<T> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData);
 }

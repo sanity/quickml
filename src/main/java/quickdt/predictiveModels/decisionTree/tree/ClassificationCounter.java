@@ -2,7 +2,6 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.hadoop.util.hash.Hash;
 import org.javatuples.Pair;
 import quickdt.collections.ValueSummingMap;
 import quickdt.data.AbstractInstance;
@@ -46,8 +45,8 @@ public class ClassificationCounter implements Serializable {
                 Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
                 result.put(newKey, cc);
             }
-            cc.addClassification(instance.getClassification(), instance.getWeight());
-            totals.addClassification(instance.getClassification(), instance.getWeight());
+            cc.addClassification(instance.getObserveredValue(), instance.getWeight());
+            totals.addClassification(instance.getObserveredValue(), instance.getWeight());
         }
 
         return Pair.with(totals, result);
@@ -100,7 +99,7 @@ public class ClassificationCounter implements Serializable {
 	public static ClassificationCounter countAll(final Iterable<? extends AbstractInstance> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
 		for (final AbstractInstance instance : instances) {
-			result.addClassification(instance.getClassification(), instance.getWeight());
+			result.addClassification(instance.getObserveredValue(), instance.getWeight());
 		}
 		return result;
 	}

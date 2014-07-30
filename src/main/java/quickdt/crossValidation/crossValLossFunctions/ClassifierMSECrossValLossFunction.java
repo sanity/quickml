@@ -1,11 +1,12 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.crossValLossFunctions;
 
 import com.google.common.base.Preconditions;
+import quickdt.predictiveModels.Classifier;
 
 /**
  * Created by ian on 2/28/14.
  */
-public class MSECrossValLossFunction extends OnlineCrossValLossFunction<MSECrossValLossFunction> {
+public class ClassifierMSECrossValLossFunction<T extends Classifier> extends OnlineClassifierCVLossFunction<T> {
 
     @Override
     public double getLossFromInstance(double probabilityOfCorrectInstance, double weight) {
@@ -15,11 +16,6 @@ public class MSECrossValLossFunction extends OnlineCrossValLossFunction<MSECross
         final double error = (1.0 - probabilityOfCorrectInstance);
         final double errorSquared = error*error*weight;
         return errorSquared;
-    }
-
-    @Override
-    public int compareTo(final MSECrossValLossFunction o) {
-        return 1 - Double.compare(super.totalLoss, o.totalLoss);
     }
 
     @Override

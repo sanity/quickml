@@ -38,7 +38,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         final double majorityProportion = majorityEntry.getValue();
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
-            final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
+            final PredictiveModel<Object> wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
             return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
         }
 
@@ -46,7 +46,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
 
         Iterable<? extends AbstractInstance> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
-        final PredictiveModel wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
+        final PredictiveModel<Object> wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
     }
@@ -66,10 +66,10 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (AbstractInstance instance : trainingData) {
-            AtomicLong count = classificationCounts.get(instance.getClassification());
+            AtomicLong count = classificationCounts.get(instance.getObserveredValue());
             if (count == null) {
                 count = new AtomicLong(0);
-                classificationCounts.put(instance.getClassification(), count);
+                classificationCounts.put(instance.getObserveredValue(), count);
             }
             count.incrementAndGet();
             total++;

@@ -17,20 +17,20 @@ public class MSECrossValLossFunctionTest {
 
     @Test
     public void testGetTotalLoss() {
-        MSECrossValLossFunction crossValLoss = new MSECrossValLossFunction();
-        PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
+        ClassifierMSECrossValLossFunction crossValLoss = new ClassifierMSECrossValLossFunction();
+        PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
         Attributes test1Attributes = Mockito.mock(Attributes.class);
         Attributes test2Attributes = Mockito.mock(Attributes.class);
         Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.75);
         Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.5);
 
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance.getClassification()).thenReturn("test1");
+        Mockito.when(instance.getObserveredValue()).thenReturn("test1");
         Mockito.when(instance.getWeight()).thenReturn(2.0);
         Mockito.when(instance.getAttributes()).thenReturn(test1Attributes);
 
         AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
-        Mockito.when(instance2.getClassification()).thenReturn("test1");
+        Mockito.when(instance2.getObserveredValue()).thenReturn("test1");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         Mockito.when(instance2.getAttributes()).thenReturn(test2Attributes);
 

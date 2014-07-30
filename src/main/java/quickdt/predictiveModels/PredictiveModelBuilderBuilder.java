@@ -2,6 +2,7 @@ package quickdt.predictiveModels;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**

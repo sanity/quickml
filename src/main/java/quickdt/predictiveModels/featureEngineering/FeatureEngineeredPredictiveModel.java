@@ -13,12 +13,12 @@ import java.util.Map;
  * Attributes based on one or more "enrichers".  This objected is created by a
  * {@link FeatureEngineeringPredictiveModelBuilder}.
  */
-public class FeatureEngineeredPredictiveModel implements PredictiveModel {
+public class FeatureEngineeredPredictiveModel implements PredictiveModel<Object> {
     private static final long serialVersionUID = 7279329500376419142L;
-    private final PredictiveModel wrappedModel;
+    private final PredictiveModel<Object> wrappedModel;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel wrappedModel, List<AttributesEnricher> attributesEnrichers) {
+    public FeatureEngineeredPredictiveModel(PredictiveModel<Object> wrappedModel, List<AttributesEnricher> attributesEnrichers) {
         this.wrappedModel = wrappedModel;
         this.attributesEnrichers = attributesEnrichers;
     }

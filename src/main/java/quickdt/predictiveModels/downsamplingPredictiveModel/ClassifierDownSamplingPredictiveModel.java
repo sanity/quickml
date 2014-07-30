@@ -10,15 +10,15 @@ import java.util.Map;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingPredictiveModel implements PredictiveModel {
+public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
     private static final long serialVersionUID = -265699047882740160L;
 
-    public final PredictiveModel wrappedPredictiveModel;
+    public final PredictiveModel<Object> wrappedPredictiveModel;
     private final Serializable minorityClassification;
     private final Serializable majorityClassification;
     private final double dropProbability;
 
-    public DownsamplingPredictiveModel(final PredictiveModel wrappedPredictiveModel, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
+    public DownsamplingPredictiveModel(final PredictiveModel<Object> wrappedPredictiveModel, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.majorityClassification = majorityClassification;
         this.minorityClassification = minorityClassification;

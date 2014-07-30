@@ -27,11 +27,11 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         this(new RandomForestBuilder());
     }
 
-    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder) {
+    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel<Object>> predictiveModelBuilder) {
         this(predictiveModelBuilder, 1.0);
     }
 
-    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Serializable positiveClassification) {
+    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<? extends PredictiveModel<Object>> predictiveModelBuilder, Serializable positiveClassification) {
         this.predictiveModelBuilder = predictiveModelBuilder;
         this.positiveClassification = positiveClassification;
     }
@@ -46,7 +46,7 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
         validateData(trainingData);
-        PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
+        PredictiveModel<Object> predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
         Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
         return new CalibratedPredictiveModel(predictiveModel, calibrator, positiveClassification);
     }
@@ -90,7 +90,7 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         predictiveModelBuilder.setID(id);
     }
 
-    private void updateCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    private void updateCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
 
         PAVCalibrator calibrator = (PAVCalibrator)((CalibratedPredictiveModel)predictiveModel).calibrator;
@@ -100,18 +100,18 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     }
 
 
-    private Calibrator createCalibrator(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    private Calibrator createCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
         return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
     }
 
-    protected List<PAVCalibrator.Observation> getObservations(PredictiveModel predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    protected List<PAVCalibrator.Observation> getObservations(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PAVCalibrator.Observation> mobservations = Lists.<PAVCalibrator.Observation>newArrayList();
         double prediction = 0;
         double groundTruth = 0;
         PAVCalibrator.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
-            groundTruth = ((Number)(instance.getClassification())).doubleValue();
+            groundTruth = ((Number)(instance.getObserveredValue())).doubleValue();
             prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
             observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);

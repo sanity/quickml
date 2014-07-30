@@ -1,5 +1,6 @@
 package quickdt.predictiveModels;
 
+import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 
 import java.io.PrintStream;
@@ -13,12 +14,8 @@ import java.util.Map;
  * Time: 2:50 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface PredictiveModel extends Serializable {
-    double getProbability(Attributes attributes, Serializable classification);
+public interface PredictiveModel<T extends Serializable> extends Serializable {
+    T predict(AbstractInstance instance);
+    void dump(PrintStream printStream);
 
-    Map<Serializable, Double> getProbabilitiesByClassification(Attributes attributes);
-
-    public void dump(PrintStream printStream);
-
-    public Serializable getClassificationByMaxProb(Attributes attributes);
 }

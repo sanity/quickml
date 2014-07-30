@@ -16,13 +16,13 @@ import java.util.Map;
 /*
   This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a random forest of probability estimation trees.
 */
-public class CalibratedPredictiveModel implements PredictiveModel {
+public class CalibratedPredictiveModel implements PredictiveModel<Object> {
     private static final long serialVersionUID = 8291739965981425742L;
     public final Calibrator calibrator;
-    public final PredictiveModel predictiveModel;
+    public final PredictiveModel<Object> predictiveModel;
     public final Serializable positiveClassification;
 
-    public CalibratedPredictiveModel (PredictiveModel predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
+    public CalibratedPredictiveModel (PredictiveModel<Object> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
         Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
         this.predictiveModel = predictiveModel;
         this.calibrator = calibrator;

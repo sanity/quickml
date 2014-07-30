@@ -51,7 +51,7 @@ public class CsvReaderExp {
 
         for (Instance instance : instances) {
             String browser = (String) instance.getAttributes().get("an_browser");
-            double click = (Double) instance.getClassification();
+            double click = (Double) instance.getObserveredValue();
 
             if (browser != null) {
                 int count = 0;
@@ -69,7 +69,7 @@ public class CsvReaderExp {
         return uniqueBrowsers;
     }
 
-    private static HashMap<String, ClicksAndImps> uniqueBrowserDataPredicted(PredictiveModel predictiveModel,  List<Instance> instances) {
+    private static HashMap<String, ClicksAndImps> uniqueBrowserDataPredicted(PredictiveModel<Object> predictiveModel,  List<Instance> instances) {
         HashMap<String, ClicksAndImps> uniqueBrowsers = new HashMap<>();
         for (Instance instance : instances) {
             String browser = (String) instance.getAttributes().get("an_browser");

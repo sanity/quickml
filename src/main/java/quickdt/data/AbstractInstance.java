@@ -12,7 +12,7 @@ import java.io.Serializable;
 public abstract class AbstractInstance {
     public abstract Attributes getAttributes();
 
-    public abstract Serializable getClassification();
+    public abstract Serializable getObserveredValue();
 
     public abstract double getWeight();
 

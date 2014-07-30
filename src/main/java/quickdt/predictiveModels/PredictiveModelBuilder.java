@@ -3,7 +3,6 @@ package quickdt.predictiveModels;
 import quickdt.data.AbstractInstance;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.

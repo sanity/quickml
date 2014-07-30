@@ -5,8 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
 import quickdt.data.AbstractInstance;
 import quickdt.experiments.TrainingDataGenerator2;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -40,7 +42,7 @@ public class OutOfTimeCrossValidatorTests {
         logger.info("trainingDataSize " + trainingData.size());
         RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
 
-        CrossValidator crossValidator = new OutOfTimeCrossValidator(new LogCrossValLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        CrossValidator<PredictiveModel> crossValidator = new OutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
 

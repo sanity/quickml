@@ -1,8 +1,8 @@
 package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
 import com.google.common.collect.Maps;
-import quickdt.crossValidation.DateTimeExtractor;
-import quickdt.crossValidation.SimpleDateFormatExtractor;
+import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
+import quickdt.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;

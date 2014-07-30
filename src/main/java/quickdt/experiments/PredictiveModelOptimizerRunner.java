@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.CrossValidator;
-import quickdt.crossValidation.DateTimeExtractor;
+import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickdt.crossValidation.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.OutOfTimeCrossValidator;
 import quickdt.csvReader.CSVToMap;
@@ -17,6 +17,7 @@ import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilderBuilder;
@@ -42,7 +43,7 @@ public class PredictiveModelOptimizerRunner {
         List<BidderConfiguration> configurations = Lists.newLinkedList();
 
         for(PredictiveModelBuilderBuilder builderBuilder : builderBuilders) {
-            CrossValidator crossValidator = getCrossValidator();
+            CrossValidator<PredictiveModel> crossValidator = getCrossValidator();
             Map<String, FieldValueRecommender> parametersToOptimize = getParametersToOptimize();
             PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(builderBuilder, trainingData, crossValidator,parametersToOptimize);
             Map<String, Object> initialConfiguration = getInitialConfiguration();
@@ -88,7 +89,7 @@ public class PredictiveModelOptimizerRunner {
     }
 
 
-    private static CrossValidator getCrossValidator() {
+    private static CrossValidator<PredictiveModel> getCrossValidator() {
         return new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.15, 30, new TrainingDateTimeExtractor());
     }
 

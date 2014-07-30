@@ -1,4 +1,4 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.dateTimeExtractors;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

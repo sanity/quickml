@@ -4,9 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierMSECrossValLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
+import quickdt.predictiveModels.randomForest.RandomForest;
 
 import java.util.List;
 
@@ -15,34 +20,28 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public class StationaryCrossValidator extends CrossValidator {
+public class StationaryCrossValidator<T extends PredictiveModel> extends CrossValidator<T> {
 private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
     private int foldsUsed;
-    private CrossValLossFunction lossFunction;
+    private CrossValLossFunction<T> lossFunction;
 
-    /**
-     * Create a new CrossValidator using an RMSECrossValLoss, generating a getCrossValidatedLoss
-     * dataset from 1 in 10 instances selected randomly based on the has of
-     * the Attributes in each Instance.
-     */
-    public StationaryCrossValidator() {
-        this(StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS, new RMSECrossValLossFunction());
-     }
-    public StationaryCrossValidator(int folds) {
-        this(folds, new RMSECrossValLossFunction());
-    }
 
-    public StationaryCrossValidator(int folds, int foldsUsed) {
-        this(folds, foldsUsed, new RMSECrossValLossFunction());
-    }
-    /**
+    /*
      * Create a new CrossValidator
      * @param folds The number folds to be used in the cross validation procedure
      */
-    public StationaryCrossValidator(final int folds, CrossValLossFunction lossFunction) {
+
+    public StationaryCrossValidator(CrossValLossFunction<T> lossFunction) {
+        Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
+        this.folds = DEFAULT_NUMBER_OF_FOLDS;
+        this.foldsUsed = DEFAULT_NUMBER_OF_FOLDS;
+        this.lossFunction = lossFunction;
+    }
+
+    public StationaryCrossValidator(final int folds, CrossValLossFunction<T> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = folds;
@@ -50,19 +49,19 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
 
     }
 
-    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction lossFunction) {
+    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction<T> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = foldsUsed;
         this.lossFunction = lossFunction;
     }
 
-    public double getCrossValidatedLoss(PredictiveModelBuilder<? extends PredictiveModel> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
+    public double getCrossValidatedLoss(PredictiveModelBuilder<T> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
-            PredictiveModel predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
+            T predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
             runningLoss+= lossFunction.getLoss(dataSplit.validation, predictiveModel);
             logger.info("running loss: "+runningLoss);
 

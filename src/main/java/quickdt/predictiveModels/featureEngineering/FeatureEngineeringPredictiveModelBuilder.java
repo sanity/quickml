@@ -39,7 +39,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
         final Iterable<Instance> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
-        PredictiveModel predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
+        PredictiveModel<Object> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
     }

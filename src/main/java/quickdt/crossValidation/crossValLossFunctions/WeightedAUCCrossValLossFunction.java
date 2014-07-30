@@ -1,7 +1,7 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.crossValLossFunctions;
 
 import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 
 import java.io.Serializable;
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction {
+public class WeightedAUCCrossValLossFunction<T extends Classifier> implements ClassifierCVLossFunction<T> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -19,12 +19,12 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction {
     }
 
     @Override
-    public double getLoss(List<? extends AbstractInstance> instances, PredictiveModel predictiveModel) {
+    public double getLoss(List<? extends AbstractInstance> instances, T classifier) {
         if (instances.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
 
-        List<AUCData> aucDataList = getAucDataList(instances, predictiveModel);
+        List<AUCData> aucDataList = getAucDataList(instances, classifier);
 
         sortDataByProbability(aucDataList);
 
@@ -33,15 +33,15 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction {
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<? extends AbstractInstance> instances, PredictiveModel predictiveModel) {
+    private List<AUCData> getAucDataList(List<? extends AbstractInstance> instances, Classifier classifier) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
         for (AbstractInstance instance : instances) {
-            classifications.add(instance.getClassification());
+            classifications.add(instance.getObserveredValue());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
             }
-            aucDataList.add(new AUCData(instance.getClassification(), instance.getWeight(), predictiveModel.getProbability(instance.getAttributes(), positiveClassification)));
+            aucDataList.add(new AUCData(instance.getObserveredValue(), instance.getWeight(), classifier.getProbability(instance.getAttributes(), positiveClassification)));
         }
         return aucDataList;
     }

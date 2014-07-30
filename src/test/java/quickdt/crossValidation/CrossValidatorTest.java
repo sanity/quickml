@@ -19,15 +19,15 @@ public class CrossValidatorTest {
 
     @Test
     public void testCrossValidator() {
-        CrossValLossFunction crossValLossFunction = Mockito.mock(CrossValLossFunction.class);
+        CrossValLossFunction<PredictiveModel<Object>> crossValLossFunction = Mockito.mock(CrossValLossFunction<PredictiveModel<Object>>.class);
 
         int folds = 4;
-        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
+        CrossValidator<PredictiveModel> crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
         List<AbstractInstance> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
-        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<AbstractInstance>>any(), Mockito.any(PredictiveModel.class));
+        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<AbstractInstance>>any(), Mockito.any(PredictiveModel<Object>.class));
     }
 
     private List<AbstractInstance> getInstances() {
@@ -37,7 +37,7 @@ public class CrossValidatorTest {
 
             AbstractInstance instance = Mockito.mock(Instance.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
-            Mockito.when(instance.getClassification()).thenReturn("class");
+            Mockito.when(instance.getObserveredValue()).thenReturn("class");
             Mockito.when(instance.getAttributes()).thenReturn(attributes);
             instances.add(instance);
         }

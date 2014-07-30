@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 public class DownsamplingPredictiveModelTest {
     @Test
     public void simpleTest() {
-        final PredictiveModel wrappedPredictiveModel = mock(PredictiveModel.class);
+        final PredictiveModel<Object> wrappedPredictiveModel = mock(PredictiveModel<Object>.class);
         when(wrappedPredictiveModel.getProbability(any(Attributes.class), eq(Boolean.TRUE))).thenReturn(0.5);
         DownsamplingPredictiveModel downsamplingPredictiveModel = new DownsamplingPredictiveModel(wrappedPredictiveModel, Boolean.FALSE, Boolean.TRUE, 0.9);
         double corrected = downsamplingPredictiveModel.getProbability(new HashMapAttributes(), Boolean.TRUE);

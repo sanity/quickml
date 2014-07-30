@@ -69,7 +69,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     }
 
-    public static class TestPM implements PredictiveModel {
+    public static class TestPM implements PredictiveModel<Object> {
 
         private static final long serialVersionUID = -3449746370937561259L;
 

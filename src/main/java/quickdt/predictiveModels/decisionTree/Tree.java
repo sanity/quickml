@@ -1,8 +1,9 @@
 package quickdt.predictiveModels.decisionTree;
 
 import com.google.common.collect.Maps;
+import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 
@@ -17,7 +18,7 @@ import java.util.Map;
  * Time: 3:15 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Tree implements PredictiveModel {
+public class Tree implements Classifier {
     static final long serialVersionUID = 56394564395635672L;
 
     public final Node node;
@@ -30,6 +31,11 @@ public class Tree implements PredictiveModel {
     public double getProbability(Attributes attributes, Serializable classification) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getProbability(classification);
+    }
+
+    @Override
+    public Double predict(AbstractInstance instance) {
+        return getProbability(instance.getAttributes(), instance.getObserveredValue());
     }
 
     @Override

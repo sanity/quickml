@@ -16,21 +16,21 @@ public class Instance extends AbstractInstance implements Serializable {
         return create(classification, DEFAULT_WEIGHT, inputs);
     }
 
-    public static Instance create(final Serializable classification, final double weight, final Serializable... inputs) {
+    public static Instance create(final Serializable observedValue, final double weight, final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
 		}
-		return new Instance(a, classification, weight);
+		return new Instance(a, observedValue, weight);
 	}
 
-    public Instance(final Attributes attributes, final Serializable classification) {
-        this(attributes, classification, DEFAULT_WEIGHT);
+    public Instance(final Attributes attributes, final Serializable observedValue) {
+        this(attributes, observedValue, DEFAULT_WEIGHT);
     }
 
-    public Instance(final Attributes attributes, final Serializable classification, final double weight) {
+    public Instance(final Attributes attributes, final Serializable observedValue, final double weight) {
 		this.attributes = attributes;
-		this.classification = classification;
+		this.observedValue = observedValue;
         this.weight = weight;
     }
 
@@ -40,12 +40,12 @@ public class Instance extends AbstractInstance implements Serializable {
     }
 
     @Override
-    public Serializable getClassification() {
-        return classification;
+    public Serializable getObserveredValue() {
+        return observedValue;
     }
 
     public Instance reweight(double newWeight){
-        return new Instance(getAttributes(), getClassification(), newWeight);
+        return new Instance(getAttributes(), getObserveredValue(), newWeight);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class Instance extends AbstractInstance implements Serializable {
     }
 
     private Attributes attributes;
-	private Serializable classification;
+	private Serializable observedValue;
     private double weight;
 
     @Override
@@ -66,7 +66,7 @@ public class Instance extends AbstractInstance implements Serializable {
 
         if (Double.compare(instance.weight, weight) != 0) return false;
         if (!attributes.equals(instance.attributes)) return false;
-        if (!classification.equals(instance.classification)) return false;
+        if (!observedValue.equals(instance.observedValue)) return false;
 
         return true;
     }
@@ -76,7 +76,7 @@ public class Instance extends AbstractInstance implements Serializable {
         int result;
         long temp;
         result = attributes.hashCode();
-        result = 31 * result + classification.hashCode();
+        result = 31 * result + observedValue.hashCode();
         temp = Double.doubleToLongBits(weight);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
@@ -87,8 +87,8 @@ public class Instance extends AbstractInstance implements Serializable {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("[attributes=");
 		builder.append(attributes);
-		builder.append(", classification=");
-		builder.append(classification);
+		builder.append(", observedValue=");
+		builder.append(observedValue);
         if (weight != 1.0) {
             builder.append(", weight=");
             		builder.append(weight);

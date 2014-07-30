@@ -2,7 +2,7 @@ package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.crossValidation.SampleDateTimeExtractor;
+import quickdt.crossValidation.dateTimeExtractors.SampleDateTimeExtractor;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;

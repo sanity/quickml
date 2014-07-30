@@ -21,6 +21,6 @@ public class InstanceEnricher implements Function<AbstractInstance, Instance> {
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
         }
-        return new Instance(enrichedAttributes, instance.getClassification(), instance.getWeight());
+        return new Instance(enrichedAttributes, instance.getObserveredValue(), instance.getWeight());
     }
 }

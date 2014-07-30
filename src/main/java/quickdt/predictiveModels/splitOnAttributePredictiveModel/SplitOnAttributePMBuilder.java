@@ -44,7 +44,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     public SplitOnAttributePM buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
         Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData = splitTrainingData(trainingData);
 
-        Map<Serializable, PredictiveModel> splitModels = Maps.newHashMap();
+        Map<Serializable, PredictiveModel<Object>> splitModels = Maps.newHashMap();
         for (Map.Entry<Serializable, ArrayList<AbstractInstance>> trainingDataEntry : splitTrainingData.entrySet()) {
             logger.info("Building predictive model for "+attributeKey+"="+trainingDataEntry.getKey());
             setID(trainingDataEntry.getKey());
@@ -53,7 +53,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
         logger.info("Building default predictive model");
         setID(null);
-        final PredictiveModel defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
+        final PredictiveModel<Object> defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
         return new SplitOnAttributePM(attributeKey, splitModels, defaultPM);
     }
 
@@ -88,11 +88,11 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
                 AbstractInstance instance = allData.get(i);
-                double classificationRatio = splitClassificationCounter.getCount(instance.getClassification()) / splitClassificationCounter.getTotal();
+                double classificationRatio = splitClassificationCounter.getCount(instance.getObserveredValue()) / splitClassificationCounter.getTotal();
                 double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
                 if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
                     crossData.add(cleanSupportingData(instance));
-                    crossDataCount.addClassification(instance.getClassification(), instance.getWeight());
+                    crossDataCount.addClassification(instance.getObserveredValue(), instance.getWeight());
                 }
                 if(crossDataCount.getTotal() >= amountCrossData) {
                     break;
@@ -108,7 +108,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     * */
     private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter crossDataCount, double targetCount) {
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
-            if (targetCount > crossDataCount.getCount(instance.getClassification())) {
+            if (targetCount > crossDataCount.getCount(instance.getObserveredValue())) {
                 return true;
             }
         }
@@ -122,7 +122,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
                 attributes.put(key, instance.getAttributes().get(key));
             }
         }
-        return new Instance(attributes, instance.getClassification(), instance.getWeight());
+        return new Instance(attributes, instance.getObserveredValue(), instance.getWeight());
     }
 
     @Override
@@ -141,7 +141,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             Map<Serializable, ArrayList<AbstractInstance>> splitNewData = splitTrainingData(newData);
             for (Map.Entry<Serializable, ArrayList<AbstractInstance>> newDataEntry : splitNewData.entrySet()) {
-                PredictiveModel pm = predictiveModel.getSplitModels().get(newDataEntry.getKey());
+                PredictiveModel<Object> pm = predictiveModel.getSplitModels().get(newDataEntry.getKey());
                 if(pm == null) {
                     logger.info("Building predictive model for "+attributeKey+"="+newDataEntry.getKey());
                     setID(newDataEntry.getKey());
@@ -163,7 +163,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     @Override
     public void stripData(SplitOnAttributePM predictiveModel) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            for(PredictiveModel pm : predictiveModel.getSplitModels().values()) {
+            for(PredictiveModel<Object> pm : predictiveModel.getSplitModels().values()) {
                 ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(pm);
             }
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getDefaultPM());
