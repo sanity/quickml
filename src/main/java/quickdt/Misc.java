@@ -6,7 +6,6 @@ import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -14,12 +13,12 @@ import java.util.Random;
 public class Misc {
 	public static final Random random = new Random();
 
-    public static final <T extends Serializable, P extends PredictiveModel<T>> List<LabelPredictionWeight<T>> createLabelPredictionPairs(P predictiveModel, List<AbstractInstance<T>> instances){
-        List<LabelPredictionWeight<T>> instancePredictionPairs = Lists.newArrayList();
-        for (AbstractInstance<T> instance : instances ) {
-            instancePredictionPairs.add(new LabelPredictionWeight<T>(instance.getLabel(), predictiveModel.predictionForLabeledInstace(instance), instance.getWeight()));
+    public static final List<LabelPredictionWeight> createLabelPredictionWeights(PredictiveModel predictiveModel, List<AbstractInstance> instances){
+        List<LabelPredictionWeight> labelPredictionWeights = Lists.newArrayList();
+        for (AbstractInstance instance : instances ) {
+            labelPredictionWeights.add(new LabelPredictionWeight(instance.getLabel(), predictiveModel.predictionForLabeledInstance(instance), instance.getWeight()));
         }
-        return instancePredictionPairs;
+        return labelPredictionWeights;
     }
 
     public static final <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> getEntryWithLowestValue(Map<K, V> map) {

@@ -1,6 +1,5 @@
 package quickdt.data;
 
-import quickdt.Label;
 
 import java.io.Serializable;
 
@@ -14,7 +13,7 @@ import java.io.Serializable;
 public abstract class AbstractInstance<L extends Serializable> {
     public abstract Attributes getAttributes();
 
-    public abstract Label<L> getLabel();
+    public abstract Serializable getLabel();
 
     public abstract double getWeight();
 
