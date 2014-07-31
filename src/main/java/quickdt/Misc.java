@@ -16,7 +16,7 @@ public class Misc {
     public static final List<LabelPredictionWeight> createLabelPredictionWeights(PredictiveModel predictiveModel, List<AbstractInstance> instances){
         List<LabelPredictionWeight> labelPredictionWeights = Lists.newArrayList();
         for (AbstractInstance instance : instances ) {
-            labelPredictionWeights.add(new LabelPredictionWeight(instance.getLabel(), predictiveModel.predictionForLabeledInstance(instance), instance.getWeight()));
+            labelPredictionWeights.add(new LabelPredictionWeight(instance.getLabel(), predictiveModel.predict(instance), instance.getWeight()));
         }
         return labelPredictionWeights;
     }

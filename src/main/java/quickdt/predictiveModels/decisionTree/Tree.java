@@ -39,7 +39,7 @@ public class Tree implements Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(Attributes attributes) {
+    public Map<Serializable, Double> predict(Attributes attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {

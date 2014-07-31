@@ -34,8 +34,8 @@ public class SplitOnAttributePM implements Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
-        return getModelForAttributes(attributes).getProbabilitiesByClassification(attributes);
+    public Map<Serializable, Double> predict(final Attributes attributes) {
+        return getModelForAttributes(attributes).predict(attributes);
     }
 
     @Override

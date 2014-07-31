@@ -8,21 +8,19 @@ import quickdt.predictiveModels.Prediction;
 /**
  * Created by ian on 2/28/14.
  */
-public class MSECrossValLossFunction<Double, I extends AbstractInstance> extends OnlineClassifierCVLossFunction<Double, I> {
+public class ClassifierMSECrossValLossFunction<C extends Classifier> extends OnlineClassifierCVLossFunction<C> {
 
     @Override
-    public double getLossFromInstance(InstancePredictionPair<Double, I> instancePredictionPair) {
-        double prediction = instancePredictionPair.prediction;
-        Preconditions.checkArgument(!Double.isNaN(prediction), "Prediction must be a natural number, not NaN");
-        Preconditions.checkArgument(!Double.isInfinite(prediction), "Probability must be a natural number, not infinite");
-
-        final double error = ( - probabilityOfCorrectInstance);
-        final double errorSquared = error*error*weight;
+    public double getLossFromInstance(double probabilityOfCorrectInstance, double weight) {
+        Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Prediction must be a natural number, not NaN");
+        Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
+        final double error = (-probabilityOfCorrectInstance);
+        final double errorSquared = error * error * weight;
         return errorSquared;
     }
 
     @Override
     public String toString() {
-        return "MSE: "+ super.totalLoss;
+        return "MSE: " + super.totalLoss;
     }
 }

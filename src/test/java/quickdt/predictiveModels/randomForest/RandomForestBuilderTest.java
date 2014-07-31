@@ -34,7 +34,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
         final Attributes testAttributes = instances.get(0).getAttributes();
-        for (Map.Entry<Serializable, Double> entry : randomForest.getProbabilitiesByClassification(testAttributes).entrySet()) {
+        for (Map.Entry<Serializable, Double> entry : randomForest.predict(testAttributes).entrySet()) {
             Assert.assertEquals(entry.getValue(), randomForest.getProbability(testAttributes, entry.getKey()));
         }
     }

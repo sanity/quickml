@@ -11,7 +11,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction<T extends Classifier> implements ClassifierCVLossFunction<T> {
+public class WeightedAUCCrossValLossFunction<C extends Classifier> implements CrossValLossFunction<C> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -19,7 +19,7 @@ public class WeightedAUCCrossValLossFunction<T extends Classifier> implements Cl
     }
 
     @Override
-    public double getLoss(List<? extends AbstractInstance> instances, T classifier) {
+    public double getLoss(List<? extends AbstractInstance> instances, C classifier) {
         if (instances.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }

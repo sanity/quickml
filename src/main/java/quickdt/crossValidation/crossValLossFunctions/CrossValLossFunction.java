@@ -12,6 +12,6 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/24/14.
  */
-public interface CrossValLossFunction<T extends Serializable> {
-    double getLoss(List<LabelPredictionWeight> instancePredictionPairs);
+public interface CrossValLossFunction<PM extends PredictiveModel>  {
+    double getLoss(List<? extends AbstractInstance> instances, PM predictiveModel);
 }

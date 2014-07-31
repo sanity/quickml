@@ -2,14 +2,13 @@ package quickdt.crossValidation.crossValLossFunctions;
 
 import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.Classifier;
-import quickdt.predictiveModels.PredictiveModel;
 
 import java.util.List;
 
 /**
  * Created by ian on 2/28/14.
  */
-public class ClassifierRMSECrossValLossFunction<T extends Classifier> extends ClassifierMSECrossValLossFunction<T> {
+public class ClassifierRMSECrossValLossFunction<C extends Classifier> extends ClassifierMSECrossValLossFunction<C> {
 
     private ClassifierMSECrossValLossFunction mseCrossValLoss = new ClassifierMSECrossValLossFunction();
 
@@ -19,7 +18,7 @@ public class ClassifierRMSECrossValLossFunction<T extends Classifier> extends Cl
     }
 
     @Override
-    public double getLoss(List<? extends AbstractInstance> crossValSet, T classifier) {
+    public double getLoss(List<? extends AbstractInstance> crossValSet, C classifier) {
         return Math.sqrt(super.getLoss(crossValSet, classifier));
     }
 

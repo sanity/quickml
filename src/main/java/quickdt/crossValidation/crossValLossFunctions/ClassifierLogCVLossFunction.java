@@ -6,7 +6,7 @@ import quickdt.predictiveModels.Classifier;
 /**
  * Created by alexanderhawk on 4/10/14.
  */
-public class ClassifierLogCVLossFunction<T extends Classifier> extends OnlineClassifierCVLossFunction<T> {
+public class ClassifierLogCVLossFunction<C extends Classifier> extends OnlineClassifierCVLossFunction<C> {
     private static final double DEFAULT_MIN_PROBABILITY = 10E-16;
     public  double minProbability;
     public  double maxError;

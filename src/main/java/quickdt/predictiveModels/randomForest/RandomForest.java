@@ -69,10 +69,10 @@ public class RandomForest implements Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+    public Map<Serializable, Double> predict(final Attributes attributes) {
         Map<Serializable, Double> sumsByClassification = Maps.newHashMap();
         for (Tree tree : trees) {
-            final Map<Serializable, Double> treeProbs = tree.getProbabilitiesByClassification(attributes);
+            final Map<Serializable, Double> treeProbs = tree.predict(attributes);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
