@@ -394,6 +394,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         double bestScore = 0;
         final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
+        final Set<Serializable> outSet = Sets.newHashSet(); //the in-set
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
                 .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
@@ -427,10 +428,12 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             }
         }
 
+        boolean builtInset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
             inSet.add(attributeValueWithClassificationCounter.attributeValue);
             if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset))
-                break;
+                builtInset = true;
+            if (built)
         }
 
         if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
