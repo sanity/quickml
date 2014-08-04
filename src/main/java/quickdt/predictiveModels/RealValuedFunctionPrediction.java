@@ -6,7 +6,7 @@ import java.util.HashMap;
 /**
  * Created by alexanderhawk on 7/30/14.
  */
-public class RealValuedPrediction implements Prediction{
+public class RealValuedFunctionPrediction implements Prediction{
     public double prediction;
 
     public double getPrediction(){

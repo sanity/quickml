@@ -1,7 +1,6 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
-import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.Classifier;
+import quickdt.predictiveModels.ClassifierPrediction;
 
 import java.io.Serializable;
 import java.util.*;
@@ -11,7 +10,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction<C extends Classifier> implements CrossValLossFunction<C> {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<ClassifierPrediction> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -19,12 +18,12 @@ public class WeightedAUCCrossValLossFunction<C extends Classifier> implements Cr
     }
 
     @Override
-    public double getLoss(List<? extends AbstractInstance> instances, C classifier) {
-        if (instances.isEmpty()) {
+    public double getLoss(List<LabelPredictionWeight<ClassifierPrediction>> labelPredictionWeights) {
+        if (labelPredictionWeights.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
 
-        List<AUCData> aucDataList = getAucDataList(instances, classifier);
+        List<AUCData> aucDataList = getAucDataList(labelPredictionWeights);
 
         sortDataByProbability(aucDataList);
 
@@ -33,15 +32,16 @@ public class WeightedAUCCrossValLossFunction<C extends Classifier> implements Cr
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<? extends AbstractInstance> instances, Classifier classifier) {
+    private List<AUCData> getAucDataList(List<LabelPredictionWeight<ClassifierPrediction>> labelPredictionWeights) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
-        for (AbstractInstance instance : instances) {
-            classifications.add(instance.getLabel());
+        for (LabelPredictionWeight<ClassifierPrediction> labelPredictionWeight : labelPredictionWeights) {
+            classifications.add(labelPredictionWeight.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
             }
-            aucDataList.add(new AUCData(instance.getLabel(), instance.getWeight(), classifier.getProbability(instance.getAttributes(), positiveClassification)));
+            double probabilityOfPositiveClassification = labelPredictionWeight.getPrediction().getPredictionForLabel(positiveClassification);
+            aucDataList.add(new AUCData(labelPredictionWeight.getLabel(), labelPredictionWeight.getWeight(), probabilityOfPositiveClassification));
         }
         return aucDataList;
     }

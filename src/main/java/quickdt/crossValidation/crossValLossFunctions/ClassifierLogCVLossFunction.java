@@ -2,11 +2,12 @@ package quickdt.crossValidation.crossValLossFunctions;
 
 import com.google.common.base.Preconditions;
 import quickdt.predictiveModels.Classifier;
+import quickdt.predictiveModels.ClassifierPrediction;
 
 /**
  * Created by alexanderhawk on 4/10/14.
  */
-public class ClassifierLogCVLossFunction<C extends Classifier> extends OnlineClassifierCVLossFunction<C> {
+public class ClassifierLogCVLossFunction extends OnlineClassifierCVLossFunction {
     private static final double DEFAULT_MIN_PROBABILITY = 10E-16;
     public  double minProbability;
     public  double maxError;

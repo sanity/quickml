@@ -13,14 +13,6 @@ import java.util.Random;
 public class Misc {
 	public static final Random random = new Random();
 
-    public static final List<LabelPredictionWeight> createLabelPredictionWeights(PredictiveModel predictiveModel, List<AbstractInstance> instances){
-        List<LabelPredictionWeight> labelPredictionWeights = Lists.newArrayList();
-        for (AbstractInstance instance : instances ) {
-            labelPredictionWeights.add(new LabelPredictionWeight(instance.getLabel(), predictiveModel.predict(instance), instance.getWeight()));
-        }
-        return labelPredictionWeights;
-    }
-
     public static final <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> getEntryWithLowestValue(Map<K, V> map) {
         Optional<Map.Entry<K, V>> entryWithLowestValue = Optional.absent();
         for (Map.Entry<K, V> kvEntry : map.entrySet()) {
