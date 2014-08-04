@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public class StationaryCrossValidator<PM extends PredictiveModel<Pr>, Pr extends Prediction> extends CrossValidator<PM> {
+public class StationaryCrossValidator<PM extends PredictiveModel<Pr>, Pr extends Prediction> extends CrossValidator<PM, Pr> {
 private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;

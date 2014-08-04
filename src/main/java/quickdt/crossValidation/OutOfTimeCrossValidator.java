@@ -5,8 +5,10 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.Prediction;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction;
@@ -18,7 +20,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 5/5/14.
  */
-public class OutOfTimeCrossValidator<T extends PredictiveModel> extends CrossValidator<T>{
+public class OutOfTimeCrossValidator<PM extends PredictiveModel<Pr>, Pr extends Prediction>extends CrossValidator<PM, Pr>{
 
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 
@@ -26,7 +28,7 @@ public class OutOfTimeCrossValidator<T extends PredictiveModel> extends CrossVal
     List<AbstractInstance> trainingDataToAddToPredictiveModel;
     List<AbstractInstance> validationSet;
 
-    final private quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction<T> crossValLossFunction;
+    final private quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction<Pr> crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
 
     private final DateTimeExtractor dateTimeExtractor;
@@ -35,7 +37,7 @@ public class OutOfTimeCrossValidator<T extends PredictiveModel> extends CrossVal
     private double weightOfValidationSet;
     private int currentTrainingSetSize = 0;
 
-    public OutOfTimeCrossValidator(CrossValLossFunction<T> crossValLossFunction, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
+    public OutOfTimeCrossValidator(CrossValLossFunction<Pr> crossValLossFunction, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.crossValLossFunction = crossValLossFunction;
         this.fractionOfDataForCrossValidation = fractionOfDataForCrossValidation;
         this.dateTimeExtractor = dateTimeExtractor;
@@ -43,15 +45,17 @@ public class OutOfTimeCrossValidator<T extends PredictiveModel> extends CrossVal
     }
 
     @Override
-    public double getCrossValidatedLoss(PredictiveModelBuilder<T> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
+    public double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
-            T predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            runningLoss += crossValLossFunction.getLoss(validationSet, predictiveModel) * weightOfValidationSet;
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+            List<LabelPredictionWeight<Pr>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(validationSet);
+
+            runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
             updateTrainingSet();
