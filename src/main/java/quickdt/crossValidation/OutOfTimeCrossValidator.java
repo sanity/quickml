@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 5/5/14.
  */
-public class OutOfTimeCrossValidator<PM extends PredictiveModel<Pr>, Pr extends Prediction>extends CrossValidator<PM, Pr>{
+public class OutOfTimeCrossValidator<Pr extends Prediction> extends CrossValidator<Pr>{
 
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 
@@ -45,14 +45,14 @@ public class OutOfTimeCrossValidator<PM extends PredictiveModel<Pr>, Pr extends 
     }
 
     @Override
-    public double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
+    public double getCrossValidatedLoss(PredictiveModelBuilder<PredictiveModel<Pr>> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
-            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+            PredictiveModel<Pr> predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
             List<LabelPredictionWeight<Pr>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(validationSet);
 
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public class StationaryCrossValidator<PM extends PredictiveModel<Pr>, Pr extends Prediction> extends CrossValidator<PM, Pr> {
+public class StationaryCrossValidator<Pr extends Prediction> extends CrossValidator<Pr> {
 private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
@@ -54,12 +54,12 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         this.lossFunction = lossFunction;
     }
 
-    public double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
+    public double getCrossValidatedLoss(PredictiveModelBuilder<PredictiveModel<Pr>> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
-            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
+            PredictiveModel<Pr> predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
             List<LabelPredictionWeight<Pr>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(dataSplit.validation);
             runningLoss+= lossFunction.getLoss(labelPredictionWeights);
             logger.info("running loss: "+runningLoss);
