@@ -45,7 +45,7 @@ public class OutOfTimeCrossValidator<Pr extends Prediction> extends CrossValidat
     }
 
     @Override
-    public double getCrossValidatedLoss(PredictiveModelBuilder<PredictiveModel<Pr>> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
+    public <PM extends PredictiveModel<Pr>> double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance> rawTrainingData) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
