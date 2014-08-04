@@ -35,6 +35,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
+    private Random random;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -389,12 +390,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
                                                                          final Iterable<? extends AbstractInstance> instances) {
 
-        //get Pair of Sets of classification counters
-        //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
-
         double bestScore = 0;
-        final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
-        final Set<Serializable> outSet = Sets.newHashSet(); //the in-set
+        final Set<Serializable> inSet = Sets.newHashSet();
+        final Set<Serializable> outSet = Sets.newHashSet();
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
                 .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
@@ -428,14 +426,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             }
         }
 
-        boolean builtInset = false;
+        boolean insetIsBuiltNowBuildingOutset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
             inSet.add(attributeValueWithClassificationCounter.attributeValue);
             if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
-                builtInset = true;
+                insetIsBuiltNowBuildingOutset = true;
                 continue;
             }
-            if (builtInset)
+            if (insetIsBuiltNowBuildingOutset)
                 outSet.add(attributeValueWithClassificationCounter.attributeValue);
         }
 
@@ -443,10 +441,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             return null;
         }
 
-        Random random = new Random();
         final Set<Serializable> returnSet = (random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
-        //       boolean testVal=inSet.size()==0 && values.size()>1 && !allSameClass;
         return bestPair;
     }
 
