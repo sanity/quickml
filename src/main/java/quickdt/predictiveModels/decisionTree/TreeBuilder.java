@@ -431,16 +431,21 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         boolean builtInset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
             inSet.add(attributeValueWithClassificationCounter.attributeValue);
-            if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset))
+            if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
                 builtInset = true;
-            if (built)
+                continue;
+            }
+            if (builtInset)
+                outSet.add(attributeValueWithClassificationCounter.attributeValue);
         }
 
         if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
             return null;
         }
 
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet), bestScore);
+        Random random = new Random();
+        final Set<Serializable> returnSet = (random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
         //       boolean testVal=inSet.size()==0 && values.size()>1 && !allSameClass;
         return bestPair;
     }
