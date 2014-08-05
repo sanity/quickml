@@ -35,7 +35,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
-    private Random random;
+    private Random random = new Random();
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -428,13 +428,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
 
         boolean insetIsBuiltNowBuildingOutset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
-            inSet.add(attributeValueWithClassificationCounter.attributeValue);
-            if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
-                insetIsBuiltNowBuildingOutset = true;
-                continue;
-            }
-            if (insetIsBuiltNowBuildingOutset)
+            if (!insetIsBuiltNowBuildingOutset) {
+                inSet.add(attributeValueWithClassificationCounter.attributeValue);
+                if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
+                    insetIsBuiltNowBuildingOutset = true;
+                }
+            } else {
                 outSet.add(attributeValueWithClassificationCounter.attributeValue);
+            }
         }
 
         if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
