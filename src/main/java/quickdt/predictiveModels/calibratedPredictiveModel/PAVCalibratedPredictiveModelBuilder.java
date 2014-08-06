@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import quickdt.data.AbstractInstance;
+import quickdt.predictiveModels.IsotonicRegression.PoolAdjacentViolatorsModel;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
@@ -91,29 +92,29 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     }
 
     private void updateCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
 
-        PAVCalibrator calibrator = (PAVCalibrator)((CalibratedPredictiveModel)predictiveModel).calibrator;
-        for(PAVCalibrator.Observation observation : mobservations) {
+        PoolAdjacentViolatorsModel calibrator = (PoolAdjacentViolatorsModel)((CalibratedPredictiveModel)predictiveModel).calibrator;
+        for(PoolAdjacentViolatorsModel.Observation observation : mobservations) {
             calibrator.addObservation(observation);
         }
     }
 
 
     private Calibrator createCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PAVCalibrator.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
-        return new PAVCalibrator(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
+        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+        return new PoolAdjacentViolatorsModel(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
     }
 
-    protected List<PAVCalibrator.Observation> getObservations(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PAVCalibrator.Observation> mobservations = Lists.<PAVCalibrator.Observation>newArrayList();
+    protected List<PoolAdjacentViolatorsModel.Observation> getObservations(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+        List<PoolAdjacentViolatorsModel.Observation> mobservations = Lists.<PoolAdjacentViolatorsModel.Observation>newArrayList();
         double prediction = 0;
         double groundTruth = 0;
-        PAVCalibrator.Observation observation;
+        PoolAdjacentViolatorsModel.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
             groundTruth = ((Number)(instance.getLabel())).doubleValue();
             prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
-            observation = new PAVCalibrator.Observation(prediction, groundTruth, instance.getWeight());
+            observation = new PoolAdjacentViolatorsModel.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
         }
         return mobservations;

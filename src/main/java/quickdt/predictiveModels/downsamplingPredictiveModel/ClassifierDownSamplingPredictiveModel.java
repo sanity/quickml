@@ -49,7 +49,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
 
     @Override
     public void dump(final PrintStream printStream) {
-        printStream.println("Will correct for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification);
+        printStream.println("Will predict for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification);
         wrappedPredictiveModel.dump(printStream);
     }
 

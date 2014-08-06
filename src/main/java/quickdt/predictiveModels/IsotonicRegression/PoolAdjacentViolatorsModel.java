@@ -1,17 +1,21 @@
-package quickdt.predictiveModels.calibratedPredictiveModel;
+package quickdt.predictiveModels.IsotonicRegression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.data.AbstractInstance;
+import quickdt.data.Attributes;
+import quickdt.predictiveModels.RealValuedFunction;
+import quickdt.predictiveModels.RealValuedFunctionPrediction;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public class PAVCalibrator implements Serializable, Calibrator {
-    private static final Logger logger = LoggerFactory.getLogger(PAVCalibrator.class);
+public class PoolAdjacentViolatorsModel implements RealValuedFunction {
+    private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
 
     private static final long serialVersionUID = 4389814244047503245L;
     private int size;
@@ -19,7 +23,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
 
     private static Random rand = new Random();
 
-    public PAVCalibrator(final Iterable<Observation> predictions) {
+    public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions) {
         this(predictions, 1);
     }
 
@@ -27,7 +31,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
      * @param predictions The input to the calibration function
      * @param minWeight   The minimum weight of a point, used to pre-smooth the function
      */
-    public PAVCalibrator(final Iterable<Observation> predictions, int minWeight) {
+    public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions, int minWeight) {
         Preconditions.checkNotNull(predictions);
         Preconditions.checkArgument(minWeight >= 1, "minWeight %s must be >= 1", minWeight);
 
@@ -89,9 +93,14 @@ public class PAVCalibrator implements Serializable, Calibrator {
     }
 
 
-    public double correct(final double input) {
+    public RealValuedFunctionPrediction predict(Attributes uncorrectedPrediction) {
+        String attributeName = (String)(uncorrectedPrediction.keySet().toArray()[0]);
+        assert uncorrectedPrediction.get(attributeName) instanceof Double : "attributeValue must be a Double";
+
+        Double value = (Double)uncorrectedPrediction.get(attributeName);
+
         final double kProp;
-        final Observation toCorrect = new Observation(input, 0);
+        final Observation toCorrect = new Observation(value, 0);
         Observation floor = calibrationSet.floor(toCorrect);
         if (floor == null) {
             floor = new Observation(0, 0);
@@ -99,27 +108,27 @@ public class PAVCalibrator implements Serializable, Calibrator {
         Observation ceiling = calibrationSet.ceiling(toCorrect);
         if (ceiling == null) {
             try{
-                return Math.max(input, calibrationSet.last().output);
+                return new RealValuedFunctionPrediction(Math.max(value, calibrationSet.last().output));
             }
             catch (NoSuchElementException e){
                 logger.warn("NoSuchElementException finding ceiling");
-                return input;
+                return new RealValuedFunctionPrediction(value);
             }
 
         }
 
-        boolean inputOnAPointInTheCalibrationSet = ceiling.input == input || input == floor.input;
+        boolean inputOnAPointInTheCalibrationSet = ceiling.input == value || value == floor.input;
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
         boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
         if (exceptionalCase)
-            return input == ceiling.input ? ceiling.output : input;
+            return new RealValuedFunctionPrediction(value == ceiling.input ? ceiling.output : value);
 
-        kProp = (input - floor.input) / (ceiling.input - floor.input);
+        kProp = (value - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
-            return input;
+            return new RealValuedFunctionPrediction(value);
         } else {
-            return corrected;
+            return new RealValuedFunctionPrediction(corrected);
         }
     }
 
@@ -127,7 +136,9 @@ public class PAVCalibrator implements Serializable, Calibrator {
         double lowCPC = calibrationSet.first().input, highCPC = calibrationSet.last().input;
         for (int x = 0; x < 16; x++) {
             final double tst = (lowCPC + highCPC) / 2.0;
-            final double opt = correct(tst);
+            HashMap new HashMap<String, Double>;
+            (tst)
+            final double opt = predict();
             if (opt < output) {
                 lowCPC = tst;
             } else {
@@ -160,7 +171,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
 
     public Observation minNonZeroObservation() {
         Observation minObs = null;
-        for (final PAVCalibrator.Observation observation : calibrationSet) {
+        for (final PoolAdjacentViolatorsModel.Observation observation : calibrationSet) {
             if (observation.input >= 0.0) {
                 minObs = observation;
                 break;
@@ -181,7 +192,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
         public final double weight;
 
         /**
-         * This type of observation can be used to correct a previous observation.
+         * This type of observation can be used to predict a previous observation.
          * So adding:
          * Observation(1, 0) and Observation.WEIGHTLESS(1, 2)
          *
@@ -204,7 +215,7 @@ public class PAVCalibrator implements Serializable, Calibrator {
             Preconditions.checkState(!(Double.isNaN(input) && Double.isNaN(output) && Double.isNaN((double) weight)));
             this.input = input;
             this.output = output;
-            seed = PAVCalibrator.rand.nextInt();
+            seed = PoolAdjacentViolatorsModel.rand.nextInt();
             this.weight = weight;
         }
 

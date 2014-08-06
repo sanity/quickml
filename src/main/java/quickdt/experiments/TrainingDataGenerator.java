@@ -37,7 +37,7 @@ public class TrainingDataGenerator {
             actualClickProbability = getClickProbabilityFromLatentVariableValue();
             if (actualClickProbability > onlyConsiderSamplesAboveThisProbability)  {
                 rawPredictedProb = bidderPredictiveModel.getProbability(attributes, 1);
-                predictedProb  = bidderPredictiveModel.calibrator.correct(rawPredictedProb);
+                predictedProb  = bidderPredictiveModel.calibrator.predict(rawPredictedProb);
                 deviation += Math.abs(actualClickProbability - predictedProb) / actualClickProbability;
     //            System.out.println("actualClickProbability : predictedProb " + actualClickProbability + " : " + predictedProb);
             }

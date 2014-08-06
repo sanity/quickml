@@ -8,7 +8,9 @@ import java.util.HashMap;
  */
 public class RealValuedFunctionPrediction implements Prediction{
     public double prediction;
-
+    public RealValuedFunctionPrediction(double prediction) {
+        this.prediction = prediction;
+    }
     public double getPrediction(){
         return prediction;
     }

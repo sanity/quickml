@@ -46,7 +46,7 @@ public class TrainingDataGenerator2 {
             actualClickProbability = getClickProbabilityFromLatentVariableValue();
             if (actualClickProbability > onlyConsiderSamplesAboveThisProbability)  {
                 predictedProb = randomForest.getProbability(attributes, 1.0);
-//                predictedProb  = randomForest.calibrator.correct(rawPredictedProb);
+//                predictedProb  = randomForest.calibrator.predict(rawPredictedProb);
                 deviation += Math.abs(actualClickProbability - predictedProb) / actualClickProbability;
                 //    System.out.println("actualClickProbability : predictedProb : rawProb" + actualClickProbability + " : " + predictedProb + " " + rawPredictedProb);
             }
