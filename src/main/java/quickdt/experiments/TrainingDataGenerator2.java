@@ -35,7 +35,7 @@ public class TrainingDataGenerator2 {
     }
 
     public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, RandomForest randomForest)  {
-        Attributes attributes;
+        Map<String, Serializable> attributes;
         double predictedProb;
         double rawPredictedProb;
         double actualClickProbability;
@@ -59,8 +59,8 @@ public class TrainingDataGenerator2 {
         System.out.println("average deviation" + deviation/samples);
     }
 
-    private Attributes getAttributesForAnInstance() {
-        Attributes attributes =  new HashMapAttributes();
+    private Map<String, Serializable> getAttributesForAnInstance() {
+        Map<String, Serializable> attributes =  new HashMapAttributes();
 
         double attributeValue;
         latentVariable = 0;
@@ -92,13 +92,13 @@ public class TrainingDataGenerator2 {
         List<AbstractInstance> trainingData = Lists.<AbstractInstance>newArrayList();
         double attributeValue;
         AbstractInstance instance;
-        Attributes attributes;
+        Map<String, Serializable> attributes;
         double clickClassification;
 
         for (int i = 0; i < instances; i++)  {
             attributes = getAttributesForAnInstance();
             clickClassification = setClickValue();
-            instance = new Instance(attributes, clickClassification);
+            instance = new InstanceWithMapOfRegressors(attributes, clickClassification);
             trainingData.add(instance);
         }
         return trainingData;

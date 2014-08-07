@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
@@ -61,7 +61,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         Map<Serializable, ArrayList<AbstractInstance>> splitTrainingData = Maps.newHashMap();
         ArrayList<AbstractInstance> allData = new ArrayList<>();
         for (AbstractInstance instance : trainingData) {
-            Serializable value = instance.getAttributes().get(attributeKey);
+            Serializable value = instance.getRegressors().get(attributeKey);
             if (value == null) value = NO_VALUE_PLACEHOLDER;
             ArrayList<AbstractInstance> splitData = splitTrainingData.get(value);
             if (splitData == null) {
@@ -107,7 +107,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
      * Add instances such that the ratio of classifications is unchanged
     * */
     private boolean shouldAddInstance(Serializable attributeValue, AbstractInstance instance, ClassificationCounter crossDataCount, double targetCount) {
-        if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
+        if (!attributeValue.equals(instance.getRegressors().get(attributeKey))) {
             if (targetCount > crossDataCount.getCount(instance.getLabel())) {
                 return true;
             }
@@ -116,13 +116,13 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     }
 
     private AbstractInstance cleanSupportingData(AbstractInstance instance) {
-        Attributes attributes = new HashMapAttributes();
-        for (String key : instance.getAttributes().keySet()) {
+        Map<String, Serializable> attributes = new HashMapAttributes();
+        for (String key : instance.getRegressors().keySet()) {
             if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
-                attributes.put(key, instance.getAttributes().get(key));
+                attributes.put(key, instance.getRegressors().get(key));
             }
         }
-        return new Instance(attributes, instance.getLabel(), instance.getWeight());
+        return new InstanceWithMapOfRegressors(attributes, instance.getLabel(), instance.getWeight());
     }
 
     @Override

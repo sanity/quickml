@@ -1,41 +1,42 @@
 package quickdt.data;
 
 import java.io.Serializable;
+import java.util.Map;
 
-public class Instance extends AbstractInstance implements Serializable {
+public class InstanceWithMapOfRegressors extends AbstractInstance<Map<String, Serializable>> implements Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
     private static final double DEFAULT_WEIGHT = 1.0;
 
-    private Instance() {
+    private InstanceWithMapOfRegressors() {
 
 	}
 
-    public static Instance create(final Serializable label, final Serializable... inputs) {
+    public static InstanceWithMapOfRegressors create(final Serializable label, final Serializable... inputs) {
         return create(label, DEFAULT_WEIGHT, inputs);
     }
 
-    public static Instance create(final Serializable label, final double weight, final Serializable... inputs) {
+    public static InstanceWithMapOfRegressors create(final Serializable label, final double weight, final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
 		}
-		return new Instance(a, label, weight);
+		return new InstanceWithMapOfRegressors(a, label, weight);
 	}
 
-    public Instance(final Attributes attributes, final Serializable label) {
+    public InstanceWithMapOfRegressors(final Map<String, Serializable> attributes, final Serializable label) {
         this(attributes, label, DEFAULT_WEIGHT);
     }
 
-    public Instance(final Attributes attributes, final Serializable label, final double weight) {
+    public InstanceWithMapOfRegressors(final Map<String, Serializable> attributes, final Serializable label, final double weight) {
 		this.attributes = attributes;
 		this.label = label;
         this.weight = weight;
     }
 
     @Override
-    public Attributes getAttributes() {
+    public Map<String, Serializable> getRegressors() {
         return attributes;
     }
 
@@ -44,8 +45,8 @@ public class Instance extends AbstractInstance implements Serializable {
         return label;
     }
 
-    public Instance reweight(double newWeight){
-        return new Instance(getAttributes(), getLabel(), newWeight);
+    public InstanceWithMapOfRegressors reweight(double newWeight){
+        return new InstanceWithMapOfRegressors(getRegressors(), getLabel(), newWeight);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class Instance extends AbstractInstance implements Serializable {
         return weight;
     }
 
-    private Attributes attributes;
+    private Map<String, Serializable> attributes;
 	private Serializable label;
     private double weight;
 
@@ -62,7 +63,7 @@ public class Instance extends AbstractInstance implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Instance instance = (Instance) o;
+        final InstanceWithMapOfRegressors instance = (InstanceWithMapOfRegressors) o;
 
         if (Double.compare(instance.weight, weight) != 0) return false;
         if (!attributes.equals(instance.attributes)) return false;

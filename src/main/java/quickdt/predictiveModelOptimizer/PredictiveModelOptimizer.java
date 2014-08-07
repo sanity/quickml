@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class PredictiveModelOptimizer<Pr extends Prediction, PM extends PredictiveModel<Pr>> {
+public class PredictiveModelOptimizer<Pr, PM extends PredictiveModel<Pr>> {
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
     private final PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder;
     private final CrossValidator<Pr> crossValidator;

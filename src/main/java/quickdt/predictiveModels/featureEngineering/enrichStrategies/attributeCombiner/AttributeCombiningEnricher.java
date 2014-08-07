@@ -23,7 +23,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
 
     @Nullable
     @Override
-    public Attributes apply(@Nullable final Attributes inputAttributes) {
+    public Map<String, Serializable> apply(@Nullable final Map<String, Serializable> inputAttributes) {
         HashMapAttributes outputAttributes = new HashMapAttributes();
         outputAttributes.putAll(inputAttributes);
         for (List<String> attributeKeys : attributesToCombine) {
@@ -43,7 +43,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
         return outputAttributes;
     }
 
-    private boolean attributesNotCombinable(List<String> attributeKeys, @Nullable final Attributes inputAttributes) {
+    private boolean attributesNotCombinable(List<String> attributeKeys, @Nullable final Map<String, Serializable> inputAttributes) {
         for (String attribute : attributeKeys)
             if (!inputAttributes.containsKey(attribute))
                 return true;

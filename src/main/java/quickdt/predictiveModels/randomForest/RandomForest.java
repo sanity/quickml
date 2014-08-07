@@ -34,7 +34,7 @@ public class RandomForest implements Classifier {
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getLabel());
+        return getProbability(instance.getRegressors(), instance.getLabel());
     }
 
     public void dump(PrintStream printStream, int numTrees) {
@@ -56,7 +56,7 @@ public class RandomForest implements Classifier {
     }
 
     @Override
-    public double getProbability(Attributes attributes, Serializable classification) {
+    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         double total = 0;
         for (Tree tree : trees) {
             final double probability = tree.getProbability(attributes, classification);
@@ -69,7 +69,7 @@ public class RandomForest implements Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(final Attributes attributes) {
+    public Map<Serializable, Double> predict(final Map<String, Serializable> attributes) {
         Map<Serializable, Double> sumsByClassification = Maps.newHashMap();
         for (Tree tree : trees) {
             final Map<Serializable, Double> treeProbs = tree.predict(attributes);
@@ -90,7 +90,7 @@ public class RandomForest implements Classifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(Attributes attributes) {
+    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (Tree tree : trees) {
             Leaf leaf =tree.node.getLeaf(attributes);

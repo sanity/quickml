@@ -18,7 +18,7 @@ import java.util.Set;
 public class ReadMeExample {
     
     public static void main(String[] args) {
-        final Set<Instance> instances = Sets.newHashSet();
+        final Set<InstanceWithMapOfRegressors> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
         instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
         instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
@@ -30,8 +30,8 @@ public class ReadMeExample {
             
             TreeBuilder treeBuilder = new TreeBuilder();
             Tree tree = treeBuilder.buildPredictiveModel(instances);
-            
-            Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+
+            Map<String, Serializable> attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
             Serializable classification = tree.getClassificationByMaxProb(attributes);
             if (classification.equals("healthy")) {
                 System.out.println("They are healthy!");
@@ -52,8 +52,8 @@ public class ReadMeExample {
             RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
                 .numTrees(50);
             RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
-            
-            Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+
+            Map<String, Serializable> attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
             Serializable classification = randomForest.getClassificationByMaxProb(attributes);
             System.out.println("Assigned class: " + classification); 
         

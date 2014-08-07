@@ -26,7 +26,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
     }
 
     @Override
-    public double getProbability(final Attributes attributes, final Serializable classification) {
+    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
         double uncorrectedProbability = wrappedPredictiveModel.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
@@ -43,7 +43,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
      * @return
      */
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
         throw new UnsupportedOperationException();
     }
 
@@ -54,7 +54,7 @@ public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Attributes attributes) {
+    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
         return wrappedPredictiveModel.getClassificationByMaxProb(attributes);
     }
 

@@ -24,7 +24,7 @@ public class ProbabilityInjectingEnricher implements AttributesEnricher {
     }
 
     @Override
-    public Attributes apply(final Attributes attributes) {
+    public Map<String, Serializable> apply(final Map<String, Serializable> attributes) {
         // TODO: Perhaps more efficient to use immutable map for attributes here
         HashMapAttributes enrichedAttributes = new HashMapAttributes();
         enrichedAttributes.putAll(attributes);

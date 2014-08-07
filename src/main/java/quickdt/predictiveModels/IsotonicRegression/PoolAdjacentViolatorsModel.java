@@ -5,16 +5,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
-import quickdt.predictiveModels.RealValuedFunction;
-import quickdt.predictiveModels.RealValuedFunctionPrediction;
+import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public class PoolAdjacentViolatorsModel implements RealValuedFunction {
+public class PoolAdjacentViolatorsModel<Double> implements PredictiveModel<Double> {
     private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
 
     private static final long serialVersionUID = 4389814244047503245L;
@@ -93,7 +91,7 @@ public class PoolAdjacentViolatorsModel implements RealValuedFunction {
     }
 
 
-    public RealValuedFunctionPrediction predict(Attributes uncorrectedPrediction) {
+    public Double predict(Map<String, Serializable> uncorrectedPrediction) {
         String attributeName = (String)(uncorrectedPrediction.keySet().toArray()[0]);
         assert uncorrectedPrediction.get(attributeName) instanceof Double : "attributeValue must be a Double";
 
@@ -108,11 +106,11 @@ public class PoolAdjacentViolatorsModel implements RealValuedFunction {
         Observation ceiling = calibrationSet.ceiling(toCorrect);
         if (ceiling == null) {
             try{
-                return new RealValuedFunctionPrediction(Math.max(value, calibrationSet.last().output));
+                return Math.max(value, calibrationSet.last().output);
             }
             catch (NoSuchElementException e){
                 logger.warn("NoSuchElementException finding ceiling");
-                return new RealValuedFunctionPrediction(value);
+                return value;
             }
 
         }
@@ -121,14 +119,14 @@ public class PoolAdjacentViolatorsModel implements RealValuedFunction {
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
         boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
         if (exceptionalCase)
-            return new RealValuedFunctionPrediction(value == ceiling.input ? ceiling.output : value);
+            return value == ceiling.input ? ceiling.output : value;
 
         kProp = (value - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
-            return new RealValuedFunctionPrediction(value);
+            return value;
         } else {
-            return new RealValuedFunctionPrediction(corrected);
+            return corrected;
         }
     }
 

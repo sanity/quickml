@@ -20,7 +20,7 @@ public class AttributesHashSplitter implements Predicate<AbstractInstance> {
 
     @Override
     public boolean apply(final AbstractInstance instance) {
-        int hc = hashFunction.hashInt(instance.getAttributes().hashCode()).asInt();
+        int hc = hashFunction.hashInt(instance.getRegressors().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }
 }

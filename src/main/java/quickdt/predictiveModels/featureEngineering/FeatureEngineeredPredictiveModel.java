@@ -24,18 +24,18 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel<Object>
     }
 
     @Override
-    public double getProbability(final Attributes attributes, final Serializable classification) {
-        Attributes enrichedAttributes = enrichAttributes(attributes);
+    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
+        Map<String, Serializable> enrichedAttributes = enrichAttributes(attributes);
         return wrappedModel.getProbability(enrichedAttributes, classification);
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
         return wrappedModel.getProbabilitiesByClassification(attributes);
     }
 
-    private Attributes enrichAttributes(final Attributes attributes) {
-        Attributes enrichedAttributes = attributes;
+    private Map<String, Serializable> enrichAttributes(final Map<String, Serializable> attributes) {
+        Map<String, Serializable> enrichedAttributes = attributes;
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
         }
@@ -48,7 +48,7 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel<Object>
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Attributes attributes) {
+    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
         return wrappedModel.getClassificationByMaxProb(enrichAttributes(attributes));
     }
 }

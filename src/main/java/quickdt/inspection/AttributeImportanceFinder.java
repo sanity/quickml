@@ -36,7 +36,7 @@ public class AttributeImportanceFinder {
 
         Set<String> attributes = Sets.newHashSet();
         for (AbstractInstance instance : trainingData) {
-            attributes.addAll(instance.getAttributes().keySet());
+            attributes.addAll(instance.getRegressors().keySet());
         }
 
         TreeSet<AttributeScore> scores = Sets.newTreeSet();
@@ -44,7 +44,7 @@ public class AttributeImportanceFinder {
         LinkedList<AbstractInstance> trainingSet = Lists.newLinkedList();
         LinkedList<AbstractInstance> testingSet = Lists.newLinkedList();
         for (AbstractInstance instance : trainingData) {
-            if (Math.abs(instance.getAttributes().hashCode()) % 10 == 0) {
+            if (Math.abs(instance.getRegressors().hashCode()) % 10 == 0) {
                 testingSet.add(instance);
             } else {
                 trainingSet.add(instance);
@@ -53,7 +53,7 @@ public class AttributeImportanceFinder {
 
         Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
         for (AbstractInstance instance : trainingData) {
-            for (Map.Entry<String,Serializable> attributeKeyValue : instance.getAttributes().entrySet()) {
+            for (Map.Entry<String,Serializable> attributeKeyValue : instance.getRegressors().entrySet()) {
                 ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
                 if (sampler == null) {
                     sampler = new ReservoirSampler<Serializable>(1000);
@@ -88,11 +88,11 @@ public class AttributeImportanceFinder {
 
         @Override
         public AbstractInstance apply(final AbstractInstance instance) {
-            Attributes randomizedAttributes = new HashMapAttributes();
-            randomizedAttributes.putAll(instance.getAttributes());
+            Map<String, Serializable> randomizedAttributes = new HashMapAttributes();
+            randomizedAttributes.putAll(instance.getRegressors());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
-            return new Instance(randomizedAttributes, instance.getLabel());
+            return new InstanceWithMapOfRegressors(randomizedAttributes, instance.getLabel());
         }
     }
 

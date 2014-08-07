@@ -49,9 +49,9 @@ public class DownsamplingPredictiveModelBuilderTest {
             }
         });
         DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = new DownsamplingPredictiveModelBuilder(predictiveModelBuilder, 0.2);
-        List<Instance> data = Lists.newArrayList();
+        List<InstanceWithMapOfRegressors> data = Lists.newArrayList();
         for (int x=0; x<10000; x++) {
-            data.add(new Instance(new HashMapAttributes(), (Misc.random.nextDouble() < 0.05)));
+            data.add(new InstanceWithMapOfRegressors(new HashMapAttributes(), (Misc.random.nextDouble() < 0.05)));
         }
         PredictiveModel<Object> predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(new HashMapAttributes(), Boolean.TRUE);
@@ -65,7 +65,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingPredictiveModelBuilder dpmb = new DownsamplingPredictiveModelBuilder(urfb, 0.1);
 
-        final List<Instance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final PredictiveModelWithDataBuilder<DownsamplingPredictiveModel> wb = new PredictiveModelWithDataBuilder<>(dpmb);
         final long startTime = System.currentTimeMillis();
         final DownsamplingPredictiveModel downsamplingPredictiveModel = wb.buildPredictiveModel(instances);
@@ -79,7 +79,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final DownsamplingPredictiveModel downsamplingPredictiveModel1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) downsamplingPredictiveModel1.wrappedPredictiveModel;
         org.testng.Assert.assertTrue(downsamplingPredictiveModel == downsamplingPredictiveModel1, "Expect same tree to be updated");
@@ -98,12 +98,12 @@ public class DownsamplingPredictiveModelBuilderTest {
         }
 
         @Override
-        public double getProbability(final Attributes attributes, final Serializable classification) {
+        public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
             return prediction;
         }
 
         @Override
-        public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
             throw new UnsupportedOperationException();
         }
 
@@ -113,7 +113,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         }
 
         @Override
-        public Serializable getClassificationByMaxProb(final Attributes attributes) {
+        public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
             return null;
         }
     }

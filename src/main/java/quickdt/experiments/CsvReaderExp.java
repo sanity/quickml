@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import quickdt.csvReader.CSVToMap;
 import quickdt.data.Attributes;
 import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.calibratedPredictiveModel.CalibratedPredictiveModel;
@@ -33,7 +33,7 @@ public class CsvReaderExp {
         int numTraniningExamples = 40100;
         String inputFile = "redshift_training_data.csv";
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(inputFile);
-        List<Instance> instances = convertRawMapToInstance(instanceMaps);
+        List<InstanceWithMapOfRegressors> instances = convertRawMapToInstance(instanceMaps);
         logger.info("got instances");
 
         HashMap<String, ClicksAndImps> uniqueBrowsersRawData = uniqueBrowserData(instances);
@@ -46,11 +46,11 @@ public class CsvReaderExp {
         int x = 0;
     }
 
-    private static HashMap<String, ClicksAndImps> uniqueBrowserData(List<Instance> instances) {
+    private static HashMap<String, ClicksAndImps> uniqueBrowserData(List<InstanceWithMapOfRegressors> instances) {
         HashMap<String, ClicksAndImps> uniqueBrowsers = new HashMap<>();
 
-        for (Instance instance : instances) {
-            String browser = (String) instance.getAttributes().get("an_browser");
+        for (InstanceWithMapOfRegressors instance : instances) {
+            String browser = (String) instance.getRegressors().get("an_browser");
             double click = (Double) instance.getLabel();
 
             if (browser != null) {
@@ -69,11 +69,11 @@ public class CsvReaderExp {
         return uniqueBrowsers;
     }
 
-    private static HashMap<String, ClicksAndImps> uniqueBrowserDataPredicted(PredictiveModel<Object> predictiveModel,  List<Instance> instances) {
+    private static HashMap<String, ClicksAndImps> uniqueBrowserDataPredicted(PredictiveModel<Object> predictiveModel,  List<InstanceWithMapOfRegressors> instances) {
         HashMap<String, ClicksAndImps> uniqueBrowsers = new HashMap<>();
-        for (Instance instance : instances) {
-            String browser = (String) instance.getAttributes().get("an_browser");
-            double clickProb = Utils.correctProbability(.99, predictiveModel.getProbability(instance.getAttributes(), 1.0));
+        for (InstanceWithMapOfRegressors instance : instances) {
+            String browser = (String) instance.getRegressors().get("an_browser");
+            double clickProb = Utils.correctProbability(.99, predictiveModel.getProbability(instance.getRegressors(), 1.0));
 
 
             if (browser != null) {
@@ -92,10 +92,10 @@ public class CsvReaderExp {
 
     }
 
-    public static List<Instance> convertRawMapToInstance(List<Map<String,Serializable>> rawMaps) {
-        List<Instance> instances = Lists.newArrayList();
-        Attributes attributes;
-        Instance instance;
+    public static List<InstanceWithMapOfRegressors> convertRawMapToInstance(List<Map<String,Serializable>> rawMaps) {
+        List<InstanceWithMapOfRegressors> instances = Lists.newArrayList();
+        Map<String, Serializable> attributes;
+        InstanceWithMapOfRegressors instance;
         int numInstances = 30000;
         int count = 0;
         for (Map<String, Serializable> rawMap : rawMaps) {
@@ -108,7 +108,7 @@ public class CsvReaderExp {
                     }
                 }
                 double clickVal = (rawMap.get("is_click").equals("f")) ? 0.0 : 1.0;
-                instance = new Instance(attributes, clickVal);
+                instance = new InstanceWithMapOfRegressors(attributes, clickVal);
                 instances.add(instance);
                 // if (count++ > numInstances) break;
             }

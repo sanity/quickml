@@ -57,7 +57,7 @@ public class ProbDistOfVarMultivariateGaussian {
             for (double val : currentSample) System.out.println("val: " + val);
             actualProb = getActualConditionalProbabilityOfClick();
             if (actualProb > onlyConsiderSamplesAboveThisProbability)  {
-                predictedProb = randomForest.getProbability(instance.getAttributes(), 1.0);
+                predictedProb = randomForest.getProbability(instance.getRegressors(), 1.0);
                 deviation += Math.abs(actualProb - predictedProb) / actualProb;
              //   if (print)
              //       System.out.println("actualProb : predictedProb " + actualProb + " : " + predictedProb);

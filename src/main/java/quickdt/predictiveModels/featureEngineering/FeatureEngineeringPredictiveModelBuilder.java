@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
@@ -37,7 +37,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
             enrichers.add(enrichStrategy.build(trainingData));
         }
 
-        final Iterable<Instance> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
+        final Iterable<InstanceWithMapOfRegressors> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
         PredictiveModel<Object> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 

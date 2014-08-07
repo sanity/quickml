@@ -11,7 +11,7 @@ import quickdt.data.Attributes;
 public class SampleDateTimeExtractor implements DateTimeExtractor {
     @Override
     public DateTime extractDateTime(AbstractInstance instance){
-        Attributes attributes = instance.getAttributes();
+        Map<String, Serializable> attributes = instance.getRegressors();
         int year = (Integer)attributes.get("timeOfArrival-year");
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
         int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");

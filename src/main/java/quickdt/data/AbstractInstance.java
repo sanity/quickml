@@ -2,6 +2,7 @@ package quickdt.data;
 
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,8 +11,8 @@ import java.io.Serializable;
  * Time: 1:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class AbstractInstance {
-    public abstract Attributes getAttributes();
+public abstract class AbstractInstance<R> {
+    public abstract R getRegressors();
 
     public abstract Serializable getLabel();
 

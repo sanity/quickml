@@ -28,18 +28,18 @@ public class Tree implements Classifier {
     }
 
     @Override
-    public double getProbability(Attributes attributes, Serializable classification) {
+    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getProbability(classification);
     }
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getLabel());
+        return getProbability(instance.getRegressors(), instance.getLabel());
     }
 
     @Override
-    public Map<Serializable, Double> predict(Attributes attributes) {
+    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
@@ -54,7 +54,7 @@ public class Tree implements Classifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(Attributes attributes) {
+    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getBestClassification();
     }

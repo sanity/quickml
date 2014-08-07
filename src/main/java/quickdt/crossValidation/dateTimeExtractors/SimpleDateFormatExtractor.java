@@ -30,7 +30,7 @@ public class SimpleDateFormatExtractor implements DateTimeExtractor {
 
     @Override
     public DateTime extractDateTime(AbstractInstance instance) {
-        Attributes attributes = instance.getAttributes();
+        Map<String, Serializable> attributes = instance.getRegressors();
         try {
             Date currentTimeMillis = dateFormat.parse((String) attributes.get(dateAttribute));
             return new DateTime(currentTimeMillis, DateTimeZone.UTC);

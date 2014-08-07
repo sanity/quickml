@@ -15,7 +15,7 @@ public class RealValuedFunctionMSELossFunction implements CrossValLossFunction<R
 
     @Override
     public double getLoss(List<LabelPredictionWeight<RealValuedFunctionPrediction>> labelPredictionWeights) {
-        for (LabelPredictionWeight<RealValuedFunctionPrediction> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<Double> labelPredictionWeight : labelPredictionWeights) {
             double predictedValueOfInstance = labelPredictionWeight.getPrediction().getPrediction();
             totalLoss += Math.pow((Double)labelPredictionWeight.getLabel() - predictedValueOfInstance, 2) * labelPredictionWeight.getWeight();
             weightOfAllInstances += labelPredictionWeight.getWeight();

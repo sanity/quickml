@@ -59,7 +59,7 @@ public class Benchmarks {
             for (int x=0; x<8; x++) {
                 hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
-            final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[8]);
+            final AbstractInstance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
             instances.add(instance);
 
         }
@@ -81,7 +81,7 @@ public class Benchmarks {
             for (int x=0; x<splitLine.length - 1; x++) {
                 hashMapAttributes.put("attr"+x, splitLine[x]);
             }
-            final AbstractInstance instance = new Instance(hashMapAttributes, splitLine[splitLine.length-1]);
+            final AbstractInstance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[splitLine.length-1]);
             instances.add(instance);
 
         }
@@ -105,7 +105,7 @@ public class Benchmarks {
             final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
-            AbstractInstance instance = new Instance(a,binaryClassification);
+            AbstractInstance instance = new InstanceWithMapOfRegressors(a,binaryClassification);
             instances.add(instance);
         }
 

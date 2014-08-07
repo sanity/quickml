@@ -19,12 +19,12 @@ public class TemporallyReweightedPM implements PredictiveModel<Object> {
     }
 
     @Override
-    public double getProbability(final Attributes attributes, final Serializable classification) {
+    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
         return wrappedModel.getProbability(attributes, classification);
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
         return wrappedModel.getProbabilitiesByClassification(attributes);
     }
 
@@ -34,7 +34,7 @@ public class TemporallyReweightedPM implements PredictiveModel<Object> {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Attributes attributes) {
+    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
         return wrappedModel.getClassificationByMaxProb(attributes);
     }
 

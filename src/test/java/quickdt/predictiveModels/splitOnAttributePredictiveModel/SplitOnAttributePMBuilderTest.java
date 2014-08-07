@@ -3,7 +3,7 @@ package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.Tree;
@@ -25,7 +25,7 @@ public class SplitOnAttributePMBuilderTest {
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1, whiteList, 1);
@@ -42,7 +42,7 @@ public class SplitOnAttributePMBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(1000);
         final PredictiveModelWithDataBuilder<SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class SplitOnAttributePMBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributePM  splitOnAttributePM1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributePM1.getDefaultPM();
         Assert.assertTrue(splitOnAttributePM == splitOnAttributePM1, "Expect same tree to be updated");
@@ -67,7 +67,7 @@ public class SplitOnAttributePMBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(1000);
         final PredictiveModelWithDataBuilder<SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM  splitOnAttributePM = wb.buildPredictiveModel(instances);
@@ -81,7 +81,7 @@ public class SplitOnAttributePMBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributePM splitOnAttributePM1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributePM1.getDefaultPM();
         Assert.assertTrue(splitOnAttributePM == splitOnAttributePM1, "Expect same tree to be updated");

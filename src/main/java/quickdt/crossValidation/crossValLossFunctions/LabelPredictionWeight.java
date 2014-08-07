@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by alexanderhawk on 7/30/14.
  */
-public class LabelPredictionWeight<P extends Prediction> {
+public class LabelPredictionWeight<P> {
     double weight;
     Serializable label;
     P prediction;

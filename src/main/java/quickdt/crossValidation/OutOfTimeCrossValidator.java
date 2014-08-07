@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 5/5/14.
  */
-public class OutOfTimeCrossValidator<Pr extends Prediction> extends CrossValidator<Pr>{
+public class OutOfTimeCrossValidator<Pr> extends CrossValidator<Pr>{
 
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 

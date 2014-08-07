@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
 import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
@@ -33,12 +33,12 @@ public class CrossValidatorTest {
     private List<AbstractInstance> getInstances() {
         final List<AbstractInstance> instances = Lists.newLinkedList();
         for(int i = 0; i < 5; i++) {
-            Attributes attributes = new HashMapAttributes();
+            Map<String, Serializable> attributes = new HashMapAttributes();
 
-            AbstractInstance instance = Mockito.mock(Instance.class);
+            AbstractInstance instance = Mockito.mock(InstanceWithMapOfRegressors.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
             Mockito.when(instance.getLabel()).thenReturn("class");
-            Mockito.when(instance.getAttributes()).thenReturn(attributes);
+            Mockito.when(instance.getRegressors()).thenReturn(attributes);
             instances.add(instance);
         }
         return instances;

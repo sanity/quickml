@@ -29,7 +29,7 @@ public class ClassificationCounter implements Serializable {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
         for (final AbstractInstance instance : instances) {
-            final Serializable attrVal = instance.getAttributes().get(attribute);
+            final Serializable attrVal = instance.getRegressors().get(attribute);
             ClassificationCounter cc = null;
             boolean acceptableMissingValue = attrVal ==null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
 
@@ -84,7 +84,7 @@ public class ClassificationCounter implements Serializable {
     private static boolean isAnAcceptableMissingValue(AbstractInstance instance, String splitAttribute, Serializable splitAttributeValue){
         return  splitAttribute == null
                 || splitAttributeValue == null
-                || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+                || instance.getRegressors().get(splitAttribute).equals(splitAttributeValue);
     }
 
     public Map<Serializable, Double> getCounts() {

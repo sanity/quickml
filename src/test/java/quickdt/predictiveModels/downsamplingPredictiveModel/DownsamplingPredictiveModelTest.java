@@ -15,7 +15,7 @@ public class DownsamplingPredictiveModelTest {
     @Test
     public void simpleTest() {
         final PredictiveModel<Object> wrappedPredictiveModel = mock(PredictiveModel<Object>.class);
-        when(wrappedPredictiveModel.getProbability(any(Attributes.class), eq(Boolean.TRUE))).thenReturn(0.5);
+        when(wrappedPredictiveModel.getProbability(any(Map<String, Serializable>.class), eq(Boolean.TRUE))).thenReturn(0.5);
         DownsamplingPredictiveModel downsamplingPredictiveModel = new DownsamplingPredictiveModel(wrappedPredictiveModel, Boolean.FALSE, Boolean.TRUE, 0.9);
         double corrected = downsamplingPredictiveModel.getProbability(new HashMapAttributes(), Boolean.TRUE);
         double error = Math.abs(corrected - 0.1/1.1);

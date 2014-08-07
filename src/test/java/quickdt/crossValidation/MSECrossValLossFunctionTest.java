@@ -19,20 +19,20 @@ public class MSECrossValLossFunctionTest {
     public void testGetTotalLoss() {
         ClassifierMSECrossValLossFunction crossValLoss = new ClassifierMSECrossValLossFunction();
         PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
-        Attributes test1Attributes = Mockito.mock(Attributes.class);
-        Attributes test2Attributes = Mockito.mock(Attributes.class);
+        Map<String, Serializable> test1Attributes = Mockito.mock(Map<String, Serializable>.class);
+        Map<String, Serializable> test2Attributes = Mockito.mock(Map<String, Serializable>.class);
         Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.75);
         Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.5);
 
         AbstractInstance instance = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance.getLabel()).thenReturn("test1");
         Mockito.when(instance.getWeight()).thenReturn(2.0);
-        Mockito.when(instance.getAttributes()).thenReturn(test1Attributes);
+        Mockito.when(instance.getRegressors()).thenReturn(test1Attributes);
 
         AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
         Mockito.when(instance2.getLabel()).thenReturn("test1");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Mockito.when(instance2.getAttributes()).thenReturn(test2Attributes);
+        Mockito.when(instance2.getRegressors()).thenReturn(test2Attributes);
 
         List<AbstractInstance> instances = new LinkedList<>();
         instances.add(instance);

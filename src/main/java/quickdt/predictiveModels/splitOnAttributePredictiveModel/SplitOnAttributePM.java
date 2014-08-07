@@ -25,16 +25,16 @@ public class SplitOnAttributePM implements Classifier {
 
     @Override
     public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getAttributes(), instance.getLabel());
+        return getProbability(instance.getRegressors(), instance.getLabel());
     }
 
     @Override
-    public double getProbability(final Attributes attributes, final Serializable classification) {
+    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
         return getModelForAttributes(attributes).getProbability(attributes, classification);
     }
 
     @Override
-    public Map<Serializable, Double> predict(final Attributes attributes) {
+    public Map<Serializable, Double> predict(final Map<String, Serializable> attributes) {
         return getModelForAttributes(attributes).predict(attributes);
     }
 
@@ -49,7 +49,7 @@ public class SplitOnAttributePM implements Classifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Attributes attributes) {
+    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
         return getModelForAttributes(attributes).getClassificationByMaxProb(attributes);
     }
 
@@ -61,7 +61,7 @@ public class SplitOnAttributePM implements Classifier {
         return splitModels;
     }
 
-    private Classifier getModelForAttributes(Attributes attributes) {
+    private Classifier getModelForAttributes(Map<String, Serializable> attributes) {
         Serializable value = attributes.get(attributeKey);
         if (value == null) value = SplitOnAttributePMBuilder.NO_VALUE_PLACEHOLDER;
         Classifier predictiveModel = splitModels.get(value);

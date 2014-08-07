@@ -1,21 +1,19 @@
 package quickdt.predictiveModels;
 
-import quickdt.data.Attributes;
-
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 7/29/14.
  */
-public abstract class Classifier extends AbstractPredictiveModel<ClassifierPrediction> implements PredictiveModel<ClassifierPrediction>  {
-    public double getProbability(Attributes attributes, Serializable classification) {
-        return predict(attributes).getPrediction().get(classification);
+public abstract class Classifier extends AbstractPredictiveModel<Map<String, Double>> implements PredictiveModel<Map<String, Double>>  {
+    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
+        return predict(attributes).get(classification);
     }
-    public abstract ClassifierPrediction predict(Attributes attributes);
+    public abstract Map<Serializable, Double> predict(Map<String, Serializable> attributes);
 
-    public Serializable getClassificationByMaxProb(Attributes attributes) {
-        Map<Serializable, Double> predictions = predict(attributes).getPrediction();
+    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
+        Map<Serializable, Double> predictions = predict(attributes);
         Serializable mostProbableClass = null;
         double probabilityOfMostProbableClass = 0;
         for (Serializable key : predictions.keySet()) {

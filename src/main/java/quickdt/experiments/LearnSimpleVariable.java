@@ -2,7 +2,7 @@ package quickdt.experiments;
 
 import com.google.common.collect.Lists;
 import quickdt.data.HashMapAttributes;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -22,18 +22,18 @@ public class LearnSimpleVariable {
 
         generator = new Random();
 
-        List<Instance> trainingData = createTrainingData(instances, maxAge);
+        List<InstanceWithMapOfRegressors> trainingData = createTrainingData(instances, maxAge);
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(2);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(100);
         RandomForest randomForest = randomForestBuilder.buildPredictiveModel(trainingData);
         System.out.println("Probability of a click: "+randomForest.getProbability(HashMapAttributes.create("age", 11),"click"));
     }
 
-    private static List<Instance> createTrainingData(int instances, int maxAge) {
-        List<Instance> trainingData = Lists.newArrayList();
+    private static List<InstanceWithMapOfRegressors> createTrainingData(int instances, int maxAge) {
+        List<InstanceWithMapOfRegressors> trainingData = Lists.newArrayList();
         for (int i=0; i<instances; i++)  {
             int instanceAge = generator.nextInt(maxAge);
-            trainingData.add(Instance.create(sampleClickValue(instanceAge), "age", instanceAge));
+            trainingData.add(InstanceWithMapOfRegressors.create(sampleClickValue(instanceAge), "age", instanceAge));
         }
         return trainingData;
     }

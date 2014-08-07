@@ -18,7 +18,7 @@ public final class CategoricalBranch extends Branch {
 	}
 
 	@Override
-	public boolean decide(final Attributes attributes) {
+	public boolean decide(final Map<String, Serializable> attributes) {
 		    Serializable attributeVal = attributes.get(attribute);
             if (attributeVal==null)
                 attributeVal = MISSING_VALUE;

@@ -14,26 +14,26 @@ public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
-        List<Instance> trainingData = Lists.newLinkedList();
-        trainingData.add(Instance.create("true", "k1", 2, "k2", 1));
-        trainingData.add(Instance.create("true", "k1", 1, "k2", 2));
-        trainingData.add(Instance.create("false", "k1", 2, "k2", 2));
-        trainingData.add(Instance.create("false", "k1", 1, "k2", 2));
+        List<InstanceWithMapOfRegressors> trainingData = Lists.newLinkedList();
+        trainingData.add(InstanceWithMapOfRegressors.create("true", "k1", 2, "k2", 1));
+        trainingData.add(InstanceWithMapOfRegressors.create("true", "k1", 1, "k2", 2));
+        trainingData.add(InstanceWithMapOfRegressors.create("false", "k1", 2, "k2", 2));
+        trainingData.add(InstanceWithMapOfRegressors.create("false", "k1", 1, "k2", 2));
         ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(new TreeBuilder(), Sets.newHashSet("k1", "k2"), "true");
         final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {
-            Attributes inputAttributes = new HashMapAttributes();
+            Map<String, Serializable> inputAttributes = new HashMapAttributes();
             inputAttributes.put("k1", 1);
             inputAttributes.put("k2", 1);
-            final Attributes outputAttributes = attributesEnricher.apply(inputAttributes);
+            final Map<String, Serializable> outputAttributes = attributesEnricher.apply(inputAttributes);
             Assert.assertEquals(outputAttributes.get("k1-PROB"), 0.5);
             Assert.assertEquals(outputAttributes.get("k2-PROB"), 1.0);
         }
         {
-            Attributes inputAttributes = new HashMapAttributes();
+            Map<String, Serializable> inputAttributes = new HashMapAttributes();
             inputAttributes.put("k1", 2);
             inputAttributes.put("k2", 2);
-            final Attributes outputAttributes = attributesEnricher.apply(inputAttributes);
+            final Map<String, Serializable> outputAttributes = attributesEnricher.apply(inputAttributes);
             Assert.assertEquals(outputAttributes.get("k1-PROB"), 0.5);
             Assert.assertEquals(outputAttributes.get("k2-PROB"), 1.0/3.0);
         }

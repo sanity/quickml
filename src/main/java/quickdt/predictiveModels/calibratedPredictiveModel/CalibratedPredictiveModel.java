@@ -29,7 +29,7 @@ public class CalibratedPredictiveModel implements PredictiveModel<Object> {
         this.positiveClassification = positiveClassification;
     }
 
-    public double getProbability(Attributes attributes, Serializable classification) {
+    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         double rawProbability = predictiveModel.getProbability(attributes, positiveClassification);
         double corrected = calibrator.correct(rawProbability);
         if (classification.equals(positiveClassification)) {
@@ -45,7 +45,7 @@ public class CalibratedPredictiveModel implements PredictiveModel<Object> {
      * @return
      */
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
         throw new UnsupportedOperationException();
     }
 
@@ -55,7 +55,7 @@ public class CalibratedPredictiveModel implements PredictiveModel<Object> {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(Attributes attributes) {
+    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
         return predictiveModel.getClassificationByMaxProb(attributes);
     }
 }

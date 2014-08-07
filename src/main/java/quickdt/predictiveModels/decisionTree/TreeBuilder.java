@@ -140,7 +140,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
         for (final AbstractInstance instance : trainingData) {
-            Serializable value = instance.getAttributes().get(attribute);
+            Serializable value = instance.getRegressors().get(attribute);
             if (value == null) value = 0;
             reservoirSampler.sample(((Number) value).doubleValue());
         }
@@ -151,7 +151,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final AbstractInstance instance : trainingData) {
-            for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
+            for (final Entry<String, Serializable> attributeEntry : instance.getRegressors().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
@@ -273,7 +273,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             boolean instanceNotPermittedToContributeToInsetDefinition = false;
             boolean usingSplitModel = splitAttribute != null && id != null;
             if (usingSplitModel) {
-                isASupportingInstanceFromADifferentSplit = !instance.getAttributes().get(splitAttribute).equals(id);
+                isASupportingInstanceFromADifferentSplit = !instance.getRegressors().get(splitAttribute).equals(id);
                 instanceNotPermittedToContributeToInsetDefinition = !splitModelWhiteList.contains(bestNode.attribute);
             }
 
@@ -283,7 +283,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             } else {
-                if (bestNode.decide(instance.getAttributes())) {
+                if (bestNode.decide(instance.getRegressors())) {
                     trueTrainingSet.add(instance);
                 } else {
                     falseTrainingSet.add(instance);
@@ -363,7 +363,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (AbstractInstance instance : trainingData) {
-            for (Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
+            for (Entry<String, Serializable> e : instance.getRegressors().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
                     attributeCharacteristic = new AttributeCharacteristics();
@@ -516,7 +516,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private Set<Serializable> getAttrinbuteValues(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
         final Set<Serializable> values = Sets.newHashSet();
         for (final AbstractInstance instance : trainingData) {
-            Serializable value = instance.getAttributes().get(attribute);
+            Serializable value = instance.getRegressors().get(attribute);
             if (value == null) value = MISSING_VALUE;
             values.add(value);
         }
@@ -687,7 +687,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (input == null) {//consider deleting
                     return false;
                 }
-                Serializable value = input.getAttributes().get(attribute);
+                Serializable value = input.getRegressors().get(attribute);
                 if (value == null) {
                     value = 0;
                 }
@@ -715,7 +715,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (input == null) {
                     return false;
                 }
-                Serializable value = input.getAttributes().get(attribute);
+                Serializable value = input.getRegressors().get(attribute);
                 if (value == null) {
                     value = Double.MIN_VALUE;
                 }

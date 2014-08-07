@@ -40,13 +40,13 @@ public class ProbDistOfVarDependentOnCatVars {
         initializeAttributeProperties(numPredictiveAttributes, numNoiseAttributes, numAttributeVals);
         initializeClassificationVariableProperties(maxProbabilityOfPositiveClassification, distanceAboveTheMeanForRelevance);
 
-        List<Instance> trainingData = createTrainingData();
+        List<InstanceWithMapOfRegressors> trainingData = createTrainingData();
         this.randomForest = getRandomForest(trainingData);
     }
 
     public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, boolean print)  {
         double attributeValue;
-        Attributes attributes;
+        Map<String, Serializable> attributes;
         double predictedProb;
         double actualProb;
         double deviation = 0;
@@ -134,17 +134,17 @@ public class ProbDistOfVarDependentOnCatVars {
         this.maxProbabilityOfPositiveClassification = maxProbabilityOfPositiveClassification;
     }
 
-    private RandomForest getRandomForest(List<Instance> trainingData) {
+    private RandomForest getRandomForest(List<InstanceWithMapOfRegressors> trainingData) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
     }
 
-    private  List<Instance> createTrainingData() {
-        List<Instance> trainingData = Lists.newArrayList();
+    private  List<InstanceWithMapOfRegressors> createTrainingData() {
+        List<InstanceWithMapOfRegressors> trainingData = Lists.newArrayList();
         double attributeValue;
-        Instance instance;
-        Attributes attributes;
+        InstanceWithMapOfRegressors instance;
+        Map<String, Serializable> attributes;
 
         for (int i = 0; i < instances; i++)  {
             attributes = new HashMapAttributes();
@@ -156,7 +156,7 @@ public class ProbDistOfVarDependentOnCatVars {
 
             classify();
 
-            instance = new Instance(attributes, this.classification );
+            instance = new InstanceWithMapOfRegressors(attributes, this.classification );
             trainingData.add(instance);
         }
         return trainingData;

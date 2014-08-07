@@ -19,7 +19,7 @@ public abstract class Branch extends Node {
         this.attribute = attribute;
 	}
 
-	public abstract boolean decide(Attributes attributes);
+	public abstract boolean decide(Map<String, Serializable> attributes);
 
 	@Override
 	public int size() {
@@ -31,7 +31,7 @@ public abstract class Branch extends Node {
 
 			@Override
 			public boolean apply(final AbstractInstance input) {
-				return decide(input.getAttributes());
+				return decide(input.getRegressors());
 			}
 		};
 	}
@@ -41,13 +41,13 @@ public abstract class Branch extends Node {
 
 			@Override
 			public boolean apply(final AbstractInstance input) {
-				return !decide(input.getAttributes());
+				return !decide(input.getRegressors());
 			}
 		};
 	}
 
 	@Override
-	public Leaf getLeaf(final Attributes attributes) {
+	public Leaf getLeaf(final Map<String, Serializable> attributes) {
 		if (decide(attributes))
 			return trueChild.getLeaf(attributes);
 		else

@@ -19,7 +19,7 @@ public class AttributeCombiningEnricherTest {
         HashMapAttributes attributes = new HashMapAttributes();
         attributes.put("k1", "a");
         attributes.put("k2", "b");
-        final Attributes enhancedAttributes = attributeCombiningEnricher.apply(attributes);
+        final Map<String, Serializable> enhancedAttributes = attributeCombiningEnricher.apply(attributes);
         Assert.assertEquals(enhancedAttributes.size(), 3);
         Assert.assertEquals(enhancedAttributes.get("k1-k2"), "ab");
     }

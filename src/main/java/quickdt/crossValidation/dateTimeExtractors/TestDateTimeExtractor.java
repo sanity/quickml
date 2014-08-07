@@ -10,7 +10,7 @@ import quickdt.data.Attributes;
 public class TestDateTimeExtractor implements DateTimeExtractor {
     @Override
     public DateTime extractDateTime(AbstractInstance instance){
-        Attributes attributes = instance.getAttributes();
+        Map<String, Serializable> attributes = instance.getRegressors();
         int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");
         return new DateTime(currentTimeMillis);
     }

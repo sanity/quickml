@@ -1,13 +1,11 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
-import org.apache.mahout.classifier.df.builder.DecisionTreeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.csvReader.CSVToMap;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Instance;
-import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -41,7 +39,7 @@ public class TreeTests {
 
     private static Iterable<? extends AbstractInstance> getTrainingData(String filename) throws IOException {
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(filename);
-        List<Instance> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
+        List<InstanceWithMapOfRegressors> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
         logger.info("Read " + instances.size() + " instances");
         return instances;
     }

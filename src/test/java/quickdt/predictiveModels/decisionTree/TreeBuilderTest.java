@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 import quickdt.Misc;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
@@ -17,7 +17,7 @@ import java.util.Set;
 public class TreeBuilderTest {
 	@Test
 	public void simpleBmiTest() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
 		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
 		final long startTime = System.currentTimeMillis();
         final Tree tree = tb.buildPredictiveModel(instances);
@@ -34,12 +34,12 @@ public class TreeBuilderTest {
 
     @Test(enabled = false)
 	public void multiScorerBmiTest() {
-		final Set<Instance> instances = Sets.newHashSet();
+		final Set<InstanceWithMapOfRegressors> instances = Sets.newHashSet();
 
 		for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
-			final Instance instance = Instance.create(TreeBuilderTestUtils.bmiHealthy(weight, height), "weight", weight, "height", height);
+			final InstanceWithMapOfRegressors instance = InstanceWithMapOfRegressors.create(TreeBuilderTestUtils.bmiHealthy(weight, height), "weight", weight, "height", height);
 			instances.add(instance);
 		}
 		{
@@ -51,7 +51,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -65,7 +65,7 @@ public class TreeBuilderTest {
         Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final Tree newTree = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
         Assert.assertNotEquals(nodeSize, newTree.node.size(), "Expected new nodes");
@@ -80,7 +80,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -93,7 +93,7 @@ public class TreeBuilderTest {
         Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
         Assert.assertEquals(nodeSize, newTree.node.size(), "Expected same nodes");
@@ -108,7 +108,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestRebuild() throws Exception {
-        final List<Instance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.rebuildThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -122,7 +122,7 @@ public class TreeBuilderTest {
         Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = wb.buildPredictiveModel(newInstances);
         Assert.assertFalse(tree == newTree, "Expect new tree to be built");
     }

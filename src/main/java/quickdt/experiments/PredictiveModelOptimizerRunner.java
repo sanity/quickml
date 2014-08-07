@@ -12,7 +12,7 @@ import quickdt.crossValidation.OutOfTimeCrossValidator;
 import quickdt.csvReader.CSVToMap;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
-import quickdt.data.Instance;
+import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
@@ -101,7 +101,7 @@ public class PredictiveModelOptimizerRunner {
 
     private static Iterable<? extends AbstractInstance> getTrainingData(String filename) throws IOException {
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(filename);
-        List<Instance> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
+        List<InstanceWithMapOfRegressors> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
         logger.info("Read " + instances.size() + " instances");
         return instances;
     }
@@ -122,7 +122,7 @@ public class PredictiveModelOptimizerRunner {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
         public DateTime extractDateTime(AbstractInstance instance) {
-            Attributes attributes = instance.getAttributes();
+            Map<String, Serializable> attributes = instance.getRegressors();
             try {
                 Date currentTimeMillis = dateFormat.parse((String)attributes.get("created_at"));
                 return new DateTime(currentTimeMillis);

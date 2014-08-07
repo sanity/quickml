@@ -79,7 +79,7 @@ public class Leaf extends Node {
 	}
 
 	@Override
-	public Leaf getLeaf(final Attributes attributes) {
+	public Leaf getLeaf(final Map<String, Serializable> attributes) {
 		return this;
 	}
 

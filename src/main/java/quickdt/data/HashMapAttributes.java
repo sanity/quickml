@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.*;
 
-public final class HashMapAttributes implements Attributes, Serializable {
+public final class HashMapAttributes implements Map<String, Serializable>, Serializable {
 
     private static final long serialVersionUID = 1251740682190367389L;
 
@@ -19,7 +19,7 @@ public final class HashMapAttributes implements Attributes, Serializable {
         return sb.toString();
     }
 
-    public static Attributes create(final Serializable... inputs) {
+    public static HashMapAttributes create(final Serializable... inputs) {
 		final HashMapAttributes a = new HashMapAttributes();
 		for (int x = 0; x < inputs.length; x += 2) {
 			a.put((String) inputs[x], inputs[x + 1]);
@@ -92,9 +92,8 @@ public final class HashMapAttributes implements Attributes, Serializable {
         return delegatedHashMap.entrySet();
     }
 
-    @Override
-    public Instance classification(final Serializable cls) {
-        return new Instance(this, cls);
+    public InstanceWithMapOfRegressors classification(final Serializable cls) {
+        return new InstanceWithMapOfRegressors(this, cls);
     }
 
     @Override

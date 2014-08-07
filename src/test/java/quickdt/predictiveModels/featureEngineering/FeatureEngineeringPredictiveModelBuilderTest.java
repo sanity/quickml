@@ -17,11 +17,11 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     @Test
     public void simpleTest() {
         TestAEBS testFEPMB = new TestAEBS();
-        List<Instance> trainingData = Lists.newArrayList();
-        trainingData.add(new Instance(new HashMapAttributes(), 1));
+        List<InstanceWithMapOfRegressors> trainingData = Lists.newArrayList();
+        trainingData.add(new InstanceWithMapOfRegressors(new HashMapAttributes(), 1));
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(new TestPMBuilder(), Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
-        predictiveModel.getProbability(trainingData.get(0).getAttributes(), 1);
+        predictiveModel.getProbability(trainingData.get(0).getRegressors(), 1);
     }
 
     public static class TestAEBS implements AttributesEnrichStrategy {
@@ -33,7 +33,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
                 @Nullable
                 @Override
-                public Attributes apply(@Nullable final Attributes attributes) {
+                public Map<String, Serializable> apply(@Nullable final Map<String, Serializable> attributes) {
                     HashMapAttributes er = new HashMapAttributes();
                     er.putAll(attributes);
                     er.put("enriched", 1);
@@ -49,7 +49,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         @Override
         public TestPM buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
             for (AbstractInstance instance : trainingData) {
-                if (!instance.getAttributes().containsKey("enriched")) {
+                if (!instance.getRegressors().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
             }
@@ -74,7 +74,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         private static final long serialVersionUID = -3449746370937561259L;
 
         @Override
-        public double getProbability(final Attributes attributes, final Serializable classification) {
+        public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
             if (!attributes.containsKey("enriched")) {
                 throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
             }
@@ -82,7 +82,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
 
         @Override
-        public Map<Serializable, Double> getProbabilitiesByClassification(final Attributes attributes) {
+        public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
             throw new UnsupportedOperationException();
         }
 
@@ -92,7 +92,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
 
         @Override
-        public Serializable getClassificationByMaxProb(final Attributes attributes) {
+        public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
             return null;
         }
     }
