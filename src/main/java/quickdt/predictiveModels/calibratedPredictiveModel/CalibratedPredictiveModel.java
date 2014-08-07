@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -50,8 +49,8 @@ public class CalibratedPredictiveModel implements PredictiveModel<Object> {
     }
 
     @Override
-    public void dump(PrintStream printStream) {
-        predictiveModel.dump(printStream);
+    public void dump(Appendable appendable) {
+        predictiveModel.dump(appendable);
     }
 
     @Override

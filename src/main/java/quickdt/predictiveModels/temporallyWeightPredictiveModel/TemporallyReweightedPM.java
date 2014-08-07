@@ -3,7 +3,6 @@ package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -29,8 +28,8 @@ public class TemporallyReweightedPM implements PredictiveModel<Object> {
     }
 
     @Override
-    public void dump(final PrintStream printStream) {
-        wrappedModel.dump(printStream);
+    public void dump(final Appendable appendable) {
+        wrappedModel.dump(appendable);
     }
 
     @Override

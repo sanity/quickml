@@ -1,7 +1,5 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
-import quickdt.predictiveModels.ClassifierPrediction;
-
 import java.io.Serializable;
 import java.util.*;
 
@@ -10,7 +8,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<ClassifierPrediction> {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map<Serializable, Double>> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -18,7 +16,7 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Cla
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<ClassifierPrediction>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<Map<Serializable, Double>>> labelPredictionWeights) {
         if (labelPredictionWeights.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
@@ -32,15 +30,15 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Cla
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<LabelPredictionWeight<ClassifierPrediction>> labelPredictionWeights) {
+    private List<AUCData> getAucDataList(List<LabelPredictionWeight<Map<Serializable, Double>>> labelPredictionWeights) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
-        for (LabelPredictionWeight<ClassifierPrediction> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<Map<Serializable, Double>> labelPredictionWeight : labelPredictionWeights) {
             classifications.add(labelPredictionWeight.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
             }
-            double probabilityOfPositiveClassification = labelPredictionWeight.getPrediction().getPredictionForLabel(positiveClassification);
+            double probabilityOfPositiveClassification = labelPredictionWeight.getPrediction().get(positiveClassification);
             aucDataList.add(new AUCData(labelPredictionWeight.getLabel(), labelPredictionWeight.getWeight(), probabilityOfPositiveClassification));
         }
         return aucDataList;

@@ -1,8 +1,6 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
-import quickdt.predictiveModels.Prediction;
 import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.Serializable;

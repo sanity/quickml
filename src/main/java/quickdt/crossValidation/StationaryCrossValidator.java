@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.Prediction;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
@@ -18,13 +17,13 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public class StationaryCrossValidator<Pr> extends CrossValidator<Pr> {
+public class StationaryCrossValidator<R, P> extends CrossValidator<R, P> {
 private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     private int folds;
     private int foldsUsed;
-    private CrossValLossFunction<Pr> lossFunction;
+    private CrossValLossFunction<P> lossFunction;
 
 
     /*
@@ -32,14 +31,14 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
      * @param folds The number folds to be used in the cross validation procedure
      */
 
-    public StationaryCrossValidator(CrossValLossFunction<Pr> lossFunction) {
+    public StationaryCrossValidator(CrossValLossFunction<P> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = DEFAULT_NUMBER_OF_FOLDS;
         this.foldsUsed = DEFAULT_NUMBER_OF_FOLDS;
         this.lossFunction = lossFunction;
     }
 
-    public StationaryCrossValidator(final int folds, CrossValLossFunction<Pr> lossFunction) {
+    public StationaryCrossValidator(final int folds, CrossValLossFunction<P> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = folds;
@@ -47,20 +46,21 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
 
     }
 
-    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction<Pr> lossFunction) {
+    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction<P> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = foldsUsed;
         this.lossFunction = lossFunction;
     }
 
-    public <PM extends PredictiveModel<Pr>> double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance> allTrainingData) {
+    @Override
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance<R>> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
-            PredictiveModel<Pr> predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            List<LabelPredictionWeight<Pr>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(dataSplit.validation);
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
+            List<LabelPredictionWeight<P>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(dataSplit.validation);
             runningLoss+= lossFunction.getLoss(labelPredictionWeights);
             logger.info("running loss: "+runningLoss);
 
@@ -84,12 +84,12 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     class DataSplit  {
-        public List<AbstractInstance> training;
-        public List<AbstractInstance> validation;
+        public List<AbstractInstance<R>> training;
+        public List<AbstractInstance<R>> validation;
 
         public DataSplit() {
-            training = Lists.<AbstractInstance>newArrayList();
-            validation = Lists.<AbstractInstance>newArrayList();
+            training = Lists.<AbstractInstance<R>>newArrayList();
+            validation = Lists.<AbstractInstance<R>>newArrayList();
         }
     }
 }

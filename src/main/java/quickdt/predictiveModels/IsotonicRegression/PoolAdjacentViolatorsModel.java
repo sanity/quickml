@@ -5,14 +5,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.SingleVariableRealValuedFunction;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public class PoolAdjacentViolatorsModel<Double> implements PredictiveModel<Double> {
+public class PoolAdjacentViolatorsModel extends SingleVariableRealValuedFunction  {
     private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
 
     private static final long serialVersionUID = 4389814244047503245L;
@@ -90,15 +90,11 @@ public class PoolAdjacentViolatorsModel<Double> implements PredictiveModel<Doubl
         calibrationSet.add(observation);
     }
 
-
-    public Double predict(Map<String, Serializable> uncorrectedPrediction) {
-        String attributeName = (String)(uncorrectedPrediction.keySet().toArray()[0]);
-        assert uncorrectedPrediction.get(attributeName) instanceof Double : "attributeValue must be a Double";
-
-        Double value = (Double)uncorrectedPrediction.get(attributeName);
+    @Override
+    public Double predict(Double input) {
 
         final double kProp;
-        final Observation toCorrect = new Observation(value, 0);
+        final Observation toCorrect = new Observation(input, 0);
         Observation floor = calibrationSet.floor(toCorrect);
         if (floor == null) {
             floor = new Observation(0, 0);
@@ -106,25 +102,25 @@ public class PoolAdjacentViolatorsModel<Double> implements PredictiveModel<Doubl
         Observation ceiling = calibrationSet.ceiling(toCorrect);
         if (ceiling == null) {
             try{
-                return Math.max(value, calibrationSet.last().output);
+                return Math.max(input, calibrationSet.last().output);
             }
             catch (NoSuchElementException e){
                 logger.warn("NoSuchElementException finding ceiling");
-                return value;
+                return input;
             }
 
         }
 
-        boolean inputOnAPointInTheCalibrationSet = ceiling.input == value || value == floor.input;
+        boolean inputOnAPointInTheCalibrationSet = ceiling.input == input || input == floor.input;
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
         boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
         if (exceptionalCase)
-            return value == ceiling.input ? ceiling.output : value;
+            return input == ceiling.input ? ceiling.output : input;
 
-        kProp = (value - floor.input) / (ceiling.input - floor.input);
+        kProp = (input - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
-            return value;
+            return input;
         } else {
             return corrected;
         }
@@ -134,9 +130,7 @@ public class PoolAdjacentViolatorsModel<Double> implements PredictiveModel<Doubl
         double lowCPC = calibrationSet.first().input, highCPC = calibrationSet.last().input;
         for (int x = 0; x < 16; x++) {
             final double tst = (lowCPC + highCPC) / 2.0;
-            HashMap new HashMap<String, Double>;
-            (tst)
-            final double opt = predict();
+            final double opt = predict(tst);
             if (opt < output) {
                 lowCPC = tst;
             } else {

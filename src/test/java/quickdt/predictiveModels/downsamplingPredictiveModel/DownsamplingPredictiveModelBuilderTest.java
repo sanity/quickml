@@ -19,7 +19,6 @@ import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +107,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         }
 
         @Override
-        public void dump(final PrintStream printStream) {
+        public void dump(final Appendable appendable) {
             throw new UnsupportedOperationException();
         }
 

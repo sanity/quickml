@@ -3,7 +3,6 @@ package quickdt.predictiveModels.downsamplingPredictiveModel;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -48,9 +47,9 @@ public class DownsamplingPredictiveModel implements PredictiveModel<Object> {
     }
 
     @Override
-    public void dump(final PrintStream printStream) {
-        printStream.println("Will predict for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification);
-        wrappedPredictiveModel.dump(printStream);
+    public void dump(final Appendable appendable) {
+        appendable.println("Will predict for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification);
+        wrappedPredictiveModel.dump(appendable);
     }
 
     @Override

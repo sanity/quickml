@@ -7,7 +7,6 @@ import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
 
         @Override
-        public void dump(final PrintStream printStream) {
+        public void dump(final Appendable appendable) {
 
         }
 

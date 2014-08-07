@@ -6,7 +6,8 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 7/29/14.
  */
-public abstract class Classifier extends AbstractPredictiveModel<Map<String, Double>> implements PredictiveModel<Map<String, Double>>  {
+public abstract class Classifier extends AbstractPredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> implements PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>>  {
+
     public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }

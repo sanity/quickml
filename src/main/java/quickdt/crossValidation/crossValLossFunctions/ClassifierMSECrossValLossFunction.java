@@ -1,10 +1,6 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
 import com.google.common.base.Preconditions;
-import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.Classifier;
-import quickdt.predictiveModels.ClassifierPrediction;
-import quickdt.predictiveModels.Prediction;
 
 /**
  * Created by ian on 2/28/14.

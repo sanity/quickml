@@ -1,10 +1,8 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
-import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.Classifier;
-import quickdt.predictiveModels.ClassifierPrediction;
-
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ian on 2/28/14.
@@ -19,7 +17,7 @@ public class ClassifierRMSECrossValLossFunction extends ClassifierMSECrossValLos
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<ClassifierPrediction>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<Map<Serializable, Double>>> labelPredictionWeights) {
         return Math.sqrt(super.getLoss(labelPredictionWeights));
     }
 

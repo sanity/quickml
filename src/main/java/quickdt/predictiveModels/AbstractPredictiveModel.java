@@ -9,15 +9,16 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 7/31/14.
  */
-public abstract class AbstractPredictiveModel<Pr> implements PredictiveModel<Pr> {
+public abstract class AbstractPredictiveModel<R, P> implements PredictiveModel<R, P> {
 
     @Override
-    public List<LabelPredictionWeight<Pr>> createLabelPredictionWeights(List<AbstractInstance> instances){
-        List<LabelPredictionWeight<Pr>> labelPredictionWeights = Lists.newArrayList();
-        for (AbstractInstance instance : instances ) {
-            labelPredictionWeights.add(new LabelPredictionWeight<>(instance.getLabel(), predict(instance.getRegressors()), instance.getWeight()));
+    public List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<AbstractInstance<R>> instances) {
+        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
+        for (AbstractInstance<R> instance : instances) {
+            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
+                    this.predict(instance.getRegressors()), instance.getWeight());
+            labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
     }
-
 }
