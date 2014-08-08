@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
+import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickdt.Misc;
@@ -35,7 +36,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
-    private Random random = new Random();
+    private Random rand = Random.Util.fromSystemRandom(Misc.random);
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -139,7 +140,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
         for (final AbstractInstance instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = 0;
@@ -156,7 +157,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
                         rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
                     reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
@@ -295,7 +296,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         //put instances without values for the split attribute in the true and false set in proper proportions.
         for (AbstractInstance instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size() / (trueTrainingSet.size() + falseTrainingSet.size());
-            Random rand = Misc.random;
             if (rand.nextDouble() < trueThreshold) {
                 trueTrainingSet.add(instance);
             } else {
@@ -442,7 +442,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             return null;
         }
 
-        final Set<Serializable> returnSet = (random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
+        final Set<Serializable> returnSet = (Misc.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
         return bestPair;
     }

@@ -10,6 +10,7 @@ import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -130,6 +131,27 @@ public class TreeBuilderTest {
     private PredictiveModelWithDataBuilder<Tree> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         return new PredictiveModelWithDataBuilder<>(tb);
+    }
+
+    @Test
+    public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
+
+        final List<Instance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        Misc.random.setSeed(1l);
+        final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
+        Misc.random.setSeed(1l);
+        final Tree tree2 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
+
+        TreeBuilderTestUtils.serializeDeserialize(tree1.node);
+        TreeBuilderTestUtils.serializeDeserialize(tree2.node);
+        Assert.assertTrue(tree1.node.size() == tree2.node.size(), "Deterministic Decision Trees must have same number of nodes");
+
+        final List<Instance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance instance : instancesTest) {
+            String class1 = tree1.getProbabilitiesByClassification(instance.getAttributes()).toString();
+            String class2 = tree2.getProbabilitiesByClassification(instance.getAttributes()).toString();
+            Assert.assertTrue(class1.equals(class2), "Deterministic Decision Trees must have equal classifications");
+        }
     }
 
 }
