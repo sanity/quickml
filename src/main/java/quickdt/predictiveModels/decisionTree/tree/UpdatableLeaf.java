@@ -2,8 +2,10 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import quickdt.data.AbstractInstance;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Created by Chris on 5/14/2014.
@@ -11,14 +13,14 @@ import java.util.HashSet;
 public class UpdatableLeaf extends Leaf {
     public final Collection<Integer> trainingDataIndexes = new HashSet<>();
 
-    public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance> instances, int depth) {
+    public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance<Map<String, Serializable>>> instances, int depth) {
         super(parent, instances, depth);
-        for(AbstractInstance instance : instances) {
+        for(AbstractInstance<Map<String, Serializable>> instance : instances) {
             trainingDataIndexes.add(instance.index);
         }
     }
 
-    public void addInstance(AbstractInstance instance) {
+    public void addInstance(AbstractInstance<Map<String, Serializable>> instance) {
         classificationCounts.addClassification(instance.getLabel(), instance.getWeight());
         trainingDataIndexes.add(instance.index);
         exampleCount++;

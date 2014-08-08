@@ -3,8 +3,8 @@ package quickdt.predictiveModels.decisionTree.tree;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
@@ -71,12 +71,17 @@ public class Leaf extends Node {
     }
 
 	@Override
-	public void dump(final int indent, final PrintStream ps) {
-		for (int x = 0; x < indent; x++) {
-			ps.print(' ');
-		}
-		ps.println(this);
-	}
+	public void dump(final int indent, final Appendable ap) {
+        try {
+            for (int x = 0; x < indent; x++) {
+                ap.append(' ');
+            }
+            ap.append(this + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
 
 	@Override
 	public Leaf getLeaf(final Map<String, Serializable> attributes) {

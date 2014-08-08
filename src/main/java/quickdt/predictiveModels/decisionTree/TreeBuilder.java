@@ -8,6 +8,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickdt.Misc;
 import quickdt.data.AbstractInstance;
+import quickdt.data.ClassifierInstance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.tree.*;
@@ -17,7 +18,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> {
+public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>, Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 1000;
@@ -91,14 +92,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     @Override
-    public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+    public Tree buildPredictiveModel(final Iterable<? extends AbstractInstance<Map<String, Serializable>>> trainingData) {
         setBinaryClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends ClassifierInstance> newData, List<? extends ClassifierInstance> trainingData, boolean splitNodes) {
         //first move all the data into the leaves
-        for (AbstractInstance instance : newData) {
+        for (ClassifierInstance instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
         //now split the leaves further if possible
@@ -107,10 +108,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
     }
 
-    private void setBinaryClassificationProperties(Iterable<? extends AbstractInstance> trainingData) {
+    private void setBinaryClassificationProperties(Iterable<ClassifierInstance> trainingData) {
 
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
-        for (AbstractInstance instance : trainingData) {
+        for (ClassifierInstance instance : trainingData) {
             Serializable classification = instance.getLabel();
             if (classifications.containsKey(classification)) {
                 classifications.get(classification).increment();
@@ -137,9 +138,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         stripNode(tree.node);
     }
 
-    private double[] createNumericSplit(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
+    private double[] createNumericSplit(final Iterable<? extends ClassifierInstance> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
-        for (final AbstractInstance instance : trainingData) {
+        for (final ClassifierInstance instance : trainingData) {
             Serializable value = instance.getRegressors().get(attribute);
             if (value == null) value = 0;
             reservoirSampler.sample(((Number) value).doubleValue());
@@ -148,9 +149,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return getSplit(reservoirSampler);
     }
 
-    private Map<String, double[]> createNumericSplits(final Iterable<? extends AbstractInstance> trainingData) {
+    private Map<String, double[]> createNumericSplits(final Iterable<? extends ClassifierInstance> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        for (final AbstractInstance instance : trainingData) {
+        for (final ClassifierInstance instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getRegressors().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
@@ -190,7 +191,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<? extends AbstractInstance> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<? extends ClassifierInstance> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
@@ -216,8 +217,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             return thisLeaf;
         }
 
-        final ArrayList<AbstractInstance> trueTrainingSet = Lists.newArrayList();
-        final ArrayList<AbstractInstance> falseTrainingSet = Lists.newArrayList();
+        final ArrayList<ClassifierInstance> trueTrainingSet = Lists.newArrayList();
+        final ArrayList<ClassifierInstance> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestNode, trueTrainingSet, falseTrainingSet);
 
 
@@ -264,11 +265,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return bestNode;
     }
 
-    private void setTrueAndFalseTrainingSets(Iterable<? extends AbstractInstance> trainingData, Branch bestNode, ArrayList<AbstractInstance> trueTrainingSet, ArrayList<AbstractInstance> falseTrainingSet) {
-        final ArrayList<AbstractInstance> supportingDataSet = Lists.newArrayList();
+    private void setTrueAndFalseTrainingSets(Iterable<? extends ClassifierInstance> trainingData, Branch bestNode, ArrayList<ClassifierInstance> trueTrainingSet, ArrayList<ClassifierInstance> falseTrainingSet) {
+        final ArrayList<ClassifierInstance> supportingDataSet = Lists.newArrayList();
 
         //put instances with attribute values into appropriate training sets
-        for (AbstractInstance instance : trainingData) {
+        for (ClassifierInstance instance : trainingData) {
             boolean isASupportingInstanceFromADifferentSplit = false;
             boolean instanceNotPermittedToContributeToInsetDefinition = false;
             boolean usingSplitModel = splitAttribute != null && id != null;
@@ -292,7 +293,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
 
         //put instances without values for the split attribute in the true and false set in proper proportions.
-        for (AbstractInstance instance : supportingDataSet) {
+        for (ClassifierInstance instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size() / (trueTrainingSet.size() + falseTrainingSet.size());
             Random rand = Misc.random;
             if (rand.nextDouble() < trueThreshold) {
@@ -303,7 +304,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
     }
 
-    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends AbstractInstance> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends ClassifierInstance> trainingData, final Map<String, double[]> splits) {
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -337,18 +338,18 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return bestPair;
     }
 
-    private double getTotalWeight(List<? extends AbstractInstance> trainingSet) {
+    private double getTotalWeight(List<? extends ClassifierInstance> trainingSet) {
         double trueWeight = 0;
-        for (AbstractInstance instance : trainingSet) {
+        for (ClassifierInstance instance : trainingSet) {
             trueWeight += instance.getWeight();
         }
         return trueWeight;
     }
 
-    private boolean isSmallTrainingSet(Iterable<? extends AbstractInstance> trainingData) {
+    private boolean isSmallTrainingSet(Iterable<? extends ClassifierInstance> trainingData) {
         boolean smallTrainingSet = true;
         int tsCount = 0;
-        for (final AbstractInstance abstractInstance : trainingData) {
+        for (final ClassifierInstance abstractInstance : trainingData) {
             tsCount++;
             if (tsCount > SMALL_TRAINING_SET_LIMIT) {
                 smallTrainingSet = false;
@@ -358,11 +359,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return smallTrainingSet;
     }
 
-    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends AbstractInstance> trainingData) {
+    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends ClassifierInstance> trainingData) {
         //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
-        for (AbstractInstance instance : trainingData) {
+        for (ClassifierInstance instance : trainingData) {
             for (Entry<String, Serializable> e : instance.getRegressors().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
@@ -378,7 +379,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
-                                                                 final Iterable<? extends AbstractInstance> instances) {
+                                                                 final Iterable<? extends ClassifierInstance> instances) {
         if (binaryClassifications) {
             return createTwoClassCategoricalNode(parent, attribute, instances);
         } else {
@@ -387,7 +388,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
-                                                                         final Iterable<? extends AbstractInstance> instances) {
+                                                                         final Iterable<? extends ClassifierInstance> instances) {
 
         //get Pair of Sets of classification counters
         //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
@@ -443,7 +444,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
-                                                                       final Iterable<? extends AbstractInstance> instances) {
+                                                                       final Iterable<? extends ClassifierInstance> instances) {
 
         final Set<Serializable> values = getAttrinbuteValues(instances, attribute);
 
@@ -503,7 +504,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return bestPair;
     }
 
-    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends AbstractInstance> trainingData, final Set<Serializable> values) {
+    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends ClassifierInstance> trainingData, final Set<Serializable> values) {
         final int averageInstancesPerValue = Iterables.size(trainingData) / values.size();
         final boolean notEnoughTrainingDataGivenNumberOfValues = averageInstancesPerValue < Math.max(this.minCategoricalAttributeValueOccurances,
                 HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE);
@@ -513,9 +514,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return false;
     }
 
-    private Set<Serializable> getAttrinbuteValues(final Iterable<? extends AbstractInstance> trainingData, final String attribute) {
+    private Set<Serializable> getAttrinbuteValues(final Iterable<? extends ClassifierInstance> trainingData, final String attribute) {
         final Set<Serializable> values = Sets.newHashSet();
-        for (final AbstractInstance instance : trainingData) {
+        for (final ClassifierInstance instance : trainingData) {
             Serializable value = instance.getRegressors().get(attribute);
             if (value == null) value = MISSING_VALUE;
             values.add(value);
@@ -529,7 +530,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
-                                                             final Iterable<? extends AbstractInstance> instances,
+                                                             final Iterable<? extends ClassifierInstance> instances,
                                                              final double[] splits) {
         double bestScore = 0;
         double bestThreshold = 0;
@@ -543,8 +544,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
             }
             lastThreshold = threshold;
 
-            final Iterable<? extends AbstractInstance> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
-            final Iterable<? extends AbstractInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
+            final Iterable<? extends ClassifierInstance> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
+            final Iterable<? extends ClassifierInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
             if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances) {
@@ -571,7 +572,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
      *
      * @param node The node we are attempting to further split
      */
-    private void splitNode(Node node, List<? extends AbstractInstance> trainingData) {
+    private void splitNode(Node node, List<? extends ClassifierInstance> trainingData) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             if (leaf.parent != null) {
@@ -586,7 +587,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
                     parent = branch;
                     toReplace = leaf;
                 }
-                Collection<AbstractInstance> leafData = getData(toReplace, trainingData);
+                Collection<ClassifierInstance> leafData = getData(toReplace, trainingData);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
                 //replace the child that has the same reference as toReplace, intentionally checking reference using ==
                 if (parent.trueChild == toReplace) {
@@ -614,8 +615,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
      * @param node         a branch with UpdatableLeaf children or an UpdatableLeaf
      * @param trainingData full set of trainingData
      */
-    private Collection<AbstractInstance> getData(Node node, List<? extends AbstractInstance> trainingData) {
-        List<AbstractInstance> data = Lists.newArrayList();
+    private Collection<ClassifierInstance> getData(Node node, List<? extends ClassifierInstance> trainingData) {
+        List<ClassifierInstance> data = Lists.newArrayList();
         Collection<Integer> indexes = getIndexes(node);
 
         for (Integer index : indexes) {
@@ -636,7 +637,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         return indexes;
     }
 
-    private void addInstanceToNode(Node node, AbstractInstance instance) {
+    private void addInstanceToNode(Node node, ClassifierInstance instance) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             leaf.addInstance(instance);
@@ -671,7 +672,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         public boolean isNumber = true;
     }
 
-    private class GreaterThanThresholdPredicate implements Predicate<AbstractInstance> {
+    private class GreaterThanThresholdPredicate implements Predicate<ClassifierInstance> {
 
         private final String attribute;
         private final double threshold;
@@ -682,7 +683,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
 
         @Override
-        public boolean apply(@Nullable AbstractInstance input) {
+        public boolean apply(@Nullable ClassifierInstance input) {
             try {
                 if (input == null) {//consider deleting
                     return false;
@@ -699,7 +700,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
     }
 
-    private class LessThanEqualThresholdPredicate implements Predicate<AbstractInstance> {
+    private class LessThanEqualThresholdPredicate implements Predicate<ClassifierInstance> {
 
         private final String attribute;
         private final double threshold;
@@ -710,7 +711,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Tree> 
         }
 
         @Override
-        public boolean apply(@Nullable AbstractInstance input) {
+        public boolean apply(@Nullable ClassifierInstance input) {
             try {
                 if (input == null) {
                     return false;

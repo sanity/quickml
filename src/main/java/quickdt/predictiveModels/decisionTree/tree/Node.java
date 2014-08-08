@@ -1,14 +1,14 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
-import quickdt.data.Attributes;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Map;
 
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -8713974861744567620L;
 
-    public abstract void dump(int indent, PrintStream ps);
+    public abstract void dump(int indent, Appendable ap);
 
     public final Node parent;
 
@@ -20,10 +20,10 @@ public abstract class Node implements Serializable {
 	/**
 	 * Writes a textual representation of this tree to a PrintStream
 	 * 
-	 * @param ps
+	 * @param ap
 	 */
-	public void dump(final PrintStream ps) {
-		dump(0, ps);
+	public void dump(final Appendable ap) {
+		dump(0, ap);
 	}
 
 	/**

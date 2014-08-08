@@ -59,7 +59,7 @@ public class Benchmarks {
             for (int x=0; x<8; x++) {
                 hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
-            final AbstractInstance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
+            final AbstractInstance<Map<String, Serializable>> instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
             instances.add(instance);
 
         }

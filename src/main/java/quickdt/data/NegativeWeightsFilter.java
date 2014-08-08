@@ -13,7 +13,7 @@ import java.util.Map;
 public class NegativeWeightsFilter {
 
     //parametrize training data or subtype it to have right params
-    public static <R> Iterable<? extends AbstractInstance> filterNegativeWeights(Iterable<? extends AbstractInstance<R>> trainingData) {
+    public static <R> Iterable<? extends AbstractInstance<R>> filterNegativeWeights(Iterable<? extends AbstractInstance<R>> trainingData) {
         final HashSet<R> instanceLookUp = new HashSet<R>();
         for (AbstractInstance<R> instance : trainingData)
             if (instance.getWeight() < 0)

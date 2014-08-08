@@ -2,13 +2,13 @@ package quickdt.predictiveModels.decisionTree;
 
 import com.google.common.collect.Maps;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +18,7 @@ import java.util.Map;
  * Time: 3:15 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Tree implements Classifier {
+public class Tree extends Classifier {
     static final long serialVersionUID = 56394564395635672L;
 
     public final Node node;
@@ -33,10 +33,7 @@ public class Tree implements Classifier {
         return leaf.getProbability(classification);
     }
 
-    @Override
-    public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getRegressors(), instance.getLabel());
-    }
+
 
     @Override
     public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
@@ -49,8 +46,8 @@ public class Tree implements Classifier {
     }
 
     @Override
-    public void dump(PrintStream printStream) {
-        node.dump(printStream);
+    public void dump(Appendable appendable) {
+        node.dump(appendable);
     }
 
     @Override

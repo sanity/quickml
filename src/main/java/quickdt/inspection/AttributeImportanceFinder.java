@@ -35,7 +35,7 @@ public class AttributeImportanceFinder {
     public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
 
         Set<String> attributes = Sets.newHashSet();
-        for (AbstractInstance instance : trainingData) {
+        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
             attributes.addAll(instance.getRegressors().keySet());
         }
 
@@ -43,7 +43,7 @@ public class AttributeImportanceFinder {
 
         LinkedList<AbstractInstance> trainingSet = Lists.newLinkedList();
         LinkedList<AbstractInstance> testingSet = Lists.newLinkedList();
-        for (AbstractInstance instance : trainingData) {
+        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
             if (Math.abs(instance.getRegressors().hashCode()) % 10 == 0) {
                 testingSet.add(instance);
             } else {
@@ -52,7 +52,7 @@ public class AttributeImportanceFinder {
         }
 
         Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
-        for (AbstractInstance instance : trainingData) {
+        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
             for (Map.Entry<String,Serializable> attributeKeyValue : instance.getRegressors().entrySet()) {
                 ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
                 if (sampler == null) {

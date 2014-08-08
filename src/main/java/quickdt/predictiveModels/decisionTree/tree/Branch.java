@@ -2,9 +2,11 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.base.Predicate;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.Map;
 
 
 public abstract class Branch extends Node {
@@ -26,21 +28,21 @@ public abstract class Branch extends Node {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<AbstractInstance> getInPredicate() {
-		return new Predicate<AbstractInstance>() {
+	public Predicate<AbstractInstance<Map<String, Serializable>>> getInPredicate() {
+		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
 
 			@Override
-			public boolean apply(final AbstractInstance input) {
+			public boolean apply(final AbstractInstance<Map<String, Serializable>> input) {
 				return decide(input.getRegressors());
 			}
 		};
 	}
 
-	public Predicate<AbstractInstance> getOutPredicate() {
-		return new Predicate<AbstractInstance>() {
+	public Predicate<AbstractInstance<Map<String, Serializable>>> getOutPredicate() {
+		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
 
 			@Override
-			public boolean apply(final AbstractInstance input) {
+			public boolean apply(final AbstractInstance<Map<String, Serializable>> input) {
 				return !decide(input.getRegressors());
 			}
 		};
@@ -55,17 +57,23 @@ public abstract class Branch extends Node {
 	}
 
 	@Override
-	public void dump(final int indent, final PrintStream ps) {
-		for (int x = 0; x < indent; x++) {
-			ps.print(' ');
-		}
-		ps.println(this);
-		trueChild.dump(indent + 2, ps);
-		for (int x = 0; x < indent; x++) {
-			ps.print(' ');
-		}
-		ps.println(toNotString());
-		falseChild.dump(indent + 2, ps);
+	public void dump(final int indent, final Appendable ap) {
+        try {
+            for (int x = 0; x < indent; x++) {
+                ap.append(' ');
+            }
+            ap.append(this+"\n");
+            trueChild.dump(indent + 2, ap);
+            for (int x = 0; x < indent; x++) {
+                ap.append(' ');
+            }
+            ap.append(toNotString() +"\n");
+            falseChild.dump(indent + 2, ap);
+        }
+        catch (IOException e) {
+            throw new RuntimeException();
+        }
+
 	}
 
 	public abstract String toNotString();

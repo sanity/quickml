@@ -8,7 +8,7 @@ import quickdt.data.AbstractInstance;
 /**
 * Created by ian on 2/28/14.
 */
-public class AttributesHashSplitter implements Predicate<AbstractInstance> {
+public class AttributesHashSplitter implements Predicate<AbstractInstance<Map<String, Serializable>>> {
 
     private static final HashFunction hashFunction = Hashing.murmur3_32();
 
@@ -19,7 +19,7 @@ public class AttributesHashSplitter implements Predicate<AbstractInstance> {
     }
 
     @Override
-    public boolean apply(final AbstractInstance instance) {
+    public boolean apply(final AbstractInstance<Map<String, Serializable>> instance) {
         int hc = hashFunction.hashInt(instance.getRegressors().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }

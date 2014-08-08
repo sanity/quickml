@@ -1,10 +1,10 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.collect.Sets;
-import quickdt.data.Attributes;
 import static quickdt.predictiveModels.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 public final class CategoricalBranch extends Branch {
@@ -17,16 +17,13 @@ public final class CategoricalBranch extends Branch {
 
 	}
 
-	@Override
-	public boolean decide(final Map<String, Serializable> attributes) {
-		    Serializable attributeVal = attributes.get(attribute);
-            if (attributeVal==null)
-                attributeVal = MISSING_VALUE;
-            else if (!attributeVal.equals("insufficientData"))
-                return inSet.contains(attributeVal);
-            else
-                return
-	}
+    @Override
+    public boolean decide(final Map<String, Serializable> attributes) {
+        Serializable attributeVal = attributes.get(attribute);
+        if (attributeVal==null)
+            attributeVal = MISSING_VALUE;
+        return inSet.contains(attributeVal);
+    }
 
 	@Override
 	public String toString() {

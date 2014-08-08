@@ -10,7 +10,9 @@ import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 //import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
 
@@ -70,7 +72,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return averageLoss;
     }
 
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends AbstractInstance> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends AbstractInstance<Map<String, Serializable>>> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
         for (AbstractInstance instance : data) {
