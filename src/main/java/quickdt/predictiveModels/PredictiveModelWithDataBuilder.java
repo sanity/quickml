@@ -1,10 +1,11 @@
 package quickdt.predictiveModels;
 
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PredictiveModelBuilder that supports adding data to predictive models
@@ -12,7 +13,7 @@ import java.util.List;
  * If the split node threshold is passed the leaves will be rebuilt
  */
 public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implements UpdatablePredictiveModelBuilder<PM> {
-    protected List<AbstractInstance> trainingData;
+    protected List<Instance<Map<String, Serializable>>> trainingData;
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
@@ -43,7 +44,7 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
         return this;
     }
 
-    public PM buildPredictiveModel(Iterable<? extends AbstractInstance> newData) {
+    public PM buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> newData) {
         if (rebuildThreshold != null || splitNodeThreshold != null) {
             buildCount++;
         }
@@ -65,14 +66,14 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
         return predictiveModel;
     }
 
-    private PM buildUpdatablePredictiveModel(List<AbstractInstance> trainingData) {
+    private PM buildUpdatablePredictiveModel(List<Instance<Map<String, Serializable>>> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
-    private void appendTrainingData(Iterable<? extends AbstractInstance> newTrainingData) {
+    private void appendTrainingData(Iterable<Instance<Map<String, Serializable>>> newTrainingData) {
         int index = trainingData.size();
-        List<AbstractInstance> dataList = new ArrayList<>();
-        for(AbstractInstance data : newTrainingData) {
+        List<Instance<Map<String, Serializable>>> dataList = new ArrayList<>();
+        for(Instance<Map<String, Serializable>> data : newTrainingData) {
             data.index = index;
             index++;
             dataList.add(data);
@@ -82,7 +83,7 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
     }
 
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, List<Instance<Map<String, Serializable>>> trainingData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
 
