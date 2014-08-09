@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<DownsamplingPredictiveModel> {
+public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<DownsamplingClassifier> {
 
     private final double targetMinorityProportion;
     private final PredictiveModelBuilder<?> predictiveModelBuilder;
@@ -29,7 +29,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     }
 
     @Override
-    public DownsamplingPredictiveModel buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+    public DownsamplingClassifier buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
         final Map.Entry<Serializable, Double> majorityEntry = Misc.getEntryWithHighestValue(classificationProportions).get();
@@ -39,7 +39,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
             final PredictiveModel<Object> wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
-            return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
+            return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
         }
 
         final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
@@ -48,11 +48,11 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
 
         final PredictiveModel<Object> wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
-        return new DownsamplingPredictiveModel(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
+        return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
     }
 
     @Override
-    public PredictiveModelBuilder<DownsamplingPredictiveModel> updatable(boolean updatable) {
+    public PredictiveModelBuilder<DownsamplingClassifier> updatable(boolean updatable) {
         predictiveModelBuilder.updatable(updatable);
         return this;
     }
@@ -82,19 +82,19 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     }
 
     @Override
-    public void updatePredictiveModel(DownsamplingPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(DownsamplingClassifier predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             Iterable<? extends AbstractInstance> downsampledNewData = Iterables.filter(newData, new RandomDroppingInstanceFilter(predictiveModel.getMajorityClassification(), predictiveModel.getDropProbability()));
-            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedPredictiveModel, downsampledNewData, trainingData, splitNodes);
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedClassifier, downsampledNewData, trainingData, splitNodes);
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
     @Override
-    public void stripData(DownsamplingPredictiveModel predictiveModel) {
+    public void stripData(DownsamplingClassifier predictiveModel) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedPredictiveModel);
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedClassifier);
         } else {
             throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }

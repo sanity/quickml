@@ -65,13 +65,13 @@ public class DownsamplingPredictiveModelBuilderTest {
         final DownsamplingPredictiveModelBuilder dpmb = new DownsamplingPredictiveModelBuilder(urfb, 0.1);
 
         final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final PredictiveModelWithDataBuilder<DownsamplingPredictiveModel> wb = new PredictiveModelWithDataBuilder<>(dpmb);
+        final PredictiveModelWithDataBuilder<DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
         final long startTime = System.currentTimeMillis();
-        final DownsamplingPredictiveModel downsamplingPredictiveModel = wb.buildPredictiveModel(instances);
+        final DownsamplingClassifier downsamplingClassifier = wb.buildPredictiveModel(instances);
 
-        TreeBuilderTestUtils.serializeDeserialize(downsamplingPredictiveModel);
+        TreeBuilderTestUtils.serializeDeserialize(downsamplingClassifier);
 
-        RandomForest randomForest = (RandomForest) downsamplingPredictiveModel.wrappedPredictiveModel;
+        RandomForest randomForest = (RandomForest) downsamplingClassifier.wrappedClassifier;
         final List<Tree> trees = randomForest.trees;
         final int treeSize = trees.size();
         final int firstTreeNodeSize = trees.get(0).node.size();
@@ -79,9 +79,9 @@ public class DownsamplingPredictiveModelBuilderTest {
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
 
         final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final DownsamplingPredictiveModel downsamplingPredictiveModel1 = wb.buildPredictiveModel(newInstances);
-        final RandomForest newRandomForest = (RandomForest) downsamplingPredictiveModel1.wrappedPredictiveModel;
-        org.testng.Assert.assertTrue(downsamplingPredictiveModel == downsamplingPredictiveModel1, "Expect same tree to be updated");
+        final DownsamplingClassifier downsamplingClassifier1 = wb.buildPredictiveModel(newInstances);
+        final RandomForest newRandomForest = (RandomForest) downsamplingClassifier1.wrappedClassifier;
+        org.testng.Assert.assertTrue(downsamplingClassifier == downsamplingClassifier1, "Expect same tree to be updated");
         org.testng.Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
         org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }

@@ -5,12 +5,11 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.Serializable;
+import java.text.*;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 6/22/14.

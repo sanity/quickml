@@ -5,6 +5,9 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import quickdt.data.AbstractInstance;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /**
 * Created by ian on 2/28/14.
 */

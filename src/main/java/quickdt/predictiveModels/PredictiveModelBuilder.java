@@ -11,8 +11,8 @@ import java.io.Serializable;
  * Time: 2:45 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface PredictiveModelBuilder<R extends Serializable, PM extends PredictiveModel<R, ?>> {
-    PM buildPredictiveModel(Iterable<? extends AbstractInstance<R>> trainingData);
-    PredictiveModelBuilder<R, PM> updatable(boolean updatable);
+public interface PredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> {
+    PM buildPredictiveModel(Iterable<? extends AbstractInstance<? extends R>> trainingData);
+    PredictiveModelBuilder<? extends R, ? extends PM> updatable(boolean updatable);
     void setID(Serializable id);
 }

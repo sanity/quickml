@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingPredictiveModelBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<DownsamplingPredictiveModel, DownsamplingPredictiveModelBuilder> {
+public class DownsamplingPredictiveModelBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<DownsamplingClassifier, DownsamplingPredictiveModelBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
     private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
