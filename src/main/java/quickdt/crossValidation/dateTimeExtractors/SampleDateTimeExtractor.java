@@ -2,7 +2,7 @@ package quickdt.crossValidation.dateTimeExtractors;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.data.Attributes;
 
 /**
@@ -10,7 +10,7 @@ import quickdt.data.Attributes;
  */
 public class SampleDateTimeExtractor implements DateTimeExtractor {
     @Override
-    public DateTime extractDateTime(AbstractInstance instance){
+    public DateTime extractDateTime(Instance instance){
         Map<String, Serializable> attributes = instance.getRegressors();
         int year = (Integer)attributes.get("timeOfArrival-year");
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");

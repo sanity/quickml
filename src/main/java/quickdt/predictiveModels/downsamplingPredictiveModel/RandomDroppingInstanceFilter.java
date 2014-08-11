@@ -19,8 +19,8 @@ class RandomDroppingInstanceFilter implements Predicate<Instance> {
     }
 
     @Override
-    public boolean apply(final Instance abstractInstance) {
-        if (abstractInstance.getLabel().equals(classificationToDrop)) {
+    public boolean apply(final Instance Instance) {
+        if (Instance.getLabel().equals(classificationToDrop)) {
             final double rand = Misc.random.nextDouble();
             return rand > dropProbability;
         } else {

@@ -7,12 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
-import quickdt.crossValidation.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.OutOfTimeCrossValidator;
 import quickdt.csvReader.CSVToMap;
-import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
-import quickdt.data.InstanceWithMapOfRegressors;
+import quickdt.data.Instance;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
@@ -39,7 +36,7 @@ public class PredictiveModelOptimizerRunner {
 
     public static void main(String[] args) throws IOException {
         List<PredictiveModelBuilderBuilder> builderBuilders = getPredictiveModelBuilderBuilders();
-        Iterable<? extends AbstractInstance> trainingData = getTrainingData("redshift_training_data.csv");
+        Iterable<? extends Instance> trainingData = getTrainingData("redshift_training_data.csv");
         List<BidderConfiguration> configurations = Lists.newLinkedList();
 
         for(PredictiveModelBuilderBuilder builderBuilder : builderBuilders) {
@@ -99,7 +96,7 @@ public class PredictiveModelOptimizerRunner {
         return builderBuilders;
     }
 
-    private static Iterable<? extends AbstractInstance> getTrainingData(String filename) throws IOException {
+    private static Iterable<? extends Instance> getTrainingData(String filename) throws IOException {
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(filename);
         List<InstanceWithMapOfRegressors> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
         logger.info("Read " + instances.size() + " instances");
@@ -121,7 +118,7 @@ public class PredictiveModelOptimizerRunner {
     public static class TrainingDateTimeExtractor implements DateTimeExtractor {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
-        public DateTime extractDateTime(AbstractInstance instance) {
+        public DateTime extractDateTime(Instance instance) {
             Map<String, Serializable> attributes = instance.getRegressors();
             try {
                 Date currentTimeMillis = dateFormat.parse((String)attributes.get("created_at"));

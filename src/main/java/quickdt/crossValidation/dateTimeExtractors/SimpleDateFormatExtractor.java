@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.text.*;
@@ -28,7 +28,7 @@ public class SimpleDateFormatExtractor implements DateTimeExtractor {
     }
 
     @Override
-    public DateTime extractDateTime(AbstractInstance instance) {
+    public DateTime extractDateTime(Instance instance) {
         Map<String, Serializable> attributes = instance.getRegressors();
         try {
             Date currentTimeMillis = dateFormat.parse((String) attributes.get(dateAttribute));

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.experiments.TrainingDataGenerator2;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class OutOfTimeCrossValidatorTests {
     private static final Logger logger =  LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
-    List<AbstractInstance> trainingData;
+    List<Instance> trainingData;
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +30,7 @@ public class OutOfTimeCrossValidatorTests {
        trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
-        for (AbstractInstance instance : trainingData) {
+        for (Instance instance : trainingData) {
             instance.getRegressors().put("currentTimeMillis", millisInMinute * instanceNumber);
             instanceNumber++;
         }
@@ -38,7 +38,7 @@ public class OutOfTimeCrossValidatorTests {
 
     @Test
     public void testLossBetween0And1() {
-      //  List<AbstractInstance> trainingData = setUp();
+      //  List<Instance> trainingData = setUp();
         logger.info("trainingDataSize " + trainingData.size());
         RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
 
@@ -56,7 +56,7 @@ public class OutOfTimeCrossValidatorTests {
     }
 
 
-    private static RandomForest getRandomForest(List<AbstractInstance> trainingData, int maxDepth, int numTrees) {
+    private static RandomForest getRandomForest(List<Instance> trainingData, int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);

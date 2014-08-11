@@ -21,18 +21,18 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        List<AbstractInstance> diaInstances = loadDiabetesDataset();
+        List<Instance> diaInstances = loadDiabetesDataset();
 
         testWithInstances("diabetes", diaInstances);
 
-        final List<AbstractInstance> moboInstances = loadMoboDataset();
+        final List<Instance> moboInstances = loadMoboDataset();
 
         testWithInstances("mobo", moboInstances);
 
 
     }
 
-    private static void testWithInstances(String dsName, final List<AbstractInstance> instances) {
+    private static void testWithInstances(String dsName, final List<Instance> instances) {
         StationaryCrossValidator crossValidator = new StationaryCrossValidator();
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
@@ -45,9 +45,9 @@ public class Benchmarks {
         }
     }
 
-    public static List<AbstractInstance> loadDiabetesDataset() throws IOException {
+    public static List<Instance> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -59,7 +59,7 @@ public class Benchmarks {
             for (int x=0; x<8; x++) {
                 hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
-            final AbstractInstance<Map<String, Serializable>> instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
+            final Instance<Map<String, Serializable>> instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
             instances.add(instance);
 
         }
@@ -67,9 +67,9 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<AbstractInstance> loadIrisDataset() throws IOException {
+    public static List<Instance> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -81,7 +81,7 @@ public class Benchmarks {
             for (int x=0; x<splitLine.length - 1; x++) {
                 hashMapAttributes.put("attr"+x, splitLine[x]);
             }
-            final AbstractInstance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[splitLine.length-1]);
+            final Instance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[splitLine.length-1]);
             instances.add(instance);
 
         }
@@ -89,10 +89,10 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<AbstractInstance> loadMoboDataset() throws IOException {
+    public static List<Instance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         int count = 0;
         while (true) {
@@ -105,7 +105,7 @@ public class Benchmarks {
             final HashMapAttributes a = new HashMapAttributes();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
-            AbstractInstance instance = new InstanceWithMapOfRegressors(a,binaryClassification);
+            Instance instance = new InstanceWithMapOfRegressors(a,binaryClassification);
             instances.add(instance);
         }
 

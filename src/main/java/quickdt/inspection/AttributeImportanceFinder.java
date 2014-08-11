@@ -13,6 +13,7 @@ import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
@@ -23,27 +24,27 @@ public class AttributeImportanceFinder {
 
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
         return determineAttributeImportance(new TreeBuilder(), trainingData);
     }
 
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel<Object>> predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder<? extends PredictiveModel<Object>> predictiveModelBuilder, final Iterable<Instance> trainingData) {
         return determineAttributeImportance(new StationaryCrossValidator(4, 1), predictiveModelBuilder, trainingData);
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<AbstractInstance> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<Instance> trainingData) {
 
         Set<String> attributes = Sets.newHashSet();
-        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<Map<String, Serializable>> instance : trainingData) {
             attributes.addAll(instance.getRegressors().keySet());
         }
 
         TreeSet<AttributeScore> scores = Sets.newTreeSet();
 
-        LinkedList<AbstractInstance> trainingSet = Lists.newLinkedList();
-        LinkedList<AbstractInstance> testingSet = Lists.newLinkedList();
-        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
+        LinkedList<Instance> trainingSet = Lists.newLinkedList();
+        LinkedList<Instance> testingSet = Lists.newLinkedList();
+        for (Instance<Map<String, Serializable>> instance : trainingData) {
             if (Math.abs(instance.getRegressors().hashCode()) % 10 == 0) {
                 testingSet.add(instance);
             } else {
@@ -52,7 +53,7 @@ public class AttributeImportanceFinder {
         }
 
         Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
-        for (AbstractInstance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<Map<String, Serializable>> instance : trainingData) {
             for (Map.Entry<String,Serializable> attributeKeyValue : instance.getRegressors().entrySet()) {
                 ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
                 if (sampler == null) {
@@ -67,7 +68,7 @@ public class AttributeImportanceFinder {
             final ReservoirSampler<Serializable> samplerForAttributeToExclude = samplesPerAttribute.get(attributeToExclude);
             final ArrayList<Serializable> samplesForAttribute = Lists.newArrayList(samplerForAttributeToExclude.getSamples());
             if (samplesForAttribute.size() < 2) continue;
-            Iterable<AbstractInstance> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
+            Iterable<Instance> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
             double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, scrambledTestingSet);
             logger.info("Attribute \""+attributeToExclude+"\" score is "+score);
             scores.add(new AttributeScore(attributeToExclude, score));
@@ -76,7 +77,7 @@ public class AttributeImportanceFinder {
         return scores;
     }
 
-    public static class AttributeScrambler implements Function<AbstractInstance, AbstractInstance> {
+    public static class AttributeScrambler implements Function<Instance<Map<String, Serializable>>, Instance<Map<String, Serializable>>> {
 
         public AttributeScrambler(final String attributeToExclude, ArrayList<Serializable> attributeValueSamples) {
             this.attributeToExclude = attributeToExclude;
@@ -86,13 +87,12 @@ public class AttributeImportanceFinder {
         private final String attributeToExclude;
         private final ArrayList<Serializable> attributeValueSamples;
 
-        @Override
-        public AbstractInstance apply(final AbstractInstance instance) {
-            Map<String, Serializable> randomizedAttributes = new HashMapAttributes();
+        public Instance<Map<String, Serializable>> apply(final Instance<Map<String, Serializable>> instance) {
+            Map<String, Serializable> randomizedAttributes = new HashMap<>();
             randomizedAttributes.putAll(instance.getRegressors());
             final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
-            return new InstanceWithMapOfRegressors(randomizedAttributes, instance.getLabel());
+            return new InstanceImpl(randomizedAttributes, instance.getLabel());
         }
     }
 

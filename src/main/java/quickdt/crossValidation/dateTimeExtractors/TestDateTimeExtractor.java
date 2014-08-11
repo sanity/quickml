@@ -1,7 +1,7 @@
 package quickdt.crossValidation.dateTimeExtractors;
 
 import org.joda.time.DateTime;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.data.Attributes;
 
 /**
@@ -9,7 +9,7 @@ import quickdt.data.Attributes;
  */
 public class TestDateTimeExtractor implements DateTimeExtractor {
     @Override
-    public DateTime extractDateTime(AbstractInstance instance){
+    public DateTime extractDateTime(Instance instance){
         Map<String, Serializable> attributes = instance.getRegressors();
         int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");
         return new DateTime(currentTimeMillis);

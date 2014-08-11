@@ -26,7 +26,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
+        public AttributesEnricher build(final Iterable<? extends Instance> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -46,8 +46,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestPMBuilder implements PredictiveModelBuilder<TestPM> {
 
         @Override
-        public TestPM buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
-            for (AbstractInstance instance : trainingData) {
+        public TestPM buildPredictiveModel(final Iterable<? extends Instance> trainingData) {
+            for (Instance instance : trainingData) {
                 if (!instance.getRegressors().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }

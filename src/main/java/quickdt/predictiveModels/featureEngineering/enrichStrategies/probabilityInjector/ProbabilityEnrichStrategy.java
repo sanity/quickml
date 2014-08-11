@@ -2,7 +2,7 @@ package quickdt.predictiveModels.featureEngineering.enrichStrategies.probability
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.featureEngineering.*;
 
@@ -53,12 +53,12 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends Instance> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
 
-        for (AbstractInstance instance : trainingData) {
+        for (Instance instance : trainingData) {
             int classificationMatch = instance.getLabel().equals(classification) ? 1 : 0;
             for (String attributeKey : attributeKeysToInject) {
                 if (attributesWithTooManyValues.contains(attributeKey)) {

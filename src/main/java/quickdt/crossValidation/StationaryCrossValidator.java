@@ -6,15 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-
-//import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
 
 /**
  * Created by ian on 2/28/14.
@@ -56,7 +52,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<PM> predictiveModelBuilder, Iterable<? extends AbstractInstance<R>> allTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
@@ -72,10 +68,10 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return averageLoss;
     }
 
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends AbstractInstance<Map<String, Serializable>>> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
-        for (AbstractInstance instance : data) {
+        for (Instance instance : data) {
             if (count%folds == foldNumber) //(count > testSetLowerBound && count < testSetUpperBound)//
                 dataSplit.validation.add(instance);
             else
@@ -86,12 +82,12 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     class DataSplit  {
-        public List<AbstractInstance<R>> training;
-        public List<AbstractInstance<R>> validation;
+        public List<Instance<R>> training;
+        public List<Instance<R>> validation;
 
         public DataSplit() {
-            training = Lists.<AbstractInstance<R>>newArrayList();
-            validation = Lists.<AbstractInstance<R>>newArrayList();
+            training = Lists.<Instance<R>>newArrayList();
+            validation = Lists.<Instance<R>>newArrayList();
         }
     }
 }
