@@ -2,15 +2,17 @@ package quickdt.crossValidation.dateTimeExtractors;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
+import quickdt.data.Instance;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public class SampleDateTimeExtractor implements DateTimeExtractor {
+public class MapDateTimeExtractor implements DateTimeExtractor<Map<String, Serializable>> {
     @Override
-    public DateTime extractDateTime(AbstractInstance instance){
+    public  DateTime extractDateTime(Instance<Map<String, Serializable>> instance){
         Map<String, Serializable> attributes = instance.getRegressors();
         int year = (Integer)attributes.get("timeOfArrival-year");
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");

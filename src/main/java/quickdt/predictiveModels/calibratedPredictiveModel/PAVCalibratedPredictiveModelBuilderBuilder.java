@@ -12,6 +12,8 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/10/14.
  */
+
+/*
 public class PAVCalibratedPredictiveModelBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<CalibratedPredictiveModel, PAVCalibratedPredictiveModelBuilder> {
     private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
 
@@ -39,5 +41,5 @@ public class PAVCalibratedPredictiveModelBuilderBuilder implements UpdatablePred
                 .binsInCalibrator((Integer) predictiveModelConfig.get(BINS_IN_CALIBRATOR));
     }
 }
-
+*/
 

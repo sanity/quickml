@@ -3,7 +3,6 @@ package quickdt.predictiveModels.calibratedPredictiveModel;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.IsotonicRegression.PoolAdjacentViolatorsModel;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
@@ -19,6 +18,7 @@ import java.util.List;
  * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
  * It currently has some severe implementation problems and it's use is not recommended.
  */
+/*
 public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
     private final PredictiveModelBuilder predictiveModelBuilder;
@@ -120,3 +120,4 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         return mobservations;
     }
 }
+*/
