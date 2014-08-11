@@ -1,11 +1,9 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.base.Predicate;
-import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -30,20 +28,20 @@ public abstract class Branch extends Node {
 	}
 
 	public Predicate<Instance<Map<String, Serializable>>> getInPredicate() {
-		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
+		return new Predicate<Instance<Map<String, Serializable>>>() {
 
 			@Override
-			public boolean apply(final AbstractInstance<Map<String, Serializable>> input) {
+			public boolean apply(final Instance<Map<String, Serializable>> input) {
 				return decide(input.getRegressors());
 			}
 		};
 	}
 
 	public Predicate<Instance<Map<String, Serializable>>> getOutPredicate() {
-		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
+		return new Predicate<Instance<Map<String, Serializable>>>() {
 
 			@Override
-			public boolean apply(final AbstractInstance<Map<String, Serializable>> input) {
+			public boolean apply(final Instance<Map<String, Serializable>> input) {
 				return !decide(input.getRegressors());
 			}
 		};
