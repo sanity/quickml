@@ -4,9 +4,7 @@ import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * PredictiveModelBuilder that supports adding data to predictive models
@@ -14,7 +12,7 @@ import java.util.Map;
  * If the split node threshold is passed the leaves will be rebuilt
  */
 public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> implements UpdatablePredictiveModelBuilder<R, PM> {
-    protected List<? extends Instance<R>> trainingData;
+    protected List<Instance<R>> trainingData;
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
@@ -69,15 +67,15 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     }
 
 
-    private PM buildUpdatablePredictiveModel(Iterable<Instance<R>> trainingData) {
+    private PM buildUpdatablePredictiveModel(Iterable<? extends Instance<R>> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
-    private void appendTrainingData(Iterable<Instance<R>> newTrainingData) {
+    private void appendTrainingData(Iterable<? extends Instance<R>> newTrainingData) {
         int index = trainingData.size();
         List<Instance<R>> dataList = new ArrayList<>();
         for(Instance<R> data : newTrainingData) {
-            data.index = index;
+            data.setIndex(index);  //code that uses the index
             index++;
             dataList.add(data);
         }
@@ -86,7 +84,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     }
 
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<R>> newData, List<Instance<R>> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(PM predictiveModel, Iterable<? extends Instance<R>> newData, List<? extends Instance<R>> trainingData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
 

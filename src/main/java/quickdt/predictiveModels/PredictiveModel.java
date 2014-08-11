@@ -1,7 +1,7 @@
 package quickdt.predictiveModels;
 
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.util.List;
 
@@ -16,5 +16,5 @@ public interface PredictiveModel<R, P> {
 
     P predict(R regressors);
     void dump(Appendable appendable);
-    List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<AbstractInstance<R>> instances);
+    List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances);
 }

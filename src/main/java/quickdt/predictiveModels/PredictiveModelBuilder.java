@@ -1,8 +1,6 @@
 package quickdt.predictiveModels;
 
-import quickdt.data.AbstractInstance;
 import quickdt.data.Instance;
-
 import java.io.Serializable;
 
 /**

@@ -2,18 +2,11 @@ package quickdt.data;
 
 import java.io.Serializable;
 
-public class InstanceImpl<R> implements Instance<R>, Serializable {
+public class InstanceImpl<R> implements Instance<R> implements Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
     private static final double DEFAULT_WEIGHT = 1.0;
-
-    public int index;
-
-    private InstanceImpl() {
-
-    }
-
 
     public InstanceImpl(final R attributes, final Serializable label) {
         this(attributes, label, DEFAULT_WEIGHT);

@@ -1,7 +1,5 @@
 package quickdt.predictiveModels;
 
-import quickdt.data.AbstractInstance;
-
 /**
  * Created by alexanderhawk on 7/29/14.
  */

@@ -2,7 +2,7 @@ package quickdt.predictiveModels;
 
 import com.google.common.collect.Lists;
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
 public abstract class AbstractPredictiveModel<R, P> implements PredictiveModel<R, P> {
 
     @Override
-    public List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<AbstractInstance<R>> instances) {
+    public List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances) {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        for (AbstractInstance<R> instance : instances) {
+        for (Instance<R> instance : instances) {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
                     this.predict(instance.getRegressors()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
