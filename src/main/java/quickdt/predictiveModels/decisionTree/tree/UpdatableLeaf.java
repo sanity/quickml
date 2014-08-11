@@ -1,30 +1,35 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
+import quickdt.data.Instance;
+
 
 import quickdt.data.Instance;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 
 /**
  * Created by Chris on 5/14/2014.
  */
 public class UpdatableLeaf extends Leaf {
-    public final Collection<Integer> trainingDataIndexes = new HashSet<>();
+    private final Collection<Instance> instances = new HashSet<>();
 
-    public UpdatableLeaf(Node parent, Iterable<? extends Instance<Map<String, Serializable>>> instances, int depth) {
+
+    public UpdatableLeaf(Node parent, Iterable<Instance> instances, int depth) {
         super(parent, instances, depth);
-        for(Instance<Map<String, Serializable>> instance : instances) {
-            trainingDataIndexes.add(instance.index);
+        for(Instance instance : instances) {
+            this.instances.add(instance);
         }
     }
 
-    public void addInstance(Instance<Map<String, Serializable>> instance) {
+    public void addInstance(Instance instance) {
         classificationCounts.addClassification(instance.getLabel(), instance.getWeight());
-        trainingDataIndexes.add(instance.index);
+        instances.add(instance);
         exampleCount++;
+    }
+
+    public Collection<Instance> getInstances() {
+        return instances;
     }
 
     @Override
@@ -35,7 +40,7 @@ public class UpdatableLeaf extends Leaf {
 
         UpdatableLeaf that = (UpdatableLeaf) o;
 
-        if (!trainingDataIndexes.equals(that.trainingDataIndexes))
+        if (!instances.equals(that.instances))
             return false;
 
         return true;
@@ -44,7 +49,7 @@ public class UpdatableLeaf extends Leaf {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + trainingDataIndexes.hashCode();
+        result = 31 * result + instances.hashCode();
         return result;
     }
 }

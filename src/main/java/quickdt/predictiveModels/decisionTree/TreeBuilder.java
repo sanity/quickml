@@ -96,14 +96,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<Instance<Map<String, Serializable>>> newData, List<Instance<Map<String, Serializable>>> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends Instance> newData, boolean splitNodes) {
         //first move all the data into the leaves
         for (Instance<Map<String, Serializable>> instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
         //now split the leaves further if possible
         if (splitNodes) {
-            splitNode(tree.node, trainingData);
+            splitNode(tree.node);
         }
     }
 
@@ -571,7 +571,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
      *
      * @param node The node we are attempting to further split
      */
-    private void splitNode(Node node, List<Instance<Map<String, Serializable>>> trainingData) {
+    private void splitNode(Node node) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             if (leaf.parent != null) {
@@ -586,7 +586,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                     parent = branch;
                     toReplace = leaf;
                 }
-                Collection<Instance<Map<String, Serializable>>> leafData = getData(toReplace, trainingData);
+                Collection<Instance<Map<String, Serializable>>> leafData = getData(toReplace);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
                 //replace the child that has the same reference as toReplace, intentionally checking reference using ==
                 if (parent.trueChild == toReplace) {
@@ -597,10 +597,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             }
         } else if (node instanceof Branch) {
             Branch branch = (Branch) node;
-            splitNode(branch.trueChild, trainingData);
+            splitNode(branch.trueChild);
             //only split false child if we aren't combining leaves
             if (!shouldCombineData(branch)) {
-                splitNode(branch.falseChild, trainingData);
+                splitNode(branch.falseChild);
             }
 
         }
@@ -612,28 +612,17 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
 
     /**
      * @param node         a branch with UpdatableLeaf children or an UpdatableLeaf
-     * @param trainingData full set of trainingData
      */
-    private Collection<Instance<Map<String, Serializable>>> getData(Node node, List<Instance<Map<String, Serializable>>> trainingData) {
+    private Collection<Instance<Map<String, Serializable>>> getData(Node node) {
         List<Instance<Map<String, Serializable>>> data = Lists.newArrayList();
-        Collection<Integer> indexes = getIndexes(node);
-
-        for (Integer index : indexes) {
-            data.add(trainingData.get(index));
-        }
-        return data;
-    }
-
-    private Collection<Integer> getIndexes(Node node) {
-        Collection<Integer> indexes = Collections.EMPTY_LIST;
         if (node instanceof UpdatableLeaf) {
-            indexes = (((UpdatableLeaf) node).trainingDataIndexes);
+            data.addAll(((UpdatableLeaf) node).getInstances());
         } else if (node instanceof Branch) {
             Branch branch = (Branch) node;
-            indexes = ((UpdatableLeaf) branch.trueChild).trainingDataIndexes;
-            indexes.addAll(((UpdatableLeaf) branch.falseChild).trainingDataIndexes);
+            data.addAll(((UpdatableLeaf) branch.trueChild).getInstances());
+            data.addAll(((UpdatableLeaf) branch.falseChild).getInstances());
         }
-        return indexes;
+        return data;
     }
 
     private void addInstanceToNode(Node node, Instance<Map<String, Serializable>> instance) {

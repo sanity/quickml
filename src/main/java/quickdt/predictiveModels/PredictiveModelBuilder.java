@@ -11,13 +11,8 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public interface PredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> {
-//<<<<<<< HEAD
-//    PM buildPredictiveModel(Iterable<? extends AbstractInstance<? extends R>> trainingData);
-//    PredictiveModelBuilder<? extends R, ? extends PM> updatable(boolean updatable);
-//=======
 
     PM buildPredictiveModel(Iterable<Instance<R>> trainingData);
     PredictiveModelBuilder<R, PM> updatable(boolean updatable);
-//>>>>>>> origin/regRefactorTake2-ian
     void setID(Serializable id);
 }

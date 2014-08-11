@@ -3,8 +3,6 @@ package quickdt.predictiveModels;
 import quickdt.data.Instance;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * PredictiveModelBuilder that supports adding data to predictive models
@@ -12,7 +10,6 @@ import java.util.List;
  * If the split node threshold is passed the leaves will be rebuilt
  */
 public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> implements UpdatablePredictiveModelBuilder<R, PM> {
-    protected List<Instance<R>> trainingData;
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
@@ -49,18 +46,13 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
             buildCount++;
         }
 
-        if (trainingData == null) {
-            trainingData = new ArrayList<>();
-        }
-        appendTrainingData(newData);
-
         //check if we want to build a new predictive model or update existing
         if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold != 0 && buildCount > rebuildThreshold)) {
             buildCount = 1;
-            predictiveModel = buildUpdatablePredictiveModel(trainingData);
+            predictiveModel = buildUpdatablePredictiveModel(newData);
         } else {
             boolean splitNodes = splitNodeThreshold != null && splitNodeThreshold != 0 && buildCount % splitNodeThreshold == 0;
-            updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
+            updatePredictiveModel(predictiveModel, newData, splitNodes);
         }
 
         return predictiveModel;
@@ -71,21 +63,9 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
-    private void appendTrainingData(Iterable<Instance<R>> newTrainingData) {
-        int index = trainingData.size();
-        List<Instance<R>> dataList = new ArrayList<>();
-        for(Instance<R> data : newTrainingData) {
-            data.setIndex(index);  //code that uses the index
-            index++;
-            dataList.add(data);
-        }
-        //writing is expensive, do it all at once
-        trainingData.addAll(dataList);
-    }
-
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable< Instance<R>> newData, List< Instance<R>> trainingData, boolean splitNodes) {
-        updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
+    public void updatePredictiveModel(PM predictiveModel, Iterable<? extends Instance<R>> newData, boolean splitNodes) {
+        updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, splitNodes);
     }
 
     @Override
