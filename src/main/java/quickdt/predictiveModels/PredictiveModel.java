@@ -3,6 +3,7 @@ package quickdt.predictiveModels;
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.Instance;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  * Time: 2:50 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface PredictiveModel<R, P> {
+public interface PredictiveModel<R, P> extends Serializable {
 
     P predict(R regressors);
     void dump(Appendable appendable);

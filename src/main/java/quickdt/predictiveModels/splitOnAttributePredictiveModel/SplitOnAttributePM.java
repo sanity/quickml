@@ -1,17 +1,15 @@
 package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 
-import quickdt.data.AbstractInstance;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.Classifier;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributePM implements Classifier {
+public class SplitOnAttributePM extends Classifier {
     private static final long serialVersionUID = 2642074639257374588L;
     private final String attributeKey;
     private final Map<Serializable, Classifier> splitModels;
@@ -21,11 +19,6 @@ public class SplitOnAttributePM implements Classifier {
         this.attributeKey = attributeKey;
         this.splitModels = splitModels;
         this.defaultPM = defaultPM;
-    }
-
-    @Override
-    public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getRegressors(), instance.getLabel());
     }
 
     @Override
@@ -39,13 +32,17 @@ public class SplitOnAttributePM implements Classifier {
     }
 
     @Override
-    public void dump(final PrintStream printStream) {
-        for (Map.Entry<Serializable, Classifier> splitModelEntry : splitModels.entrySet()) {
-            printStream.println("Predictive model for "+attributeKey+"="+splitModelEntry.getKey());
-            splitModelEntry.getValue().dump(printStream);
+    public void dump(final Appendable appendable) {
+        try {
+            for (Map.Entry<Serializable, Classifier> splitModelEntry : splitModels.entrySet()) {
+                appendable.append("Predictive model for " + attributeKey + "=" + splitModelEntry.getKey());
+                splitModelEntry.getValue().dump(appendable);
+            }
+            appendable.append("Default");
+            defaultPM.dump(appendable);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        printStream.println("Default");
-        defaultPM.dump(printStream);
     }
 
     @Override

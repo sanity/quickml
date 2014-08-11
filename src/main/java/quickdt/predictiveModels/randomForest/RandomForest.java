@@ -3,8 +3,7 @@ package quickdt.predictiveModels.randomForest;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
-import quickdt.data.Instance<Map<String, Serializable>>;
-import quickdt.data.Attributes;
+
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
@@ -32,10 +31,6 @@ public class RandomForest extends Classifier {
         this.trees = trees;
     }
 
-    @Override
-    public Double predict(<Map<String, Serializable>> regressor) {
-        return getProbability(instance.getLabel());
-    }
 
     public void dump(PrintStream printStream, int numTrees) {
         double meanDepth = 0;
@@ -51,8 +46,8 @@ public class RandomForest extends Classifier {
     }
 
     @Override
-    public void dump(PrintStream printStream) {
-        trees.get(0).dump(printStream);
+    public void dump(Appendable appendable) {
+        trees.get(0).dump(appendable);
     }
 
     @Override
