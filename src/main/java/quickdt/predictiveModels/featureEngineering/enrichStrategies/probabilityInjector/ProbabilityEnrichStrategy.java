@@ -2,7 +2,7 @@ package quickdt.predictiveModels.featureEngineering.enrichStrategies.probability
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.featureEngineering.*;
 
@@ -33,7 +33,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
      *                       are more than two you might wish to create multiple enrich strategies, each
      *                       looking at a different classification.
      */
-    public ProbabilityEnrichStrategy(PredictiveModelBuilder<?> wrappedBuilder, Set<String> attributeKeysToInject, Serializable classification) {
+    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Serializable classification) {
         this(attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
     }
 
@@ -53,12 +53,12 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<Instance<Map<String,Serializable>>> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
 
-        for (AbstractInstance instance : trainingData) {
+        for (Instance<Map<String,Serializable>> instance : trainingData) {
             int classificationMatch = instance.getLabel().equals(classification) ? 1 : 0;
             for (String attributeKey : attributeKeysToInject) {
                 if (attributesWithTooManyValues.contains(attributeKey)) {

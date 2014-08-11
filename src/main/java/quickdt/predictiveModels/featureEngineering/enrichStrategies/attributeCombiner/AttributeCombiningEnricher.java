@@ -1,12 +1,13 @@
 package quickdt.predictiveModels.featureEngineering.enrichStrategies.attributeCombiner;
 
 import com.google.common.base.Joiner;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,7 +24,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
     @Nullable
     @Override
     public Map<String, Serializable> apply(@Nullable final Map<String, Serializable> inputAttributes) {
-        HashMapAttributes outputAttributes = new HashMapAttributes();
+        Map<String, Serializable> outputAttributes = new HashMap();
         outputAttributes.putAll(inputAttributes);
         for (List<String> attributeKeys : attributesToCombine) {
             if (attributesNotCombinable(attributeKeys, inputAttributes))

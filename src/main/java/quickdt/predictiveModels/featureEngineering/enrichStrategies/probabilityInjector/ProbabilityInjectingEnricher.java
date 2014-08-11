@@ -1,9 +1,9 @@
 package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,7 +25,7 @@ public class ProbabilityInjectingEnricher implements AttributesEnricher {
     @Override
     public Map<String, Serializable> apply(final Map<String, Serializable> attributes) {
         // TODO: Perhaps more efficient to use immutable map for attributes here
-        HashMapAttributes enrichedAttributes = new HashMapAttributes();
+        Map<String, Serializable> enrichedAttributes = new HashMap<>();
         enrichedAttributes.putAll(attributes);
 
         for (Map.Entry<String, Map<Serializable, Double>> attributeValueProbEntry : valueProbabilitiesByAttribute.entrySet()) {

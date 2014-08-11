@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.Benchmarks;
-import quickdt.crossValidation.ClassifierLogCVLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickdt.crossValidation.StationaryCrossValidator;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilderBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
@@ -25,17 +25,17 @@ public class PredictiveModelOptimizerTest {
 
     @Test
     public void irisTest() throws IOException {
-        final List<AbstractInstance> instances = Benchmarks.loadIrisDataset();
+        final List<Instance> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
     }
 
     @Test(enabled = false)
     public void diabetesTest() throws IOException {
-        final List<AbstractInstance> instances = Benchmarks.loadDiabetesDataset();
+        final List<Instance> instances = Benchmarks.loadDiabetesDataset();
         testWithTrainingSet(instances);
     }
 
-    private void testWithTrainingSet(final List<AbstractInstance> instances) {
+    private void testWithTrainingSet(final List<Instance> instances) {
         final PredictiveModelWithDataBuilderBuilder predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder());
         final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);

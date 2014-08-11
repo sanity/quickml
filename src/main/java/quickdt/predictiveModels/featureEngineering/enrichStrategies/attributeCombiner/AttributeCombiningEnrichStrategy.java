@@ -1,10 +1,12 @@
 package quickdt.predictiveModels.featureEngineering.enrichStrategies.attributeCombiner;
 
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.featureEngineering.AttributesEnrichStrategy;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,7 +21,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<Instance<Map<String,Serializable>>> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

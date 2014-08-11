@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import quickdt.Misc;
 import quickdt.crossValidation.CrossValidator;
 import quickdt.crossValidation.StationaryCrossValidator;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.*;
 
 import java.util.Collections;
@@ -21,21 +21,21 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>> {
     private final PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder;
     private final CrossValidator<R, P> crossValidator;
     private final Map<String, FieldValueRecommender> valueRecommenders;
-    private final Iterable<? extends AbstractInstance<R>> trainingData;
+    private final Iterable<? extends Instance<R>> trainingData;
     private Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
     private volatile boolean hasRun = false;
     private static final int MAX_ITERATIONS = 10;
     private int maxIterations;
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance<R>> trainingData, CrossValidator<R, P> crossValidator) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator) {
         this(MAX_ITERATIONS, predictiveModelBuilderBuilder, trainingData, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this(MAX_ITERATIONS, predictiveModelBuilderBuilder, trainingData, crossValidator, valueRecommenders);
     }
 
-    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends AbstractInstance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderBuilder<PM, PredictiveModelBuilder<PM>> predictiveModelBuilderBuilder, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
         this.trainingData = trainingData;
         this.crossValidator = crossValidator;
@@ -98,7 +98,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>> {
         return new ObjectWithLoss<Map<String, Object>>(currentConfiguration, currentConfigurationLoss);
     }
 
-    private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends AbstractInstance<R>> trainingData,
+    private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends Instance<R>> trainingData,
                                                         final Map<String, Object> baselineConfiguration,
                                                         final String fieldName,
                                                         final FieldValueRecommender fieldValueRecommender) {

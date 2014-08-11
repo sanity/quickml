@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import quickdt.crossValidation.StationaryCrossValidator;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickdt.data.*;
 import quickdt.predictiveModels.decisionTree.Scorer;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -12,7 +13,9 @@ import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class Benchmarks {
@@ -21,19 +24,19 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        List<AbstractInstance> diaInstances = loadDiabetesDataset();
+        List<Instance> diaInstances = loadDiabetesDataset();
 
         testWithInstances("diabetes", diaInstances);
 
-        final List<AbstractInstance> moboInstances = loadMoboDataset();
+        final List<Instance> moboInstances = loadMoboDataset();
 
         testWithInstances("mobo", moboInstances);
 
 
     }
 
-    private static void testWithInstances(String dsName, final List<AbstractInstance> instances) {
-        StationaryCrossValidator crossValidator = new StationaryCrossValidator();
+    private static void testWithInstances(String dsName, final List<Instance> instances) {
+        StationaryCrossValidator crossValidator = new StationaryCrossValidator(new ClassifierLogCVLossFunction());
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
             final TreeBuilder singleTreeBuilder = new TreeBuilder(scorer).binaryClassification(true);
@@ -45,9 +48,9 @@ public class Benchmarks {
         }
     }
 
-    public static List<AbstractInstance> loadDiabetesDataset() throws IOException {
+    public static List<Instance> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -55,11 +58,11 @@ public class Benchmarks {
                 break;
             }
             String[] splitLine = line.split("\\s");
-            HashMapAttributes hashMapAttributes = new HashMapAttributes();
+            Map hashMapAttributes = new HashMap();
             for (int x=0; x<8; x++) {
                 hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
             }
-            final AbstractInstance<Map<String, Serializable>> instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[8]);
+            final Instance<Map<String, Serializable>> instance = new InstanceImpl(hashMapAttributes, splitLine[8]);
             instances.add(instance);
 
         }
@@ -67,9 +70,9 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<AbstractInstance> loadIrisDataset() throws IOException {
+    public static List<Instance> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -77,11 +80,11 @@ public class Benchmarks {
                 break;
             }
             String[] splitLine = line.split(",");
-            HashMapAttributes hashMapAttributes = new HashMapAttributes();
+            Map hashMapAttributes = new HashMap();
             for (int x=0; x<splitLine.length - 1; x++) {
                 hashMapAttributes.put("attr"+x, splitLine[x]);
             }
-            final AbstractInstance instance = new InstanceWithMapOfRegressors(hashMapAttributes, splitLine[splitLine.length-1]);
+            final Instance instance = new InstanceImpl(hashMapAttributes, splitLine[splitLine.length-1]);
             instances.add(instance);
 
         }
@@ -89,10 +92,10 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<AbstractInstance> loadMoboDataset() throws IOException {
+    public static List<Instance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<AbstractInstance> instances = Lists.newLinkedList();
+        final List<Instance> instances = Lists.newLinkedList();
 
         int count = 0;
         while (true) {
@@ -102,10 +105,10 @@ public class Benchmarks {
                 break;
             }
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
-            final HashMapAttributes a = new HashMapAttributes();
+            Map a = new HashMap();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
-            AbstractInstance instance = new InstanceWithMapOfRegressors(a,binaryClassification);
+            Instance instance = new InstanceImpl(a,binaryClassification);
             instances.add(instance);
         }
 

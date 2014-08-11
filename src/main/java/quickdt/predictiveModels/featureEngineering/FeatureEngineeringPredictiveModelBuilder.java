@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
@@ -30,7 +30,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public FeatureEngineeredPredictiveModel buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+    public FeatureEngineeredPredictiveModel buildPredictiveModel(final Iterable<? extends Instance> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {

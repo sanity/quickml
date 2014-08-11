@@ -4,7 +4,10 @@ import com.google.common.collect.Lists;
 import quickdt.data.*;
 import quickdt.predictiveModels.randomForest.RandomForest;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -60,7 +63,7 @@ public class TrainingDataGenerator2 {
     }
 
     private Map<String, Serializable> getAttributesForAnInstance() {
-        Map<String, Serializable> attributes =  new HashMapAttributes();
+        Map<String, Serializable> attributes =  new HashMap<>();
 
         double attributeValue;
         latentVariable = 0;
@@ -87,18 +90,18 @@ public class TrainingDataGenerator2 {
         //System.exit(0);
     }
 
-    public List<AbstractInstance> createTrainingData() {
+    public List<Instance> createTrainingData() {
 
-        List<AbstractInstance> trainingData = Lists.<AbstractInstance>newArrayList();
+        List<Instance> trainingData = Lists.<Instance>newArrayList();
         double attributeValue;
-        AbstractInstance instance;
+        Instance instance;
         Map<String, Serializable> attributes;
         double clickClassification;
 
         for (int i = 0; i < instances; i++)  {
             attributes = getAttributesForAnInstance();
             clickClassification = setClickValue();
-            instance = new InstanceWithMapOfRegressors(attributes, clickClassification);
+            instance = new InstanceImpl(attributes, clickClassification);
             trainingData.add(instance);
         }
         return trainingData;

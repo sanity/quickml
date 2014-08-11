@@ -1,12 +1,6 @@
 package quickdt;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
-import quickdt.data.AbstractInstance;
-import quickdt.predictiveModels.PredictiveModel;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 

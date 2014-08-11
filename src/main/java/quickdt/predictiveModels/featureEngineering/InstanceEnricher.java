@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by ian on 5/20/14.
  */
-public class InstanceEnricher implements Function<AbstractInstance, InstanceWithMapOfRegressors> {
+public class InstanceEnricher implements Function<Instance, InstanceWithMapOfRegressors> {
     private final List<AttributesEnricher> attributesEnrichers;
 
     public InstanceEnricher(List<AttributesEnricher> attributesEnrichers) {
@@ -16,7 +16,7 @@ public class InstanceEnricher implements Function<AbstractInstance, InstanceWith
     }
 
     @Override
-    public InstanceWithMapOfRegressors apply(final AbstractInstance instance) {
+    public InstanceWithMapOfRegressors apply(final Instance instance) {
         Map<String, Serializable> enrichedAttributes = instance.getRegressors();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);

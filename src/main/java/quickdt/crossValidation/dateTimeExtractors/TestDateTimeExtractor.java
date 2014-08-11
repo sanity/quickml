@@ -12,6 +12,7 @@ import java.util.Map;
 public class TestDateTimeExtractor implements DateTimeExtractor<Map<String, Serializable>> {
     @Override
     public DateTime extractDateTime(Instance<Map<String, Serializable>> instance){
+
         Map<String, Serializable> attributes = instance.getRegressors();
         int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");
         return new DateTime(currentTimeMillis);

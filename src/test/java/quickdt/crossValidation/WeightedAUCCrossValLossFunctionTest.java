@@ -3,7 +3,7 @@ package quickdt.crossValidation;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
@@ -22,16 +22,16 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
-        AbstractInstance instance = Mockito.mock(AbstractInstance.class);
+        Instance instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
-        AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
+        Instance instance2 = Mockito.mock(Instance.class);
         Mockito.when(instance2.getLabel()).thenReturn("instance2");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
+        Instance instance3 = Mockito.mock(Instance.class);
         Mockito.when(instance3.getLabel()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        List<AbstractInstance> instances = new LinkedList<>();
+        List<Instance> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);
@@ -51,27 +51,27 @@ public class WeightedAUCCrossValLossFunctionTest {
         Mockito.when(predictiveModel.getProbability(test3Attributes, "test1")).thenReturn(0.4);
         Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);
 
-        AbstractInstance instance = Mockito.mock(AbstractInstance.class);
+        Instance instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("test1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
         Mockito.when(instance.getRegressors()).thenReturn(test1Attributes);
 
-        AbstractInstance instance2 = Mockito.mock(AbstractInstance.class);
+        Instance instance2 = Mockito.mock(Instance.class);
         Mockito.when(instance2.getLabel()).thenReturn("test1");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         Mockito.when(instance2.getRegressors()).thenReturn(test2Attributes);
 
-        AbstractInstance instance3 = Mockito.mock(AbstractInstance.class);
+        Instance instance3 = Mockito.mock(Instance.class);
         Mockito.when(instance3.getLabel()).thenReturn("test0");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
         Mockito.when(instance3.getRegressors()).thenReturn(test3Attributes);
 
-        AbstractInstance instance4 = Mockito.mock(AbstractInstance.class);
+        Instance instance4 = Mockito.mock(Instance.class);
         Mockito.when(instance4.getLabel()).thenReturn("test0");
         Mockito.when(instance4.getWeight()).thenReturn(1.0);
         Mockito.when(instance4.getRegressors()).thenReturn(test4Attributes);
 
-        List<AbstractInstance> instances = new LinkedList<>();
+        List<Instance> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);

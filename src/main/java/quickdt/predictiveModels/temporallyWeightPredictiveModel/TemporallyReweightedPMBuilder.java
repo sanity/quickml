@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
 import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
@@ -52,17 +52,17 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public TemporallyReweightedPM buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
+    public TemporallyReweightedPM buildPredictiveModel(Iterable<? extends Instance> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
-        List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecent);
+        List<Instance> trainingDataList = reweightTrainingData(trainingData, mostRecent);
         final PredictiveModel<Object> predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedPM(predictiveModel);
     }
 
-    private List<AbstractInstance> reweightTrainingData(Iterable<? extends AbstractInstance> sortedData, DateTime mostRecentInstance) {
-        ArrayList<AbstractInstance> trainingDataList = Lists.newArrayList();
-        for (AbstractInstance instance : sortedData) {
+    private List<Instance> reweightTrainingData(Iterable<? extends Instance> sortedData, DateTime mostRecentInstance) {
+        ArrayList<Instance> trainingDataList = Lists.newArrayList();
+        for (Instance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
@@ -72,7 +72,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         return trainingDataList;
     }
 
-    private void validateData(Iterable<? extends AbstractInstance> trainingData) {
+    private void validateData(Iterable<? extends Instance> trainingData) {
         ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
@@ -84,13 +84,13 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<? extends Instance> newData, List<? extends Instance> trainingData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             validateData(newData);
             DateTime mostRecentInstance = getMostRecentInstance(newData);
 
-            List<AbstractInstance> trainingDataList = reweightTrainingData(trainingData, mostRecentInstance);
-            List<AbstractInstance> newDataList = reweightTrainingData(newData, mostRecentInstance);
+            List<Instance> trainingDataList = reweightTrainingData(trainingData, mostRecentInstance);
+            List<Instance> newDataList = reweightTrainingData(newData, mostRecentInstance);
 
             PredictiveModel<Object> pm = predictiveModel.getWrappedModel();
             ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataList, trainingDataList, splitNodes);
@@ -99,9 +99,9 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         }
     }
 
-    private DateTime getMostRecentInstance(Iterable<? extends AbstractInstance> newData) {
+    private DateTime getMostRecentInstance(Iterable<? extends Instance> newData) {
         DateTime mostRecent = null;
-        for(AbstractInstance instance : newData) {
+        for(Instance instance : newData) {
             DateTime instanceTime = dateTimeExtractor.extractDateTime(instance);
             if (mostRecent == null || instanceTime.isAfter(mostRecent)) {
                 mostRecent = instanceTime;

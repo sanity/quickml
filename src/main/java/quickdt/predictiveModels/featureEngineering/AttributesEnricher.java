@@ -1,9 +1,9 @@
 package quickdt.predictiveModels.featureEngineering;
 
 import com.google.common.base.Function;
-import quickdt.data.Attributes;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A Function that will take a set of attributes, and return a set of attributes that will

@@ -65,6 +65,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     }
 
     private void initializeTrainingAndValidationSets(Iterable< Instance<R>> rawTrainingData) {
+
         setAndSortAllTrainingData(rawTrainingData);
         setMaxValidationTime();
 
@@ -145,6 +146,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     }
 
     private void setAndSortAllTrainingData(Iterable<Instance<R>> rawTrainingData) {
+
         this.allTrainingData = Lists.<Instance<R>>newArrayList();
         for (Instance<R> instance : rawTrainingData) {
             this.allTrainingData.add(instance);
