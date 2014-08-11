@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.Misc;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
@@ -76,7 +76,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
     }
 
 
-    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends AbstractInstance> trainingData) {
+    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance> trainingData) {
     executorService = Executors.newFixedThreadPool(executorThreadCount);
     logger.info("Building random forest with {} trees", numTrees);
     treeBuilder.setID(id);
@@ -86,7 +86,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
 
     // Submit all tree building jobs to the executor
     for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
-      Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(trainingData);
+      Iterable<? extends Instance> treeTrainingData = shuffleTrainingData(trainingData);
       treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
     }
 
@@ -96,7 +96,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
     return new RandomForest(trees);
   }
 
-    public synchronized void updatePredictiveModel(RandomForest randomForest, final Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public synchronized void updatePredictiveModel(RandomForest randomForest, final Iterable<? extends Instance> newData, boolean splitNodes) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Updating random forest with {} trees", numTrees);
 
@@ -105,8 +105,8 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
 
         // Submit all tree building jobs to the executor
         for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
-            Iterable<? extends AbstractInstance> treeTrainingData = shuffleTrainingData(newData);
-            treeFutures.add(submitTreeUpdate(randomForest.trees.get(treeIndex), treeTrainingData, treeIndex, trainingData, splitNodes));
+            Iterable<? extends Instance> treeTrainingData = shuffleTrainingData(newData);
+            treeFutures.add(submitTreeUpdate(randomForest.trees.get(treeIndex), treeTrainingData, treeIndex, splitNodes));
         }
 
         // Collect all completed trees. Will block until complete
@@ -129,15 +129,15 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         collectTreeFutures(trees, treeFutures);
     }
 
-    protected Iterable<? extends AbstractInstance> shuffleTrainingData(Iterable<? extends AbstractInstance> trainingData) {
-        Iterable<? extends AbstractInstance> treeTrainingData;
+    protected Iterable<? extends Instance> shuffleTrainingData(Iterable<? extends Instance> trainingData) {
+        Iterable<? extends Instance> treeTrainingData;
         if (baggingSampleSize > 0) {
             final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
-            ArrayList<AbstractInstance> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
-            for (AbstractInstance instance : Iterables.limit(trainingData, bagSize)) {
+            ArrayList<Instance> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
+            for (Instance instance : Iterables.limit(trainingData, bagSize)) {
                 treeTrainingDataArrayList.add(instance);
             }
-            for (AbstractInstance instance : trainingData) {
+            for (Instance instance : trainingData) {
                 //TODO: using bagSize here was getting indexOutOfBounds, can't figure out why
                 int position = Misc.random.nextInt(treeTrainingDataArrayList.size());
                 treeTrainingDataArrayList.add(position, instance);
@@ -149,7 +149,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         return treeTrainingData;
     }
 
-  private Future<Tree> submitTreeBuild(final Iterable<? extends AbstractInstance> trainingData, final int treeIndex) {
+  private Future<Tree> submitTreeBuild(final Iterable<? extends Instance> trainingData, final int treeIndex) {
     return executorService.submit(new Callable<Tree>() {
       @Override
       public Tree call() throws Exception {
@@ -158,11 +158,11 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
     });
   }
 
-    private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends AbstractInstance> newData, final int treeIndex, final List<? extends AbstractInstance> trainingData, final boolean splitNodes) {
+    private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends Instance> newData, final int treeIndex, final boolean splitNodes) {
         return executorService.submit(new Callable<Tree>() {
             @Override
             public Tree call() throws Exception {
-                return updateModel(tree, newData, treeIndex, trainingData, splitNodes);
+                return updateModel(tree, newData, treeIndex, splitNodes);
             }
         });
     }
@@ -176,9 +176,9 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         });
     }
 
-    private Tree updateModel(Tree tree, Iterable<? extends AbstractInstance> newData, int treeIndex, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    private Tree updateModel(Tree tree, Iterable<? extends Instance> newData, int treeIndex, boolean splitNodes) {
         logger.debug("Updating tree {} of {}", treeIndex, numTrees);
-        treeBuilder.updatePredictiveModel(tree, newData, trainingData, splitNodes);
+        treeBuilder.updatePredictiveModel(tree, newData, splitNodes);
         return tree;
     }
 
@@ -188,7 +188,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Rand
         return tree;
     }
 
-  private Tree buildModel(Iterable<? extends AbstractInstance> trainingData, int treeIndex) {
+  private Tree buildModel(Iterable<? extends Instance> trainingData, int treeIndex) {
     logger.debug("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
   }
