@@ -8,6 +8,7 @@ import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.List;
@@ -32,17 +33,21 @@ public class RandomForest extends Classifier {
     }
 
 
-    public void dump(PrintStream printStream, int numTrees) {
+    public void dump(Appendable appendable, int numTrees) {
         double meanDepth = 0;
         for (int i = 0; i < numTrees; i++) {
             meanDepth += trees.get(i).node.meanDepth();
         }
-        printStream.print("meanDepth " + meanDepth/numTrees + "\n");
-        for (Tree tree : trees) {
-            printStream.print("depth " + tree.node.meanDepth() + "\n");
+        try {
+            appendable.append("meanDepth " + meanDepth / numTrees + "\n");
+            for (Tree tree : trees) {
+                appendable.append("depth " + tree.node.meanDepth() + "\n");
+            }
+            for (int i = 0; i < numTrees; i++)
+                trees.get(i).dump(appendable);
+        } catch (IOException e) {
+            throw new RuntimeException();
         }
-        for (int i = 0; i < numTrees; i++)
-           trees.get(i).dump(printStream);
     }
 
     @Override
