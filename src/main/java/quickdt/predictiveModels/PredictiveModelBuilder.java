@@ -16,7 +16,7 @@ public interface PredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> {
 //    PredictiveModelBuilder<? extends R, ? extends PM> updatable(boolean updatable);
 //=======
 
-    PM buildPredictiveModel(Iterable<? extends Instance<R>> trainingData);
+    PM buildPredictiveModel(Iterable<Instance<R>> trainingData);
     PredictiveModelBuilder<R, PM> updatable(boolean updatable);
 //>>>>>>> origin/regRefactorTake2-ian
     void setID(Serializable id);

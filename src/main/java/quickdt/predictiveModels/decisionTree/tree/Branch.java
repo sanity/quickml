@@ -2,6 +2,7 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.base.Predicate;
 import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,7 +29,7 @@ public abstract class Branch extends Node {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<AbstractInstance<Map<String, Serializable>>> getInPredicate() {
+	public Predicate<Instance<Map<String, Serializable>>> getInPredicate() {
 		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
 
 			@Override
@@ -38,7 +39,7 @@ public abstract class Branch extends Node {
 		};
 	}
 
-	public Predicate<AbstractInstance<Map<String, Serializable>>> getOutPredicate() {
+	public Predicate<Instance<Map<String, Serializable>>> getOutPredicate() {
 		return new Predicate<AbstractInstance<Map<String, Serializable>>>() {
 
 			@Override

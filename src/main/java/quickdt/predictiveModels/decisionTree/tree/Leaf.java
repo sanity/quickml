@@ -2,7 +2,7 @@ package quickdt.predictiveModels.decisionTree.tree;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,7 +35,7 @@ public class Leaf extends Node {
 
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
-    public Leaf(Node parent, final Iterable<? extends AbstractInstance> instances, final int depth) {
+    public Leaf(Node parent, final Iterable<? extends Instance<Map<String, Serializable>> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
 	}

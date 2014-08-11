@@ -1,7 +1,6 @@
 package quickdt.predictiveModels.decisionTree;
 
 import com.google.common.collect.Maps;
-import quickdt.data.AbstractInstance;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 import quickdt.predictiveModels.decisionTree.tree.Node;

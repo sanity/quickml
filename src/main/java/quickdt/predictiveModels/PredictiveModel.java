@@ -16,5 +16,5 @@ public interface PredictiveModel<R, P> {
 
     P predict(R regressors);
     void dump(Appendable appendable);
-    List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances);
+    List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<Instance<R>> instances);
 }
