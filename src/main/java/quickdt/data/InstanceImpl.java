@@ -2,7 +2,7 @@ package quickdt.data;
 
 import java.io.Serializable;
 
-public class InstanceImpl<R> implements Instance<R> implements Serializable {
+public class InstanceImpl<R> implements Instance<R>, Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
