@@ -5,19 +5,21 @@ import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickdt.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class TemporallyReweightedPMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<TemporallyReweightedPM, TemporallyReweightedPMBuilder> {
+public class TemporallyReweightedPMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,TemporallyReweightedPM, TemporallyReweightedPMBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public TemporallyReweightedPMBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder) {
+    public TemporallyReweightedPMBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

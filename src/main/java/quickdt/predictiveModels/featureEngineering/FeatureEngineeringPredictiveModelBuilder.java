@@ -5,23 +5,23 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.Instance;
-import quickdt.data.InstanceWithMapOfRegressors;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<FeatureEngineeredPredictiveModel> {
+public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
 
-    private final PredictiveModelBuilder<?> wrappedBuilder;
+    private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<?> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
@@ -30,24 +30,26 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public FeatureEngineeredPredictiveModel buildPredictiveModel(final Iterable<? extends Instance> trainingData) {
+    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {
             enrichers.add(enrichStrategy.build(trainingData));
         }
 
-        final Iterable<InstanceWithMapOfRegressors> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
+        final Iterable<Instance<Map<String, Serializable>>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
-        PredictiveModel<Object> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
+        Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
     }
 
     @Override
-    public PredictiveModelBuilder<FeatureEngineeredPredictiveModel> updatable(boolean updatable) {
-        throw new UnsupportedOperationException();
+    public PredictiveModelBuilder<Map<String, Serializable>, FeatureEngineeredPredictiveModel> updatable(boolean updatable) {
+        wrappedBuilder.updatable(updatable);
+        return this;
     }
+
 
     @Override
     public void setID(Serializable id) {
