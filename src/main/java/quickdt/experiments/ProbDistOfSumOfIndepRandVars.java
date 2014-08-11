@@ -7,7 +7,10 @@ import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -36,7 +39,7 @@ public class ProbDistOfSumOfIndepRandVars {
         initializeAttributeProperties(numPredictiveAttributes, numNoiseAttributes);
         initializeClassificationVariableProperties(maxProbabilityOfPositiveClassification, stdsAboveTheMeanForRelevance);
 
-        List<InstanceWithMapOfRegressors> trainingData = createTrainingData();
+        List<Instance<Map<String,Serializable>>> trainingData = createTrainingData();
         this.randomForest = getRandomForest(trainingData);
     }
 
@@ -48,7 +51,7 @@ public class ProbDistOfSumOfIndepRandVars {
         double deviation = 0;
 
         for (int i = 0; i < samples; i++)  {
-            attributes = new HashMapAttributes();
+            attributes = new HashMap();
             classificationVar = 0;
             for (int j = 0; j < numAttributes; j++)  {
                 attributeValue = useAttribute(j);
@@ -98,20 +101,20 @@ public class ProbDistOfSumOfIndepRandVars {
         this.maxProbabilityOfPositiveClassification = maxProbabilityOfPositiveClassification;
     }
 
-    private RandomForest getRandomForest(List<InstanceWithMapOfRegressors> trainingData) {
+    private RandomForest getRandomForest(List<Instance<Map<String,Serializable>>> trainingData) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
     }
 
-    private  List<InstanceWithMapOfRegressors> createTrainingData() {
+    private  List<Instance<Map<String,Serializable>>> createTrainingData() {
 
-        List<InstanceWithMapOfRegressors> trainingData = Lists.newArrayList();
+        List<Instance<Map<String,Serializable>>> trainingData = Lists.newArrayList();
         double attributeValue;
-        InstanceWithMapOfRegressors instance;
+        Instance<Map<String,Serializable>> instance;
         Map<String, Serializable> attributes;
         for (int i = 0; i < instances; i++)  {
-            attributes = new HashMapAttributes();
+            attributes = new HashMap();
             classificationVar = 0;
             for (int j = 0; j < numAttributes; j++)  {
                 attributeValue = useAttribute(j);
@@ -121,7 +124,7 @@ public class ProbDistOfSumOfIndepRandVars {
             normalizeClassificationVar();
             classify();
 
-            instance = new InstanceWithMapOfRegressors(attributes, this.classification );
+            instance = new InstanceImpl(attributes, this.classification );
             trainingData.add(instance);
         }
         return trainingData;

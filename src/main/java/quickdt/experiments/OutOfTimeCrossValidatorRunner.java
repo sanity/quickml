@@ -3,14 +3,16 @@ package quickdt.experiments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.*;
+import quickdt.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
 import quickdt.data.Instance;
-import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 1/16/14.
@@ -26,13 +28,13 @@ public class OutOfTimeCrossValidatorRunner {
         List<Instance> trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
-        for (Instance instance : trainingData) {
+        for (Instance<Map<String,Serializable>> instance : trainingData) {
             instance.getRegressors().put("currentTimeMillis", millisInMinute * instanceNumber);
             instanceNumber++;
         }
         logger.info("trainingDataSize " + trainingData.size());
         PredictiveModelBuilder predictiveModelBuilder = getRandomForestBuilder(5, 5);
-        CrossValidator<PredictiveModel> crossValidator = new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        CrossValidator crossValidator = new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
 
         double totalLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
 
