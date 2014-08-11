@@ -1,6 +1,6 @@
 package quickdt.predictiveModels.featureEngineering.enrichStrategies.attributeCombiner;
 
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.featureEngineering.AttributesEnrichStrategy;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
@@ -19,7 +19,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends AbstractInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends Instance> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

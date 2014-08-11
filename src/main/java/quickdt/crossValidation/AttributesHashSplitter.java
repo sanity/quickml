@@ -3,7 +3,7 @@ package quickdt.crossValidation;
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Map;
 /**
 * Created by ian on 2/28/14.
 */
-public class AttributesHashSplitter implements Predicate<AbstractInstance<Map<String, Serializable>>> {
+public class AttributesHashSplitter implements Predicate<Instance<Map<String, Serializable>>> {
 
     private static final HashFunction hashFunction = Hashing.murmur3_32();
 
@@ -22,7 +22,7 @@ public class AttributesHashSplitter implements Predicate<AbstractInstance<Map<St
     }
 
     @Override
-    public boolean apply(final AbstractInstance<Map<String, Serializable>> instance) {
+    public boolean apply(final Instance<Map<String, Serializable>> instance) {
         int hc = hashFunction.hashInt(instance.getRegressors().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }
