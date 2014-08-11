@@ -91,9 +91,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     @Override
-    public Tree buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        Iterable<Instance<Map<String, Serializable>>> generifiedTrainingData = setBinaryClassificationProperties(trainingData);
-        return new Tree(buildTree(null, generifiedTrainingData, 0, createNumericSplits(generifiedTrainingData)));
+    public Tree buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+        setBinaryClassificationProperties(trainingData);
+        return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
     public void updatePredictiveModel(Tree tree, final Iterable<Instance<Map<String, Serializable>>> newData, List<Instance<Map<String, Serializable>>> trainingData, boolean splitNodes) {
@@ -107,7 +107,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private Iterable<Instance<Map<String, Serializable>>> setBinaryClassificationProperties(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    private void setBinaryClassificationProperties(Iterable<Instance<Map<String, Serializable>>> trainingData) {
         ArrayList<Instance<Map<String, Serializable>>> generifiedTrainingData = Lists.newArrayList();
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
@@ -120,6 +120,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
 
             if (classifications.size() > 2) {
                 binaryClassifications = false;
+                return;
             }
         }
 
@@ -130,7 +131,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                 minorityClassification = val;
                 minorityClassificationCount = classifications.get(val).doubleValue();
             }
-        return generifiedTrainingData;
     }
 
 
