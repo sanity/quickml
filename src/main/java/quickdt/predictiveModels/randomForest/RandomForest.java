@@ -3,7 +3,7 @@ package quickdt.predictiveModels.randomForest;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
-import quickdt.data.AbstractInstance;
+import quickdt.data.Instance<Map<String, Serializable>>;
 import quickdt.data.Attributes;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.Tree;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Time: 4:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForest implements Classifier {
+public class RandomForest extends Classifier {
 
     static final long serialVersionUID = 56394564395638954L;
 
@@ -33,8 +33,8 @@ public class RandomForest implements Classifier {
     }
 
     @Override
-    public Double predict(AbstractInstance instance) {
-        return getProbability(instance.getRegressors(), instance.getLabel());
+    public Double predict(<Map<String, Serializable>> regressor) {
+        return getProbability(instance.getLabel());
     }
 
     public void dump(PrintStream printStream, int numTrees) {
