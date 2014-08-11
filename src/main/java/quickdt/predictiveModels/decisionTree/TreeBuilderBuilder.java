@@ -10,12 +10,13 @@ import quickdt.predictiveModels.decisionTree.scorers.InformationGainScorer;
 import quickdt.predictiveModels.decisionTree.scorers.MSEScorer;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by ian on 4/12/14.
  */
-public class TreeBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Tree, TreeBuilder> {
+public class TreeBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>, Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";
