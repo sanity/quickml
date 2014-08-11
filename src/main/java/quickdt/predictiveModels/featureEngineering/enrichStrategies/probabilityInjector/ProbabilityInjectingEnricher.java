@@ -1,7 +1,6 @@
 package quickdt.predictiveModels.featureEngineering.enrichStrategies.probabilityInjector;
 
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
 import java.io.Serializable;

@@ -13,15 +13,15 @@ import java.util.Map;
 public class NegativeWeightsFilter {
 
     //parametrize training data or subtype it to have right params
-    public static <R> Iterable<? extends AbstractInstance<R>> filterNegativeWeights(Iterable<? extends AbstractInstance<R>> trainingData) {
+    public static <R> Iterable<? extends Instance<R>> filterNegativeWeights(Iterable<? extends Instance<R>> trainingData) {
         final HashSet<R> instanceLookUp = new HashSet<R>();
-        for (AbstractInstance<R> instance : trainingData)
+        for (Instance<R> instance : trainingData)
             if (instance.getWeight() < 0)
                 instanceLookUp.add(instance.getRegressors());
 
-        Predicate<AbstractInstance> predicate = new Predicate<AbstractInstance>() {
+        Predicate<Instance> predicate = new Predicate<Instance>() {
             @Override
-            public boolean apply(final AbstractInstance instance) {
+            public boolean apply(final Instance instance) {
                 if (instanceLookUp.contains(instance.getRegressors()))
                     return false;
                 else

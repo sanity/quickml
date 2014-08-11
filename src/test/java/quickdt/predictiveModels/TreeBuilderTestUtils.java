@@ -2,7 +2,6 @@ package quickdt.predictiveModels;
 
 import quickdt.Misc;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 import quickdt.data.InstanceWithMapOfRegressors;
 
 import java.io.*;

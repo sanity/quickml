@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 
 import java.util.List;
 import java.util.Set;

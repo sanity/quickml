@@ -14,7 +14,7 @@ import java.util.Map;
  * If the split node threshold is passed the leaves will be rebuilt
  */
 public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> implements UpdatablePredictiveModelBuilder<R, PM> {
-    protected List<Instance<R>> trainingData;
+    protected List<? extends Instance<R>> trainingData;
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
@@ -46,7 +46,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     }
 
     @Override
-    public PM buildPredictiveModel(Iterable<Instance<R>> newData) {
+    public PM buildPredictiveModel(Iterable<? extends Instance<R>> newData) {
         if (rebuildThreshold != null || splitNodeThreshold != null) {
             buildCount++;
         }

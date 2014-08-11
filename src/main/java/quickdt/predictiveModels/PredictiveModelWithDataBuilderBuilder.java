@@ -29,7 +29,7 @@ public class PredictiveModelWithDataBuilderBuilder<R, PM extends PredictiveModel
     //PMB
     @Override
     public PredictiveModelWithDataBuilder<R, PM> buildBuilder(Map<String, Object> predictiveModelConfig) {
-        PredictiveModelWithDataBuilder<R, PM> updatablePredictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
+        UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
         PredictiveModelWithDataBuilder<R, PM> wrappedBuilder = new PredictiveModelWithDataBuilder<>(updatablePredictiveModelBuilder);
         final Integer rebuildThreshold = (Integer) predictiveModelConfig.get(REBUILD_THRESHOLD);
         final Integer splitNodeThreshold = (Integer) predictiveModelConfig.get(SPLIT_THRESHOLD);

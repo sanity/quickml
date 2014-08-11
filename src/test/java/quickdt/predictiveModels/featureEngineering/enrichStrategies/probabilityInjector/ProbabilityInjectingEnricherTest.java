@@ -4,7 +4,6 @@ import com.beust.jcommander.internal.Maps;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -3,7 +3,6 @@ package quickdt.predictiveModels.downsamplingPredictiveModel;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 import quickdt.predictiveModels.PredictiveModel;
 
 import static org.mockito.Mockito.*;

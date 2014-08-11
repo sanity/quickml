@@ -2,7 +2,6 @@ package quickdt.predictiveModels.featureEngineering.enrichStrategies.attributeCo
 
 import com.google.common.base.Joiner;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 import quickdt.predictiveModels.featureEngineering.AttributesEnricher;
 
 import javax.annotation.Nullable;

@@ -1,7 +1,6 @@
 package quickdt.experiments;
 
 import com.google.common.collect.Lists;
-import quickdt.data.HashMapAttributes;
 import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;

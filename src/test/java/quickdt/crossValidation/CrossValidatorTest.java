@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import quickdt.data.AbstractInstance;
 import quickdt.data.Attributes;
-import quickdt.data.HashMapAttributes;
 import quickdt.data.InstanceWithMapOfRegressors;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
