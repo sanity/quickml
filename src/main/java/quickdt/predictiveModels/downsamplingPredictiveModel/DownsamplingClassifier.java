@@ -1,6 +1,6 @@
 package quickdt.predictiveModels.downsamplingPredictiveModel;
 
-import quickdt.data.Attributes;
+import com.google.common.collect.Maps;
 import quickdt.predictiveModels.Classifier;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingClassifier implements Classifier {
+public class DownsamplingClassifier extends Classifier {
     private static final long serialVersionUID = -265699047882740160L;
 
     public final Classifier wrappedClassifier;
@@ -25,7 +25,6 @@ public class DownsamplingClassifier implements Classifier {
         this.dropProbability = dropProbability;
     }
 
-    @Override
     public double predict(final Map<String, Serializable> attributes, final Serializable classification) {
         double uncorrectedProbability = wrappedClassifier.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
@@ -37,16 +36,6 @@ public class DownsamplingClassifier implements Classifier {
 
     }
 
-    /**
-     * Unsupported at this time, will throw UnsupportedOperationException
-     * @param attributes
-     * @return
-     */
-    @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public void dump(final Appendable appendable) {
         try {
@@ -55,6 +44,14 @@ public class DownsamplingClassifier implements Classifier {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
+        probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
+        return probsByClassification;
     }
 
     @Override
