@@ -13,7 +13,11 @@ public interface PredictiveModelBuilderBuilder<R, PM extends PredictiveModel<R, 
     public PMB buildBuilder(Map<String, Object> predictiveModelConfig);
 
 }
-//PredictiveModelWithDataBuilder<R, PM> not an extension of  PredictiveModelBuilder<R, PM>, where in both
+//options for fixing:
+//change PredictiveModelWithDataBuilderBuilder to not implement PredictiveModelBuilderBuilder? Not an option...need for PMO
+//chang
+
+//PredictiveModelWithDataBuilder<R, PM> not an extension of  PredictiveModelBuilder<R, PM>?
 //PredictiveModelWithDataBuilder<R, PM> is an extension of UpdatablePredictiveModelBuilder<R, PM> because it implements it.
 //UpdatablePredictiveModelBuilder<R, PM> is an extension of extends PredictiveModelBuilder<R, PM>.
 //so it is 2 extensions away.  Why does this not work?

@@ -27,11 +27,12 @@ public class PredictiveModelWithDataBuilderBuilder<R, PM extends PredictiveModel
     }
 
     @Override
-    public PredictiveModelWithDataBuilder<R, PM> buildBuilder(Map<String, Object> predictiveModelConfig) {
-        UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
-        PredictiveModelWithDataBuilder<R, PM> wrappedBuilder = new PredictiveModelWithDataBuilder(updatablePredictiveModelBuilder);
+    public PMB buildBuilder(Map<String, Object> predictiveModelConfig) {
+        PMB updatablePredictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(predictiveModelConfig);
+        PredictiveModelWithDataBuilder<R, PM> wrappedBuilder = new PredictiveModelWithDataBuilder<>(updatablePredictiveModelBuilder);
         final Integer rebuildThreshold = (Integer) predictiveModelConfig.get(REBUILD_THRESHOLD);
         final Integer splitNodeThreshold = (Integer) predictiveModelConfig.get(SPLIT_THRESHOLD);
-        return wrappedBuilder.rebuildThreshold(rebuildThreshold).splitNodeThreshold(splitNodeThreshold);
+        //find out why this cast is needed.  We know wrappedBuilder is of type PMB because PredictiveModelWithDataBuilder<R,PM> implements UpdatablePredictievModel<R,PM>...which PM extends
+        return (PMB)wrappedBuilder.rebuildThreshold(rebuildThreshold).splitNodeThreshold(splitNodeThreshold);
     }
 }
