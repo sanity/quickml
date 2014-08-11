@@ -25,7 +25,7 @@ public class DownsamplingClassifier extends Classifier {
         this.dropProbability = dropProbability;
     }
 
-    public double predict(final Map<String, Serializable> attributes, final Serializable classification) {
+    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         double uncorrectedProbability = wrappedClassifier.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {

@@ -7,6 +7,6 @@ import quickdt.data.Instance;
  */
 public interface UpdatablePredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> extends PredictiveModelBuilder<R, PM>{
 
-    public abstract void updatePredictiveModel(PM predictiveModel, Iterable<? extends Instance<R>> newData, boolean splitNodes);
+    public abstract void updatePredictiveModel(PM predictiveModel, Iterable<Instance<R>> newData, boolean splitNodes);
     public abstract void stripData(PM predictiveModel);
 }

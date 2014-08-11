@@ -1,10 +1,11 @@
 package quickdt.predictiveModels.calibratedPredictiveModel;
 
 import com.google.common.base.Preconditions;
-import quickdt.data.Attributes;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -15,46 +16,32 @@ import java.util.Map;
 /*
   This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a random forest of probability estimation trees.
 */
-public class CalibratedPredictiveModel implements PredictiveModel<Object> {
+public class CalibratedPredictiveModel extends Classifier {
     private static final long serialVersionUID = 8291739965981425742L;
     public final Calibrator calibrator;
-    public final PredictiveModel<Object> predictiveModel;
+    public final PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> predictiveModel;
     public final Serializable positiveClassification;
 
-    public CalibratedPredictiveModel (PredictiveModel<Object> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
+    public CalibratedPredictiveModel (PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
         Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
         this.predictiveModel = predictiveModel;
         this.calibrator = calibrator;
         this.positiveClassification = positiveClassification;
     }
 
-    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
-        double rawProbability = predictiveModel.getProbability(attributes, positiveClassification);
-        double corrected = calibrator.correct(rawProbability);
-        if (classification.equals(positiveClassification)) {
-            return corrected;
-        } else {
-            return 1.0 - corrected;
+    @Override
+    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+        Map<Serializable, Double> predictions = predictiveModel.predict(attributes);
+        Map<Serializable, Double> calibratedPredictions = new HashMap<>();
+        for(Map.Entry<Serializable, Double> prediction : predictions.entrySet()) {
+            calibratedPredictions.put(prediction.getKey(), calibrator.correct(prediction.getValue()));
         }
+        return calibratedPredictions;
     }
 
-    /**
-     * Unsupported at this time, will throw UnsupportedOperationException
-     * @param attributes
-     * @return
-     */
-    @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public void dump(Appendable appendable) {
         predictiveModel.dump(appendable);
-    }
-
-    @Override
-    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
-        return predictiveModel.getClassificationByMaxProb(attributes);
     }
 }
