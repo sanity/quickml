@@ -8,6 +8,8 @@ public class Instance<R> implements Serializable {
 
     private static final double DEFAULT_WEIGHT = 1.0;
 
+    public int index;
+
     private Instance() {
 
     }

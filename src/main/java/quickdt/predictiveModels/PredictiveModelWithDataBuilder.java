@@ -4,6 +4,7 @@ import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,39 +13,40 @@ import java.util.Map;
  * The builder will keep track of the number of times the model has been built, and if the rebuild threshold is passed the model will be rebuilt
  * If the split node threshold is passed the leaves will be rebuilt
  */
-public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implements UpdatablePredictiveModelBuilder<PM> {
-    protected List<Instance<Map<String, Serializable>>> trainingData;
+public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> implements UpdatablePredictiveModelBuilder<R, PM> {
+    protected List<Instance<R>> trainingData;
     protected PM predictiveModel;
-    private final UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder;
+    private final UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder;
     protected Integer rebuildThreshold;
     protected Integer splitNodeThreshold;
     protected int buildCount = 0;
 
-    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder) {
+    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder) {
         this(updatablePredictiveModelBuilder, null);
     }
 
-    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<PM> updatablePredictiveModelBuilder, PM predictiveModel) {
+    public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<R,PM> updatablePredictiveModelBuilder, PM predictiveModel) {
         this.updatablePredictiveModelBuilder = updatablePredictiveModelBuilder;
         this.predictiveModel = predictiveModel;
         updatablePredictiveModelBuilder.updatable(true);
     }
 
-    public PredictiveModelWithDataBuilder<PM> rebuildThreshold(Integer rebuildThreshold) {
+    public PredictiveModelWithDataBuilder<R, PM> rebuildThreshold(Integer rebuildThreshold) {
         this.rebuildThreshold = rebuildThreshold;
         return this;
     }
 
-    public PredictiveModelWithDataBuilder<PM> splitNodeThreshold(Integer splitNodeThreshold) {
+    public PredictiveModelWithDataBuilder<R, PM> splitNodeThreshold(Integer splitNodeThreshold) {
         this.splitNodeThreshold = splitNodeThreshold;
         return this;
     }
 
-    public PredictiveModelWithDataBuilder<PM> updatable(boolean updatable) {
+    public PredictiveModelWithDataBuilder<R,PM> updatable(boolean updatable) {
         return this;
     }
 
-    public PM buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> newData) {
+    @Override
+    public PM buildPredictiveModel(Iterable<Instance<R>> newData) {
         if (rebuildThreshold != null || splitNodeThreshold != null) {
             buildCount++;
         }
@@ -66,14 +68,15 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
         return predictiveModel;
     }
 
-    private PM buildUpdatablePredictiveModel(List<Instance<Map<String, Serializable>>> trainingData) {
+
+    private PM buildUpdatablePredictiveModel(Iterable<Instance<R>> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
-    private void appendTrainingData(Iterable<Instance<Map<String, Serializable>>> newTrainingData) {
+    private void appendTrainingData(Iterable<Instance<R>> newTrainingData) {
         int index = trainingData.size();
-        List<Instance<Map<String, Serializable>>> dataList = new ArrayList<>();
-        for(Instance<Map<String, Serializable>> data : newTrainingData) {
+        List<Instance<R>> dataList = new ArrayList<>();
+        for(Instance<R> data : newTrainingData) {
             data.index = index;
             index++;
             dataList.add(data);
@@ -83,7 +86,7 @@ public class PredictiveModelWithDataBuilder<PM extends PredictiveModel> implemen
     }
 
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, List<Instance<Map<String, Serializable>>> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<R>> newData, List<Instance<R>> trainingData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, trainingData, splitNodes);
     }
 
