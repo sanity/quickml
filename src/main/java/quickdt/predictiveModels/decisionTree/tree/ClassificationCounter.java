@@ -97,9 +97,9 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-	public static ClassificationCounter countAll(final Iterable<Instance> instances) {
+	public static ClassificationCounter countAll(final Iterable<Instance<Map<String, Serializable>>> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
-		for (final Instance instance : instances) {
+		for (final Instance<Map<String, Serializable>> instance : instances) {
 			result.addClassification(instance.getLabel(), instance.getWeight());
 		}
 		return result;
