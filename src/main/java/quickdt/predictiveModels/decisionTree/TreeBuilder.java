@@ -96,7 +96,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
 
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends Instance> newData, boolean splitNodes) {
+    @Override
+    public void updatePredictiveModel(Tree tree, final Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         //first move all the data into the leaves
         for (Instance<Map<String, Serializable>> instance : newData) {
             addInstanceToNode(tree.node, instance);
@@ -205,7 +206,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             return thisLeaf;
         }
 
-        Pair<Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
+        Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
         Branch bestNode = bestPair != null ? bestPair.getValue0() : null;
         double bestScore = bestPair != null ? bestPair.getValue1() : 0;
 
@@ -304,21 +305,21 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private Pair<Branch, Double> getBestNodePair(Node parent, final Iterable<Instance<Map<String, Serializable>>> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<Instance<Map<String, Serializable>>> trainingData, final Map<String, double[]> splits) {
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
-        Pair<Branch, Double> bestPair = null;
+        Pair<? extends Branch, Double> bestPair = null;
 
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
             if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
                 continue;
             }
 
-            Pair<Branch, Double> thisPair = null;
-            Pair<Branch, Double> numericPair = null;
-            Pair<Branch, Double> categoricalPair = null;
+            Pair<? extends Branch, Double> thisPair = null;
+            Pair<? extends Branch, Double> numericPair = null;
+            Pair<? extends Branch, Double> categoricalPair = null;
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
                 numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
@@ -378,7 +379,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return attributeCharacteristics;
     }
 
-    private Pair<Branch, Double> createCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
                                                                  final Iterable<Instance<Map<String, Serializable>>> instances) {
         if (binaryClassifications) {
             return createTwoClassCategoricalNode(parent, attribute, instances);
@@ -387,7 +388,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private Pair<Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
                                                                          final Iterable<Instance<Map<String, Serializable>>> instances) {
 
         //get Pair of Sets of classification counters
@@ -443,7 +444,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return bestPair;
     }
 
-    private Pair<Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
                                                                        final Iterable<Instance<Map<String, Serializable>>> instances) {
 
         final Set<Serializable> values = getAttrinbuteValues(instances, attribute);
@@ -528,7 +529,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return totalCounts < minCategoricalAttributeValueOccurances;
     }
 
-    private Pair<Branch, Double> createNumericNode(Node parent, final String attribute,
+    private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                              final Iterable<Instance<Map<String, Serializable>>> instances,
                                                              final double[] splits) {
         double bestScore = 0;
