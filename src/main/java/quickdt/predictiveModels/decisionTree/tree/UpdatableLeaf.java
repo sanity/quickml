@@ -1,6 +1,7 @@
 package quickdt.predictiveModels.decisionTree.tree;
 
-import quickdt.data.AbstractInstance;
+
+import quickdt.data.Instance;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -13,14 +14,14 @@ import java.util.Map;
 public class UpdatableLeaf extends Leaf {
     public final Collection<Integer> trainingDataIndexes = new HashSet<>();
 
-    public UpdatableLeaf(Node parent, Iterable<? extends AbstractInstance<Map<String, Serializable>>> instances, int depth) {
+    public UpdatableLeaf(Node parent, Iterable<? extends Instance<Map<String, Serializable>>> instances, int depth) {
         super(parent, instances, depth);
-        for(AbstractInstance<Map<String, Serializable>> instance : instances) {
+        for(Instance<Map<String, Serializable>> instance : instances) {
             trainingDataIndexes.add(instance.index);
         }
     }
 
-    public void addInstance(AbstractInstance<Map<String, Serializable>> instance) {
+    public void addInstance(Instance<Map<String, Serializable>> instance) {
         classificationCounts.addClassification(instance.getLabel(), instance.getWeight());
         trainingDataIndexes.add(instance.index);
         exampleCount++;

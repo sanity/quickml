@@ -91,7 +91,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     @Override
-    public Tree buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public Tree buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         setBinaryClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
     }
@@ -107,7 +107,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private void setBinaryClassificationProperties(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private void setBinaryClassificationProperties(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
 
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
@@ -148,7 +148,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return getSplit(reservoirSampler);
     }
 
-    private Map<String, double[]> createNumericSplits(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private Map<String, double[]> createNumericSplits(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final Instance<Map<String, Serializable>> instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getRegressors().entrySet()) {
@@ -190,7 +190,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<Instance<Map<String, Serializable>>> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
