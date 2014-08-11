@@ -1,21 +1,23 @@
 package quickdt.predictiveModels.featureEngineering;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by ian on 5/21/14.
  */
-public class FeatureEngineeringPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
+public class FeatureEngineeringPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
-    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderBuilder(
-            PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;

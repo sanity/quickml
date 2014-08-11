@@ -2,8 +2,7 @@ package quickdt.predictiveModels.randomForest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.data.Attributes;
-import quickdt.data.InstanceWithMapOfRegressors;
+import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.Tree;
@@ -20,7 +19,7 @@ import java.util.Map;
 public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
@@ -41,7 +40,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -55,7 +54,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
@@ -76,7 +75,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -89,7 +88,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");

@@ -1,7 +1,6 @@
 package quickdt.predictiveModels.featureEngineering;
 
-import quickdt.data.Attributes;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,25 +11,20 @@ import java.util.Map;
  * Attributes based on one or more "enrichers".  This objected is created by a
  * {@link FeatureEngineeringPredictiveModelBuilder}.
  */
-public class FeatureEngineeredPredictiveModel implements PredictiveModel<Object> {
+public class FeatureEngineeredPredictiveModel extends Classifier {
     private static final long serialVersionUID = 7279329500376419142L;
-    private final PredictiveModel<Object> wrappedModel;
+    private final Classifier wrappedClassifier;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel<Object> wrappedModel, List<AttributesEnricher> attributesEnrichers) {
-        this.wrappedModel = wrappedModel;
+    public FeatureEngineeredPredictiveModel(Classifier wrappedClassifier, List<AttributesEnricher> attributesEnrichers) {
+        this.wrappedClassifier = wrappedClassifier;
         this.attributesEnrichers = attributesEnrichers;
     }
 
     @Override
-    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
+    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
         Map<String, Serializable> enrichedAttributes = enrichAttributes(attributes);
-        return wrappedModel.getProbability(enrichedAttributes, classification);
-    }
-
-    @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
-        return wrappedModel.getProbabilitiesByClassification(attributes);
+        return wrappedClassifier.predict(enrichedAttributes);
     }
 
     private Map<String, Serializable> enrichAttributes(final Map<String, Serializable> attributes) {
@@ -43,11 +37,11 @@ public class FeatureEngineeredPredictiveModel implements PredictiveModel<Object>
 
     @Override
     public void dump(final Appendable appendable) {
-        wrappedModel.dump(appendable);
+        wrappedClassifier.dump(appendable);
     }
 
     @Override
     public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
-        return wrappedModel.getClassificationByMaxProb(enrichAttributes(attributes));
+        return wrappedClassifier.getClassificationByMaxProb(enrichAttributes(attributes));
     }
 }

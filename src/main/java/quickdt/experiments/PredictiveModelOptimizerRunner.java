@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.crossValidation.CrossValidator;
+import quickdt.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickdt.crossValidation.OutOfTimeCrossValidator;
 import quickdt.csvReader.CSVToMap;
@@ -40,7 +41,7 @@ public class PredictiveModelOptimizerRunner {
         List<BidderConfiguration> configurations = Lists.newLinkedList();
 
         for(PredictiveModelBuilderBuilder builderBuilder : builderBuilders) {
-            CrossValidator<PredictiveModel> crossValidator = getCrossValidator();
+            CrossValidator crossValidator = getCrossValidator();
             Map<String, FieldValueRecommender> parametersToOptimize = getParametersToOptimize();
             PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(builderBuilder, trainingData, crossValidator,parametersToOptimize);
             Map<String, Object> initialConfiguration = getInitialConfiguration();
@@ -86,7 +87,7 @@ public class PredictiveModelOptimizerRunner {
     }
 
 
-    private static CrossValidator<PredictiveModel> getCrossValidator() {
+    private static CrossValidator getCrossValidator() {
         return new OutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.15, 30, new TrainingDateTimeExtractor());
     }
 
@@ -96,9 +97,9 @@ public class PredictiveModelOptimizerRunner {
         return builderBuilders;
     }
 
-    private static Iterable<? extends Instance> getTrainingData(String filename) throws IOException {
+    private static Iterable<Instance<Map<String, Serializable>>> getTrainingData(String filename) throws IOException {
         List<Map<String, Serializable>> instanceMaps = CSVToMap.loadRows(filename);
-        List<InstanceWithMapOfRegressors> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
+        List<Instance<Map<String, Serializable>>> instances = CsvReaderExp.convertRawMapToInstance(instanceMaps);
         logger.info("Read " + instances.size() + " instances");
         return instances;
     }
@@ -115,10 +116,10 @@ public class PredictiveModelOptimizerRunner {
         }
     }
 
-    public static class TrainingDateTimeExtractor implements DateTimeExtractor {
+    public static class TrainingDateTimeExtractor implements DateTimeExtractor<Map<String, Serializable>> {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
-        public DateTime extractDateTime(Instance instance) {
+        public DateTime extractDateTime(Instance<Map<String, Serializable>> instance) {
             Map<String, Serializable> attributes = instance.getRegressors();
             try {
                 Date currentTimeMillis = dateFormat.parse((String)attributes.get("created_at"));

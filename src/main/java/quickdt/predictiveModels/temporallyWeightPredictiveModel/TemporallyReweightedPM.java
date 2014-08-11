@@ -1,7 +1,6 @@
 package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
-import quickdt.data.Attributes;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -9,36 +8,36 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 6/20/14.
  */
-public class TemporallyReweightedPM implements PredictiveModel<Object> {
+public class TemporallyReweightedPM extends Classifier {
     private static final long serialVersionUID = 2642074639257374588L;
-    private final PredictiveModel<Object> wrappedModel;
+    private final Classifier wrappedClassifier;
 
-    public TemporallyReweightedPM(PredictiveModel<Object> predictiveModel) {
-        this.wrappedModel = predictiveModel;
+    public TemporallyReweightedPM(Classifier predictiveModel) {
+        this.wrappedClassifier = predictiveModel;
     }
 
     @Override
     public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
-        return wrappedModel.getProbability(attributes, classification);
+        return wrappedClassifier.getProbability(attributes, classification);
     }
 
     @Override
-    public Map<Serializable, Double> getProbabilitiesByClassification(final Map<String, Serializable> attributes) {
-        return wrappedModel.getProbabilitiesByClassification(attributes);
+    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+        return wrappedClassifier.predict(attributes);
     }
 
     @Override
     public void dump(final Appendable appendable) {
-        wrappedModel.dump(appendable);
+        wrappedClassifier.dump(appendable);
     }
 
     @Override
     public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
-        return wrappedModel.getClassificationByMaxProb(attributes);
+        return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
 
-    public PredictiveModel<Object> getWrappedModel() {
-        return wrappedModel;
+    public Classifier getWrappedClassifier() {
+        return wrappedClassifier;
     }
 
 }

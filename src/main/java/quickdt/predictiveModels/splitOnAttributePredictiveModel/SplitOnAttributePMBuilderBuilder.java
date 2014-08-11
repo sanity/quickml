@@ -3,24 +3,26 @@ package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 import com.google.common.collect.Maps;
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 import quickdt.predictiveModels.UpdatablePredictiveModelBuilderBuilder;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by chrisreeves on 6/10/14.
  */
-public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<SplitOnAttributePM, SplitOnAttributePMBuilder> {
+public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,SplitOnAttributePM, SplitOnAttributePMBuilder> {
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
-    private final PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder;
     private final String attributeKey;
     private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributePMBuilderBuilder(PredictiveModelBuilderBuilder<?, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
+    public SplitOnAttributePMBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.attributeKey = attributeKey;
         this.attributeWhiteList = attributeWhiteList;

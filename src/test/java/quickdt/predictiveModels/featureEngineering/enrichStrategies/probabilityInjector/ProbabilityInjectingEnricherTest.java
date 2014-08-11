@@ -3,9 +3,9 @@ package quickdt.predictiveModels.featureEngineering.enrichStrategies.probability
 import com.beust.jcommander.internal.Maps;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
-import quickdt.data.Attributes;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ProbabilityInjectingEnricherTest {
@@ -16,7 +16,7 @@ public class ProbabilityInjectingEnricherTest {
         valueProbs.put(5, 0.2);
         valueProbsByAttr.put("testkey", valueProbs);
         ProbabilityInjectingEnricher probabilityInjectingEnricher = new ProbabilityInjectingEnricher(valueProbsByAttr);
-        HashMapAttributes inputAttributes = new HashMapAttributes();
+        Map<String,Serializable> inputAttributes = new HashMap();
         inputAttributes.put("testkey", 5);
         final Map<String, Serializable> outputAttributes = probabilityInjectingEnricher.apply(inputAttributes);
         Assert.assertEquals("The pre-existing attribute is still there", 5, outputAttributes.get("testkey"));

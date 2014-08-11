@@ -1,31 +1,33 @@
 package quickdt.predictiveModels;
 
 import quickdt.Misc;
-import quickdt.data.Attributes;
-import quickdt.data.InstanceWithMapOfRegressors;
+import quickdt.data.Instance;
+import quickdt.data.InstanceImpl;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Chris on 5/14/2014.
  */
 public class TreeBuilderTestUtils {
 
-    public static List<InstanceWithMapOfRegressors> getInstances(int numInstances) {
-        final List<InstanceWithMapOfRegressors> instances = new ArrayList<>();
+    public static List<Instance<Map<String,Serializable>>> getInstances(int numInstances) {
+        final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);
-            instances.add(InstanceWithMapOfRegressors.create(bmiHealthy(weight, height), "weight", weight, "height", height, "gender", Misc.random.nextInt(2)));
+            Map<String,Serializable> attributes = new HashMap<>();
+            attributes.put("weight", weight);
+            attributes.put("height", height);
+            attributes.put("gender", Misc.random.nextInt(2));
+            instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, bmiHealthy(weight, height)));
         }
         return instances;
     }
 
-    public static List<InstanceWithMapOfRegressors> getIntegerInstances(int numInstances) {
-        final List<InstanceWithMapOfRegressors> instances = new ArrayList<>();
+    public static List<Instance<Map<String,Serializable>>> getIntegerInstances(int numInstances) {
+        final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
             final double weight = 120 + Misc.random.nextInt(110);
@@ -34,14 +36,14 @@ public class TreeBuilderTestUtils {
             final int month = calendar.get(Calendar.MONTH);
             final int day = Misc.random.nextInt(28)+1;
             final int hour = Misc.random.nextInt(24);
-            final Map<String, Serializable> attributes = new HashMapAttributes();
+            final Map<String, Serializable> attributes = new HashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("timeOfArrival-year", year);
             attributes.put("timeOfArrival-monthOfYear", month);
             attributes.put("timeOfArrival-dayOfMonth", day);
             attributes.put("timeOfArrival-hourOfDay", hour);
-            instances.add(new InstanceWithMapOfRegressors(attributes, bmiHealthyInteger(weight, height)));
+            instances.add(new InstanceImpl(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;
     }
