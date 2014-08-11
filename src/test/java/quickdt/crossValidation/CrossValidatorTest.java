@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
 import quickdt.crossValidation.crossValLossFunctions.CrossValLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.Instance;
+import quickdt.data.InstanceImpl;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 
@@ -20,15 +22,15 @@ public class CrossValidatorTest {
 
     @Test
     public void testCrossValidator() {
-        CrossValLossFunction<PredictiveModel<Object,Object>> crossValLossFunction = Mockito.mock(CrossValLossFunction<PredictiveModel<Object,Object>>.class);
+        CrossValLossFunction<PredictiveModel<Object,Object>> crossValLossFunction = Mockito.mock(CrossValLossFunction.class);
 
         int folds = 4;
-        CrossValidator<PredictiveModel> crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
+        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
         List<Instance> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
-        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<Instance>>any(), Mockito.any(PredictiveModel<Object,Object>.class));
+        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<LabelPredictionWeight<PredictiveModel<Object,Object>>>>any());
     }
 
     private List<Instance> getInstances() {
@@ -36,7 +38,7 @@ public class CrossValidatorTest {
         for(int i = 0; i < 5; i++) {
             Map<String, Serializable> attributes = new HashMap<>();
 
-            Instance instance = Mockito.mock(InstanceWithMapOfRegressors.class);
+            Instance instance = Mockito.mock(InstanceImpl.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
             Mockito.when(instance.getLabel()).thenReturn("class");
             Mockito.when(instance.getRegressors()).thenReturn(attributes);
