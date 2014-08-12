@@ -20,6 +20,6 @@ public abstract class OnlineClassifierCVLossFunction implements CrossValLossFunc
             totalLoss += getLossFromInstance(probabilityOfCorrectInstance, labelPredictionWeight.getWeight());
             weightOfAllInstances += labelPredictionWeight.getWeight();
         }
-        return totalLoss / weightOfAllInstances;
+        return weightOfAllInstances > 0 ? totalLoss / weightOfAllInstances : 0;
     }
 }

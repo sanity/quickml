@@ -11,7 +11,7 @@ public class ClassifierMSECrossValLossFunction extends OnlineClassifierCVLossFun
     public double getLossFromInstance(double probabilityOfCorrectInstance, double weight) {
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Prediction must be a natural number, not NaN");
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
-        final double error = (-probabilityOfCorrectInstance);
+        final double error = (1.0-probabilityOfCorrectInstance);
         final double errorSquared = error * error * weight;
         return errorSquared;
     }
