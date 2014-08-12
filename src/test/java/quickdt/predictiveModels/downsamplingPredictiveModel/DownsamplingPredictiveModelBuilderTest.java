@@ -31,9 +31,9 @@ public class DownsamplingPredictiveModelBuilderTest {
     @Test
     public void simpleTest() {
         final PredictiveModelBuilder<Map<String,Serializable>, Classifier> predictiveModelBuilder = Mockito.mock(PredictiveModelBuilder.class);
-        when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<PredictiveModel<Map<String,Serializable>,Classifier>>() {
+        when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
-            public PredictiveModel<Map<String,Serializable>,Classifier> answer(final InvocationOnMock invocationOnMock) throws Throwable {
+            public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
                 Iterable<Instance> instances = (Iterable<Instance>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
                 for (Instance instance : instances) {
@@ -42,7 +42,7 @@ public class DownsamplingPredictiveModelBuilderTest {
                         sum++;
                     }
                 }
-                PredictiveModel<Map<String,Serializable>,Classifier> dumbPM = new SamePredictionPredictiveModel((double) sum / (double) total);
+                Classifier dumbPM = new SamePredictionPredictiveModel((double) sum / (double) total);
                 return dumbPM;
             }
         });
@@ -52,7 +52,9 @@ public class DownsamplingPredictiveModelBuilderTest {
             data.add(new InstanceImpl(new HashMap(), (Misc.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
-        final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(new HashMap(), Boolean.TRUE);
+        Map<String,Serializable> map = new HashMap<>();
+        map.put("true",Boolean.TRUE);
+        final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
         Assert.assertTrue(String.format("Error should be < 0.1 but was %s (prob=%s, desired=0.05)", error, correctedMinorityInstanceOccurance), error < 0.01);
     }
@@ -85,7 +87,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private static class SamePredictionPredictiveModel implements PredictiveModel<Map<String,Serializable>,Classifier> {
+    private static class SamePredictionPredictiveModel extends Classifier {
 
         private static final long serialVersionUID = 8241616760952568181L;
         private final double prediction;
@@ -96,22 +98,19 @@ public class DownsamplingPredictiveModelBuilderTest {
         }
 
         @Override
-        public Classifier predict(Map<String, Serializable> regressors) {
-
-            return null;
-        }
-
-        @Override
         public void dump(final Appendable appendable) {
             throw new UnsupportedOperationException();
         }
 
+
         @Override
-        public List<LabelPredictionWeight<Classifier>> createLabelPredictionWeights(List<Instance<Map<String, Serializable>>> instances) {
-            return null;
+        public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+            Map<Serializable, Double> map = new HashMap<>();
+            for(Serializable value : attributes.values()) {
+                map.put(value, prediction);
+            }
+            return map;
         }
-
-
     }
 }
 
