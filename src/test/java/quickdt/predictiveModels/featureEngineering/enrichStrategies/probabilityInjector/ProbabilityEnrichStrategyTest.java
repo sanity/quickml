@@ -17,11 +17,22 @@ public class ProbabilityEnrichStrategyTest {
     @Test
     public void testCreateAttributesEnricher() throws Exception {
         List<Instance<Map<String,Serializable>>> trainingData = Lists.newLinkedList();
-        //TODO
-        //trainingData.add(InstanceImpl.create("true", "k1", 2, "k2", 1));
-        //trainingData.add(InstanceImpl.create("true", "k1", 1, "k2", 2));
-        //trainingData.add(InstanceImpl.create("false", "k1", 2, "k2", 2));
-        //trainingData.add(InstanceImpl.create("false", "k1", 1, "k2", 2));
+        Map<String,Serializable> attributes = new HashMap<>();
+        attributes.put("k1",2);
+        attributes.put("k2",1);
+        trainingData.add(new InstanceImpl(attributes, "true"));
+        attributes = new HashMap<>();
+        attributes.put("k1",1);
+        attributes.put("k2",2);
+        trainingData.add(new InstanceImpl(attributes, "true"));
+        attributes = new HashMap<>();
+        attributes.put("k1",2);
+        attributes.put("k2",2);
+        trainingData.add(new InstanceImpl(attributes, "false"));
+        attributes = new HashMap<>();
+        attributes.put("k1",1);
+        attributes.put("k2",2);
+        trainingData.add(new InstanceImpl(attributes, "false"));
         ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(Sets.newHashSet("k1", "k2"), "true");
         final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {
