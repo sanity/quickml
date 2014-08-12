@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickdt.crossValidation.StationaryCrossValidator;
-import quickdt.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 /**
@@ -16,7 +16,7 @@ public class PredictiveAccuracyTests {
 
     @Test
     public void irisTest() throws Exception {
-        StationaryCrossValidator stationaryCrossValidator = new StationaryCrossValidator(new ClassifierLogCVLossFunction());
+        StationaryCrossValidator stationaryCrossValidator = new StationaryCrossValidator(new ClassifierRMSECrossValLossFunction());
         final double crossValidatedLoss = stationaryCrossValidator.getCrossValidatedLoss(new RandomForestBuilder(), Benchmarks.loadIrisDataset());
         double previousLoss = 0.673;
         logger.info("Cross Validated Lost: {}", crossValidatedLoss);
