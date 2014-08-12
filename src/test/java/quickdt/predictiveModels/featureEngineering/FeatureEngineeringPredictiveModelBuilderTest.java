@@ -20,7 +20,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         TestAEBS testFEPMB = new TestAEBS();
         List<Instance<Map<String, Serializable>>> trainingData = Lists.newArrayList();
         trainingData.add(new InstanceImpl(new HashMap(), 1));
-        FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(new TestPMBuilder(), Lists.newArrayList(new TestAEBS()));
+        PredictiveModelBuilder testPMB = new TestPMBuilder();
+        FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
         predictiveModel.getProbability(trainingData.get(0).getRegressors(), 1);
     }
@@ -28,7 +29,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<Instance> trainingData) {
+        public AttributesEnricher build(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -40,7 +41,6 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
                 }
             };
         }
-
     }
 
     public static class TestPMBuilder implements PredictiveModelBuilder<Map<String, Serializable>, TestPM> {

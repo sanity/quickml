@@ -2,6 +2,7 @@ package quickdt.predictiveModels.featureEngineering;
 
 import quickdt.predictiveModelOptimizer.FieldValueRecommender;
 import quickdt.predictiveModels.Classifier;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilderBuilder;
 
 import java.io.Serializable;
@@ -13,11 +14,11 @@ import java.util.Map;
  */
 public class FeatureEngineeringPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
-    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>>, ?> wrappedBuilderBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderBuilder(
-            PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;

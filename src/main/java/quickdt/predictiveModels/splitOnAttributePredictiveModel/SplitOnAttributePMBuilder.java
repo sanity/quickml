@@ -87,7 +87,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         for(Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> entry : splitTrainingData.entrySet()) {
             ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue());
             long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);
-            Set<Instance> crossData = new HashSet<>();
+            Set<Instance<Map<String, Serializable>>> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
                 Instance instance = allData.get(i);

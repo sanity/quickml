@@ -1,6 +1,7 @@
 package quickdt.predictiveModels.featureEngineering;
 
 import quickdt.predictiveModels.Classifier;
+import quickdt.predictiveModels.PredictiveModel;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,18 +14,18 @@ import java.util.Map;
  */
 public class FeatureEngineeredPredictiveModel extends Classifier {
     private static final long serialVersionUID = 7279329500376419142L;
-    private final Classifier wrappedClassifier;
+    private final PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> wrappedPredictiveModel;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(Classifier wrappedClassifier, List<AttributesEnricher> attributesEnrichers) {
-        this.wrappedClassifier = wrappedClassifier;
+    public FeatureEngineeredPredictiveModel(PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
+        this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.attributesEnrichers = attributesEnrichers;
     }
 
     @Override
     public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
         Map<String, Serializable> enrichedAttributes = enrichAttributes(attributes);
-        return wrappedClassifier.predict(enrichedAttributes);
+        return wrappedPredictiveModel.predict(enrichedAttributes);
     }
 
     private Map<String, Serializable> enrichAttributes(final Map<String, Serializable> attributes) {
@@ -37,11 +38,6 @@ public class FeatureEngineeredPredictiveModel extends Classifier {
 
     @Override
     public void dump(final Appendable appendable) {
-        wrappedClassifier.dump(appendable);
-    }
-
-    @Override
-    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
-        return wrappedClassifier.getClassificationByMaxProb(enrichAttributes(attributes));
+        wrappedPredictiveModel.dump(appendable);
     }
 }

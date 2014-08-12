@@ -41,7 +41,7 @@ public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -67,7 +67,7 @@ public class RandomForestBuilderTest {
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private PredictiveModelWithDataBuilder<RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).updatable(true);
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         return new PredictiveModelWithDataBuilder<>(urfb);
@@ -76,7 +76,7 @@ public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
 

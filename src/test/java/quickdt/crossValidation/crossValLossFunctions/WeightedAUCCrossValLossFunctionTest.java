@@ -1,17 +1,14 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.crossValLossFunctions;
 
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import quickdt.data.Instance;
-import quickdt.data.Attributes;
 import quickdt.predictiveModels.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Created by Chris on 5/5/2014.
@@ -21,7 +18,7 @@ public class WeightedAUCCrossValLossFunctionTest {
     @Test(expected = RuntimeException.class)
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
+        PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
         Instance instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
@@ -35,21 +32,23 @@ public class WeightedAUCCrossValLossFunctionTest {
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);
-        crossValLoss.getLoss(instances, predictiveModel);
+        crossValLoss.getLoss(predictiveModel.createLabelPredictionWeights(instances));
     }
 
     @Test
     public void testGetTotalLoss() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
-        Map<String, Serializable> test1Attributes = Mockito.mock(Map<String, Serializable>.class);
-        Map<String, Serializable> test2Attributes = Mockito.mock(Map<String, Serializable>.class);
-        Map<String, Serializable> test3Attributes = Mockito.mock(Map<String, Serializable>.class);
-        Map<String, Serializable> test4Attributes = Mockito.mock(Map<String, Serializable>.class);
+        PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
+        Map<String, Serializable> test1Attributes = Mockito.mock(Map.class);
+        Map<String, Serializable> test2Attributes = Mockito.mock(Map.class);
+        Map<String, Serializable> test3Attributes = Mockito.mock(Map.class);
+        Map<String, Serializable> test4Attributes = Mockito.mock(Map.class);
+        //TODO
+        /*
         Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.5);
         Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.3);
         Mockito.when(predictiveModel.getProbability(test3Attributes, "test1")).thenReturn(0.4);
-        Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);
+        Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);*/
 
         Instance instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("test1");
@@ -80,7 +79,7 @@ public class WeightedAUCCrossValLossFunctionTest {
         //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
         double expectedArea = .25;
 
-        Assert.assertEquals(expectedArea, crossValLoss.getLoss(instances, predictiveModel));
+        Assert.assertEquals(expectedArea, crossValLoss.getLoss(predictiveModel.createLabelPredictionWeights(instances)));
     }
 
     @Test
@@ -152,7 +151,7 @@ public class WeightedAUCCrossValLossFunctionTest {
     @Test(expected = IllegalStateException.class)
     public void testTotalLossNoData() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        crossValLoss.getLoss(Collections.EMPTY_LIST, Mockito.mock(PredictiveModel<Object>.class));
+        crossValLoss.getLoss(Collections.EMPTY_LIST);
     }
 
     private List<WeightedAUCCrossValLossFunction.AUCData> getAucDataList() {

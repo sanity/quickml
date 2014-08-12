@@ -3,7 +3,8 @@ package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickdt.data.InstanceWithMapOfRegressors;
+import quickdt.data.Instance;
+import quickdt.predictiveModels.PredictiveModelBuilder;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.Tree;
@@ -12,8 +13,10 @@ import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,10 +28,10 @@ public class SplitOnAttributePMBuilderTest {
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", rfb, 10, 0.1, whiteList, 1);
+        final SplitOnAttributePMBuilder cpmb = new SplitOnAttributePMBuilder("gender", (PredictiveModelBuilder)rfb, 10, 0.1, whiteList, 1);
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM splitOnAttributePM = cpmb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) splitOnAttributePM.getDefaultPM();
@@ -42,8 +45,8 @@ public class SplitOnAttributePMBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(1000);
-        final PredictiveModelWithDataBuilder<SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(1000);
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM  splitOnAttributePM = wb.buildPredictiveModel(instances);
@@ -57,7 +60,7 @@ public class SplitOnAttributePMBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributePM  splitOnAttributePM1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributePM1.getDefaultPM();
         Assert.assertTrue(splitOnAttributePM == splitOnAttributePM1, "Expect same tree to be updated");
@@ -67,8 +70,8 @@ public class SplitOnAttributePMBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<InstanceWithMapOfRegressors> instances = TreeBuilderTestUtils.getInstances(1000);
-        final PredictiveModelWithDataBuilder<SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
+        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(1000);
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,SplitOnAttributePM > wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributePM  splitOnAttributePM = wb.buildPredictiveModel(instances);
         final RandomForest randomForest = (RandomForest) splitOnAttributePM.getDefaultPM();
@@ -81,7 +84,7 @@ public class SplitOnAttributePMBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributePM splitOnAttributePM1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributePM1.getDefaultPM();
         Assert.assertTrue(splitOnAttributePM == splitOnAttributePM1, "Expect same tree to be updated");
@@ -89,13 +92,13 @@ public class SplitOnAttributePMBuilderTest {
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private PredictiveModelWithDataBuilder<SplitOnAttributePM > getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<Map<String,Serializable>,SplitOnAttributePM > getWrappedUpdatablePredictiveModelBuilder() {
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", urfb, 10, 0.1, whiteList, 1);
+        final SplitOnAttributePMBuilder ucpmb = new SplitOnAttributePMBuilder("gender", (PredictiveModelBuilder)urfb, 10, 0.1, whiteList, 1);
         return new PredictiveModelWithDataBuilder<>(ucpmb);
     }
 }

@@ -5,12 +5,14 @@ import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
 import quickdt.Misc;
 import quickdt.data.Instance;
+import quickdt.data.InstanceImpl;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 import quickdt.predictiveModels.decisionTree.tree.Node;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +43,10 @@ public class TreeBuilderTest {
 		for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
 			final double weight = 120 + Misc.random.nextInt(110);
-			final Instance<Map<String,Serializable>> instance = Instance<Map<String,Serializable>>.create(TreeBuilderTestUtils.bmiHealthy(weight, height), "weight", weight, "height", height);
+            Map<String,Serializable> attributes = new HashMap<>();
+            attributes.put("weight", weight);
+            attributes.put("height", height);
+			final Instance<Map<String,Serializable>> instance = new InstanceImpl<Map<String, Serializable>>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
 			instances.add(instance);
 		}
 		{
@@ -54,7 +59,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -83,7 +88,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
 
@@ -111,7 +116,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestRebuild() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.rebuildThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -129,7 +134,7 @@ public class TreeBuilderTest {
         Assert.assertFalse(tree == newTree, "Expect new tree to be built");
     }
 
-    private PredictiveModelWithDataBuilder<Tree> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         return new PredictiveModelWithDataBuilder<>(tb);
     }

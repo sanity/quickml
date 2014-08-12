@@ -8,6 +8,8 @@ import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,20 +20,43 @@ import java.util.Set;
 public class ReadMeExample {
     
     public static void main(String[] args) {
-        final Set<InstanceWithMapOfRegressors> instances = Sets.newHashSet();
+        final Set<Instance<Map<String,Serializable>>> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
-        instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification("overweight"));
-        instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification("healthy"));
-        instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification("underweight"));
-        instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification("underweight"));
-        instances.add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
+        Map<String,Serializable> attributes = new HashMap<>();
+        attributes.put("height",55);
+        attributes.put("weight", 168);
+        attributes.put("gender", "male");
+        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "overweight"));
+        attributes = new HashMap<>();
+        attributes.put("height",75);
+        attributes.put("weight", 168);
+        attributes.put("gender", "female");
+        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
+        attributes = new HashMap<>();
+        attributes.put("height",74);
+        attributes.put("weight", 143);
+        attributes.put("gender", "male");
+        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
+        attributes = new HashMap<>();
+        attributes.put("height",49);
+        attributes.put("weight", 144);
+        attributes.put("gender", "female");
+        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
+        attributes = new HashMap<>();
+        attributes.put("height",83);
+        attributes.put("weight", 223);
+        attributes.put("gender", "male");
+        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
         
         {
             
             TreeBuilder treeBuilder = new TreeBuilder();
             Tree tree = treeBuilder.buildPredictiveModel(instances);
 
-            Map<String, Serializable> attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+            attributes = new HashMap<>();
+            attributes.put("height",62);
+            attributes.put("weight", 201);
+            attributes.put("gender", "female");
             Serializable classification = tree.getClassificationByMaxProb(attributes);
             if (classification.equals("healthy")) {
                 System.out.println("They are healthy!");
@@ -53,7 +78,10 @@ public class ReadMeExample {
                 .numTrees(50);
             RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
 
-            Map<String, Serializable> attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+            attributes = new HashMap<>();
+            attributes.put("height",62);
+            attributes.put("weight", 201);
+            attributes.put("gender", "female");
             Serializable classification = randomForest.getClassificationByMaxProb(attributes);
             System.out.println("Assigned class: " + classification); 
         

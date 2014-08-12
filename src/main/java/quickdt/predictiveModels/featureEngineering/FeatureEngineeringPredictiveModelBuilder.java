@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickdt.data.Instance;
-import quickdt.predictiveModels.Classifier;
+import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import java.io.Serializable;
@@ -18,10 +18,10 @@ import java.util.Map;
 public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
 
-    private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder;
+    private final PredictiveModelBuilder<Map<String, Serializable>,PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>>> wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<Map<String, Serializable>,PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
@@ -39,7 +39,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
         final Iterable<Instance<Map<String, Serializable>>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
-        Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
+        PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
     }

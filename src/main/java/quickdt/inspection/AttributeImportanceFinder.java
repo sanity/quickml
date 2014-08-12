@@ -42,8 +42,8 @@ public class AttributeImportanceFinder {
 
         TreeSet<AttributeScore> scores = Sets.newTreeSet();
 
-        LinkedList<Instance> trainingSet = Lists.newLinkedList();
-        LinkedList<Instance> testingSet = Lists.newLinkedList();
+        LinkedList<Instance<Map<String, Serializable>>> trainingSet = Lists.newLinkedList();
+        LinkedList<Instance<Map<String, Serializable>>> testingSet = Lists.newLinkedList();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
             if (Math.abs(instance.getRegressors().hashCode()) % 10 == 0) {
                 testingSet.add(instance);

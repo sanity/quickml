@@ -1,12 +1,11 @@
-package quickdt.crossValidation;
+package quickdt.crossValidation.crossValLossFunctions;
 
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import quickdt.crossValidation.crossValLossFunctions.ClassifierMSECrossValLossFunction;
 import quickdt.data.Instance;
-import quickdt.data.Attributes;
-import quickdt.predictiveModels.PredictiveModel;
+import quickdt.predictiveModels.Classifier;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -21,9 +20,9 @@ public class MSECrossValLossFunctionTest {
     @Test
     public void testGetTotalLoss() {
         ClassifierMSECrossValLossFunction crossValLoss = new ClassifierMSECrossValLossFunction();
-        PredictiveModel<Object> predictiveModel = Mockito.mock(PredictiveModel<Object>.class);
-        Map<String, Serializable> test1Attributes = Mockito.mock(Map<String, Serializable>.class);
-        Map<String, Serializable> test2Attributes = Mockito.mock(Map<String, Serializable>.class);
+        Classifier predictiveModel = Mockito.mock(Classifier.class);
+        Map<String, Serializable> test1Attributes = Mockito.mock(Map.class);
+        Map<String, Serializable> test2Attributes = Mockito.mock(Map.class);
         Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.75);
         Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.5);
 
@@ -37,10 +36,10 @@ public class MSECrossValLossFunctionTest {
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
         Mockito.when(instance2.getRegressors()).thenReturn(test2Attributes);
 
-        List<Instance> instances = new LinkedList<>();
+        List<Instance<Map<String,Serializable>>> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
 
-        Assert.assertEquals(0.125, crossValLoss.getLoss(instances, predictiveModel));
+        Assert.assertEquals(0.125, crossValLoss.getLoss(predictiveModel.createLabelPredictionWeights(instances)));
     }
 }

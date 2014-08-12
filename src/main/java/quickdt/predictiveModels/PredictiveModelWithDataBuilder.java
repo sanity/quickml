@@ -64,7 +64,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     }
 
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable<? extends Instance<R>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<R>> newData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, splitNodes);
     }
 

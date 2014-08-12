@@ -5,6 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
+import quickdt.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
 import quickdt.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
 import quickdt.data.Instance;
 import quickdt.experiments.TrainingDataGenerator2;
@@ -13,7 +16,9 @@ import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.randomForest.RandomForest;
 import quickdt.predictiveModels.randomForest.RandomForestBuilder;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 5/17/14.
@@ -30,7 +35,7 @@ public class OutOfTimeCrossValidatorTests {
        trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
-        for (Instance instance : trainingData) {
+        for (Instance<Map<String,Serializable>> instance : trainingData) {
             instance.getRegressors().put("currentTimeMillis", millisInMinute * instanceNumber);
             instanceNumber++;
         }
@@ -42,7 +47,7 @@ public class OutOfTimeCrossValidatorTests {
         logger.info("trainingDataSize " + trainingData.size());
         RandomForestBuilder randomForestBuilder = getRandomForestBuilder(5, 5);
 
-        CrossValidator<PredictiveModel> crossValidator = new OutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        CrossValidator crossValidator = new OutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         double totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
 
@@ -50,13 +55,13 @@ public class OutOfTimeCrossValidatorTests {
         totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
 
-        crossValidator = new OutOfTimeCrossValidator(new RMSECrossValLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        crossValidator = new OutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         totalLoss = crossValidator.getCrossValidatedLoss(randomForestBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <=1.0);
     }
 
 
-    private static RandomForest getRandomForest(List<Instance> trainingData, int maxDepth, int numTrees) {
+    private static RandomForest getRandomForest(List<Instance<Map<String,Serializable>>> trainingData, int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
