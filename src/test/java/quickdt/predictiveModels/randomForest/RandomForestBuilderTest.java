@@ -2,6 +2,7 @@ package quickdt.predictiveModels.randomForest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickdt.Misc;
 import quickdt.data.Instance;
 import quickdt.predictiveModels.PredictiveModelWithDataBuilder;
 import quickdt.predictiveModels.TreeBuilderTestUtils;
@@ -9,6 +10,7 @@ import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.TreeBuilder;
 import quickdt.predictiveModels.decisionTree.scorers.SplitDiffScorer;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -100,4 +102,27 @@ public class RandomForestBuilderTest {
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same trees");
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
+
+    @Test
+    public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
+        final List<Instance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).updatable(true));
+        Misc.random.setSeed(1l);
+        final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+        Misc.random.setSeed(1l);
+        final RandomForest randomForest2 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+
+        Assert.assertTrue(randomForest1.trees.size() == randomForest2.trees.size(), "Deterministic Random Forests must have same number of trees");
+        for (int i = 0; i < randomForest1.trees.size(); i++) {
+            Assert.assertTrue(randomForest1.trees.get(i).node.size() == randomForest2.trees.get(i).node.size(), "Deterministic Decision Trees must have same number of nodes");
+        }
+
+        final List<Instance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance instance : instancesTest) {
+            String class1 = randomForest1.getProbabilitiesByClassification(instance.getAttributes()).toString();
+            String class2 = randomForest2.getProbabilitiesByClassification(instance.getAttributes()).toString();
+            Assert.assertTrue(class1.equals(class2), "Deterministic Decision Trees must have equal classifications");
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
+import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickdt.Misc;
@@ -35,6 +36,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
+    private Random rand = Random.Util.fromSystemRandom(Misc.random);
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -140,7 +142,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     private double[] createNumericSplit(final Iterable<Instance<Map<String, Serializable>>> trainingData, final String attribute) {
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE,rand);
         for (final Instance<Map<String, Serializable>> instance : trainingData) {
             Serializable value = instance.getRegressors().get(attribute);
             if (value == null) value = 0;
@@ -157,7 +159,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE);
+                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
                         rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
                     reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
@@ -296,7 +298,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         //put instances without values for the split attribute in the true and false set in proper proportions.
         for (Instance<Map<String, Serializable>> instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size() / (trueTrainingSet.size() + falseTrainingSet.size());
-            Random rand = Misc.random;
             if (rand.nextDouble() < trueThreshold) {
                 trueTrainingSet.add(instance);
             } else {
@@ -391,11 +392,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
                                                                          final Iterable<Instance<Map<String, Serializable>>> instances) {
 
-        //get Pair of Sets of classification counters
-        //for each partition get a score.  How? Keep the incounts / outcounts classification counters.  Call getScore. and record best so fare inset in place.
-
         double bestScore = 0;
-        final Set<Serializable> inSet = Sets.newHashSet(); //the in-set
+        final Set<Serializable> inSet = Sets.newHashSet();
+        final Set<Serializable> outSet = Sets.newHashSet();
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
                 .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
@@ -429,18 +428,24 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             }
         }
 
+        boolean insetIsBuiltNowBuildingOutset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
-            inSet.add(attributeValueWithClassificationCounter.attributeValue);
-            if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset))
-                break;
+            if (!insetIsBuiltNowBuildingOutset) {
+                inSet.add(attributeValueWithClassificationCounter.attributeValue);
+                if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
+                    insetIsBuiltNowBuildingOutset = true;
+                }
+            } else {
+                outSet.add(attributeValueWithClassificationCounter.attributeValue);
+            }
         }
 
         if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
             return null;
         }
 
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet), bestScore);
-        //       boolean testVal=inSet.size()==0 && values.size()>1 && !allSameClass;
+        final Set<Serializable> returnSet = (Misc.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
         return bestPair;
     }
 
