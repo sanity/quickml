@@ -31,7 +31,6 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
      */
 
     public StationaryCrossValidator(CrossValLossFunction<P> lossFunction) {
-        Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = DEFAULT_NUMBER_OF_FOLDS;
         this.foldsUsed = DEFAULT_NUMBER_OF_FOLDS;
         this.lossFunction = lossFunction;
