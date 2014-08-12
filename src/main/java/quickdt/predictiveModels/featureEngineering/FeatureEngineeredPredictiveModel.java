@@ -1,5 +1,6 @@
 package quickdt.predictiveModels.featureEngineering;
 
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.PredictiveModel;
 
@@ -14,16 +15,16 @@ import java.util.Map;
  */
 public class FeatureEngineeredPredictiveModel extends Classifier {
     private static final long serialVersionUID = 7279329500376419142L;
-    private final PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> wrappedPredictiveModel;
+    private final PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> wrappedPredictiveModel;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
+    public FeatureEngineeredPredictiveModel(PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.attributesEnrichers = attributesEnrichers;
     }
 
     @Override
-    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
         Map<String, Serializable> enrichedAttributes = enrichAttributes(attributes);
         return wrappedPredictiveModel.predict(enrichedAttributes);
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.*;
+import quickdt.predictiveModels.AbstractPredictiveModel;
 import quickdt.predictiveModels.PredictiveModel;
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
@@ -68,12 +69,12 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     }
 
-    public static class TestPM implements PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> {
+    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
         private static final long serialVersionUID = -3449746370937561259L;
 
         @Override
-        public Map<Serializable, Double> predict(Map<String, Serializable> regressors) {
+        public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
             if (!regressors.containsKey("enriched")) {
                 throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
             }
@@ -86,7 +87,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
 
         @Override
-        public List<LabelPredictionWeight<Map<Serializable, Double>>> createLabelPredictionWeights(List<Instance<Map<String, Serializable>>> instances) {
+        public List<LabelPredictionWeight<MapWithDefaultOfZero>> createLabelPredictionWeights(List<Instance<Map<String, Serializable>>> instances) {
             return null;
         }
     }

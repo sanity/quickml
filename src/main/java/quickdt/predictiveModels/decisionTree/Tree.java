@@ -1,6 +1,7 @@
 package quickdt.predictiveModels.decisionTree;
 
 import com.google.common.collect.Maps;
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 import quickdt.predictiveModels.decisionTree.tree.Node;
@@ -9,6 +10,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,16 +34,14 @@ public class Tree extends Classifier {
         return leaf.getProbability(classification);
     }
 
-
-
     @Override
-    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
             probsByClassification.put(classification, leaf.getProbability(classification));
         }
-        return probsByClassification;
+        return new MapWithDefaultOfZero(probsByClassification);
     }
 
     @Override

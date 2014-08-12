@@ -1,5 +1,6 @@
 package quickdt.predictiveModels.splitOnAttributePredictiveModel;
 
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class SplitOnAttributePM extends Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(final Map<String, Serializable> attributes) {
+    public MapWithDefaultOfZero predict(final Map<String, Serializable> attributes) {
         return getModelForAttributes(attributes).predict(attributes);
     }
 

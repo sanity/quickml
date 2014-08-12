@@ -25,7 +25,7 @@ public class OutOfTimeCrossValidatorRunner {
         int numTraniningExamples = 40100;
         String bidRequestAttributes[] = {"seller_id", "user_id", "users_favorite_beer_id", "favorite_soccer_team_id", "user_iq"};
         TrainingDataGenerator2 trainingDataGenerator = new TrainingDataGenerator2(numTraniningExamples, .005, bidRequestAttributes);
-        List<Instance> trainingData = trainingDataGenerator.createTrainingData();
+        List<Instance<Map<String, Serializable>>> trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
         for (Instance<Map<String,Serializable>> instance : trainingData) {

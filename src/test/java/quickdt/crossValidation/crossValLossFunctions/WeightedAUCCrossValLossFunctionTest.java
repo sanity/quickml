@@ -4,10 +4,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import quickdt.data.Instance;
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -39,19 +39,19 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testGetTotalLoss() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
 
-        List<LabelPredictionWeight<Map<Serializable,Double>>> labelPredictionWeights = new LinkedList<>();
-        Map<Serializable,Double> map = new HashMap<>();
+        List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights = new LinkedList<>();
+        MapWithDefaultOfZero map = MapWithDefaultOfZero.newMap();
         map.put("test1", 0.5);
-        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test1", map, 1.0));
-        map = new HashMap<>();
+        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test1", map, 1.0));
+        map = MapWithDefaultOfZero.newMap();
         map.put("test1", 0.3);
-        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test1", map, 1.0));
-        map = new HashMap<>();
+        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test1", map, 1.0));
+        map = MapWithDefaultOfZero.newMap();
         map.put("test1", 0.4);
-        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test0", map, 1.0));
-        map = new HashMap<>();
+        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test0", map, 1.0));
+        map = MapWithDefaultOfZero.newMap();
         map.put("test1", 0.2);
-        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test0", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test0", map, 1.0));
 
         //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
         double expectedArea = .25;

@@ -104,12 +104,12 @@ public class DownsamplingPredictiveModelBuilderTest {
 
 
         @Override
-        public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+        public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
             Map<Serializable, Double> map = new HashMap<>();
             for(Serializable value : attributes.values()) {
                 map.put(value, prediction);
             }
-            return map;
+            return new MapWithDefaultOfZero(map);
         }
     }
 }

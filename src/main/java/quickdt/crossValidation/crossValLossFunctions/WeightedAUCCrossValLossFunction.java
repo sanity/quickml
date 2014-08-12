@@ -1,5 +1,7 @@
 package quickdt.crossValidation.crossValLossFunctions;
 
+import quickdt.data.MapWithDefaultOfZero;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -8,7 +10,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map<Serializable, Double>> {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<MapWithDefaultOfZero> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -16,7 +18,7 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<Map<Serializable, Double>>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights) {
         if (labelPredictionWeights.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
@@ -30,10 +32,10 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<LabelPredictionWeight<Map<Serializable, Double>>> labelPredictionWeights) {
+    private List<AUCData> getAucDataList(List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
-        for (LabelPredictionWeight<Map<Serializable, Double>> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<MapWithDefaultOfZero> labelPredictionWeight : labelPredictionWeights) {
             classifications.add(labelPredictionWeight.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");

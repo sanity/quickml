@@ -1,20 +1,25 @@
 package quickdt.data;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by chrisreeves on 8/12/14.
  */
-public class MapWithDefault<K,V> implements Map<K,V> {
+public class MapWithDefaultOfZero implements Map<Serializable, Double> {
 
-    private final Map<K,V> map;
-    private final V defaultValue;
+    private final Map<Serializable, Double> map;
+    private final Double defaultValue = Double.valueOf(0);
 
-    public MapWithDefault(Map<K, V> map, V defaultValue) {
+    public MapWithDefaultOfZero(Map<Serializable, Double> map) {
         this.map = map;
-        this.defaultValue = defaultValue;
+    }
+
+    public static MapWithDefaultOfZero newMap(){
+        return new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
     }
 
     @Override
@@ -38,23 +43,23 @@ public class MapWithDefault<K,V> implements Map<K,V> {
     }
 
     @Override
-    public V get(Object key) {
-        V value = map.get(key);
+    public Double get(Object key) {
+        Double value = map.get(key);
         return value != null ? value : defaultValue;
     }
 
     @Override
-    public V put(K key, V value) {
+    public Double put(Serializable key, Double value) {
         return map.put(key,value);
     }
 
     @Override
-    public V remove(Object key) {
+    public Double remove(Object key) {
         return map.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
+    public void putAll(Map<? extends Serializable, ? extends Double> m) {
         map.putAll(m);
     }
 
@@ -64,19 +69,19 @@ public class MapWithDefault<K,V> implements Map<K,V> {
     }
 
     @Override
-    public Set<K> keySet() {
+    public Set<Serializable> keySet() {
         return map.keySet();
     }
 
     @Override
-    public Collection<V> values() {
-        Collection<V> values = map.values();
+    public Collection<Double> values() {
+        Collection<Double> values = map.values();
         values.add(defaultValue);
         return values;
     }
 
     @Override
-    public Set<Entry<K, V>> entrySet() {
+    public Set<Entry<Serializable, Double>> entrySet() {
         return map.entrySet();
     }
 
@@ -85,7 +90,7 @@ public class MapWithDefault<K,V> implements Map<K,V> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MapWithDefault that = (MapWithDefault) o;
+        MapWithDefaultOfZero that = (MapWithDefaultOfZero) o;
 
         if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) return false;
         if (map != null ? !map.equals(that.map) : that.map != null) return false;
