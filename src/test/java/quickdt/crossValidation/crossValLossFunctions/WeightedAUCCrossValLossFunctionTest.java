@@ -38,48 +38,25 @@ public class WeightedAUCCrossValLossFunctionTest {
     @Test
     public void testGetTotalLoss() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
-        Map<String, Serializable> test1Attributes = Mockito.mock(Map.class);
-        Map<String, Serializable> test2Attributes = Mockito.mock(Map.class);
-        Map<String, Serializable> test3Attributes = Mockito.mock(Map.class);
-        Map<String, Serializable> test4Attributes = Mockito.mock(Map.class);
-        //TODO
-        /*
-        Mockito.when(predictiveModel.getProbability(test1Attributes, "test1")).thenReturn(0.5);
-        Mockito.when(predictiveModel.getProbability(test2Attributes, "test1")).thenReturn(0.3);
-        Mockito.when(predictiveModel.getProbability(test3Attributes, "test1")).thenReturn(0.4);
-        Mockito.when(predictiveModel.getProbability(test4Attributes, "test1")).thenReturn(0.2);*/
 
-        Instance instance = Mockito.mock(Instance.class);
-        Mockito.when(instance.getLabel()).thenReturn("test1");
-        Mockito.when(instance.getWeight()).thenReturn(1.0);
-        Mockito.when(instance.getRegressors()).thenReturn(test1Attributes);
-
-        Instance instance2 = Mockito.mock(Instance.class);
-        Mockito.when(instance2.getLabel()).thenReturn("test1");
-        Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Mockito.when(instance2.getRegressors()).thenReturn(test2Attributes);
-
-        Instance instance3 = Mockito.mock(Instance.class);
-        Mockito.when(instance3.getLabel()).thenReturn("test0");
-        Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        Mockito.when(instance3.getRegressors()).thenReturn(test3Attributes);
-
-        Instance instance4 = Mockito.mock(Instance.class);
-        Mockito.when(instance4.getLabel()).thenReturn("test0");
-        Mockito.when(instance4.getWeight()).thenReturn(1.0);
-        Mockito.when(instance4.getRegressors()).thenReturn(test4Attributes);
-
-        List<Instance> instances = new LinkedList<>();
-        instances.add(instance);
-        instances.add(instance2);
-        instances.add(instance3);
-        instances.add(instance4);
+        List<LabelPredictionWeight<Map<Serializable,Double>>> labelPredictionWeights = new LinkedList<>();
+        Map<Serializable,Double> map = new HashMap<>();
+        map.put("test1", 0.5);
+        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test1", map, 1.0));
+        map = new HashMap<>();
+        map.put("test1", 0.3);
+        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test1", map, 1.0));
+        map = new HashMap<>();
+        map.put("test1", 0.4);
+        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test0", map, 1.0));
+        map = new HashMap<>();
+        map.put("test1", 0.2);
+        labelPredictionWeights.add(new LabelPredictionWeight<Map<Serializable, Double>>("test0", map, 1.0));
 
         //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
         double expectedArea = .25;
 
-        Assert.assertEquals(expectedArea, crossValLoss.getLoss(predictiveModel.createLabelPredictionWeights(instances)));
+        Assert.assertEquals(expectedArea, crossValLoss.getLoss(labelPredictionWeights));
     }
 
     @Test
