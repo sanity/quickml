@@ -7,7 +7,7 @@ import quickml.csvReader.CSVToMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.downsamplingPredictiveModel.Utils;
 import quickml.supervised.classifier.randomForest.RandomForest;

@@ -2,9 +2,9 @@ package quickml.supervised.classifier.randomForest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
-import quickml.supervised.classifier.PredictiveModelWithDataBuilder;
+import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;

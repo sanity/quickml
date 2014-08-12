@@ -1,7 +1,7 @@
 package quickml.supervised.classifier.downsamplingPredictiveModel;
 
 import com.google.common.base.Predicate;
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
 
 import java.io.Serializable;

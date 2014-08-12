@@ -3,11 +3,11 @@ package quickml.supervised.classifier.downsamplingPredictiveModel;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModelBuilder;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.Map;

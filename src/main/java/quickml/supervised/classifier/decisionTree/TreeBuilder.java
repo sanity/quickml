@@ -7,9 +7,9 @@ import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 

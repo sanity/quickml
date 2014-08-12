@@ -1,6 +1,8 @@
 package quickml.supervised.classifier;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.AbstractPredictiveModel;
+import quickml.supervised.PredictiveModel;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -8,7 +10,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 7/29/14.
  */
-public abstract class Classifier extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>  {
+public abstract class Classifier extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
     public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         return predict(attributes).get(classification);

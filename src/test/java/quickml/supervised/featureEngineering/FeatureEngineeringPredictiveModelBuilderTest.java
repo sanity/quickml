@@ -3,9 +3,9 @@ package quickml.supervised.featureEngineering;
 import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickml.data.*;
-import quickml.supervised.classifier.AbstractPredictiveModel;
+import quickml.supervised.AbstractPredictiveModel;
 
-import quickml.supervised.classifier.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;

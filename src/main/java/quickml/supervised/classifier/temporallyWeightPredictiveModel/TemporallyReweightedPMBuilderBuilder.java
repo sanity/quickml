@@ -1,13 +1,13 @@
 package quickml.supervised.classifier.temporallyWeightPredictiveModel;
 
 import com.google.common.collect.Maps;
-import quickml.crossValidation.dateTimeExtractors.DateTimeExtractor;
-import quickml.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
-import quickml.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
+import quickml.supervised.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModelBuilderBuilder;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.PredictiveModelBuilderBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
 
 import java.io.Serializable;
 import java.util.Map;

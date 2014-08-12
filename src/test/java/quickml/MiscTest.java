@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.Misc;
+import quickml.supervised.Misc;
 
 import java.util.Map;
 

@@ -1,9 +1,9 @@
 package quickml.supervised.featureEngineering;
 
 import quickml.data.MapWithDefaultOfZero;
-import quickml.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.supervised.classifier.PredictiveModel;
-import quickml.supervised.classifier.PredictiveModelBuilderBuilder;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.PredictiveModel;
+import quickml.supervised.PredictiveModelBuilderBuilder;
 
 import java.io.Serializable;
 import java.util.List;

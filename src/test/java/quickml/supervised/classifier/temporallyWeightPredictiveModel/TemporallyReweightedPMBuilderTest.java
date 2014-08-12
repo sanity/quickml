@@ -2,10 +2,10 @@ package quickml.supervised.classifier.temporallyWeightPredictiveModel;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.crossValidation.dateTimeExtractors.MapDateTimeExtractor;
+import quickml.supervised.crossValidation.dateTimeExtractors.MapDateTimeExtractor;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
-import quickml.supervised.classifier.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;

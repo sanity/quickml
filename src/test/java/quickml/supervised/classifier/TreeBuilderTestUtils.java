@@ -1,6 +1,6 @@
 package quickml.supervised.classifier;
 
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 
