@@ -1,11 +1,11 @@
 package quickml.supervised.classifier.downsamplingPredictiveModel;
 
 import com.google.common.collect.Maps;
-import quickml.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModelBuilderBuilder;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.PredictiveModelBuilderBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
 
 import java.io.Serializable;
 import java.util.Map;

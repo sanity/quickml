@@ -1,9 +1,9 @@
 package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.collect.Maps;
-import quickml.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;

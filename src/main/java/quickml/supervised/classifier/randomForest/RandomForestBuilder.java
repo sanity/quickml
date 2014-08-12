@@ -5,9 +5,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.Misc;
+import quickml.supervised.Misc;
 import quickml.data.Instance;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 

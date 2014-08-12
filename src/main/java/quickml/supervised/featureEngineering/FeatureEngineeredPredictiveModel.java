@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering;
 
 import quickml.data.MapWithDefaultOfZero;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModel;
+import quickml.supervised.PredictiveModel;
 
 import java.io.Serializable;
 import java.util.List;

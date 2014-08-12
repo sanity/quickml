@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.data.MapWithDefaultOfZero;
-import quickml.supervised.classifier.PredictiveModel;
-import quickml.supervised.classifier.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModel;
+import quickml.supervised.PredictiveModelBuilder;
 
 import java.io.Serializable;
 import java.util.List;

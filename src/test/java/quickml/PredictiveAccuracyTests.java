@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.crossValidation.StationaryCrossValidator;
-import quickml.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
+import quickml.supervised.crossValidation.StationaryCrossValidator;
+import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 /**

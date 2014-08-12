@@ -2,11 +2,11 @@ package quickml.experiments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.crossValidation.*;
-import quickml.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
-import quickml.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
+import quickml.supervised.crossValidation.*;
+import quickml.supervised.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
 import quickml.data.Instance;
-import quickml.supervised.classifier.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 

@@ -5,11 +5,11 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
-import quickml.crossValidation.dateTimeExtractors.DateTimeExtractor;
+import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.PredictiveModelBuilder;
-import quickml.supervised.classifier.UpdatablePredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
