@@ -3,6 +3,14 @@ Quick Decision Tree Learner
 
 Build Status: [![Build Status](https://travis-ci.org/sanity/quickml.png?branch=master)](https://travis-ci.org/sanity/quickdt)
 
+News
+----
+We're working on a major upgrade to QuickDT, including a rename of the project to QuickML as the library is beginning to grow beyond being decision tree specific.  Note that this upgrade will be a breaking change, although fixing things should be quick enough given a modern IDE (mostly it's renaming and moving of classes).
+
+Discussion
+----------
+We now have a web forum for discussing QuickDT/QuickML - find it [here](https://groups.google.com/forum/#!forum/quickml).
+
 License
 -------
 
