@@ -2,10 +2,9 @@ package quickdt.predictiveModels.featureEngineering;
 
 import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
-import quickdt.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickdt.data.*;
 import quickdt.predictiveModels.AbstractPredictiveModel;
-import quickdt.predictiveModels.PredictiveModel;
+
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
@@ -16,6 +15,8 @@ import java.util.Map;
 
 public class FeatureEngineeringPredictiveModelBuilderTest {
 
+    private static Integer valueToTest = 1;
+
     @Test
     public void simpleTest() {
         TestAEBS testFEPMB = new TestAEBS();
@@ -24,7 +25,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
-        predictiveModel.getProbability(trainingData.get(0).getRegressors(), 1);
+        predictiveModel.getProbability(trainingData.get(0).getRegressors(), valueToTest);
     }
 
     public static class TestAEBS implements AttributesEnrichStrategy {
@@ -69,28 +70,27 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     }
 
-    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
-        private static final long serialVersionUID = -3449746370937561259L;
+    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
-        @Override
-        public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
-            if (!regressors.containsKey("enriched")) {
-                throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
+
+            private static final long serialVersionUID = -3449746370937561259L;
+
+            @Override
+            public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
+                if (!regressors.containsKey("enriched")) {
+                    throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
+                }
+                Map<Serializable, Double> map = new HashMap<>();
+                map.put(valueToTest, 0.0);
+                return new MapWithDefaultOfZero(map);
             }
-            return null;
-        }
 
-        @Override
-        public void dump(Appendable appendable) {
+            @Override
+            public void dump(Appendable appendable) {
 
-        }
-
-        @Override
-        public List<LabelPredictionWeight<MapWithDefaultOfZero>> createLabelPredictionWeights(List<Instance<Map<String, Serializable>>> instances) {
-            return null;
+            }
         }
     }
 
-}
 

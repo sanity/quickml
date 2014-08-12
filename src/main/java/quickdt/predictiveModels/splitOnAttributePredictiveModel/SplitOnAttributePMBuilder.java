@@ -57,7 +57,8 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
 
     @Override
     public PredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributePM> updatable(boolean updatable) {
-        return null;
+        this.wrappedBuilder.updatable(updatable);
+        return this;
     }
 
     private Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData(Iterable<Instance<Map<String, Serializable>>> trainingData) {
