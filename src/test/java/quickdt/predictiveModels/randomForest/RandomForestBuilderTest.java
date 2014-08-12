@@ -105,7 +105,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
-        final List<Instance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).updatable(true));
         Misc.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
@@ -117,11 +117,11 @@ public class RandomForestBuilderTest {
             Assert.assertTrue(randomForest1.trees.get(i).node.size() == randomForest2.trees.get(i).node.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
-        final List<Instance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance instance : instancesTest) {
-            String class1 = randomForest1.getProbabilitiesByClassification(instance.getAttributes()).toString();
-            String class2 = randomForest2.getProbabilitiesByClassification(instance.getAttributes()).toString();
-            Assert.assertTrue(class1.equals(class2), "Deterministic Decision Trees must have equal classifications");
+        final List<Instance<Map<String,Serializable>>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance<Map<String,Serializable>> instance : instancesTest) {
+            Map map1 = randomForest1.predict(instance.getRegressors());
+            Map map2 = randomForest2.predict(instance.getRegressors());
+            Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }
 

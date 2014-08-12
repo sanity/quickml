@@ -47,7 +47,7 @@ public class TreeBuilderTest {
             Map<String,Serializable> attributes = new HashMap<>();
             attributes.put("weight", weight);
             attributes.put("height", height);
-			final Instance<Map<String,Serializable>> instance = new InstanceImpl<Map<String, Serializable>>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
+			final Instance<Map<String,Serializable>> instance = new InstanceImpl<>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
 			instances.add(instance);
 		}
 		{
@@ -143,7 +143,7 @@ public class TreeBuilderTest {
     @Test
     public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
 
-        final List<Instance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<Map<String,Serializable>>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         Misc.random.setSeed(1l);
         final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
         Misc.random.setSeed(1l);
@@ -153,11 +153,11 @@ public class TreeBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(tree2.node);
         Assert.assertTrue(tree1.node.size() == tree2.node.size(), "Deterministic Decision Trees must have same number of nodes");
 
-        final List<Instance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance instance : instancesTest) {
-            String class1 = tree1.getProbabilitiesByClassification(instance.getAttributes()).toString();
-            String class2 = tree2.getProbabilitiesByClassification(instance.getAttributes()).toString();
-            Assert.assertTrue(class1.equals(class2), "Deterministic Decision Trees must have equal classifications");
+        final List<Instance<Map<String,Serializable>>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance<Map<String,Serializable>> instance : instancesTest) {
+            Map map1 = tree1.predict(instance.getRegressors());
+            Map map2 = tree2.predict(instance.getRegressors());
+            Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }
 
