@@ -90,18 +90,18 @@ public class TrainingDataGenerator2 {
         //System.exit(0);
     }
 
-    public List<Instance> createTrainingData() {
+    public List<Instance<Map<String, Serializable>>> createTrainingData() {
 
-        List<Instance> trainingData = Lists.<Instance>newArrayList();
+        List<Instance<Map<String, Serializable>>> trainingData = Lists.<Instance<Map<String, Serializable>>>newArrayList();
         double attributeValue;
-        Instance instance;
+        Instance<Map<String, Serializable>> instance;
         Map<String, Serializable> attributes;
         double clickClassification;
 
         for (int i = 0; i < instances; i++)  {
             attributes = getAttributesForAnInstance();
             clickClassification = setClickValue();
-            instance = new InstanceImpl(attributes, clickClassification);
+            instance = new InstanceImpl<Map<String, Serializable>>(attributes, clickClassification);
             trainingData.add(instance);
         }
         return trainingData;

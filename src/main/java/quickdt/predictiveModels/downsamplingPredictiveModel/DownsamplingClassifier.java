@@ -1,6 +1,7 @@
 package quickdt.predictiveModels.downsamplingPredictiveModel;
 
 import com.google.common.collect.Maps;
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 
 import java.io.IOException;
@@ -47,11 +48,11 @@ public class DownsamplingClassifier extends Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
         probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
-        return probsByClassification;
+        return new MapWithDefaultOfZero(probsByClassification);
     }
 
     @Override

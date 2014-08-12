@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickdt.data.*;
 import quickdt.predictiveModels.AbstractPredictiveModel;
+
 import quickdt.predictiveModels.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
@@ -69,25 +70,27 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     }
 
-    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> {
 
-        private static final long serialVersionUID = -3449746370937561259L;
+    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
-        @Override
-        public Map<Serializable, Double> predict(Map<String, Serializable> regressors) {
-            if (!regressors.containsKey("enriched")) {
-                throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
+
+            private static final long serialVersionUID = -3449746370937561259L;
+
+            @Override
+            public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
+                if (!regressors.containsKey("enriched")) {
+                    throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
+                }
+                Map<Serializable, Double> map = new HashMap<>();
+                map.put(valueToTest, 0.0);
+                return new MapWithDefaultOfZero(map);
             }
-            Map<Serializable,Double> map = new HashMap<>();
-            map.put(valueToTest, 0.0);
-            return map;
-        }
 
-        @Override
-        public void dump(Appendable appendable) {
+            @Override
+            public void dump(Appendable appendable) {
 
+            }
         }
     }
 
-}
 

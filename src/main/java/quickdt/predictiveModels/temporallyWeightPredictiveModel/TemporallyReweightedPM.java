@@ -1,5 +1,6 @@
 package quickdt.predictiveModels.temporallyWeightPredictiveModel;
 
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 
 import java.io.Serializable;
@@ -22,7 +23,7 @@ public class TemporallyReweightedPM extends Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
         return wrappedClassifier.predict(attributes);
     }
 

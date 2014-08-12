@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class OutOfTimeCrossValidatorTests {
     private static final Logger logger =  LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
-    List<Instance> trainingData;
+    List<Instance<Map<String, Serializable>>> trainingData;
 
     @Before
     public void setUp() throws Exception {

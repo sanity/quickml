@@ -4,12 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 
+import quickdt.data.MapWithDefaultOfZero;
 import quickdt.predictiveModels.Classifier;
 import quickdt.predictiveModels.decisionTree.Tree;
 import quickdt.predictiveModels.decisionTree.tree.Leaf;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,10 +70,10 @@ public class RandomForest extends Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(final Map<String, Serializable> attributes) {
-        Map<Serializable, Double> sumsByClassification = Maps.newHashMap();
+    public MapWithDefaultOfZero predict(final Map<String, Serializable> attributes) {
+        MapWithDefaultOfZero sumsByClassification = new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
         for (Tree tree : trees) {
-            final Map<Serializable, Double> treeProbs = tree.predict(attributes);
+            final  MapWithDefaultOfZero treeProbs = tree.predict(attributes);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
@@ -80,7 +82,7 @@ public class RandomForest extends Classifier {
             }
         }
 
-        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        MapWithDefaultOfZero probsByClassification = new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
         for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
         }
