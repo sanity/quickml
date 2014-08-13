@@ -39,13 +39,26 @@
             </ul>
           </p>
 
-          <h3>Usage Example</h3>
+          <h3>How to use</h3>
           <p>
             <pre>
+              Add the following repository to your Maven pom.xml file:
   <code>
-  // TODO: insert simple 5-line usage example
+ <repository>
+    <id>sanity-maven-repo</id>
+    <name>Sanity's Maven repository on GitHub</name>
+    <url>http://sanity.github.com/maven-repo/repository/</url>
+</repository>
   </code>
             </pre>
+              And then add this dependency:
+  <code>
+  <dependency>
+    <groupId>quickml</groupId>
+    <artifactId>quickml</artifactId>
+    <version>0.3</version>
+</dependency>
+  </code>
           </p>
         </section>
       </div>
