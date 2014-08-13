@@ -36,9 +36,9 @@ public class DownsamplingPredictiveModelBuilderTest {
         when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Iterable<Instance> instances = (Iterable<Instance>) invocationOnMock.getArguments()[0];
+                Iterable<Instance<Map<String, Serializable>>> instances = (Iterable<Instance<Map<String, Serializable>>>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
-                for (Instance instance : instances) {
+                for (Instance<Map<String, Serializable>> instance : instances) {
                     total++;
                     if (instance.getLabel().equals(true)) {
                         sum++;

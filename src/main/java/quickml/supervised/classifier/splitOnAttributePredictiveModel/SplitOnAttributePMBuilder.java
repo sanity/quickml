@@ -91,7 +91,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
             Set<Instance<Map<String, Serializable>>> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
-                Instance instance = allData.get(i);
+                Instance<Map<String, Serializable>>instance = allData.get(i);
                 double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal();
                 double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
                 if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
@@ -119,7 +119,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         return false;
     }
 
-    private Instance cleanSupportingData(Instance<Map<String, Serializable>> instance) {
+    private Instance<Map<String, Serializable>>cleanSupportingData(Instance<Map<String, Serializable>> instance) {
         Map<String, Serializable> attributes = new HashMap<>();
         for (String key : instance.getRegressors().keySet()) {
             if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {

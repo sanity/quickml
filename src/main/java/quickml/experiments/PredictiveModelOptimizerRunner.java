@@ -36,7 +36,7 @@ public class PredictiveModelOptimizerRunner {
 
     public static void main(String[] args) throws IOException {
         List<PredictiveModelBuilderBuilder> builderBuilders = getPredictiveModelBuilderBuilders();
-        Iterable<? extends Instance> trainingData = getTrainingData("redshift_training_data.csv");
+        Iterable<? extends Instance<Map<String, Serializable>>> trainingData = getTrainingData("redshift_training_data.csv");
         List<BidderConfiguration> configurations = Lists.newLinkedList();
 
         for(PredictiveModelBuilderBuilder builderBuilder : builderBuilders) {

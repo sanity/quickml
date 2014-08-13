@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by ian on 5/20/14.
  */
-public class InstanceEnricher implements Function<Instance, Instance<Map<String,Serializable>>> {
+public class InstanceEnricher implements Function<Instance<Map<String, Serializable>>, Instance<Map<String,Serializable>>> {
     private final List<AttributesEnricher> attributesEnrichers;
 
     public InstanceEnricher(List<AttributesEnricher> attributesEnrichers) {
@@ -20,7 +20,7 @@ public class InstanceEnricher implements Function<Instance, Instance<Map<String,
 
     @Nullable
     @Override
-    public Instance<Map<String, Serializable>> apply(@Nullable Instance instance) {
+    public Instance<Map<String, Serializable>> apply(@Nullable Instance<Map<String, Serializable>>instance) {
         Map<String, Serializable> enrichedAttributes = (Map<String, Serializable>) instance.getRegressors();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);

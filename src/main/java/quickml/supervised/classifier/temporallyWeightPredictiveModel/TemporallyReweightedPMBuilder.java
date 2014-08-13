@@ -66,7 +66,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         return this;
     }
 
-    private List<Instance<Map<String, Serializable>>> reweightTrainingData(Iterable<? extends Instance> sortedData, DateTime mostRecentInstance) {
+    private List<Instance<Map<String, Serializable>>> reweightTrainingData(Iterable<? extends Instance<Map<String, Serializable>>> sortedData, DateTime mostRecentInstance) {
         ArrayList<Instance<Map<String, Serializable>>> trainingDataList = Lists.newArrayList();
         for (Instance<Map<String, Serializable>> instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
@@ -100,9 +100,9 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
         }
     }
 
-    private DateTime getMostRecentInstance(Iterable<? extends Instance> newData) {
+    private DateTime getMostRecentInstance(Iterable<? extends Instance<Map<String, Serializable>>> newData) {
         DateTime mostRecent = null;
-        for(Instance instance : newData) {
+        for(Instance<Map<String, Serializable>>instance : newData) {
             DateTime instanceTime = dateTimeExtractor.extractDateTime(instance);
             if (mostRecent == null || instanceTime.isAfter(mostRecent)) {
                 mostRecent = instanceTime;
