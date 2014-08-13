@@ -17,7 +17,7 @@ public class NonWeightedAUCCrossValLossFunction implements CrossValLossFunction<
             MapWithDefaultOfZero classifierPrediction = labelPredictionWeight.getPrediction();
             double probabilityOfCorrectInstance = classifierPrediction.get(labelPredictionWeight.getLabel());
             double score = 0;
-            score = (trueValue > 1) ? probabilityOfCorrectInstance: 1 - probabilityOfCorrectInstance;
+            score = (trueValue == 1) ? probabilityOfCorrectInstance: 1 - probabilityOfCorrectInstance;
             auc.add(trueValue, score);
         }
         return 1 - auc.auc();

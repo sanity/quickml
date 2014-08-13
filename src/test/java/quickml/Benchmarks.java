@@ -24,18 +24,18 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        List<Instance> diaInstances = loadDiabetesDataset();
+        List<Instance<Map<String, Serializable>>> diaInstances = loadDiabetesDataset();
 
         testWithInstances("diabetes", diaInstances);
 
-        final List<Instance> moboInstances = loadMoboDataset();
+        final List<Instance<Map<String, Serializable>>> moboInstances = loadMoboDataset();
 
         testWithInstances("mobo", moboInstances);
 
 
     }
 
-    private static void testWithInstances(String dsName, final List<Instance> instances) {
+    private static void testWithInstances(String dsName, final List<Instance<Map<String, Serializable>>> instances) {
         StationaryCrossValidator crossValidator = new StationaryCrossValidator(new ClassifierLogCVLossFunction());
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
@@ -48,9 +48,9 @@ public class Benchmarks {
         }
     }
 
-    public static List<Instance> loadDiabetesDataset() throws IOException {
+    public static List<Instance<Map<String, Serializable>>> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<Instance> instances = Lists.newLinkedList();
+        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -70,9 +70,9 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<Instance> loadIrisDataset() throws IOException {
+    public static List<Instance<Map<String, Serializable>>> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
-        final List<Instance> instances = Lists.newLinkedList();
+        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -84,7 +84,7 @@ public class Benchmarks {
             for (int x=0; x<splitLine.length - 1; x++) {
                 hashMapAttributes.put("attr"+x, splitLine[x]);
             }
-            final Instance instance = new InstanceImpl(hashMapAttributes, splitLine[splitLine.length-1]);
+            final Instance<Map<String, Serializable>> instance = new InstanceImpl(hashMapAttributes, splitLine[splitLine.length-1]);
             instances.add(instance);
 
         }
@@ -92,10 +92,10 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<Instance> loadMoboDataset() throws IOException {
+    public static List<Instance<Map<String, Serializable>>> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<Instance> instances = Lists.newLinkedList();
+        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
 
         int count = 0;
         while (true) {
@@ -108,7 +108,7 @@ public class Benchmarks {
             Map a = new HashMap();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
-            Instance instance = new InstanceImpl(a,binaryClassification);
+            Instance<Map<String, Serializable>> instance = new InstanceImpl(a,binaryClassification);
             instances.add(instance);
         }
 

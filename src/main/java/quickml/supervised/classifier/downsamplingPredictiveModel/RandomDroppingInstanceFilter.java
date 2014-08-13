@@ -5,11 +5,12 @@ import quickml.supervised.Misc;
 import quickml.data.Instance;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created by ian on 4/23/14.
  */
-class RandomDroppingInstanceFilter implements Predicate<Instance> {
+class RandomDroppingInstanceFilter implements Predicate<Instance<Map<String, Serializable>>> {
     private final Serializable classificationToDrop;
     private final double dropProbability;
 
@@ -19,8 +20,8 @@ class RandomDroppingInstanceFilter implements Predicate<Instance> {
     }
 
     @Override
-    public boolean apply(final Instance Instance) {
-        if (Instance.getLabel().equals(classificationToDrop)) {
+    public boolean apply(final Instance instance) {
+        if (instance.getLabel().equals(classificationToDrop)) {
             final double rand = Misc.random.nextDouble();
             return rand > dropProbability;
         } else {

@@ -17,5 +17,5 @@ public interface Instance<R> {
 
     public abstract double getWeight();
 
-    public abstract Instance reweight(double newWeight);
+    public abstract Instance<R>reweight(double newWeight);
 }

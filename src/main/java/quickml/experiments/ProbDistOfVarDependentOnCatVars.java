@@ -146,7 +146,7 @@ public class ProbDistOfVarDependentOnCatVars {
     private  List<Instance<Map<String,Serializable>>> createTrainingData() {
         List<Instance<Map<String,Serializable>>> trainingData = Lists.newArrayList();
         double attributeValue;
-        Instance instance;
+        Instance<Map<String, Serializable>>instance;
         Map<String, Serializable> attributes;
 
         for (int i = 0; i < instances; i++)  {

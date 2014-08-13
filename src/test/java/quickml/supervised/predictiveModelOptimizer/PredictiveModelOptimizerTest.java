@@ -14,6 +14,7 @@ import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilderBuilder;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -25,17 +26,17 @@ public class PredictiveModelOptimizerTest {
 
     @Test
     public void irisTest() throws IOException {
-        final List<Instance> instances = Benchmarks.loadIrisDataset();
+        final List<Instance<Map<String, Serializable>>> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
     }
 
     @Test(enabled = false)
     public void diabetesTest() throws IOException {
-        final List<Instance> instances = Benchmarks.loadDiabetesDataset();
+        final List<Instance<Map<String, Serializable>>> instances = Benchmarks.loadDiabetesDataset();
         testWithTrainingSet(instances);
     }
 
-    private void testWithTrainingSet(final List<Instance> instances) {
+    private void testWithTrainingSet(final List<Instance<Map<String, Serializable>>> instances) {
         final PredictiveModelWithDataBuilderBuilder predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder());
         final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);

@@ -27,18 +27,18 @@ public class CrossValidatorTest {
         int folds = 4;
         CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
-        List<Instance> instances = getInstances();
+        List<Instance<Map<String, Serializable>>> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
         Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<LabelPredictionWeight<PredictiveModel<Object,Object>>>>any());
     }
 
-    private List<Instance> getInstances() {
-        final List<Instance> instances = Lists.newLinkedList();
+    private List<Instance<Map<String, Serializable>>> getInstances() {
+        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
         for(int i = 0; i < 5; i++) {
             Map<String, Serializable> attributes = new HashMap<>();
 
-            Instance instance = Mockito.mock(InstanceImpl.class);
+            Instance<Map<String, Serializable>> instance = Mockito.mock(InstanceImpl.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
             Mockito.when(instance.getLabel()).thenReturn("class");
             Mockito.when(instance.getRegressors()).thenReturn(attributes);

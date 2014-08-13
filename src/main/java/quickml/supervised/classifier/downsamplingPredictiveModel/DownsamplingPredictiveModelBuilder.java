@@ -64,7 +64,7 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     private Map<Serializable, Double> getClassificationProportions(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
-        for (Instance instance : trainingData) {
+        for (Instance<Map<String, Serializable>>instance : trainingData) {
             AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
                 count = new AtomicLong(0);

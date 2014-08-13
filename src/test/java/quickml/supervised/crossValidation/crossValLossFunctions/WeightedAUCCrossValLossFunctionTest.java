@@ -8,6 +8,7 @@ import quickml.data.MapWithDefaultOfZero;
 import quickml.supervised.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -19,16 +20,16 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
-        Instance instance = Mockito.mock(Instance.class);
+        Instance<Map<String, Serializable>> instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
-        Instance instance2 = Mockito.mock(Instance.class);
+        Instance<Map<String, Serializable>> instance2 = Mockito.mock(Instance.class);
         Mockito.when(instance2.getLabel()).thenReturn("instance2");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Instance instance3 = Mockito.mock(Instance.class);
+        Instance<Map<String, Serializable>> instance3 = Mockito.mock(Instance.class);
         Mockito.when(instance3.getLabel()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        List<Instance> instances = new LinkedList<>();
+        List<Instance<Map<String, Serializable>>> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);
