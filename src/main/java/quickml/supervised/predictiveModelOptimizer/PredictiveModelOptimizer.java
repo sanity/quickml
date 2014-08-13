@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
@@ -88,7 +88,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
             String fieldName = stringFieldValueRecommenderEntry.getKey();
             logger.info("Optimizing field '" + fieldName + "'");
             final Map<Object, Double> scoresForFieldValues = getScoresForFieldValues(trainingData, currentConfiguration, fieldName, stringFieldValueRecommenderEntry.getValue());
-            final Optional<Map.Entry<Object, Double>> entryWithLowestValueOpt = Misc.getEntryWithLowestValue(scoresForFieldValues);
+            final Optional<Map.Entry<Object, Double>> entryWithLowestValueOpt = MapUtils.getEntryWithLowestValue(scoresForFieldValues);
             final Map.Entry<Object, Double> entryWithLowestValue = entryWithLowestValueOpt.get();
             Object bestValue = entryWithLowestValue.getKey();
             final Double bestValueLoss = entryWithLowestValue.getValue();

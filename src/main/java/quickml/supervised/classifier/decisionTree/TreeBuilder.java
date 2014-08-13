@@ -7,7 +7,7 @@ import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
@@ -36,7 +36,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
     private Serializable id;
-    private Random rand = Random.Util.fromSystemRandom(Misc.random);
+    private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -314,7 +314,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         Pair<? extends Branch, Double> bestPair = null;
 
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
-            if (this.ignoreAttributeAtNodeProbability > 0 && Misc.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
+            if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
                 continue;
             }
 
@@ -444,7 +444,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             return null;
         }
 
-        final Set<Serializable> returnSet = (Misc.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
+        final Set<Serializable> returnSet = (MapUtils.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
         return bestPair;
     }

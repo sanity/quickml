@@ -1,10 +1,10 @@
-package quickml.supervised;
+package quickml.collections;
 
 import com.google.common.base.Optional;
 import java.util.Map;
 import java.util.Random;
 
-public class Misc {
+public class MapUtils {
 	public static final Random random = new Random();
 
     public static final <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> getEntryWithLowestValue(Map<K, V> map) {

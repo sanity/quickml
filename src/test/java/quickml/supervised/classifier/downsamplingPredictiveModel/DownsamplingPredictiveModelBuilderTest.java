@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.*;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
@@ -51,7 +51,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = new DownsamplingPredictiveModelBuilder(predictiveModelBuilder, 0.2);
         List<Instance<Map<String,Serializable>>> data = Lists.newArrayList();
         for (int x=0; x<10000; x++) {
-            data.add(new InstanceImpl(new HashMap(), (Misc.random.nextDouble() < 0.05)));
+            data.add(new InstanceImpl(new HashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
         Map<String,Serializable> map = new HashMap<>();

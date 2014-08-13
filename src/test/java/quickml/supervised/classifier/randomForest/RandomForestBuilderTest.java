@@ -2,7 +2,7 @@ package quickml.supervised.classifier.randomForest;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
@@ -107,9 +107,9 @@ public class RandomForestBuilderTest {
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
         final List<Instance<Map<String,Serializable>>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).updatable(true));
-        Misc.random.setSeed(1l);
+        MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
-        Misc.random.setSeed(1l);
+        MapUtils.random.setSeed(1l);
         final RandomForest randomForest2 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
         Assert.assertTrue(randomForest1.trees.size() == randomForest2.trees.size(), "Deterministic Random Forests must have same number of trees");
