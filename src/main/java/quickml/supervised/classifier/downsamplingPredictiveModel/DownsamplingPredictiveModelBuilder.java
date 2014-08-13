@@ -3,7 +3,7 @@ package quickml.supervised.classifier.downsamplingPredictiveModel;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
@@ -31,8 +31,8 @@ public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveMo
     public DownsamplingClassifier buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
-        final Map.Entry<Serializable, Double> majorityEntry = Misc.getEntryWithHighestValue(classificationProportions).get();
-        final Map.Entry<Serializable, Double> minorityEntry = Misc.getEntryWithLowestValue(classificationProportions).get();
+        final Map.Entry<Serializable, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
+        final Map.Entry<Serializable, Double> minorityEntry = MapUtils.getEntryWithLowestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
         final double majorityProportion = majorityEntry.getValue();
         final double naturalMinorityProportion = 1.0 - majorityProportion;

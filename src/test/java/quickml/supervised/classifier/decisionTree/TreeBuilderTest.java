@@ -3,7 +3,7 @@ package quickml.supervised.classifier.decisionTree;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.internal.annotations.Sets;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 import quickml.supervised.PredictiveModelWithDataBuilder;
@@ -42,8 +42,8 @@ public class TreeBuilderTest {
 		final Set<Instance<Map<String,Serializable>>> instances = Sets.newHashSet();
 
 		for (int x = 0; x < 10000; x++) {
-			final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
-			final double weight = 120 + Misc.random.nextInt(110);
+			final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
+			final double weight = 120 + MapUtils.random.nextInt(110);
             Map<String,Serializable> attributes = new HashMap<>();
             attributes.put("weight", weight);
             attributes.put("height", height);
@@ -144,9 +144,9 @@ public class TreeBuilderTest {
     public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
 
         final List<Instance<Map<String,Serializable>>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
-        Misc.random.setSeed(1l);
+        MapUtils.random.setSeed(1l);
         final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
-        Misc.random.setSeed(1l);
+        MapUtils.random.setSeed(1l);
         final Tree tree2 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
 
         TreeBuilderTestUtils.serializeDeserialize(tree1.node);

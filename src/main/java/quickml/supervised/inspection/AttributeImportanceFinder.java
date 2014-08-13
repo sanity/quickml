@@ -5,7 +5,7 @@ import com.google.common.collect.*;
 import com.twitter.common.stats.ReservoirSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.StationaryCrossValidator;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
@@ -90,7 +90,7 @@ public class AttributeImportanceFinder {
         public Instance<Map<String, Serializable>> apply(final Instance<Map<String, Serializable>> instance) {
             Map<String, Serializable> randomizedAttributes = new HashMap<>();
             randomizedAttributes.putAll(instance.getRegressors());
-            final Serializable randomValue = attributeValueSamples.get(Misc.random.nextInt(attributeValueSamples.size()));
+            final Serializable randomValue = attributeValueSamples.get(MapUtils.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
             return new InstanceImpl(randomizedAttributes, instance.getLabel());
         }

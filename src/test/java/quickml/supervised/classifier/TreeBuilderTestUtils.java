@@ -1,6 +1,6 @@
 package quickml.supervised.classifier;
 
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 
@@ -15,12 +15,12 @@ public class TreeBuilderTestUtils {
     public static List<Instance<Map<String,Serializable>>> getInstances(int numInstances) {
         final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
-            final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
-            final double weight = 120 + Misc.random.nextInt(110);
+            final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
+            final double weight = 120 + MapUtils.random.nextInt(110);
             Map<String,Serializable> attributes = new HashMap<>();
             attributes.put("weight", weight);
             attributes.put("height", height);
-            attributes.put("gender", Misc.random.nextInt(2));
+            attributes.put("gender", MapUtils.random.nextInt(2));
             instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, bmiHealthy(weight, height)));
         }
         return instances;
@@ -29,13 +29,13 @@ public class TreeBuilderTestUtils {
     public static List<Instance<Map<String,Serializable>>> getIntegerInstances(int numInstances) {
         final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
-            final double height = (4 * 12) + Misc.random.nextInt(3 * 12);
-            final double weight = 120 + Misc.random.nextInt(110);
+            final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
+            final double weight = 120 + MapUtils.random.nextInt(110);
             Calendar calendar = Calendar.getInstance();
             final int year = calendar.get(Calendar.YEAR);
             final int month = calendar.get(Calendar.MONTH);
-            final int day = Misc.random.nextInt(28)+1;
-            final int hour = Misc.random.nextInt(24);
+            final int day = MapUtils.random.nextInt(28)+1;
+            final int hour = MapUtils.random.nextInt(24);
             final Map<String, Serializable> attributes = new HashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);

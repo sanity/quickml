@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -142,7 +142,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
             }
             for (Instance<Map<String, Serializable>> instance : trainingData) {
                 //TODO: using bagSize here was getting indexOutOfBounds, can't figure out why
-                int position = Misc.random.nextInt(treeTrainingDataArrayList.size());
+                int position = MapUtils.random.nextInt(treeTrainingDataArrayList.size());
                 treeTrainingDataArrayList.add(position, instance);
             }
             treeTrainingData = treeTrainingDataArrayList;

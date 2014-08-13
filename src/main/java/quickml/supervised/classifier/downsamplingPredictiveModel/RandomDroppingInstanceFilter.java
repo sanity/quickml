@@ -1,7 +1,7 @@
 package quickml.supervised.classifier.downsamplingPredictiveModel;
 
 import com.google.common.base.Predicate;
-import quickml.supervised.Misc;
+import quickml.collections.MapUtils;
 import quickml.data.Instance;
 
 import java.io.Serializable;
@@ -21,7 +21,7 @@ class RandomDroppingInstanceFilter implements Predicate<Instance> {
     @Override
     public boolean apply(final Instance Instance) {
         if (Instance.getLabel().equals(classificationToDrop)) {
-            final double rand = Misc.random.nextDouble();
+            final double rand = MapUtils.random.nextDouble();
             return rand > dropProbability;
         } else {
             return true;
