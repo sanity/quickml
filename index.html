@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-    <link href="css/prism.css" rel="stylesheet" />
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -19,7 +19,6 @@
   </head>
 
   <body>
-    <script src="js/prism.js"></script>
     <header>
       <div class="inner">
         <h1>QuickML</h1>
@@ -47,7 +46,7 @@
           <p>
             Add the following repository to your Maven pom.xml file:
 
-  <pre><code>&lt;repository&gt;
+  <pre class="prettyprint">&lt;repository&gt;
   &lt;id&gt;sanity-maven-repo&lt;/id&gt;
   &lt;name&gt;Sanity&#39;s Maven repository on GitHub&lt;/name&gt;
   &lt;url&gt;http://sanity.github.com/maven-repo/repository/&lt;/url&gt;
@@ -57,14 +56,14 @@
   &lt;groupId&gt;quickml&lt;/groupId&gt;
   &lt;artifactId&gt;quickml&lt;/artifactId&gt;
   &lt;version&gt;0.3&lt;/version&gt;
-&lt;/dependency&gt;  </code></pre>
+&lt;/dependency&gt;  </pre>
           </p>
           <h2>Build a simple predictive model</h2>
           <p>
             Here we train a random forest on the well-known <a href="https://archive.ics.uci.edu/ml/datasets/Iris">Fisher Iris dataset</a>, 
             which is included with QuickML for your convenience.  We then generate a prediction for a particular set of
             input attributes:
-  <pre><code>
+  <pre class="prettyprint">
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 // ...
@@ -76,7 +75,7 @@ attributes.put(&quot;sepal-width&quot;, 3.05);
 attributes.put(&quot;petal-length&quot;, 3.76);
 attributes.put(&quot;petal-width&quot;, 1.2);
 System.out.println(&quot;Prediction: &quot; + randomForest.getProbability(attributes, &quot;Iris-virginica&quot;));
-</code></pre>
+</pre>
           </p>
           
         </section>
