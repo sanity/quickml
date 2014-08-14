@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+// TODO: This should be split out into a separate Builder rather than using the constructor,
+//       so that it follows the same pattern as other PredictiveModels
 public class PoolAdjacentViolatorsModel extends SingleVariableRealValuedFunction  {
     private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
 
