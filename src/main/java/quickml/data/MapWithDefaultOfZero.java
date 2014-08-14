@@ -104,4 +104,9 @@ public class MapWithDefaultOfZero implements Map<Serializable, Double> {
         result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
 }
