@@ -66,14 +66,14 @@
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 // ...
-final List<Instance<Map<String, Serializable>>> irisDataset = Benchmarks.loadIrisDataset();
+final List&lt;Instance&lt;Map&lt;String, Serializable&gt;&gt;&gt; irisDataset = Benchmarks.loadIrisDataset();
 final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
-Map<String, Serializable> attributes = Maps.newHashMap();
-attributes.put("sepal-length", 5.84);
-attributes.put("sepal-width", 3.05);
-attributes.put("petal-length", 3.76);
-attributes.put("petal-width", 1.2);
-System.out.println("Prediction: " + randomForest.getProbability(attributes, "Iris-virginica"));
+Map&lt;String, Serializable&gt; attributes = Maps.newHashMap();
+attributes.put(&quot;sepal-length&quot;, 5.84);
+attributes.put(&quot;sepal-width&quot;, 3.05);
+attributes.put(&quot;petal-length&quot;, 3.76);
+attributes.put(&quot;petal-width&quot;, 1.2);
+System.out.println(&quot;Prediction: &quot; + randomForest.getProbability(attributes, &quot;Iris-virginica&quot;));
 </code></pre>
           </p>
           
