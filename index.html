@@ -56,6 +56,26 @@
         &lt;version&gt;0.3&lt;/version&gt;
       &lt;/dependency&gt;  </code></pre>
           </p>
+          
+          <p>
+            Here we train a random forest on the well-known <a href="https://archive.ics.uci.edu/ml/datasets/Iris">Fisher Iris dataset</a>, 
+            which is included with QuickML for your convenience.  We then generate a prediction for a particular set of
+            input attributes:
+  <pre><code>
+  import quickml.supervised.classifier.randomForest.RandomForest;
+  import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+  // ...
+  final List<Instance<Map<String, Serializable>>> irisDataset = Benchmarks.loadIrisDataset();
+  final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
+  Map<String, Serializable> attributes = Maps.newHashMap();
+  attributes.put("sepal-length", 5.84);
+  attributes.put("sepal-width", 3.05);
+  attributes.put("petal-length", 3.76);
+  attributes.put("petal-width", 1.2);
+  System.out.println("Prediction: " + randomForest.getProbability(attributes, "Iris-virginica"));
+  </code></pre>
+          </p>
+          
         </section>
       </div>
     </div>
