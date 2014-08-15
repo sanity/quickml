@@ -45,10 +45,9 @@ public class RidgeRegressionBuilderTest {
 
         RidgeLinearModel ridgeLinearModel = ridgeLinearModelBuilder.buildPredictiveModel(trainingData);
 
-        //test RMSE is within 4% of Python's
+        //test RMSE is within 4% of SciKitLearn's
         double pythonRMSE = Math.sqrt(212.32);
         double pythonEpsilon = pythonRMSE/25.0;
-        //assert that we are with in 1% error of python's prediction
         double mse = 0;
         for (Instance<double[]> instance : trainingData) {
             double [] x = instance.getRegressors();
