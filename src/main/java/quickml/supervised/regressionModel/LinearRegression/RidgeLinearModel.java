@@ -13,24 +13,35 @@ import java.util.TreeMap;
  * Created by alexanderhawk on 8/12/14.
  */
 public class RidgeLinearModel extends MultiVariableRealValuedFunction {
-    Map<String, Double> modelCoeficients = new TreeMap<String, Double>();
-    double[] modelArray;
-    RidgeLinearModel(Map<String, Double> modelCoeficients) {
+    double []modelCoeficients; //TreeMap<String, Double>();
+    String []modelHeader;
+
+    RidgeLinearModel(double []modelCoeficients, String []modelHeader) {
         this.modelCoeficients = modelCoeficients;
-        this.modelArray = new double[modelCoeficients.size()];
+        this.modelHeader = modelHeader;
     }
+
+    RidgeLinearModel(double []modelCoeficients) {
+        this.modelCoeficients = modelCoeficients;
+        modelHeader = new String[modelCoeficients.length];
+        for (int i = 0; i<modelCoeficients.length; i++) {
+            modelHeader[i] = Integer.valueOf(i).toString();
+        }
+    }
+
     @Override
-    public Double predict(Map<String, Double> regressors) {
+    public Double predict(double []regressors) {
         double prediction = 0;
-        for (String key : regressors.keySet())
-            prediction += regressors.get(key)*modelCoeficients.get(key);
+        for (int i = 0; i< regressors.length; i++) {
+            prediction += regressors[i] * modelCoeficients[i];
+        }
         return prediction;
     }
     @Override
     public void dump(Appendable appendable) {
-        for (String key : modelCoeficients.keySet()) {
+        for (int i = 0; i < modelCoeficients.length; i++) {
             try {
-                appendable.append(key + ":" + modelCoeficients.get(key).toString() + "\n");
+                appendable.append(modelHeader[i] + ":" + modelCoeficients[i] + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException();

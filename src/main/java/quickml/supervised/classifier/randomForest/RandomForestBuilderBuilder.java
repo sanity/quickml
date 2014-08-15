@@ -42,6 +42,5 @@ public class RandomForestBuilderBuilder implements UpdatablePredictiveModelBuild
         return new RandomForestBuilder(treeBuilder)
                 .numTrees(numTrees)
                 .withBagging(bagSize);
-
     }
 }

@@ -1,30 +1,30 @@
 package quickml.supervised.regressionModel.LinearRegression;
 
 import com.google.common.collect.Iterables;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.DiagonalMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import org.javatuples.Pair;
+import quickml.supervised.PredictiveModelBuilder;
 
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+
 
 /**
  * Created by alexanderhawk on 8/14/14.
  */
-public class RidgeLinearModelBuilder {
+public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[], RidgeLinearModel> {
     private static final Logger logger = LoggerFactory.getLogger(RidgeLinearModelBuilder.class);
 
     double regularizationConstant = 0;
-    Iterable<Instance<Map<String, Double>>> trainingData;
+    Iterable<Instance<double[]>> trainingData;
     boolean includeBiasTerm = false;
+    boolean updatable = false;
     int collumnsInDataMatrix = 0;
+    String []header;
+    Serializable id;
 
     public RidgeLinearModelBuilder() {
     }
@@ -39,17 +39,19 @@ public class RidgeLinearModelBuilder {
         return this;
     }
 
+    public RidgeLinearModelBuilder header(String []header) {
+        this.header = header;
+        return this;
+    }
+
     @Override
-    public RidgeLinearModel buildPredictiveModel(Iterable<Instance<Map<String, Double>>> trainingData) {
+    public RidgeLinearModel buildPredictiveModel(Iterable<Instance<double[]>> trainingData) {
+
         //compute modelCoefficients = (X^t * X + regularizationConstant*IdentityMatrix)^-1 * X^t * labels, where X is the data matrix
-
         this.trainingData = trainingData;
-        Pair<HashMap<Integer, String>, HashMap<String, Integer>> pairOfMapsBetweenKeysAndIndices = createMapsBetweenIndicesAndKeys(trainingData);
-        HashMap<Integer, String> mapOfIndicesToKeys = pairOfMapsBetweenKeysAndIndices.getValue0();
-        HashMap<String, Integer> mapOfKeysToIndices = pairOfMapsBetweenKeysAndIndices.getValue1();
-        collumnsInDataMatrix = (includeBiasTerm) ? mapOfIndicesToKeys.size()+1 : mapOfIndicesToKeys.size();
+        collumnsInDataMatrix = (includeBiasTerm) ? header.length+1 : header.length;
 
-        Pair<RealMatrix, double[]> dataMatrixLabelsPair = createDataMatrixLabelsPair(trainingData, mapOfKeysToIndices);
+        Pair<RealMatrix, double[]> dataMatrixLabelsPair = createDataMatrixLabelsPair(trainingData);
         RealMatrix dataMatrix = dataMatrixLabelsPair.getValue0();
         double[] labels = dataMatrixLabelsPair.getValue1();
 
@@ -59,56 +61,49 @@ public class RidgeLinearModelBuilder {
         //log this out
         RealMatrix dataMatrixTransposeTimesDataMatrix = dataMatrixTranspose.multiply(dataMatrix);
         RealMatrix matrixToInvert = dataMatrixTransposeTimesDataMatrix.add(identityMatrixTimesRegularizationConstant);
-        RealMatrix invertedMatrix = matrixToInvert.psudoInverse();
+        RealMatrix invertedMatrix = new SingularValueDecomposition(matrixToInvert).getSolver().getInverse();
         //mult on right by X^t, then by Y
         double[] modelCoefficients = (invertedMatrix.multiply(dataMatrixTranspose)).operate(labels);
-        HashMap<String, Double> modelCoefficientsMap = new HashMap<>();
-        for (int j = 0; j < modelCoefficients.length; j++)
-            modelCoefficientsMap.put(mapOfIndicesToKeys.get(j), modelCoefficients[j]);
+        return new RidgeLinearModel(modelCoefficients, header);
+    }
 
-        return new RidgeLinearModel(modelCoefficientsMap);
+    @Override
+    public RidgeLinearModelBuilder updatable(boolean updatable) {
+        this.updatable = updatable;
+        return this;
+    }
+
+    @Override
+    public void setID(Serializable id) {
+        this.id = id;
     }
 
     private RealMatrix getIdentiytMatrixTimesRegularizationConstant() {
-        RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
+         RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
         for (int i = 0; i < collumnsInDataMatrix; i++) {
             identityMatrixTimesRegularizationConstant.setEntry(i, i, regularizationConstant);
         }
         return identityMatrixTimesRegularizationConstant;
     }
 
-    private Pair<HashMap<Integer, String>, HashMap<String, Integer>> createMapsBetweenIndicesAndKeys(Iterable<Instance<Map<String, Double>>> trainingData) {
-        HashMap<Integer, String> indicesToKeys = new HashMap<>();
-        HashMap<String, Integer> keysToIndices = new HashMap<>();
 
-        Set<String> regressorKeySet = trainingData.iterator().next().getRegressors().keySet();
-        int i = (includeBiasTerm) ? 1 : 0;
-        for (String key : regressorKeySet) {
-            indicesToKeys.put(i, key);
-            keysToIndices.put(key, i);
-            i++;
-        }
-        return new Pair<HashMap<Integer, String>, HashMap<String, Integer>>(indicesToKeys, keysToIndices);
-    }
-
-    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<Instance<Map<String, Double>>> trainingData, Map<String, Integer> mapOfKeysToIndices) {
+    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<Instance<double[]>> trainingData) {
         RealMatrix dataMatrix = new Array2DRowRealMatrix(Iterables.size(trainingData), collumnsInDataMatrix);
         double[] labels = new double[Iterables.size(trainingData)];
         int row = 0;
-        for (Instance<Map<String, Double>> instance : trainingData) {
+        for (Instance<double[]> instance : trainingData) {
             labels[row] = (Double) instance.getLabel();
-            Map<String, Double> regressors = instance.getRegressors();
-            for (String key : regressors.keySet()) {
-                int col = mapOfKeysToIndices.get(key);
-                double entry = instance.getRegressors().get(key);
-                dataMatrix.setEntry(row, col, entry);
-            }
+            double[] regressors = instance.getRegressors();
+            int i = 0;
             if (includeBiasTerm) {
                 dataMatrix.setEntry(row, 0, 1.0);
+                i++;
+            }
+            for (; i < collumnsInDataMatrix; i++) {
+                dataMatrix.setEntry(row, i, regressors[i]);
             }
             row++;
         }
         return new Pair<RealMatrix, double[]>(dataMatrix, labels);
     }
-
 }
