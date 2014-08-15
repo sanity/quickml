@@ -15,13 +15,16 @@ import java.util.TreeMap;
 public class RidgeLinearModel extends MultiVariableRealValuedFunction {
     double []modelCoeficients; //TreeMap<String, Double>();
     String []modelHeader;
+    boolean useBias = true;
 
-    RidgeLinearModel(double []modelCoeficients, String []modelHeader) {
+    RidgeLinearModel(double []modelCoeficients, String []modelHeader, boolean useBias) {
         this.modelCoeficients = modelCoeficients;
         this.modelHeader = modelHeader;
+        this.useBias = useBias;
     }
 
-    RidgeLinearModel(double []modelCoeficients) {
+    RidgeLinearModel(double []modelCoeficients, boolean useBias) {
+        this.useBias = useBias;
         this.modelCoeficients = modelCoeficients;
         modelHeader = new String[modelCoeficients.length];
         for (int i = 0; i<modelCoeficients.length; i++) {
@@ -32,11 +35,17 @@ public class RidgeLinearModel extends MultiVariableRealValuedFunction {
     @Override
     public Double predict(double []regressors) {
         double prediction = 0;
-        for (int i = 0; i< regressors.length; i++) {
-            prediction += regressors[i] * modelCoeficients[i];
+        int oneIfUsingBias = 0;
+        if (useBias) {
+            prediction += modelCoeficients[0];
+            oneIfUsingBias = 1;
+        }
+        for (int i=0; i< regressors.length; i++) {
+            prediction += regressors[i] * modelCoeficients[i + oneIfUsingBias];
         }
         return prediction;
     }
+
     @Override
     public void dump(Appendable appendable) {
         for (int i = 0; i < modelCoeficients.length; i++) {
@@ -48,4 +57,9 @@ public class RidgeLinearModel extends MultiVariableRealValuedFunction {
             }
         }
     }
+
+    public double[] getModelCoefficients(){
+        return modelCoeficients;
+    }
+
 }

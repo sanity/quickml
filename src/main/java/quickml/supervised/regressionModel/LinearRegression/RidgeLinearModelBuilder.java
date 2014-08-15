@@ -26,6 +26,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     String []header;
     Serializable id;
 
+
     public RidgeLinearModelBuilder() {
     }
 
@@ -64,8 +65,12 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         RealMatrix invertedMatrix = new SingularValueDecomposition(matrixToInvert).getSolver().getInverse();
         //mult on right by X^t, then by Y
         double[] modelCoefficients = (invertedMatrix.multiply(dataMatrixTranspose)).operate(labels);
-        return new RidgeLinearModel(modelCoefficients, header);
+        return new RidgeLinearModel(modelCoefficients, header, includeBiasTerm);
     }
+
+   // public RidgeLinearModel buildPredictiveModel(double [][] rainingData) {
+   //     return new RidgeLinearModel(null, null);
+   // }
 
     @Override
     public RidgeLinearModelBuilder updatable(boolean updatable) {
@@ -94,13 +99,13 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         for (Instance<double[]> instance : trainingData) {
             labels[row] = (Double) instance.getLabel();
             double[] regressors = instance.getRegressors();
-            int i = 0;
+            int oneIfUsingBiasTerm = 0;
             if (includeBiasTerm) {
                 dataMatrix.setEntry(row, 0, 1.0);
-                i++;
+                oneIfUsingBiasTerm = 1;
             }
-            for (; i < collumnsInDataMatrix; i++) {
-                dataMatrix.setEntry(row, i, regressors[i]);
+            for (int i=0; i < regressors.length; i++) {
+                dataMatrix.setEntry(row, i+oneIfUsingBiasTerm, regressors[i]);
             }
             row++;
         }
