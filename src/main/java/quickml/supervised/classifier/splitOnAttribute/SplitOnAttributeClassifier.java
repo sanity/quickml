@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.splitOnAttributePredictiveModel;
+package quickml.supervised.classifier.splitOnAttribute;
 
 import quickml.data.MapWithDefaultOfZero;
 import quickml.supervised.classifier.Classifier;
@@ -10,13 +10,13 @@ import java.util.Map;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributePM extends Classifier {
+public class SplitOnAttributeClassifier extends Classifier {
     private static final long serialVersionUID = 2642074639257374588L;
     private final String attributeKey;
     private final Map<Serializable, Classifier> splitModels;
     private final Classifier defaultPM;
 
-    public SplitOnAttributePM(String attributeKey, final Map<Serializable, Classifier> splitModels, Classifier defaultPM) {
+    public SplitOnAttributeClassifier(String attributeKey, final Map<Serializable, Classifier> splitModels, Classifier defaultPM) {
         this.attributeKey = attributeKey;
         this.splitModels = splitModels;
         this.defaultPM = defaultPM;
@@ -61,7 +61,7 @@ public class SplitOnAttributePM extends Classifier {
 
     private Classifier getModelForAttributes(Map<String, Serializable> attributes) {
         Serializable value = attributes.get(attributeKey);
-        if (value == null) value = SplitOnAttributePMBuilder.NO_VALUE_PLACEHOLDER;
+        if (value == null) value = SplitOnAttributeClassifierBuilder.NO_VALUE_PLACEHOLDER;
         Classifier predictiveModel = splitModels.get(value);
         if (predictiveModel == null) {
             predictiveModel = defaultPM;

@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 import junit.framework.Assert;
 import org.testng.annotations.Test;

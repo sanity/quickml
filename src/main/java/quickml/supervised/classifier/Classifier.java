@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public abstract class Classifier extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
+    private static final long serialVersionUID = -5052476771686106526L;
+
     public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }

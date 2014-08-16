@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.splitOnAttributePredictiveModel;
+package quickml.supervised.classifier.splitOnAttribute;
 
 import com.google.common.collect.Maps;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 6/10/14.
  */
-public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,SplitOnAttributePM, SplitOnAttributePMBuilder> {
+public class SplitOnAttributeClassifierBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,SplitOnAttributeClassifier, SplitOnAttributeClassifierBuilder> {
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
@@ -22,7 +22,7 @@ public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveMode
     private final String attributeKey;
     private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributePMBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
+    public SplitOnAttributeClassifierBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.attributeKey = attributeKey;
         this.attributeWhiteList = attributeWhiteList;
@@ -39,11 +39,11 @@ public class SplitOnAttributePMBuilderBuilder implements UpdatablePredictiveMode
     }
 
     @Override
-    public SplitOnAttributePMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
+    public SplitOnAttributeClassifierBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
         final int minAmountCrossData = (Integer) predictiveModelConfig.get(MIN_AMOUNT_TOTAL_CROSS_DATA);
         final double percentCrossData = (Double) predictiveModelConfig.get(PERCENT_CROSS_DATA);
         final int minAmountCrossDataClassification = (Integer) predictiveModelConfig.get(MIN_AMOUNT_CROSS_DATA_CLASSIFICATION);
-        return new SplitOnAttributePMBuilder(attributeKey, wrappedBuilderBuilder.buildBuilder(predictiveModelConfig),
+        return new SplitOnAttributeClassifierBuilder(attributeKey, wrappedBuilderBuilder.buildBuilder(predictiveModelConfig),
                 minAmountCrossData, percentCrossData, attributeWhiteList, minAmountCrossDataClassification);
     }
 }

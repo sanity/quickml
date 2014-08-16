@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.temporallyWeightPredictiveModel;
+package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.collect.Maps;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
@@ -12,14 +12,14 @@ import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
 import java.io.Serializable;
 import java.util.Map;
 
-public class TemporallyReweightedPMBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,TemporallyReweightedPM, TemporallyReweightedPMBuilder> {
+public class TemporallyReweightedClassifierBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
     private final PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public TemporallyReweightedPMBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 
@@ -34,11 +34,11 @@ public class TemporallyReweightedPMBuilderBuilder implements UpdatablePredictive
     }
 
     @Override
-    public TemporallyReweightedPMBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
+    public TemporallyReweightedClassifierBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
         final double halfLifeOfPositive = (Double) predictiveModelConfig.get(HALF_LIFE_OF_POSITIVE);
         final double halfLifeOfNegative = (Double) predictiveModelConfig.get(HALF_LIFE_OF_NEGATIVE);
         final DateTimeExtractor dateTimeExtractor = (DateTimeExtractor) predictiveModelConfig.get(DATE_EXTRACTOR);
-        return new TemporallyReweightedPMBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig), dateTimeExtractor)
+        return new TemporallyReweightedClassifierBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig), dateTimeExtractor)
                                                  .halfLifeOfNegative(halfLifeOfNegative)
                                                  .halfLifeOfPositive(halfLifeOfPositive);
     }

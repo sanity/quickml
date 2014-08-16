@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.splitOnAttributePredictiveModel;
+package quickml.supervised.classifier.splitOnAttribute;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -17,8 +17,8 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributePM> {
-    private static final  Logger logger =  LoggerFactory.getLogger(SplitOnAttributePMBuilder.class);
+public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributeClassifier> {
+    private static final  Logger logger =  LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
 
     public static final Double NO_VALUE_PLACEHOLDER = Double.MIN_VALUE;
 
@@ -29,7 +29,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     private final Set<String> attributeWhiteList;
     private final int minimumAmountCrossDataPerClassification;
 
-    public SplitOnAttributePMBuilder(String attributeKey, PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
         this.minimumAmountTotalCrossData = minimumAmountCrossData;
@@ -39,7 +39,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     }
 
     @Override
-    public SplitOnAttributePM buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = splitTrainingData(trainingData);
 
         Map<Serializable, Classifier> splitModels = Maps.newHashMap();
@@ -52,11 +52,11 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
         logger.info("Building default predictive model");
         setID(null);
         final Classifier defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
-        return new SplitOnAttributePM(attributeKey, splitModels, defaultPM);
+        return new SplitOnAttributeClassifier(attributeKey, splitModels, defaultPM);
     }
 
     @Override
-    public PredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributePM> updatable(boolean updatable) {
+    public PredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributeClassifier> updatable(boolean updatable) {
         this.wrappedBuilder.updatable(updatable);
         return this;
     }
@@ -135,7 +135,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     }
 
     @Override
-    public void updatePredictiveModel(SplitOnAttributePM predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitNewData = splitTrainingData(newData);
             for (Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> newDataEntry : splitNewData.entrySet()) {
@@ -159,7 +159,7 @@ public class SplitOnAttributePMBuilder implements UpdatablePredictiveModelBuilde
     }
 
     @Override
-    public void stripData(SplitOnAttributePM predictiveModel) {
+    public void stripData(SplitOnAttributeClassifier predictiveModel) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             for(Classifier pm : predictiveModel.getSplitModels().values()) {
                 ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(pm);

@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.temporallyWeightPredictiveModel;
+package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 6/23/14.
  */
-public class TemporallyReweightedPMBuilderTest {
+public class TemporallyReweightedClassifierBuilderTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testError3ClassificationsInDataSet() throws Exception {
@@ -30,7 +30,7 @@ public class TemporallyReweightedPMBuilderTest {
         instances.add(new InstanceImpl<Map<String, Serializable>>(map, "2"));
         instances.add(new InstanceImpl<Map<String, Serializable>>(map, "3"));
         PredictiveModelBuilder predictiveModelBuilder = new TreeBuilder();
-        final TemporallyReweightedPMBuilder cpmb = new TemporallyReweightedPMBuilder(predictiveModelBuilder, new MapDateTimeExtractor());
+        final TemporallyReweightedClassifierBuilder cpmb = new TemporallyReweightedClassifierBuilder(predictiveModelBuilder, new MapDateTimeExtractor());
         cpmb.buildPredictiveModel(instances);
     }
 
@@ -38,9 +38,9 @@ public class TemporallyReweightedPMBuilderTest {
     public void simpleBmiTest() throws Exception {
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getIntegerInstances(10000);
         final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        final TemporallyReweightedPMBuilder builder = new TemporallyReweightedPMBuilder(tb, new MapDateTimeExtractor());
+        final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, new MapDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
-        final TemporallyReweightedPM model = builder.buildPredictiveModel(instances);
+        final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);
 
         TreeBuilderTestUtils.serializeDeserialize(model);
 

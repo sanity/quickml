@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 import com.google.common.base.Predicate;
 import quickml.collections.MapUtils;

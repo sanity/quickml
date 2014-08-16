@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 import com.beust.jcommander.internal.Lists;
 import junit.framework.Assert;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingPredictiveModelBuilderTest {
+public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
         final PredictiveModelBuilder<Map<String,Serializable>, Classifier> predictiveModelBuilder = Mockito.mock(PredictiveModelBuilder.class);
@@ -48,12 +48,12 @@ public class DownsamplingPredictiveModelBuilderTest {
                 return dumbPM;
             }
         });
-        DownsamplingPredictiveModelBuilder downsamplingPredictiveModelBuilder = new DownsamplingPredictiveModelBuilder(predictiveModelBuilder, 0.2);
+        DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(predictiveModelBuilder, 0.2);
         List<Instance<Map<String,Serializable>>> data = Lists.newArrayList();
         for (int x=0; x<10000; x++) {
             data.add(new InstanceImpl(new HashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
-        DownsamplingClassifier predictiveModel = downsamplingPredictiveModelBuilder.buildPredictiveModel(data);
+        DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
         Map<String,Serializable> map = new HashMap<>();
         map.put("true",Boolean.TRUE);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
@@ -65,7 +65,7 @@ public class DownsamplingPredictiveModelBuilderTest {
     public void simpleBmiTest() throws IOException, ClassNotFoundException {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        final DownsamplingPredictiveModelBuilder dpmb = new DownsamplingPredictiveModelBuilder((PredictiveModelBuilder)urfb, 0.1);
+        final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder((PredictiveModelBuilder)urfb, 0.1);
 
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);

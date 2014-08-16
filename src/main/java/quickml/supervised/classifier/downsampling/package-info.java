@@ -5,4 +5,4 @@
  * It works by reducing the imbalance by throwing away, at random, a proportion of the instances
  * with the majority classification.  It then statistically corrects for this at prediction time.
  */
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;

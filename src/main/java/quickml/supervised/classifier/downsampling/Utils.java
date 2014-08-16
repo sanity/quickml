@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 /**
  * Created by ian on 4/23/14.

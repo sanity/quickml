@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingPredictiveModelBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,DownsamplingClassifier, DownsamplingPredictiveModelBuilder> {
+public class DownsamplingClassifierBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
     private final PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public DownsamplingPredictiveModelBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 
@@ -31,7 +31,7 @@ public class DownsamplingPredictiveModelBuilderBuilder implements UpdatablePredi
     }
 
     @Override
-    public DownsamplingPredictiveModelBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
-        return new DownsamplingPredictiveModelBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig), (Double) predictiveModelConfig.get(MINORITY_INSTANCE_PROPORTION));
+    public DownsamplingClassifierBuilder buildBuilder(final Map<String, Object> predictiveModelConfig) {
+        return new DownsamplingClassifierBuilder(wrappedBuilderBuilder.buildBuilder(predictiveModelConfig), (Double) predictiveModelConfig.get(MINORITY_INSTANCE_PROPORTION));
     }
 }

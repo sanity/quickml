@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.temporallyWeightPredictiveModel;
+package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,TemporallyReweightedPM> {
+public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,TemporallyReweightedClassifier> {
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
@@ -26,22 +26,22 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     private final DateTimeExtractor dateTimeExtractor;
     private final Serializable positiveClassification;
 
-    public TemporallyReweightedPMBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
         this(wrappedBuilder, dateTimeExtractor, 1.0);
     }
 
-    public TemporallyReweightedPMBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
         this.wrappedBuilder = wrappedBuilder;
         this.dateTimeExtractor = dateTimeExtractor;
         this.positiveClassification = positiveClassification;
     }
 
-    public TemporallyReweightedPMBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
+    public TemporallyReweightedClassifierBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
         this.decayConstantOfPositive = halfLifeOfPositiveInDays * DateTimeConstants.HOURS_PER_DAY / Math.log(2);
         return this;
     }
 
-    public TemporallyReweightedPMBuilder halfLifeOfNegative(double halfLifeOfNegativeInDays) {
+    public TemporallyReweightedClassifierBuilder halfLifeOfNegative(double halfLifeOfNegativeInDays) {
         this.decayConstantOfNegative = halfLifeOfNegativeInDays * DateTimeConstants.HOURS_PER_DAY / Math.log(2);
         return this;
     }
@@ -52,16 +52,16 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public TemporallyReweightedPM buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
         List<Instance<Map<String, Serializable>>> trainingDataList = reweightTrainingData(trainingData, mostRecent);
         final Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
-        return new TemporallyReweightedPM(predictiveModel);
+        return new TemporallyReweightedClassifier(predictiveModel);
     }
 
     @Override
-    public PredictiveModelBuilder<Map<String, Serializable>, TemporallyReweightedPM> updatable(boolean updatable) {
+    public PredictiveModelBuilder<Map<String, Serializable>, TemporallyReweightedClassifier> updatable(boolean updatable) {
         wrappedBuilder.updatable(updatable);
         return this;
     }
@@ -86,7 +86,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
 
 
     @Override
-    public void updatePredictiveModel(TemporallyReweightedPM predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(TemporallyReweightedClassifier predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             validateData(newData);
             DateTime mostRecentInstance = getMostRecentInstance(newData);
@@ -112,7 +112,7 @@ public class TemporallyReweightedPMBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public void stripData(TemporallyReweightedPM predictiveModel) {
+    public void stripData(TemporallyReweightedClassifier predictiveModel) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
                 ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getWrappedClassifier());
         } else {

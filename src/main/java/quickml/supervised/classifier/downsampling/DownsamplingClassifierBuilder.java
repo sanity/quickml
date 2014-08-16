@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.downsamplingPredictiveModel;
+package quickml.supervised.classifier.downsampling;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,DownsamplingClassifier> {
+public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,DownsamplingClassifier> {
 
     private final double targetMinorityProportion;
     private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> predictiveModelBuilder;
 
-    public DownsamplingPredictiveModelBuilder(PredictiveModelBuilder<Map<String, Serializable>,Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> predictiveModelBuilder, double targetMinorityProportion) {
         this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
