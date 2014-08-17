@@ -50,13 +50,20 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
 
         //compute modelCoefficients = (X^t * X + regularizationConstant*IdentityMatrix)^-1 * X^t * labels, where X is the data matrix
         this.trainingData = trainingData;
-        collumnsInDataMatrix = (includeBiasTerm) ? header.length+1 : header.length;
+        collumnsInDataMatrix = (includeBiasTerm) ? header.length + 1 : header.length;
 
         Pair<RealMatrix, double[]> dataMatrixLabelsPair = createDataMatrixLabelsPair(trainingData);
         RealMatrix dataMatrix = dataMatrixLabelsPair.getValue0();
         double[] labels = dataMatrixLabelsPair.getValue1();
 
         RealMatrix dataMatrixTranspose = dataMatrix.transpose();
+        for (int i = 0; i < collumnsInDataMatrix; i++) {
+            for (int j = 0; j < collumnsInDataMatrix; j++) {
+                System.out.println(dataMatrixTranspose.getEntry(i, j));
+            }
+            System.out.println("\n");
+        }
+
         RealMatrix identityMatrixTimesRegularizationConstant = getIdentiytMatrixTimesRegularizationConstant();
 
         //log this out

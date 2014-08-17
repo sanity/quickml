@@ -1,6 +1,8 @@
 package quickml.supervised.featureEngineering;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilderBuilder;
@@ -14,7 +16,7 @@ import java.util.Map;
  */
 public class FeatureEngineeringPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
-    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?>  wrappedBuilderBuilder; //improve the bounds on Predictive modelBuilder
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderBuilder(
