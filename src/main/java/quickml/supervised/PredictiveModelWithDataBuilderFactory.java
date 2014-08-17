@@ -8,13 +8,13 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 7/2/14.
  */
-public class PredictiveModelWithDataBuilderBuilder<R, PM extends PredictiveModel<R, ?>> implements PredictiveModelBuilderBuilder<R, PM, PredictiveModelWithDataBuilder<R, PM>> {
+public class PredictiveModelWithDataBuilderFactory<R, PM extends PredictiveModel<R, ?>> implements PredictiveModelBuilderFactory<R, PM, PredictiveModelWithDataBuilder<R, PM>> {
     public static final String REBUILD_THRESHOLD = "rebuildThreshold";
     public static final String SPLIT_THRESHOLD = "splitThreshold";
 
-    private final UpdatablePredictiveModelBuilderBuilder<R, PM, PredictiveModelWithDataBuilder<R, PM>> predictiveModelBuilderBuilder;
+    private final UpdatablePredictiveModelBuilderFactory<R, PM, PredictiveModelWithDataBuilder<R, PM>> predictiveModelBuilderBuilder;
 
-    public PredictiveModelWithDataBuilderBuilder(UpdatablePredictiveModelBuilderBuilder predictiveModelBuilderBuilder) {
+    public PredictiveModelWithDataBuilderFactory(UpdatablePredictiveModelBuilderFactory predictiveModelBuilderBuilder) {
         this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
     }
 

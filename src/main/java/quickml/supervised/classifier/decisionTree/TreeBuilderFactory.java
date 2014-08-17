@@ -3,7 +3,7 @@ package quickml.supervised.classifier.decisionTree;
 import com.google.common.collect.Maps;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/12/14.
  */
-public class TreeBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>, Tree, TreeBuilder> {
+public class TreeBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";

@@ -1,11 +1,11 @@
 package quickml.supervised.classifier.randomForest;
 
 import com.google.common.collect.Maps;
+import quickml.supervised.classifier.decisionTree.TreeBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.TreeBuilderBuilder;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -13,15 +13,15 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class RandomForestBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,RandomForest, RandomForestBuilder> {
+public class RandomForestBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private static final String BAG_SIZE = "bagSize";
-    private final TreeBuilderBuilder treeBuilderBuilder;
-    public RandomForestBuilderBuilder() {
-        this(new TreeBuilderBuilder());
+    private final TreeBuilderFactory treeBuilderBuilder;
+    public RandomForestBuilderFactory() {
+        this(new TreeBuilderFactory());
     }
 
-    public RandomForestBuilderBuilder(TreeBuilderBuilder treeBuilderBuilder) {
+    public RandomForestBuilderFactory(TreeBuilderFactory treeBuilderBuilder) {
         this.treeBuilderBuilder = treeBuilderBuilder;
     }
 

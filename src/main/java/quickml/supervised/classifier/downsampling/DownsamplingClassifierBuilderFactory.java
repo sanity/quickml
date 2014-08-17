@@ -4,8 +4,8 @@ import com.google.common.collect.Maps;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilderBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingClassifierBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,DownsamplingClassifier, DownsamplingClassifierBuilder> {
+public class DownsamplingClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    private final PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

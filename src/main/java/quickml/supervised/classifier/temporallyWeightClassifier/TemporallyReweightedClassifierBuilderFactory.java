@@ -1,25 +1,25 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.collect.Maps;
+import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.supervised.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilderBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilderBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
 
 import java.io.Serializable;
 import java.util.Map;
 
-public class TemporallyReweightedClassifierBuilderBuilder implements UpdatablePredictiveModelBuilderBuilder<Map<String, Serializable>,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
+public class TemporallyReweightedClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderBuilder<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public TemporallyReweightedClassifierBuilderBuilder(PredictiveModelBuilderBuilder<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

@@ -1,9 +1,9 @@
 package quickml.supervised.featureEngineering;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.PredictiveModel;
-import quickml.supervised.PredictiveModelBuilderBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.Map;
 /**
  * Created by ian on 5/21/14.
  */
-public class FeatureEngineeringPredictiveModelBuilderBuilder implements PredictiveModelBuilderBuilder<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
+public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
-    private final PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilderBuilder(
-            PredictiveModelBuilderBuilder<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder,
+    public FeatureEngineeringPredictiveModelBuilderFactory(
+            PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;
