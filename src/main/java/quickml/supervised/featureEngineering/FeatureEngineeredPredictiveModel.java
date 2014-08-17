@@ -1,6 +1,7 @@
 package quickml.supervised.featureEngineering;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModel;
 
@@ -13,7 +14,7 @@ import java.util.Map;
  * Attributes based on one or more "enrichers".  This objected is created by a
  * {@link FeatureEngineeringPredictiveModelBuilder}.
  */
-public class FeatureEngineeredPredictiveModel extends Classifier {
+public class FeatureEngineeredPredictiveModel extends AbstractClassifier {
     private static final long serialVersionUID = 7279329500376419142L;
     private final PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> wrappedPredictiveModel;
     private final List<AttributesEnricher> attributesEnrichers;

@@ -2,8 +2,6 @@ package quickml.supervised.regressionModel;
 
 import quickml.supervised.AbstractPredictiveModel;
 
-import java.util.Map;
-
 /**
  * Created by alexanderhawk on 7/29/14.
  */

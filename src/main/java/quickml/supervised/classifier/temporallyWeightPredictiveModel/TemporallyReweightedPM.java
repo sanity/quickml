@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.temporallyWeightPredictiveModel;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 6/20/14.
  */
-public class TemporallyReweightedPM extends Classifier {
+public class TemporallyReweightedPM extends AbstractClassifier {
     private static final long serialVersionUID = 2642074639257374588L;
     private final Classifier wrappedClassifier;
 

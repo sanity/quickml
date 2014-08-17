@@ -8,6 +8,7 @@ import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
 import quickml.data.*;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.PredictiveModelWithDataBuilder;
@@ -89,7 +90,7 @@ public class DownsamplingPredictiveModelBuilderTest {
         org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private static class SamePredictionPredictiveModel extends Classifier {
+    private static class SamePredictionPredictiveModel extends AbstractClassifier {
 
         private static final long serialVersionUID = 8241616760952568181L;
         private final double prediction;
