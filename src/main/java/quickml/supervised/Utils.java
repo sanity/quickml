@@ -9,14 +9,13 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 7/31/14.
  */
-public abstract class AbstractPredictiveModel<R, P> implements PredictiveModel<R, P> {
+public class Utils {
 
-    @Override
-    public List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<Instance<R>> instances) {
+    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
         for (Instance<R> instance : instances) {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    this.predict(instance.getRegressors()), instance.getWeight());
+                    predictiveModel.predict(instance.getRegressors()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;

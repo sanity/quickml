@@ -3,8 +3,8 @@ package quickml.supervised.featureEngineering;
 import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickml.data.*;
-import quickml.supervised.AbstractPredictiveModel;
 
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
@@ -71,7 +71,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     }
 
 
-    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
+    public static class TestPM implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
 
             private static final long serialVersionUID = -3449746370937561259L;

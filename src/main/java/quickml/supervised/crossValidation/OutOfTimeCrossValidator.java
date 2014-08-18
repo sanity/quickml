@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
@@ -52,7 +53,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(validationSet);
+            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
