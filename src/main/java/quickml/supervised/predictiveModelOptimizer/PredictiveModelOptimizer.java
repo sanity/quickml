@@ -5,11 +5,10 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
+import quickml.supervised.*;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.data.Instance;
-import quickml.supervised.PredictiveModel;
-import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.PredictiveModelBuilderBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
 
 import java.util.Collections;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
  */
 public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PMB extends PredictiveModelBuilder<R, PM>> {
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
-    private final PredictiveModelBuilderBuilder<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderBuilder;
+    private final PredictiveModelBuilderFactory<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderFactory;
     private final CrossValidator<R, P> crossValidator;
     private final Map<String, FieldValueRecommender> valueRecommenders;
     private final Iterable<Instance<R>> trainingData;
@@ -28,16 +27,16 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
     private static final int MAX_ITERATIONS = 10;
     private int maxIterations;
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderBuilder, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator) {
-        this(MAX_ITERATIONS, predictiveModelBuilderBuilder, trainingData, crossValidator, predictiveModelBuilderBuilder.createDefaultParametersToOptimize());
+    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderFactory, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator) {
+        this(MAX_ITERATIONS, predictiveModelBuilderFactory, trainingData, crossValidator, predictiveModelBuilderFactory.createDefaultParametersToOptimize());
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderBuilder<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderBuilder, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
-        this(MAX_ITERATIONS, predictiveModelBuilderBuilder, trainingData, crossValidator, valueRecommenders);
+    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderFactory, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+        this(MAX_ITERATIONS, predictiveModelBuilderFactory, trainingData, crossValidator, valueRecommenders);
     }
 
-    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderBuilder<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderBuilder, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
-        this.predictiveModelBuilderBuilder = predictiveModelBuilderBuilder;
+    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderFactory<R, PM, PredictiveModelBuilder<R, PM>> predictiveModelBuilderFactory, final Iterable<Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+        this.predictiveModelBuilderFactory = predictiveModelBuilderFactory;
         this.trainingData = trainingData;
         this.crossValidator = crossValidator;
         this.valueRecommenders = valueRecommenders;
@@ -118,7 +117,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
                 continue; // No point in testing the same configuration twice
             }
             logger.info("Testing predictive model configuration: " + configurationToTest);
-            final PredictiveModelBuilder<R, PM> predictiveModelBuilder = predictiveModelBuilderBuilder.buildBuilder(configurationToTest);
+            final PredictiveModelBuilder<R, PM> predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(configurationToTest);
             final double crossValidatedLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
             logger.info("Loss for configuration " + configurationToTest + " is " + crossValidatedLoss);
             valueLoss.put(valueToTest, crossValidatedLoss);

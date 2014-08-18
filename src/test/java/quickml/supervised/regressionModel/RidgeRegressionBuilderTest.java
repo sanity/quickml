@@ -25,7 +25,6 @@ public class RidgeRegressionBuilderTest {
         String [] header = {"temperature"};
         double regularizationConstant = 0.1;
         ridgeLinearModelBuilder = new RidgeLinearModelBuilder().header(header).includeBiasTerm(true).regularizationConstant(regularizationConstant);
-        double []regressor;
         List<Instance<double[]>> trainingData = new ArrayList<>();
         trainingData.add(new InstanceImpl<double[]>(new double[]{20.0}, 88.6));
         trainingData.add(new InstanceImpl<double[]>(new double[]{16.0}, 71.6));
@@ -45,7 +44,6 @@ public class RidgeRegressionBuilderTest {
 
         RidgeLinearModel ridgeLinearModel = ridgeLinearModelBuilder.buildPredictiveModel(trainingData);
 
-        //test RMSE is within 4% of SciKitLearn's
         double pythonRMSE = Math.sqrt(212.32);
         double pythonEpsilon = pythonRMSE/25.0;
         double mse = 0;

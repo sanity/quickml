@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.Benchmarks;
+import quickml.supervised.PredictiveModelWithDataBuilderFactory;
+import quickml.supervised.classifier.randomForest.RandomForestBuilderFactory;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.StationaryCrossValidator;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModelWithDataBuilder;
-import quickml.supervised.PredictiveModelWithDataBuilderBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
-import quickml.supervised.classifier.randomForest.RandomForestBuilderBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,7 +37,7 @@ public class PredictiveModelOptimizerTest {
     }
 
     private void testWithTrainingSet(final List<Instance<Map<String, Serializable>>> instances) {
-        final PredictiveModelWithDataBuilderBuilder predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderBuilder(new RandomForestBuilderBuilder());
+        final PredictiveModelWithDataBuilderFactory predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderFactory(new RandomForestBuilderFactory());
         final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();

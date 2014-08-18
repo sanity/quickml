@@ -55,15 +55,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         Pair<RealMatrix, double[]> dataMatrixLabelsPair = createDataMatrixLabelsPair(trainingData);
         RealMatrix dataMatrix = dataMatrixLabelsPair.getValue0();
         double[] labels = dataMatrixLabelsPair.getValue1();
-
         RealMatrix dataMatrixTranspose = dataMatrix.transpose();
-        for (int i = 0; i < collumnsInDataMatrix; i++) {
-            for (int j = 0; j < collumnsInDataMatrix; j++) {
-                System.out.println(dataMatrixTranspose.getEntry(i, j));
-            }
-            System.out.println("\n");
-        }
-
         RealMatrix identityMatrixTimesRegularizationConstant = getIdentiytMatrixTimesRegularizationConstant();
 
         //log this out
@@ -75,9 +67,15 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         return new RidgeLinearModel(modelCoefficients, header, includeBiasTerm);
     }
 
-   // public RidgeLinearModel buildPredictiveModel(double [][] rainingData) {
-   //     return new RidgeLinearModel(null, null);
-   // }
+
+    private void printMatrix(RealMatrix matrix) {
+        for (int i = 0; i < matrix.getRowDimension(); i++) {
+            for (int j = 0; j < matrix.getColumnDimension(); j++) {
+                System.out.print(matrix.getEntry(i, j)+ " ");
+            }
+            System.out.print("\n");
+        }
+    }
 
     @Override
     public RidgeLinearModelBuilder updatable(boolean updatable) {

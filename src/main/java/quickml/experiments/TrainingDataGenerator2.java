@@ -13,7 +13,7 @@ import java.util.Random;
 
 
 /**
- * Created by alexanderhawk on 1/16/14.
+ * TODO: This should probably be removed or replaced
  */
 public class TrainingDataGenerator2 {
 

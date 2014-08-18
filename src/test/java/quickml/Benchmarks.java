@@ -74,15 +74,17 @@ public class Benchmarks {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
         final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
 
+        String[] headings = new String[] {"sepal-length", "sepal-width", "petal-length", "petal-width"};
         while (true) {
             String line = br.readLine();
             if (line == null) {
                 break;
             }
             String[] splitLine = line.split(",");
+
             Map hashMapAttributes = new HashMap();
             for (int x=0; x<splitLine.length - 1; x++) {
-                hashMapAttributes.put("attr"+x, splitLine[x]);
+                hashMapAttributes.put(headings[x], splitLine[x]);
             }
             final Instance<Map<String, Serializable>> instance = new InstanceImpl(hashMapAttributes, splitLine[splitLine.length-1]);
             instances.add(instance);

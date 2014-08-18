@@ -11,6 +11,7 @@ import java.util.Map;
  */
 //where do we want Classifier as a generic type...in downsampling PMB.
 public abstract class AbstractClassifier extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> implements Classifier {
+    private static final long serialVersionUID = -5052476771686106526L;
     public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }
