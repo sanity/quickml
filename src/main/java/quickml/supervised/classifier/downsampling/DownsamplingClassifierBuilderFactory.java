@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.classifier.Classifier;
@@ -18,7 +20,7 @@ public class DownsamplingClassifierBuilderFactory implements UpdatablePredictive
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
     private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>> wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

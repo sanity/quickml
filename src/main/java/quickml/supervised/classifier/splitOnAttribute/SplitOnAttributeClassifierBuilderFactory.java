@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
 import com.google.common.collect.Maps;
+
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
@@ -18,11 +20,12 @@ public class SplitOnAttributeClassifierBuilderFactory implements UpdatablePredic
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder;
     private final String attributeKey;
     private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributeClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
+    public SplitOnAttributeClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
+
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.attributeKey = attributeKey;
         this.attributeWhiteList = attributeWhiteList;

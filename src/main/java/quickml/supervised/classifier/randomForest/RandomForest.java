@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
@@ -22,7 +23,7 @@ import java.util.Map;
  * Time: 4:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForest extends Classifier {
+public class RandomForest extends AbstractClassifier {
 
     static final long serialVersionUID = 56394564395638954L;
 

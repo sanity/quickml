@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.collect.Maps;
+
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.supervised.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
@@ -17,9 +19,9 @@ public class TemporallyReweightedClassifierBuilderFactory implements UpdatablePr
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?  extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder;
 
-    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, Classifier, ?> wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier, ? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

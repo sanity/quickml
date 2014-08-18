@@ -22,3 +22,4 @@ public abstract class AbstractPredictiveModel<R, P> implements PredictiveModel<R
         return labelPredictionWeights;
     }
 }
+

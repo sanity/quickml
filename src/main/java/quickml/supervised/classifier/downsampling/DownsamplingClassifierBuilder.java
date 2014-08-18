@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by ian on 4/22/14.
  */
+
 public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,DownsamplingClassifier> {
 
     private final double targetMinorityProportion;
