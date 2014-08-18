@@ -58,7 +58,6 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
         return predictiveModel;
     }
 
-
     private PM buildUpdatablePredictiveModel(Iterable< Instance<R>> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
