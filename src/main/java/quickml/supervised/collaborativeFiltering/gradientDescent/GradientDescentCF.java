@@ -24,8 +24,4 @@ public class GradientDescentCF extends CollaborativeFilter {
 
     }
 
-    @Override
-    public List<LabelPredictionWeight<Double>> createLabelPredictionWeights(final List<Instance<UserItem>> instances) {
-        return null;
-    }
 }

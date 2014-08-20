@@ -19,7 +19,7 @@ public class GradientDescentCFBuilder implements PredictiveModelBuilder<UserItem
     }
 
     @Override
-    public GradientDescentCF buildPredictiveModel(final Iterable<Instance<UserItem>> trainingData) {
+    public GradientDescentCF buildPredictiveModel(final Iterable<? extends Instance<UserItem>> trainingData) {
         return null;
     }
 

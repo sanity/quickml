@@ -1,7 +1,6 @@
 package quickml.supervised.classifier;
 
 import quickml.data.MapWithDefaultOfZero;
-import quickml.supervised.AbstractPredictiveModel;
 import quickml.supervised.PredictiveModel;
 
 import java.io.Serializable;

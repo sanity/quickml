@@ -14,5 +14,4 @@ public interface PredictiveModel<R, P> extends Serializable {
 
     P predict(R regressors);
     void dump(Appendable appendable);
-    List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<Instance<R>> instances);
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.data.Instance;
@@ -47,13 +48,13 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<Instance<R>> allTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(dataSplit.validation);
+            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
             runningLoss+= lossFunction.getLoss(labelPredictionWeights);
             logger.info("running loss: "+runningLoss);
 
@@ -63,7 +64,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return averageLoss;
     }
 
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<Instance<R>> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
         for (Instance<R> instance : data) {

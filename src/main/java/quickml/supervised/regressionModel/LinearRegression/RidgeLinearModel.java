@@ -12,7 +12,7 @@ import java.util.TreeMap;
 /**
  * Created by alexanderhawk on 8/12/14.
  */
-public class RidgeLinearModel extends MultiVariableRealValuedFunction {
+public class RidgeLinearModel implements MultiVariableRealValuedFunction {
     double []modelCoeficients; //TreeMap<String, Double>();
     String []modelHeader;
     boolean useBias = true;

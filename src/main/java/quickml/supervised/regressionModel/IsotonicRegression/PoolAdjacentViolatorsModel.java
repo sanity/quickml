@@ -13,7 +13,7 @@ import java.util.*;
 
 // TODO: This should be split out into a separate Builder rather than using the constructor,
 //       so that it follows the same pattern as other PredictiveModels
-public class PoolAdjacentViolatorsModel extends SingleVariableRealValuedFunction  {
+public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunction  {
     private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
 
     private static final long serialVersionUID = 4389814244047503245L;

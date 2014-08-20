@@ -41,7 +41,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     }
 
     @Override
-    public PM buildPredictiveModel(Iterable<Instance<R>> newData) {
+    public PM buildPredictiveModel(Iterable<? extends Instance<R>> newData) {
         if (rebuildThreshold != null || splitNodeThreshold != null) {
             buildCount++;
         }
@@ -58,13 +58,12 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
         return predictiveModel;
     }
 
-
-    private PM buildUpdatablePredictiveModel(Iterable< Instance<R>> trainingData) {
+    private PM buildUpdatablePredictiveModel(Iterable<? extends Instance<R>> trainingData) {
         return updatablePredictiveModelBuilder.buildPredictiveModel(trainingData);
     }
 
     @Override
-    public void updatePredictiveModel(PM predictiveModel, Iterable<Instance<R>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(PM predictiveModel, Iterable<? extends Instance<R>> newData, boolean splitNodes) {
         updatablePredictiveModelBuilder.updatePredictiveModel(predictiveModel, newData, splitNodes);
     }
 

@@ -18,9 +18,10 @@ import java.util.Map;
 public class DownsamplingClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder;
+    private final UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder) {
+
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

@@ -3,8 +3,8 @@ package quickml.supervised.featureEngineering;
 import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickml.data.*;
-import quickml.supervised.AbstractPredictiveModel;
 
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+        public AttributesEnricher build(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -48,7 +48,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestPMBuilder implements PredictiveModelBuilder<Map<String, Serializable>, TestPM> {
 
         @Override
-        public TestPM buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+        public TestPM buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
             for (Instance<Map<String, Serializable>> instance : trainingData) {
                 if (!instance.getRegressors().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
@@ -71,7 +71,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     }
 
 
-    public static class TestPM extends AbstractPredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
+    public static class TestPM implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
 
 
             private static final long serialVersionUID = -3449746370937561259L;

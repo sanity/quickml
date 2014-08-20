@@ -7,6 +7,7 @@ import quickml.data.Instance;
 import quickml.data.MapWithDefaultOfZero;
 import quickml.supervised.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
+import quickml.supervised.Utils;
 
 import java.io.Serializable;
 import java.util.*;
@@ -33,7 +34,7 @@ public class WeightedAUCCrossValLossFunctionTest {
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);
-        crossValLoss.getLoss(predictiveModel.createLabelPredictionWeights(instances));
+        crossValLoss.getLoss(Utils.createLabelPredictionWeights(instances, predictiveModel));
     }
 
     @Test

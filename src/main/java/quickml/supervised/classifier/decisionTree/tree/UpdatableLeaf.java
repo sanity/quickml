@@ -14,7 +14,7 @@ public class UpdatableLeaf extends Leaf {
     private final Collection<Instance<Map<String, Serializable>>> instances = new HashSet<>();
 
 
-    public UpdatableLeaf(Node parent, Iterable<Instance<Map<String, Serializable>>> instances, int depth) {
+    public UpdatableLeaf(Node parent, Iterable<? extends Instance<Map<String, Serializable>>> instances, int depth) {
         super(parent, instances, depth);
         for(Instance<Map<String, Serializable>> instance : instances) {
             this.instances.add(instance);
