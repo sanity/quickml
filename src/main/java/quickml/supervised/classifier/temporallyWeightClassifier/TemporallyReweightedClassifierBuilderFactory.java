@@ -19,9 +19,9 @@ public class TemporallyReweightedClassifierBuilderFactory implements UpdatablePr
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier,?  extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,?  extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>>  wrappedBuilderBuilder;
 
-    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>,Classifier, ? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, Classifier>>  wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<Map<String, Serializable>,? extends Classifier, ? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>>  wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

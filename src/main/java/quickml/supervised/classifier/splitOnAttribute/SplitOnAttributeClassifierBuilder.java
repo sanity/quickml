@@ -23,13 +23,13 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     public static final Double NO_VALUE_PLACEHOLDER = Double.MIN_VALUE;
 
     private final String attributeKey;
-    private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> wrappedBuilder;
+    private final PredictiveModelBuilder<Map<String, Serializable>,? extends Classifier> wrappedBuilder;
     private final int minimumAmountTotalCrossData;
     private final double percentCrossData;
     private final Set<String> attributeWhiteList;
     private final int minimumAmountCrossDataPerClassification;
 
-    public SplitOnAttributeClassifierBuilder(String attributeKey, PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, PredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
         this.minimumAmountTotalCrossData = minimumAmountCrossData;
