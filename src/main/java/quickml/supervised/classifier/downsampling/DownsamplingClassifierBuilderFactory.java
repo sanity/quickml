@@ -21,6 +21,7 @@ public class DownsamplingClassifierBuilderFactory implements UpdatablePredictive
     private final UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder;
 
     public DownsamplingClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder) {
+
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

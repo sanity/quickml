@@ -23,6 +23,7 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
     private final UpdatablePredictiveModelBuilder<Map<String, Serializable>,? extends Classifier> predictiveModelBuilder;
 
     public DownsamplingClassifierBuilder(UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+
         this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
