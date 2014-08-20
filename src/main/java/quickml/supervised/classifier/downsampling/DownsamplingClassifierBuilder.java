@@ -20,9 +20,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,DownsamplingClassifier> {
 
     private final double targetMinorityProportion;
-    private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> predictiveModelBuilder;
+    private final UpdatablePredictiveModelBuilder<Map<String, Serializable>,? extends Classifier> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
         this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
@@ -62,7 +62,7 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
         predictiveModelBuilder.setID(id);
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (Instance<Map<String, Serializable>>instance : trainingData) {
