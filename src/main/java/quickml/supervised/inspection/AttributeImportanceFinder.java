@@ -24,16 +24,16 @@ public class AttributeImportanceFinder {
 
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         return determineAttributeImportance(new TreeBuilder(), trainingData);
     }
 
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder predictiveModelBuilder, final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder predictiveModelBuilder, final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         return determineAttributeImportance(new StationaryCrossValidator(4, new ClassifierLogCVLossFunction()), predictiveModelBuilder, trainingData);
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<Map<String, Serializable>, PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<Map<String, Serializable>, PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
 
         Set<String> attributes = Sets.newHashSet();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
@@ -68,7 +68,7 @@ public class AttributeImportanceFinder {
             final ReservoirSampler<Serializable> samplerForAttributeToExclude = samplesPerAttribute.get(attributeToExclude);
             final ArrayList<Serializable> samplesForAttribute = Lists.newArrayList(samplerForAttributeToExclude.getSamples());
             if (samplesForAttribute.size() < 2) continue;
-            Iterable<Instance<Map<String, Serializable>>> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
+            Iterable<? extends Instance<Map<String, Serializable>>> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
             double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, scrambledTestingSet);
             logger.info("Attribute \""+attributeToExclude+"\" score is "+score);
             scores.add(new AttributeScore(attributeToExclude, score));

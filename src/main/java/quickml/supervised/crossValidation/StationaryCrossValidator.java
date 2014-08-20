@@ -48,7 +48,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<Instance<R>> allTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
         for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
@@ -64,7 +64,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return averageLoss;
     }
 
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<Instance<R>> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
         for (Instance<R> instance : data) {

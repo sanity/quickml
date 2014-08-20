@@ -39,7 +39,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     @Override
-    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = splitTrainingData(trainingData);
 
         Map<Serializable, Classifier> splitModels = Maps.newHashMap();
@@ -61,7 +61,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         return this;
     }
 
-    private Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = Maps.newHashMap();
         ArrayList<Instance<Map<String, Serializable>>> allData = new ArrayList<>();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
@@ -135,7 +135,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     @Override
-    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitNewData = splitTrainingData(newData);
             for (Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> newDataEntry : splitNewData.entrySet()) {

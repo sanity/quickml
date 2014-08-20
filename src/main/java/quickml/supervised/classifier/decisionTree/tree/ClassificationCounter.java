@@ -26,7 +26,7 @@ public class ClassificationCounter implements Serializable {
         return newCC;
     }
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
+            final Iterable<? extends Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
         for (final Instance<Map<String, Serializable>> instance : instances) {
@@ -54,7 +54,7 @@ public class ClassificationCounter implements Serializable {
     }
 
 	public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
+            final Iterable<? extends Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
 
         Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances,attribute,splitAttribute,splitAttributeValue);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
@@ -97,7 +97,7 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-	public static ClassificationCounter countAll(final Iterable<Instance<Map<String, Serializable>>> instances) {
+	public static ClassificationCounter countAll(final Iterable<? extends Instance<Map<String, Serializable>>> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
 		for (final Instance<Map<String, Serializable>> instance : instances) {
 			result.addClassification(instance.getLabel(), instance.getWeight());

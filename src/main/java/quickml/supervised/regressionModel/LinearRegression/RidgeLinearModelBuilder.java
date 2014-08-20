@@ -19,7 +19,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     private static final Logger logger = LoggerFactory.getLogger(RidgeLinearModelBuilder.class);
 
     double regularizationConstant = 0;
-    Iterable<Instance<double[]>> trainingData;
+    Iterable<? extends Instance<double[]>> trainingData;
     boolean includeBiasTerm = false;
     boolean updatable = false;
     int collumnsInDataMatrix = 0;
@@ -46,7 +46,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
     @Override
-    public RidgeLinearModel buildPredictiveModel(Iterable<Instance<double[]>> trainingData) {
+    public RidgeLinearModel buildPredictiveModel(Iterable<? extends Instance<double[]>> trainingData) {
 
         //compute modelCoefficients = (X^t * X + regularizationConstant*IdentityMatrix)^-1 * X^t * labels, where X is the data matrix
         this.trainingData = trainingData;
@@ -97,7 +97,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
 
-    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<Instance<double[]>> trainingData) {
+    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<? extends Instance<double[]>> trainingData) {
         RealMatrix dataMatrix = new Array2DRowRealMatrix(Iterables.size(trainingData), collumnsInDataMatrix);
         double[] labels = new double[Iterables.size(trainingData)];
         int row = 0;

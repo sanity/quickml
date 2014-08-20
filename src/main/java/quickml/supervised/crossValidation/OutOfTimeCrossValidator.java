@@ -45,7 +45,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<Instance<R>> rawTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
@@ -65,7 +65,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         return averageLoss;
     }
 
-    private void initializeTrainingAndValidationSets(Iterable< Instance<R>> rawTrainingData) {
+    private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R>> rawTrainingData) {
 
         setAndSortAllTrainingData(rawTrainingData);
         setMaxValidationTime();
@@ -146,7 +146,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         return currentTrainingSetSize < allTrainingData.size();
     }
 
-    private void setAndSortAllTrainingData(Iterable<Instance<R>> rawTrainingData) {
+    private void setAndSortAllTrainingData(Iterable<? extends Instance<R>> rawTrainingData) {
 
         this.allTrainingData = Lists.<Instance<R>>newArrayList();
         for (Instance<R> instance : rawTrainingData) {
