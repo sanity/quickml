@@ -2,6 +2,7 @@ package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/22/14.
  */
-public class DownsamplingClassifier extends Classifier {
+public class DownsamplingClassifier extends AbstractClassifier {
     private static final long serialVersionUID = -265699047882740160L;
 
     public final Classifier wrappedClassifier;

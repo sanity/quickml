@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
@@ -44,7 +45,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<Instance<R>> rawTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
@@ -52,7 +53,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = predictiveModel.createLabelPredictionWeights(validationSet);
+            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
@@ -64,7 +65,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         return averageLoss;
     }
 
-    private void initializeTrainingAndValidationSets(Iterable< Instance<R>> rawTrainingData) {
+    private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R>> rawTrainingData) {
 
         setAndSortAllTrainingData(rawTrainingData);
         setMaxValidationTime();
@@ -145,7 +146,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         return currentTrainingSetSize < allTrainingData.size();
     }
 
-    private void setAndSortAllTrainingData(Iterable<Instance<R>> rawTrainingData) {
+    private void setAndSortAllTrainingData(Iterable<? extends Instance<R>> rawTrainingData) {
 
         this.allTrainingData = Lists.<Instance<R>>newArrayList();
         for (Instance<R> instance : rawTrainingData) {

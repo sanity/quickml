@@ -2,6 +2,7 @@ package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.collect.Maps;
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.decisionTree.tree.Node;
@@ -16,7 +17,7 @@ import java.util.Map;
  * Time: 3:15 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Tree extends Classifier {
+public class Tree extends AbstractClassifier {
     static final long serialVersionUID = 56394564395635672L;
 
     public final Node node;

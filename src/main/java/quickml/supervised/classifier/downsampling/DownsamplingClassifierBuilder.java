@@ -16,19 +16,21 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by ian on 4/22/14.
  */
+
 public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,DownsamplingClassifier> {
 
     private final double targetMinorityProportion;
-    private final PredictiveModelBuilder<Map<String, Serializable>,Classifier> predictiveModelBuilder;
+    private final UpdatablePredictiveModelBuilder<Map<String, Serializable>,? extends Classifier> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+
         this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
     }
 
     @Override
-    public DownsamplingClassifier buildPredictiveModel(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public DownsamplingClassifier buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
         final Map.Entry<Serializable, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
@@ -43,7 +45,7 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
 
         final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
 
-        Iterable<Instance<Map<String, Serializable>>> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
+        Iterable<? extends Instance<Map<String, Serializable>>> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
         final Classifier wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
@@ -61,7 +63,7 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
         predictiveModelBuilder.setID(id);
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (Instance<Map<String, Serializable>>instance : trainingData) {
@@ -81,9 +83,9 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public void updatePredictiveModel(DownsamplingClassifier predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(DownsamplingClassifier predictiveModel, Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            Iterable<Instance<Map<String, Serializable>>> downsampledNewData = Iterables.filter(newData, new RandomDroppingInstanceFilter(predictiveModel.getMajorityClassification(), predictiveModel.getDropProbability()));
+            Iterable<? extends Instance<Map<String, Serializable>>> downsampledNewData = Iterables.filter(newData, new RandomDroppingInstanceFilter(predictiveModel.getMajorityClassification(), predictiveModel.getDropProbability()));
             ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedClassifier, downsampledNewData, splitNodes);
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");

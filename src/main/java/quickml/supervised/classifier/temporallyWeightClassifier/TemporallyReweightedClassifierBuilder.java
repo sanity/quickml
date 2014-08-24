@@ -22,15 +22,15 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private final PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder;
+    private final PredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder;
     private final DateTimeExtractor dateTimeExtractor;
     private final Serializable positiveClassification;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
         this(wrappedBuilder, dateTimeExtractor, 1.0);
     }
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
         this.wrappedBuilder = wrappedBuilder;
         this.dateTimeExtractor = dateTimeExtractor;
         this.positiveClassification = positiveClassification;
@@ -52,7 +52,7 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
     }
 
     @Override
-    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
         List<Instance<Map<String, Serializable>>> trainingDataList = reweightTrainingData(trainingData, mostRecent);
@@ -78,7 +78,7 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
         return trainingDataList;
     }
 
-    private void validateData(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    private void validateData(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
@@ -86,7 +86,7 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
 
 
     @Override
-    public void updatePredictiveModel(TemporallyReweightedClassifier predictiveModel, Iterable<Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(TemporallyReweightedClassifier predictiveModel, Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
             validateData(newData);
             DateTime mostRecentInstance = getMostRecentInstance(newData);

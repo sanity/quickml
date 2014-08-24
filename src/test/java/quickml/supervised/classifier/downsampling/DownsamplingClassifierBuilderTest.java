@@ -8,6 +8,8 @@ import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
 import quickml.data.*;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.PredictiveModelWithDataBuilder;
@@ -32,8 +34,8 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        final PredictiveModelBuilder<Map<String,Serializable>, Classifier> predictiveModelBuilder = Mockito.mock(PredictiveModelBuilder.class);
-        when(predictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
+        final UpdatablePredictiveModelBuilder<Map<String,Serializable>, Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
+        when(updatablePredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
                 Iterable<Instance<Map<String, Serializable>>> instances = (Iterable<Instance<Map<String, Serializable>>>) invocationOnMock.getArguments()[0];
@@ -48,7 +50,7 @@ public class DownsamplingClassifierBuilderTest {
                 return dumbPM;
             }
         });
-        DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(predictiveModelBuilder, 0.2);
+        DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(updatablePredictiveModelBuilder, 0.2);
         List<Instance<Map<String,Serializable>>> data = Lists.newArrayList();
         for (int x=0; x<10000; x++) {
             data.add(new InstanceImpl(new HashMap(), (MapUtils.random.nextDouble() < 0.05)));
@@ -65,7 +67,7 @@ public class DownsamplingClassifierBuilderTest {
     public void simpleBmiTest() throws IOException, ClassNotFoundException {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder((PredictiveModelBuilder)urfb, 0.1);
+        final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
         final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
@@ -89,7 +91,7 @@ public class DownsamplingClassifierBuilderTest {
         org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private static class SamePredictionPredictiveModel extends Classifier {
+    private static class SamePredictionPredictiveModel extends AbstractClassifier {
 
         private static final long serialVersionUID = 8241616760952568181L;
         private final double prediction;

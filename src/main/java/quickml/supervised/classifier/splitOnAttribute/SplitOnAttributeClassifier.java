@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
 import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributeClassifier extends Classifier {
+public class SplitOnAttributeClassifier extends AbstractClassifier {
     private static final long serialVersionUID = 2642074639257374588L;
     private final String attributeKey;
     private final Map<Serializable, Classifier> splitModels;

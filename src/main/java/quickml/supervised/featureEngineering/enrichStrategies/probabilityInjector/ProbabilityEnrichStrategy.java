@@ -52,7 +52,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<Instance<Map<String,Serializable>>> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends Instance<Map<String,Serializable>>> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();

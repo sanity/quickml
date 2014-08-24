@@ -31,14 +31,14 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<Instance<Map<String, Serializable>>> trainingData) {
+    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {
             enrichers.add(enrichStrategy.build(trainingData));
         }
 
-        final Iterable<Instance<Map<String, Serializable>>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
+        final Iterable<? extends Instance<Map<String, Serializable>>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
         PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
