@@ -209,7 +209,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
     try {
       trees.add(treeFuture.get());
     } catch (Exception e) {
-      logger.error("Error retrieving tree", e);
+        throw new RuntimeException(e);
     }
   }
 }
