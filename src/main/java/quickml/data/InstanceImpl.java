@@ -6,14 +6,14 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
-    private static final double DEFAULT_WEIGHT = 1.0;
+    protected static final double DEFAULT_WEIGHT = 1.0;
 
-    public InstanceImpl(final R attributes, final Serializable label) {
-        this(attributes, label, DEFAULT_WEIGHT);
+    public InstanceImpl(final R regressors, final Serializable label) {
+        this(regressors, label, DEFAULT_WEIGHT);
     }
 
-    public InstanceImpl(final R attributes, final Serializable label, final double weight) {
-        this.regressors = attributes;
+    public InstanceImpl(final R regressors, final Serializable label, final double weight) {
+        this.regressors = regressors;
         this.label = label;
         this.weight = weight;
     }
