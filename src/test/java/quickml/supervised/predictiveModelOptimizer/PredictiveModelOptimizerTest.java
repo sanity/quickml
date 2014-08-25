@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import quickml.Benchmarks;
 import quickml.supervised.PredictiveModelWithDataBuilderFactory;
 import quickml.supervised.classifier.randomForest.RandomForestBuilderFactory;
+import quickml.supervised.crossValidation.ClassifierStationaryCrossValidator;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.StationaryCrossValidator;
 import quickml.data.Instance;
@@ -37,13 +38,13 @@ public class PredictiveModelOptimizerTest {
     }
 
     private void testWithTrainingSet(final List<Instance<Map<String, Serializable>>> instances) {
-        final PredictiveModelWithDataBuilderFactory predictiveModelBuilderBuilder = new PredictiveModelWithDataBuilderFactory(new RandomForestBuilderFactory());
-        final StationaryCrossValidator crossVal = new StationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
-        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderBuilder, instances, crossVal);
+        final PredictiveModelWithDataBuilderFactory predictiveModelBuilderFactory = new PredictiveModelWithDataBuilderFactory(new RandomForestBuilderFactory());
+        final ClassifierStationaryCrossValidator crossVal = new ClassifierStationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
+        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderFactory, instances, crossVal);
         final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
         logger.info("Optimal parameters: " + optimalParameters);
         RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
-        final PredictiveModelWithDataBuilder optimalRFBuilder = predictiveModelBuilderBuilder.buildBuilder(optimalParameters);
+        final PredictiveModelWithDataBuilder optimalRFBuilder = predictiveModelBuilderFactory.buildBuilder(optimalParameters);
         double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
         double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
         logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);

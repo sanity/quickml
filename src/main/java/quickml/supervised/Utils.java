@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Utils {
 
-    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
+    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
         for (Instance<R> instance : instances) {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),

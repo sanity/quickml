@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
+import quickml.data.MapWithDefaultOfZero;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.data.Instance;
@@ -22,15 +23,15 @@ public class CrossValidatorTest {
 
     @Test
     public void testCrossValidator() {
-        CrossValLossFunction<PredictiveModel<Object,Object>> crossValLossFunction = Mockito.mock(CrossValLossFunction.class);
+        CrossValLossFunction<MapWithDefaultOfZero> crossValLossFunction = Mockito.mock(CrossValLossFunction.class);
 
         int folds = 4;
-        CrossValidator crossValidator = new StationaryCrossValidator(folds, folds, crossValLossFunction);
+        ClassifierStationaryCrossValidator crossValidator = new ClassifierStationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
         List<Instance<Map<String, Serializable>>> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
-        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<LabelPredictionWeight<PredictiveModel<Object,Object>>>>any());
+        Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<LabelPredictionWeight<MapWithDefaultOfZero>>>any());
     }
 
     private List<Instance<Map<String, Serializable>>> getInstances() {

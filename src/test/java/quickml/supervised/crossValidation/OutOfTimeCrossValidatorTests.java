@@ -5,7 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.MapWithDefaultOfZero;
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelWithDataBuilder;
+import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
@@ -45,13 +48,13 @@ public class OutOfTimeCrossValidatorTests {
     public void testLossBetween0And1() {
         //  List<Instance<Map<String, Serializable>>> trainingData = setUp();
         logger.info("trainingDataSize " + trainingData.size());
-        PredictiveModelWithDataBuilder<Map<String, Serializable>, ?> predictiveModelWithDataBuilder = getPredictiveModelWithDataBuilder(5, 5);
+        PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>> predictiveModelWithDataBuilder = getPredictiveModelWithDataBuilder(5, 5);
 
-        CrossValidator crossValidator = new OutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        ClassifierOutOfTimeCrossValidator crossValidator = new ClassifierOutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         double totalLoss = crossValidator.getCrossValidatedLoss(predictiveModelWithDataBuilder, trainingData);
         Assert.assertTrue(totalLoss > 0 && totalLoss <= 1.0);
         logger.info("\n\nAUCLoss\n");
-        crossValidator = new OutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
+        crossValidator = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         totalLoss = crossValidator.getCrossValidatedLoss(predictiveModelWithDataBuilder, trainingData);
         logger.info("totalLoss from AUc "+ totalLoss);
         Assert.assertTrue(totalLoss > 0 && totalLoss <= 1.0);
@@ -68,10 +71,10 @@ public class OutOfTimeCrossValidatorTests {
         return randomForestBuilder.buildPredictiveModel(trainingData);
     }
 
-    private static PredictiveModelWithDataBuilder<Map<String, Serializable>, ?> getPredictiveModelWithDataBuilder(int maxDepth, int numTrees) {
+    private static PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>> getPredictiveModelWithDataBuilder(int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
-        PredictiveModelWithDataBuilder<Map<String, Serializable>, ?> builder = new PredictiveModelWithDataBuilder<>(randomForestBuilder);//.rebuildThreshold(4).splitNodeThreshold(2);
+        PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>> builder = new PredictiveModelWithDataBuilder<>(randomForestBuilder);//.rebuildThreshold(4).splitNodeThreshold(2);
         return builder;
     }
 }

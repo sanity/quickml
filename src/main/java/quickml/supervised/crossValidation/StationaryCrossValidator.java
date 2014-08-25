@@ -20,10 +20,10 @@ import java.util.List;
 public class StationaryCrossValidator<R, P> extends CrossValidator<R, P> {
 private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
 
-    private static final int DEFAULT_NUMBER_OF_FOLDS = 4;
-    private int folds;
-    private int foldsUsed;
-    private CrossValLossFunction<P> lossFunction;
+    protected static final int DEFAULT_NUMBER_OF_FOLDS = 4;
+    protected int folds;
+    protected int foldsUsed;
+    protected CrossValLossFunction<P> lossFunction;
 
 
     /*
