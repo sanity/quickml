@@ -100,7 +100,7 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         PoolAdjacentViolatorsModel.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
             groundTruth = ((Number)(instance.getLabel())).doubleValue();
-            prediction = predictiveModel.getProbability(instance.getRegressors(), positiveClassification);
+            prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
             observation = new PoolAdjacentViolatorsModel.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
         }

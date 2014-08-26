@@ -13,7 +13,7 @@ public class TestDateTimeExtractor implements DateTimeExtractor<Map<String, Seri
     @Override
     public DateTime extractDateTime(Instance<Map<String, Serializable>> instance){
 
-        Map<String, Serializable> attributes = instance.getRegressors();
+        Map<String, Serializable> attributes = instance.getAttributes();
         int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");
         return new DateTime(currentTimeMillis);
     }

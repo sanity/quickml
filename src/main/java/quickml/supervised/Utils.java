@@ -15,7 +15,7 @@ public class Utils {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
         for (Instance<R> instance : instances) {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    predictiveModel.predict(instance.getRegressors()), instance.getWeight());
+                    predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;

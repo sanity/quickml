@@ -41,7 +41,7 @@ public class CrossValidatorTest {
             Instance<Map<String, Serializable>> instance = Mockito.mock(InstanceImpl.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
             Mockito.when(instance.getLabel()).thenReturn("class");
-            Mockito.when(instance.getRegressors()).thenReturn(attributes);
+            Mockito.when(instance.getAttributes()).thenReturn(attributes);
             instances.add(instance);
         }
         return instances;

@@ -23,7 +23,7 @@ public class AttributesHashSplitter implements Predicate<Instance<Map<String, Se
 
     @Override
     public boolean apply(final Instance<Map<String, Serializable>> instance) {
-        int hc = hashFunction.hashInt(instance.getRegressors().hashCode()).asInt();
+        int hc = hashFunction.hashInt(instance.getAttributes().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 public class MapDateTimeExtractor implements DateTimeExtractor<Map<String, Serializable>> {
     @Override
     public  DateTime extractDateTime(Instance<Map<String, Serializable>> instance){
-        Map<String, Serializable> attributes = instance.getRegressors();
+        Map<String, Serializable> attributes = instance.getAttributes();
         int year = (Integer)attributes.get("timeOfArrival-year");
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
         int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");

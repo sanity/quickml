@@ -74,7 +74,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
                     valueProbCountersByAttribute.remove(attributeKey);
                     continue;
                 }
-                Serializable value = instance.getRegressors().get(attributeKey);
+                Serializable value = instance.getAttributes().get(attributeKey);
                 if (value == null) {
                     value = Integer.MIN_VALUE;
                 }

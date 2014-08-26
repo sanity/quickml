@@ -11,7 +11,7 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public interface Instance<R> {
-    public abstract R getRegressors();
+    public abstract R getAttributes();
 
     public abstract Serializable getLabel();
 

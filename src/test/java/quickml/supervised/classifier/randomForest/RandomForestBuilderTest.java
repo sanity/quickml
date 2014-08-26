@@ -34,7 +34,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final Map<String, Serializable> testAttributes = instances.get(0).getRegressors();
+        final Map<String, Serializable> testAttributes = instances.get(0).getAttributes();
         for (Map.Entry<Serializable, Double> entry : randomForest.predict(testAttributes).entrySet()) {
             Assert.assertEquals(entry.getValue(), randomForest.getProbability(testAttributes, entry.getKey()));
         }
@@ -119,8 +119,8 @@ public class RandomForestBuilderTest {
 
         final List<Instance<Map<String,Serializable>>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (Instance<Map<String,Serializable>> instance : instancesTest) {
-            Map map1 = randomForest1.predict(instance.getRegressors());
-            Map map2 = randomForest2.predict(instance.getRegressors());
+            Map map1 = randomForest1.predict(instance.getAttributes());
+            Map map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

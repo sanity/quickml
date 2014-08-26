@@ -25,7 +25,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
-        predictiveModel.getProbability(trainingData.get(0).getRegressors(), valueToTest);
+        predictiveModel.getProbability(trainingData.get(0).getAttributes(), valueToTest);
     }
 
     public static class TestAEBS implements AttributesEnrichStrategy {
@@ -50,7 +50,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         @Override
         public TestPM buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
             for (Instance<Map<String, Serializable>> instance : trainingData) {
-                if (!instance.getRegressors().containsKey("enriched")) {
+                if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
             }

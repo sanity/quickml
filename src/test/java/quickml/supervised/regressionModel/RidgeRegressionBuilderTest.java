@@ -48,7 +48,7 @@ public class RidgeRegressionBuilderTest {
         double pythonEpsilon = pythonRMSE/25.0;
         double mse = 0;
         for (Instance<double[]> instance : trainingData) {
-            double [] x = instance.getRegressors();
+            double [] x = instance.getAttributes();
             logger.info("prediction " + ridgeLinearModel.predict(x) + ". label: " + instance.getLabel());
             mse+= Math.pow(ridgeLinearModel.predict(x) - (Double)instance.getLabel(), 2);
             logger.info("mse " + mse);

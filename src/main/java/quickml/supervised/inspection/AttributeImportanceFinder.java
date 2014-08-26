@@ -37,7 +37,7 @@ public class AttributeImportanceFinder {
 
         Set<String> attributes = Sets.newHashSet();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
-            attributes.addAll(instance.getRegressors().keySet());
+            attributes.addAll(instance.getAttributes().keySet());
         }
 
         TreeSet<AttributeScore> scores = Sets.newTreeSet();
@@ -45,7 +45,7 @@ public class AttributeImportanceFinder {
         LinkedList<Instance<Map<String, Serializable>>> trainingSet = Lists.newLinkedList();
         LinkedList<Instance<Map<String, Serializable>>> testingSet = Lists.newLinkedList();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
-            if (Math.abs(instance.getRegressors().hashCode()) % 10 == 0) {
+            if (Math.abs(instance.getAttributes().hashCode()) % 10 == 0) {
                 testingSet.add(instance);
             } else {
                 trainingSet.add(instance);
@@ -54,7 +54,7 @@ public class AttributeImportanceFinder {
 
         Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
-            for (Map.Entry<String,Serializable> attributeKeyValue : instance.getRegressors().entrySet()) {
+            for (Map.Entry<String,Serializable> attributeKeyValue : instance.getAttributes().entrySet()) {
                 ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
                 if (sampler == null) {
                     sampler = new ReservoirSampler<Serializable>(1000);
@@ -89,7 +89,7 @@ public class AttributeImportanceFinder {
 
         public Instance<Map<String, Serializable>> apply(final Instance<Map<String, Serializable>> instance) {
             Map<String, Serializable> randomizedAttributes = new HashMap<>();
-            randomizedAttributes.putAll(instance.getRegressors());
+            randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(MapUtils.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);
             return new InstanceImpl(randomizedAttributes, instance.getLabel());
