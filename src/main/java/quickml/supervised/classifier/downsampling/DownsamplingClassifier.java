@@ -1,7 +1,7 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
@@ -49,11 +49,11 @@ public class DownsamplingClassifier extends AbstractClassifier {
     }
 
     @Override
-    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(Map<String, Serializable> attributes) {
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
         probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
-        return new MapWithDefaultOfZero(probsByClassification);
+        return new PredictionMap(probsByClassification);
     }
 
     @Override

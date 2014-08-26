@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import quickml.data.Instance;
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 import quickml.supervised.Utils;
@@ -41,19 +41,19 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testGetTotalLoss() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
 
-        List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights = new LinkedList<>();
-        MapWithDefaultOfZero map = MapWithDefaultOfZero.newMap();
+        List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights = new LinkedList<>();
+        PredictionMap map = PredictionMap.newMap();
         map.put("test1", 0.5);
-        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test1", map, 1.0));
-        map = MapWithDefaultOfZero.newMap();
+        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test1", map, 1.0));
+        map = PredictionMap.newMap();
         map.put("test1", 0.3);
-        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test1", map, 1.0));
-        map = MapWithDefaultOfZero.newMap();
+        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test1", map, 1.0));
+        map = PredictionMap.newMap();
         map.put("test1", 0.4);
-        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test0", map, 1.0));
-        map = MapWithDefaultOfZero.newMap();
+        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test0", map, 1.0));
+        map = PredictionMap.newMap();
         map.put("test1", 0.2);
-        labelPredictionWeights.add(new LabelPredictionWeight<MapWithDefaultOfZero>("test0", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test0", map, 1.0));
 
         //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
         double expectedArea = .25;

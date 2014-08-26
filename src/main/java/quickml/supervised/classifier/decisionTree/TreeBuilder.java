@@ -9,7 +9,6 @@ import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickml.collections.MapUtils;
 import quickml.data.Instance;
-import quickml.data.InstanceWithMapOfRegressors;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
@@ -33,6 +32,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     private int minLeafInstances = 0;
     private boolean updatable = false;
     private boolean binaryClassifications = true;
+    private Set<Serializable> classifications = new HashSet<>();
     private Serializable minorityClassification;
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
@@ -95,8 +95,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
 
     @Override
     public Tree buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        setBinaryClassificationProperties(trainingData);
-        return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)));
+        Set<Serializable> classifications = getClassificationProperties(trainingData);
+        return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)), classifications);
     }
 
     @Override
@@ -111,7 +111,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private void setBinaryClassificationProperties(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    private Set<Serializable> getClassificationProperties(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
         ArrayList<Instance<Map<String, Serializable>>> generifiedTrainingData = Lists.newArrayList();
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
@@ -124,8 +124,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
 
             if (classifications.size() > 2) {
                 binaryClassifications = false;
-                return;
-            }
+                return classifications.keySet();            }
         }
 
         minorityClassification = null;
@@ -135,8 +134,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                 minorityClassification = val;
                 minorityClassificationCount = classifications.get(val).doubleValue();
             }
+        return classifications.keySet();
     }
-
 
     public void stripData(Tree tree) {
         stripNode(tree.node);

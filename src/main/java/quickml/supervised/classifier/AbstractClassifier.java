@@ -1,6 +1,6 @@
 package quickml.supervised.classifier;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -14,10 +14,10 @@ public abstract class AbstractClassifier implements Classifier {
     public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }
-    public abstract MapWithDefaultOfZero predict(Map<String, Serializable> attributes);
+    public abstract PredictionMap predict(Map<String, Serializable> attributes);
 
     public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
-        MapWithDefaultOfZero predictions = predict(attributes);
+        PredictionMap predictions = predict(attributes);
         Serializable mostProbableClass = null;
         double probabilityOfMostProbableClass = 0;
         for (Serializable key : predictions.keySet()) {

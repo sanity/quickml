@@ -1,6 +1,6 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
@@ -25,7 +25,7 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(Map<String, Serializable> attributes) {
         return wrappedClassifier.predict(attributes);
     }
 

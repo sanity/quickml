@@ -71,19 +71,19 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     }
 
 
-    public static class TestPM implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
+    public static class TestPM implements PredictiveModel<Map<String, Serializable>, PredictionMap> {
 
 
             private static final long serialVersionUID = -3449746370937561259L;
 
             @Override
-            public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
+            public PredictionMap predict(Map<String, Serializable> regressors) {
                 if (!regressors.containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
                 Map<Serializable, Double> map = new HashMap<>();
                 map.put(valueToTest, 0.0);
-                return new MapWithDefaultOfZero(map);
+                return new PredictionMap(map);
             }
 
             @Override

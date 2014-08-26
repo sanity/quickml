@@ -12,9 +12,7 @@ import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -79,23 +77,26 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
 
     @Override
     public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-    executorService = Executors.newFixedThreadPool(executorThreadCount);
-    logger.info("Building random forest with {} trees", numTrees);
-    treeBuilder.setID(id);
+        executorService = Executors.newFixedThreadPool(executorThreadCount);
+        logger.info("Building random forest with {} trees", numTrees);
+        treeBuilder.setID(id);
 
-    List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
-    List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
+        List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
+        List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
 
-    // Submit all tree building jobs to the executor
-    for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
-      Iterable<? extends Instance<Map<String, Serializable>>> treeTrainingData = shuffleTrainingData(trainingData);
-      treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
-    }
+        // Submit all tree building jobs to the executor
+        for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
+            Iterable<? extends Instance<Map<String, Serializable>>> treeTrainingData = shuffleTrainingData(trainingData);
+            treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
+        }
 
-    // Collect all completed trees. Will block until complete
-    collectTreeFutures(trees, treeFutures);
-
-    return new RandomForest(trees);
+        // Collect all completed trees. Will block until complete
+        collectTreeFutures(trees, treeFutures);
+        Set<Serializable> classifications = new HashSet<>();
+        for (Tree tree : trees) {
+            classifications.addAll(tree.getClassifications());
+        }
+        return new RandomForest(trees, classifications);
   }
 
     @Override
