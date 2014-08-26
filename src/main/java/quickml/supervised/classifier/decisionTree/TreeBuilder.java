@@ -124,7 +124,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
 
             if (classifications.size() > 2) {
                 binaryClassifications = false;
-                return classifications.keySet();            }
+                return new HashSet<Serializable>(classifications.keySet());
+            }
         }
 
         minorityClassification = null;
@@ -134,7 +135,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                 minorityClassification = val;
                 minorityClassificationCount = classifications.get(val).doubleValue();
             }
-        return classifications.keySet();
+        return new HashSet<Serializable>(classifications.keySet());
     }
 
     public void stripData(Tree tree) {
