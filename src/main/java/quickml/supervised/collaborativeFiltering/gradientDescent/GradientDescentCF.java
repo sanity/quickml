@@ -15,7 +15,7 @@ public class GradientDescentCF extends CollaborativeFilter {
     private static final long serialVersionUID = 301782468956120672L;
 
     @Override
-    public Double predict(final UserItem regressors) {
+    public Double predict(final UserItem attributes) {
         return null;
     }
 

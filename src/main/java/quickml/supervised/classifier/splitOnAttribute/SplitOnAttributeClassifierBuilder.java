@@ -67,7 +67,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = Maps.newHashMap();
         ArrayList<Instance<Map<String, Serializable>>> allData = new ArrayList<>();
         for (Instance<Map<String, Serializable>> instance : trainingData) {
-            Serializable value = instance.getRegressors().get(attributeKey);
+            Serializable value = instance.getAttributes().get(attributeKey);
             if (value == null) value = NO_VALUE_PLACEHOLDER;
             ArrayList<Instance<Map<String, Serializable>>> splitData = splitTrainingData.get(value);
             if (splitData == null) {
@@ -113,7 +113,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
      * Add instances such that the ratio of classifications is unchanged
     * */
     private boolean shouldAddInstance(Serializable attributeValue, Instance<Map<String, Serializable>> instance, ClassificationCounter crossDataCount, double targetCount) {
-        if (!attributeValue.equals(instance.getRegressors().get(attributeKey))) {
+        if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             if (targetCount > crossDataCount.getCount(instance.getLabel())) {
                 return true;
             }
@@ -123,9 +123,9 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
 
     private Instance<Map<String, Serializable>>cleanSupportingData(Instance<Map<String, Serializable>> instance) {
         Map<String, Serializable> attributes = new HashMap<>();
-        for (String key : instance.getRegressors().keySet()) {
+        for (String key : instance.getAttributes().keySet()) {
             if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
-                attributes.put(key, instance.getRegressors().get(key));
+                attributes.put(key, instance.getAttributes().get(key));
             }
         }
         return new InstanceImpl(attributes, instance.getLabel(), instance.getWeight());

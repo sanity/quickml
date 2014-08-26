@@ -32,7 +32,7 @@ public abstract class Branch extends Node {
 
 			@Override
 			public boolean apply(final Instance<Map<String, Serializable>> input) {
-				return decide(input.getRegressors());
+				return decide(input.getAttributes());
 			}
 		};
 	}
@@ -42,7 +42,7 @@ public abstract class Branch extends Node {
 
 			@Override
 			public boolean apply(final Instance<Map<String, Serializable>> input) {
-				return !decide(input.getRegressors());
+				return !decide(input.getAttributes());
 			}
 		};
 	}

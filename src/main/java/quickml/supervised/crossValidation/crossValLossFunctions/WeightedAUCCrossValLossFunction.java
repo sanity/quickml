@@ -1,6 +1,6 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 
 import java.io.Serializable;
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<MapWithDefaultOfZero> {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<PredictionMap> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -18,7 +18,7 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights) {
         if (labelPredictionWeights.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
@@ -32,10 +32,10 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Map
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights) {
+    private List<AUCData> getAucDataList(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
-        for (LabelPredictionWeight<MapWithDefaultOfZero> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<PredictionMap> labelPredictionWeight : labelPredictionWeights) {
             classifications.add(labelPredictionWeight.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");

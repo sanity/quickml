@@ -1,17 +1,13 @@
 package quickml.supervised;
 
-import quickml.data.Instance;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
-
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * A predictive model, typically created by a supervised learning algorithm.
- * Given a set of regressors, will generate a prediction.
+ * Given a set of attributes, will generate a prediction.
  */
-public interface PredictiveModel<R, P> extends Serializable {
+public interface PredictiveModel<A, P> extends Serializable {
 
-    P predict(R regressors);
+    P predict(A attributes);
     void dump(Appendable appendable);
 }

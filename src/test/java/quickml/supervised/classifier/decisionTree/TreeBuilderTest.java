@@ -155,8 +155,8 @@ public class TreeBuilderTest {
 
         final List<Instance<Map<String,Serializable>>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (Instance<Map<String,Serializable>> instance : instancesTest) {
-            Map map1 = tree1.predict(instance.getRegressors());
-            Map map2 = tree2.predict(instance.getRegressors());
+            Map map1 = tree1.predict(instance.getAttributes());
+            Map map2 = tree2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

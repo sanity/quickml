@@ -1,8 +1,7 @@
 package quickml.supervised.featureEngineering;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModel;
 
 import java.io.Serializable;
@@ -16,16 +15,16 @@ import java.util.Map;
  */
 public class FeatureEngineeredPredictiveModel extends AbstractClassifier {
     private static final long serialVersionUID = 7279329500376419142L;
-    private final PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> wrappedPredictiveModel;
+    private final PredictiveModel<Map<String, Serializable>, PredictionMap> wrappedPredictiveModel;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
+    public FeatureEngineeredPredictiveModel(PredictiveModel<Map<String, Serializable>, PredictionMap> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.attributesEnrichers = attributesEnrichers;
     }
 
     @Override
-    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(Map<String, Serializable> attributes) {
         Map<String, Serializable> enrichedAttributes = enrichAttributes(attributes);
         return wrappedPredictiveModel.predict(enrichedAttributes);
     }

@@ -1,14 +1,15 @@
 package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.collect.Maps;
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.decisionTree.tree.Node;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,11 +20,16 @@ import java.util.Map;
  */
 public class Tree extends AbstractClassifier {
     static final long serialVersionUID = 56394564395635672L;
-
     public final Node node;
+    private Set<Serializable> classifications = new HashSet<>();
 
-    protected Tree(Node tree) {
+    protected Tree(Node tree, Set<Serializable> classifications) {
         this.node = tree;
+        this.classifications = classifications;
+    }
+
+    public Set<Serializable> getClassifications() {
+        return classifications;
     }
 
     @Override
@@ -33,13 +39,13 @@ public class Tree extends AbstractClassifier {
     }
 
     @Override
-    public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(Map<String, Serializable> attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
             probsByClassification.put(classification, leaf.getProbability(classification));
         }
-        return new MapWithDefaultOfZero(probsByClassification);
+        return new PredictionMap(probsByClassification);
     }
 
     @Override

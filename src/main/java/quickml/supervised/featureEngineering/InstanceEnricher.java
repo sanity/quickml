@@ -21,7 +21,7 @@ public class InstanceEnricher implements Function<Instance<Map<String, Serializa
     @Nullable
     @Override
     public Instance<Map<String, Serializable>> apply(@Nullable Instance<Map<String, Serializable>>instance) {
-        Map<String, Serializable> enrichedAttributes = (Map<String, Serializable>) instance.getRegressors();
+        Map<String, Serializable> enrichedAttributes = (Map<String, Serializable>) instance.getAttributes();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
         }

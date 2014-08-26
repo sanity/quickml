@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 
 import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
@@ -16,12 +16,12 @@ import java.util.Map;
 public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
 
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, PredictionMap>, ?> wrappedBuilderBuilder;
 
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderFactory(
-            PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero>, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, PredictionMap>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;

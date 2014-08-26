@@ -1,6 +1,6 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
@@ -29,7 +29,7 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     }
 
     @Override
-    public MapWithDefaultOfZero predict(final Map<String, Serializable> attributes) {
+    public PredictionMap predict(final Map<String, Serializable> attributes) {
         return getModelForAttributes(attributes).predict(attributes);
     }
 

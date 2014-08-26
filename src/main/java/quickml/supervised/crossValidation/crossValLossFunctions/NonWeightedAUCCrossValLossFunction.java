@@ -1,20 +1,20 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 import org.apache.mahout.classifier.evaluation.Auc;
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 
 import java.util.List;
 
 /**
  * Created by alexanderhawk on 5/17/14.
  */
-public class NonWeightedAUCCrossValLossFunction implements CrossValLossFunction<MapWithDefaultOfZero> {
+public class NonWeightedAUCCrossValLossFunction implements CrossValLossFunction<PredictionMap> {
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<MapWithDefaultOfZero>> labelPredictionWeights)  {
+    public double getLoss(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights)  {
         Auc auc = new Auc();
-        for (LabelPredictionWeight<MapWithDefaultOfZero> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<PredictionMap> labelPredictionWeight : labelPredictionWeights) {
             int trueValue = (Double) labelPredictionWeight.getLabel() == 1.0 ? 1 : 0;
-            MapWithDefaultOfZero classifierPrediction = labelPredictionWeight.getPrediction();
+            PredictionMap classifierPrediction = labelPredictionWeight.getPrediction();
             double probabilityOfCorrectInstance = classifierPrediction.get(labelPredictionWeight.getLabel());
             double score = 0;
             score = (trueValue == 1) ? probabilityOfCorrectInstance: 1 - probabilityOfCorrectInstance;

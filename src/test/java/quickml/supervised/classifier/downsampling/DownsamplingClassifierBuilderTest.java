@@ -11,7 +11,6 @@ import quickml.data.*;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -108,12 +107,12 @@ public class DownsamplingClassifierBuilderTest {
 
 
         @Override
-        public MapWithDefaultOfZero predict(Map<String, Serializable> attributes) {
+        public PredictionMap predict(Map<String, Serializable> attributes) {
             Map<Serializable, Double> map = new HashMap<>();
             for(Serializable value : attributes.values()) {
                 map.put(value, prediction);
             }
-            return new MapWithDefaultOfZero(map);
+            return new PredictionMap(map);
         }
     }
 }

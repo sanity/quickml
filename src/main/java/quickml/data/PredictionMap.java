@@ -9,17 +9,17 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 8/12/14.
  */
-public class MapWithDefaultOfZero implements Map<Serializable, Double> {
+public class PredictionMap implements Map<Serializable, Double> {
 
     private final Map<Serializable, Double> map;
     private final Double defaultValue = Double.valueOf(0);
 
-    public MapWithDefaultOfZero(Map<Serializable, Double> map) {
+    public PredictionMap(Map<Serializable, Double> map) {
         this.map = map;
     }
 
-    public static MapWithDefaultOfZero newMap(){
-        return new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
+    public static PredictionMap newMap(){
+        return new PredictionMap(new HashMap<Serializable, Double>());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MapWithDefaultOfZero implements Map<Serializable, Double> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MapWithDefaultOfZero that = (MapWithDefaultOfZero) o;
+        PredictionMap that = (PredictionMap) o;
 
         if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) return false;
         if (map != null ? !map.equals(that.map) : that.map != null) return false;

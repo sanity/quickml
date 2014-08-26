@@ -8,18 +8,18 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
 
     protected static final double DEFAULT_WEIGHT = 1.0;
 
-    public InstanceImpl(final R regressors, final Serializable label) {
-        this(regressors, label, DEFAULT_WEIGHT);
+    public InstanceImpl(final R attributes, final Serializable label) {
+        this(attributes, label, DEFAULT_WEIGHT);
     }
 
-    public InstanceImpl(final R regressors, final Serializable label, final double weight) {
-        this.regressors = regressors;
+    public InstanceImpl(final R attributes, final Serializable label, final double weight) {
+        this.attributes = attributes;
         this.label = label;
         this.weight = weight;
     }
 
-    public R getRegressors() {
-        return regressors;
+    public R getAttributes() {
+        return attributes;
     }
 
     public Serializable getLabel() {
@@ -27,14 +27,14 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
     }
 
     public InstanceImpl reweight(double newWeight){
-        return new InstanceImpl(getRegressors(), getLabel(), newWeight);
+        return new InstanceImpl(getAttributes(), getLabel(), newWeight);
     }
 
     public double getWeight() {
         return weight;
     }
 
-    private R regressors;
+    private R attributes;
     private Serializable label;
     private double weight;
 
@@ -45,7 +45,7 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
         final InstanceImpl instance = (InstanceImpl) o;
 
         if (Double.compare(instance.weight, weight) != 0) return false;
-        if (!regressors.equals(instance.regressors)) return false;
+        if (!attributes.equals(instance.attributes)) return false;
         if (!label.equals(instance.label)) return false;
 
         return true;
@@ -54,7 +54,7 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
     public int hashCode() {
         int result;
         long temp;
-        result = regressors.hashCode();
+        result = attributes.hashCode();
         result = 31 * result + label.hashCode();
         temp = Double.doubleToLongBits(weight);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
@@ -63,8 +63,8 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
 
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[regressors=");
-        builder.append(regressors);
+        builder.append("[attributes=");
+        builder.append(attributes);
         builder.append(", label=");
         builder.append(label);
         if (weight != 1.0) {

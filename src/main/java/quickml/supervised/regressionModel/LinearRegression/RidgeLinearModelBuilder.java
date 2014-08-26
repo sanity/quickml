@@ -103,14 +103,14 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         int row = 0;
         for (Instance<double[]> instance : trainingData) {
             labels[row] = (Double) instance.getLabel();
-            double[] regressors = instance.getRegressors();
+            double[] attributes = instance.getAttributes();
             int oneIfUsingBiasTerm = 0;
             if (includeBiasTerm) {
                 dataMatrix.setEntry(row, 0, 1.0);
                 oneIfUsingBiasTerm = 1;
             }
-            for (int i=0; i < regressors.length; i++) {
-                dataMatrix.setEntry(row, i+oneIfUsingBiasTerm, regressors[i]);
+            for (int i=0; i < attributes.length; i++) {
+                dataMatrix.setEntry(row, i+oneIfUsingBiasTerm, attributes[i]);
             }
             row++;
         }

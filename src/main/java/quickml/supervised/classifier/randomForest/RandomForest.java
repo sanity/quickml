@@ -4,17 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 
-import quickml.data.MapWithDefaultOfZero;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,10 +25,18 @@ public class RandomForest extends AbstractClassifier {
     static final long serialVersionUID = 56394564395638954L;
 
     public final List<Tree> trees;
+    private Set<Serializable> classifications = new HashSet<>();
+    private boolean binaryClassification = true;
 
-    protected RandomForest(List<Tree> trees) {
+    protected RandomForest(List<Tree> trees, Set<Serializable> classifications) {
         Preconditions.checkArgument(trees.size() > 0, "We must have at least one tree");
         this.trees = trees;
+        this.classifications = classifications;
+        if (classifications.size() > 2) {
+            binaryClassification = false;
+        } else if (classifications.size() < 1) {
+            throw new RuntimeException("no classes listed in classifications");
+        }
     }
 
 
@@ -71,10 +76,19 @@ public class RandomForest extends AbstractClassifier {
     }
 
     @Override
-    public MapWithDefaultOfZero predict(final Map<String, Serializable> attributes) {
-        MapWithDefaultOfZero sumsByClassification = new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
+    public PredictionMap predict(final Map<String, Serializable> attributes) {
+        if (binaryClassification)  {
+            return getPredictionForTwoClasses(attributes);
+        }
+        else {
+            return getPredictionForNClasses(attributes);
+        }
+    }
+
+    private PredictionMap getPredictionForNClasses(Map<String, Serializable> attributes) {
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (Tree tree : trees) {
-            final  MapWithDefaultOfZero treeProbs = tree.predict(attributes);
+            final PredictionMap treeProbs = tree.predict(attributes);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
@@ -82,12 +96,27 @@ public class RandomForest extends AbstractClassifier {
                 sumsByClassification.put(tpe.getKey(), sum);
             }
         }
-
-        MapWithDefaultOfZero probsByClassification = new MapWithDefaultOfZero(new HashMap<Serializable, Double>());
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
         }
 
+        return probsByClassification;
+    }
+
+    private PredictionMap getPredictionForTwoClasses(Map<String, Serializable> attributes) {
+        PredictionMap probsByClassification = PredictionMap.newMap();
+        Iterator<Serializable> classIterator = classifications.iterator();
+        if (!classIterator.hasNext()) {
+            throw new RuntimeException("no class labels present in classification set");
+        }
+        Serializable firstClassification = classIterator.next();
+        double firstProbability = getProbability(attributes, firstClassification);
+        probsByClassification.put(firstClassification, firstProbability);
+        if (classIterator.hasNext()) {
+            Serializable secondClassification = classIterator.next();
+            probsByClassification.put(secondClassification, 1.0 - firstProbability);
+        }
         return probsByClassification;
     }
 

@@ -25,7 +25,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
-        predictiveModel.getProbability(trainingData.get(0).getRegressors(), valueToTest);
+        predictiveModel.getProbability(trainingData.get(0).getAttributes(), valueToTest);
     }
 
     public static class TestAEBS implements AttributesEnrichStrategy {
@@ -50,7 +50,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         @Override
         public TestPM buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
             for (Instance<Map<String, Serializable>> instance : trainingData) {
-                if (!instance.getRegressors().containsKey("enriched")) {
+                if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
             }
@@ -71,19 +71,19 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     }
 
 
-    public static class TestPM implements PredictiveModel<Map<String, Serializable>, MapWithDefaultOfZero> {
+    public static class TestPM implements PredictiveModel<Map<String, Serializable>, PredictionMap> {
 
 
             private static final long serialVersionUID = -3449746370937561259L;
 
             @Override
-            public MapWithDefaultOfZero predict(Map<String, Serializable> regressors) {
-                if (!regressors.containsKey("enriched")) {
+            public PredictionMap predict(Map<String, Serializable> attributes) {
+                if (!attributes.containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
                 Map<Serializable, Double> map = new HashMap<>();
                 map.put(valueToTest, 0.0);
-                return new MapWithDefaultOfZero(map);
+                return new PredictionMap(map);
             }
 
             @Override
