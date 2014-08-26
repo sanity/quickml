@@ -33,15 +33,15 @@ public class RidgeLinearModel implements MultiVariableRealValuedFunction {
     }
 
     @Override
-    public Double predict(double []regressors) {
+    public Double predict(double[] attributes) {
         double prediction = 0;
         int oneIfUsingBias = 0;
         if (useBias) {
             prediction += modelCoeficients[0];
             oneIfUsingBias = 1;
         }
-        for (int i=0; i< regressors.length; i++) {
-            prediction += regressors[i] * modelCoeficients[i + oneIfUsingBias];
+        for (int i=0; i< attributes.length; i++) {
+            prediction += attributes[i] * modelCoeficients[i + oneIfUsingBias];
         }
         return prediction;
     }
