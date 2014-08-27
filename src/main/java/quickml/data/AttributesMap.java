@@ -18,6 +18,11 @@ public class AttributesMap implements Map<String, Serializable>, Serializable {
         this.map = map;
     }
 
+    public AttributesMap() {
+        this.map = new HashMap<>();
+    }
+
+
     public static AttributesMap newHashMap() {
         return new AttributesMap(new HashMap<String, Serializable>());
     }
