@@ -17,7 +17,7 @@ public class ProbabilityInjectingEnricherTest {
         valueProbs.put(5, 0.2);
         valueProbsByAttr.put("testkey", valueProbs);
         ProbabilityInjectingEnricher probabilityInjectingEnricher = new ProbabilityInjectingEnricher(valueProbsByAttr);
-        Map<String,Serializable> inputAttributes = AttributesMap.newHashMap();
+        AttributesMap  inputAttributes = AttributesMap.newHashMap();
         inputAttributes.put("testkey", 5);
         final AttributesMap outputAttributes = probabilityInjectingEnricher.apply(inputAttributes);
         Assert.assertEquals("The pre-existing attribute is still there", 5, outputAttributes.get("testkey"));

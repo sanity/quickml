@@ -107,7 +107,7 @@ public class Benchmarks {
                 break;
             }
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
-           AttributesMapa = AttributesMap.newHashMap();
+            AttributesMap a = AttributesMap.newHashMap();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
             Instance<AttributesMap> instance = new InstanceImpl(a,binaryClassification);

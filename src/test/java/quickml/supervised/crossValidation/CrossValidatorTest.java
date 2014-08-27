@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
@@ -36,7 +37,7 @@ public class CrossValidatorTest {
     private List<Instance<AttributesMap>> getInstances() {
         final List<Instance<AttributesMap>> instances = Lists.newLinkedList();
         for(int i = 0; i < 5; i++) {
-            AttributesMap attributes = new HashMap<>();
+            AttributesMap attributes = AttributesMap.newHashMap() ;
 
             Instance<AttributesMap> instance = Mockito.mock(InstanceImpl.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);

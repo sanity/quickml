@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.Tree;

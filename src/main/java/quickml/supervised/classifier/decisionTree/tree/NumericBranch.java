@@ -3,6 +3,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.Map;

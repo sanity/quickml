@@ -2,6 +2,7 @@ package quickml.supervised.classifier.downsampling;
 
 import junit.framework.Assert;
 import org.testng.annotations.Test;
+import quickml.data.AttributesMap;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class DownsamplingPredictiveModelTest {
     @Test
     public void simpleTest() {
         final Classifier classifier = mock(Classifier.class);
-        when(classifier.getProbability(any(Map.class), eq(Boolean.TRUE))).thenReturn(0.5);
+        when(classifier.getProbability(any(AttributesMap.class), eq(Boolean.TRUE))).thenReturn(0.5);
         DownsamplingClassifier downsamplingClassifier = new DownsamplingClassifier(classifier, Boolean.FALSE, Boolean.TRUE, 0.9);
         double corrected = downsamplingClassifier.getProbability(AttributesMap.newHashMap(), Boolean.TRUE);
         double error = Math.abs(corrected - 0.1/1.1);

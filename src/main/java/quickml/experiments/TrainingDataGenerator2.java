@@ -63,7 +63,7 @@ public class TrainingDataGenerator2 {
     }
 
     private AttributesMap getAttributesForAnInstance() {
-        AttributesMap attributes =  new HashMap<>();
+        AttributesMap attributes =  AttributesMap.newHashMap() ;
 
         double attributeValue;
         latentVariable = 0;

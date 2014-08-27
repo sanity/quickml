@@ -1,5 +1,6 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;

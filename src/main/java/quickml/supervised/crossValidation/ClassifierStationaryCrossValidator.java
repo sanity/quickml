@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 

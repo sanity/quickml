@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        final UpdatablePredictiveModelBuilder<Map<String,Serializable>, Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
+        final UpdatablePredictiveModelBuilder<AttributesMap , Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
         when(updatablePredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -55,7 +55,7 @@ public class DownsamplingClassifierBuilderTest {
             data.add(new InstanceImpl(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
-        Map<String,Serializable> map = new HashMap<>();
+        AttributesMap  map = AttributesMap.newHashMap() ;
         map.put("true",Boolean.TRUE);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
@@ -69,7 +69,7 @@ public class DownsamplingClassifierBuilderTest {
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
+        final PredictiveModelWithDataBuilder<AttributesMap ,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
         final long startTime = System.currentTimeMillis();
         final DownsamplingClassifier downsamplingClassifier = wb.buildPredictiveModel(instances);
 

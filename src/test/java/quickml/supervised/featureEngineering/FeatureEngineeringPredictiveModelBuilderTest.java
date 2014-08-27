@@ -36,7 +36,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
                 private static final long serialVersionUID = -4851048617673142530L;
 
                 public AttributesMap apply(@Nullable final AttributesMap attributes) {
-                    AttributesMap er = new HashMap<>();
+                    AttributesMap er = AttributesMap.newHashMap() ;
                     er.putAll(attributes);
                     er.put("enriched", 1);
                     return er;

@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
+import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;

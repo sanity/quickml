@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation;
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.Serializable;

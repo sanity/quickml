@@ -7,6 +7,7 @@ import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
+import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
@@ -45,7 +46,7 @@ public class TreeBuilderTest {
 		for (int x = 0; x < 10000; x++) {
 			final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
 			final double weight = 120 + MapUtils.random.nextInt(110);
-            Map<String,Serializable> attributes = new HashMap<>();
+            AttributesMap  attributes = AttributesMap.newHashMap() ;
             attributes.put("weight", weight);
             attributes.put("height", height);
 			final Instance<AttributesMap> instance = new InstanceImpl<>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
@@ -61,7 +62,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -90,7 +91,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
 
@@ -118,7 +119,7 @@ public class TreeBuilderTest {
     @Test
     public void simpleBmiTestRebuild() throws Exception {
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.rebuildThreshold(1);
         final long startTime = System.currentTimeMillis();
         final Tree tree = wb.buildPredictiveModel(instances);
@@ -136,7 +137,7 @@ public class TreeBuilderTest {
         Assert.assertFalse(tree == newTree, "Expect new tree to be built");
     }
 
-    private PredictiveModelWithDataBuilder<Map<String,Serializable>,Tree> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<AttributesMap ,Tree> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         return new PredictiveModelWithDataBuilder<>(tb);
     }
@@ -156,8 +157,8 @@ public class TreeBuilderTest {
 
         final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (Instance<AttributesMap> instance : instancesTest) {
-           AttributesMap map1 = tree1.predict(instance.getAttributes());
-           AttributesMap map2 = tree2.predict(instance.getAttributes());
+           PredictionMap map1 = tree1.predict(instance.getAttributes());
+           PredictionMap map2 = tree2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

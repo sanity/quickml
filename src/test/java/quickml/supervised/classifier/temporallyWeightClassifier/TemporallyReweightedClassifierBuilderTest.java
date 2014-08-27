@@ -2,6 +2,7 @@ package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickml.data.AttributesMap;
 import quickml.supervised.crossValidation.dateTimeExtractors.MapDateTimeExtractor;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
@@ -24,7 +25,7 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testError3ClassificationsInDataSet() throws Exception {
         final List<Instance<AttributesMap>> instances = new LinkedList<>();
-        Map<String,Serializable> map = new HashMap<>();
+        AttributesMap  map = AttributesMap.newHashMap() ;
         map.put("2", "2");
         instances.add(new InstanceImpl<AttributesMap>(map, "1"));
         instances.add(new InstanceImpl<AttributesMap>(map, "2"));

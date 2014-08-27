@@ -1,5 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;

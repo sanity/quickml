@@ -3,7 +3,9 @@ package quickml.supervised.classifier.randomForest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -43,7 +45,7 @@ public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<AttributesMap ,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -69,7 +71,7 @@ public class RandomForestBuilderTest {
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
-    private PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
+    private PredictiveModelWithDataBuilder<AttributesMap ,RandomForest> getWrappedUpdatablePredictiveModelBuilder() {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).updatable(true);
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         return new PredictiveModelWithDataBuilder<>(urfb);
@@ -78,7 +80,7 @@ public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final PredictiveModelWithDataBuilder<AttributesMap ,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
 
@@ -119,8 +121,8 @@ public class RandomForestBuilderTest {
 
         final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (Instance<AttributesMap> instance : instancesTest) {
-           AttributesMap map1 = randomForest1.predict(instance.getAttributes());
-           AttributesMap map2 = randomForest2.predict(instance.getAttributes());
+           PredictionMap map1 = randomForest1.predict(instance.getAttributes());
+           PredictionMap map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

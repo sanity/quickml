@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;

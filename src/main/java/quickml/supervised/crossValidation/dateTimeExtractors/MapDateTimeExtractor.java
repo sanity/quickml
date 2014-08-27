@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation.dateTimeExtractors;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.Serializable;

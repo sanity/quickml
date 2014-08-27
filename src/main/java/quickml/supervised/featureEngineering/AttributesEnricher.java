@@ -1,6 +1,7 @@
 package quickml.supervised.featureEngineering;
 
 import com.google.common.base.Function;
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.Map;

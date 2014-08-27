@@ -1,6 +1,7 @@
 package quickml.supervised.classifier;
 
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 
@@ -17,7 +18,7 @@ public class TreeBuilderTestUtils {
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
-            Map<String,Serializable> attributes = new HashMap<>();
+            AttributesMap  attributes = AttributesMap.newHashMap() ;
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("gender", MapUtils.random.nextInt(2));

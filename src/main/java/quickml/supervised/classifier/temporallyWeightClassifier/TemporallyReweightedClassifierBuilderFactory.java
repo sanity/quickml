@@ -2,6 +2,7 @@ package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.collect.Maps;
 
+import quickml.data.AttributesMap;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;

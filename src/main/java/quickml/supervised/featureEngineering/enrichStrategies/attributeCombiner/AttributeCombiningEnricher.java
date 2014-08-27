@@ -1,13 +1,12 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
 import com.google.common.base.Joiner;
+import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**

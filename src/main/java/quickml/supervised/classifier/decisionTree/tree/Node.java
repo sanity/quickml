@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.decisionTree.tree;
 
 
+import quickml.data.AttributesMap;
+
 import java.io.Serializable;
 import java.util.Map;
 

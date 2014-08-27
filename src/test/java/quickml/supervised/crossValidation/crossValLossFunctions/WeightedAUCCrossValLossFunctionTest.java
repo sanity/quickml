@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;

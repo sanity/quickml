@@ -24,7 +24,7 @@ public class CalibratedPredictiveModel extends Classifier {
     @Override
     public Map<Serializable, Double> predict(AttributesMap attributes) {
         Map<Serializable, Double> predictions = predictiveModel.predict(attributes);
-        Map<Serializable, Double> calibratedPredictions = new HashMap<>();
+        Map<Serializable, Double> calibratedPredictions = AttributesMap.newHashMap() ;
         for(Map.Entry<Serializable, Double> prediction : predictions.entrySet()) {
             calibratedPredictions.put(prediction.getKey(), calibrator.correct(prediction.getValue()));
         }

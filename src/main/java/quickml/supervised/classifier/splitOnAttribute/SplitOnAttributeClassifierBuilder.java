@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 import quickml.supervised.classifier.Classifier;
@@ -122,7 +123,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     private Instance<AttributesMap>cleanSupportingData(Instance<AttributesMap> instance) {
-        AttributesMap attributes = new HashMap<>();
+        AttributesMap attributes = AttributesMap.newHashMap();
         for (String key : instance.getAttributes().keySet()) {
             if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
                 attributes.put(key, instance.getAttributes().get(key));

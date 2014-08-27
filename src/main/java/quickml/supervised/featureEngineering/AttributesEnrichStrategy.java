@@ -1,5 +1,6 @@
 package quickml.supervised.featureEngineering;
 
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.Serializable;

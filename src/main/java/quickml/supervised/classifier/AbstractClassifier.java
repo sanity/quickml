@@ -1,5 +1,6 @@
 package quickml.supervised.classifier;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 
 import java.io.Serializable;

@@ -88,7 +88,7 @@ public class AttributeImportanceFinder {
         private final ArrayList<Serializable> attributeValueSamples;
 
         public Instance<AttributesMap> apply(final Instance<AttributesMap> instance) {
-            AttributesMap randomizedAttributes = new HashMap<>();
+            AttributesMap randomizedAttributes = AttributesMap.newHashMap();
             randomizedAttributes.putAll(instance.getAttributes());
             final Serializable randomValue = attributeValueSamples.get(MapUtils.random.nextInt(attributeValueSamples.size()));
             randomizedAttributes.put(attributeToExclude, randomValue);

@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.randomForest;
 
 import com.google.common.collect.Maps;
+import quickml.data.AttributesMap;
 import quickml.supervised.classifier.decisionTree.TreeBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
