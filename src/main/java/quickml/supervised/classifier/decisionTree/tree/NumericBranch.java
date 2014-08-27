@@ -3,6 +3,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -20,7 +21,7 @@ public final class NumericBranch extends Branch {
 	}
 
 	@Override
-	public boolean decide(final Map<String, Serializable> attributes) {
+	public boolean decide(final AttributesMap attributes) {
         Serializable value = attributes.get(attribute);
         if (value == null) value = 0;
         if (!(value instanceof Number)) {

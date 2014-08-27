@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.collect.Maps;
+import quickml.data.AttributesMap;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
@@ -15,7 +16,7 @@ import java.util.Map;
 /**
  * Created by ian on 4/12/14.
  */
-public class TreeBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, Tree, TreeBuilder> {
+public class TreeBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap, Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";

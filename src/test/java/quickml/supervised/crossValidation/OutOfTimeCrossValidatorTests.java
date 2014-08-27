@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelWithDataBuilder;
@@ -26,7 +27,7 @@ import java.util.Map;
  */
 public class OutOfTimeCrossValidatorTests {
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
-    List<Instance<Map<String, Serializable>>> trainingData;
+    List<Instance<AttributesMap>> trainingData;
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +37,7 @@ public class OutOfTimeCrossValidatorTests {
         trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
-        for (Instance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<AttributesMap> instance : trainingData) {
             instance.getAttributes().put("currentTimeMillis", millisInMinute * instanceNumber);
             instanceNumber++;
         }
@@ -44,9 +45,9 @@ public class OutOfTimeCrossValidatorTests {
 
     @Test
     public void testLossBetween0And1() {
-        //  List<Instance<Map<String, Serializable>>> trainingData = setUp();
+        //  List<Instance<AttributesMap>> trainingData = setUp();
         logger.info("trainingDataSize " + trainingData.size());
-        PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, PredictionMap>> predictiveModelWithDataBuilder = getPredictiveModelWithDataBuilder(5, 5);
+        PredictiveModelWithDataBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>> predictiveModelWithDataBuilder = getPredictiveModelWithDataBuilder(5, 5);
 
         ClassifierOutOfTimeCrossValidator crossValidator = new ClassifierOutOfTimeCrossValidator(new ClassifierLogCVLossFunction(), 0.25, 30, new TestDateTimeExtractor()); //number of validation time slices
         double totalLoss = crossValidator.getCrossValidatedLoss(predictiveModelWithDataBuilder, trainingData);
@@ -63,16 +64,16 @@ public class OutOfTimeCrossValidatorTests {
     }
 
 
-    private static RandomForest getRandomForest(List<Instance<Map<String, Serializable>>> trainingData, int maxDepth, int numTrees) {
+    private static RandomForest getRandomForest(List<Instance<AttributesMap>> trainingData, int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
         return randomForestBuilder.buildPredictiveModel(trainingData);
     }
 
-    private static PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, PredictionMap>> getPredictiveModelWithDataBuilder(int maxDepth, int numTrees) {
+    private static PredictiveModelWithDataBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>> getPredictiveModelWithDataBuilder(int maxDepth, int numTrees) {
         TreeBuilder treeBuilder = new TreeBuilder().maxDepth(maxDepth).ignoreAttributeAtNodeProbability(.7);
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder).numTrees(numTrees);
-        PredictiveModelWithDataBuilder<Map<String, Serializable>, ? extends PredictiveModel<Map<String, Serializable>, PredictionMap>> builder = new PredictiveModelWithDataBuilder<>(randomForestBuilder);//.rebuildThreshold(4).splitNodeThreshold(2);
+        PredictiveModelWithDataBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>> builder = new PredictiveModelWithDataBuilder<>(randomForestBuilder);//.rebuildThreshold(4).splitNodeThreshold(2);
         return builder;
     }
 }

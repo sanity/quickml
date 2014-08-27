@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation;
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
 * Created by ian on 2/28/14.
 */
-public class AttributesHashSplitter implements Predicate<Instance<Map<String, Serializable>>> {
+public class AttributesHashSplitter implements Predicate<Instance<AttributesMap>> {
 
     private static final HashFunction hashFunction = Hashing.murmur3_32();
 
@@ -22,7 +23,7 @@ public class AttributesHashSplitter implements Predicate<Instance<Map<String, Se
     }
 
     @Override
-    public boolean apply(final Instance<Map<String, Serializable>> instance) {
+    public boolean apply(final Instance<AttributesMap> instance) {
         int hc = hashFunction.hashInt(instance.getAttributes().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }

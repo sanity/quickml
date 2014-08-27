@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -63,7 +64,7 @@ public class RandomForest extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         double total = 0;
         for (Tree tree : trees) {
             final double probability = tree.getProbability(attributes, classification);
@@ -76,7 +77,7 @@ public class RandomForest extends AbstractClassifier {
     }
 
     @Override
-    public PredictionMap predict(final Map<String, Serializable> attributes) {
+    public PredictionMap predict(final AttributesMap attributes) {
         if (binaryClassification)  {
             return getPredictionForTwoClasses(attributes);
         }
@@ -85,7 +86,7 @@ public class RandomForest extends AbstractClassifier {
         }
     }
 
-    private PredictionMap getPredictionForNClasses(Map<String, Serializable> attributes) {
+    private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
         PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (Tree tree : trees) {
             final PredictionMap treeProbs = tree.predict(attributes);
@@ -104,7 +105,7 @@ public class RandomForest extends AbstractClassifier {
         return probsByClassification;
     }
 
-    private PredictionMap getPredictionForTwoClasses(Map<String, Serializable> attributes) {
+    private PredictionMap getPredictionForTwoClasses(AttributesMap attributes) {
         PredictionMap probsByClassification = PredictionMap.newMap();
         Iterator<Serializable> classIterator = classifications.iterator();
         if (!classIterator.hasNext()) {
@@ -121,7 +122,7 @@ public class RandomForest extends AbstractClassifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (Tree tree : trees) {
             Leaf leaf =tree.node.getLeaf(attributes);

@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Maps;
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
@@ -27,7 +28,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
         this.dropProbability = dropProbability;
     }
 
-    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         double uncorrectedProbability = wrappedClassifier.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
@@ -49,7 +50,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
     }
 
     @Override
-    public PredictionMap predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(AttributesMap attributes) {
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
         probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
@@ -57,7 +58,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
+    public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
 

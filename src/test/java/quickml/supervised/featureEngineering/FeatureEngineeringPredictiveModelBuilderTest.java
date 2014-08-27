@@ -20,8 +20,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     @Test
     public void simpleTest() {
         TestAEBS testFEPMB = new TestAEBS();
-        List<Instance<Map<String, Serializable>>> trainingData = Lists.newArrayList();
-        trainingData.add(new InstanceImpl(new HashMap(), 1));
+        List<Instance<AttributesMap>> trainingData = Lists.newArrayList();
+        trainingData.add(new InstanceImpl(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
@@ -31,12 +31,12 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+        public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap>> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
-                public Map<String, Serializable> apply(@Nullable final Map<String, Serializable> attributes) {
-                    Map<String, Serializable> er = new HashMap<>();
+                public AttributesMap apply(@Nullable final AttributesMap attributes) {
+                    AttributesMap er = AttributesMap.newHashMap() ;
                     er.putAll(attributes);
                     er.put("enriched", 1);
                     return er;
@@ -45,11 +45,11 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
     }
 
-    public static class TestPMBuilder implements PredictiveModelBuilder<Map<String, Serializable>, TestPM> {
+    public static class TestPMBuilder implements PredictiveModelBuilder<AttributesMap, TestPM> {
 
         @Override
-        public TestPM buildPredictiveModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-            for (Instance<Map<String, Serializable>> instance : trainingData) {
+        public TestPM buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
+            for (Instance<AttributesMap> instance : trainingData) {
                 if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
@@ -71,13 +71,13 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     }
 
 
-    public static class TestPM implements PredictiveModel<Map<String, Serializable>, PredictionMap> {
+    public static class TestPM implements PredictiveModel<AttributesMap, PredictionMap> {
 
 
             private static final long serialVersionUID = -3449746370937561259L;
 
             @Override
-            public PredictionMap predict(Map<String, Serializable> attributes) {
+            public PredictionMap predict(AttributesMap attributes) {
                 if (!attributes.containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }

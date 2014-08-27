@@ -24,18 +24,18 @@ public class Benchmarks {
      * @param args
      */
     public static void main(final String[] args) throws Exception {
-        List<Instance<Map<String, Serializable>>> diaInstances = loadDiabetesDataset();
+        List<Instance<AttributesMap>> diaInstances = loadDiabetesDataset();
 
         testWithInstances("diabetes", diaInstances);
 
-        final List<Instance<Map<String, Serializable>>> moboInstances = loadMoboDataset();
+        final List<Instance<AttributesMap>> moboInstances = loadMoboDataset();
 
         testWithInstances("mobo", moboInstances);
 
 
     }
 
-    private static void testWithInstances(String dsName, final List<Instance<Map<String, Serializable>>> instances) {
+    private static void testWithInstances(String dsName, final List<Instance<AttributesMap>> instances) {
         StationaryCrossValidator crossValidator = new StationaryCrossValidator(new ClassifierLogCVLossFunction());
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
@@ -48,9 +48,9 @@ public class Benchmarks {
         }
     }
 
-    public static List<Instance<Map<String, Serializable>>> loadDiabetesDataset() throws IOException {
+    public static List<Instance<AttributesMap>> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
+        final List<Instance<AttributesMap>> instances = Lists.newLinkedList();
 
         while (true) {
             String line = br.readLine();
@@ -58,11 +58,11 @@ public class Benchmarks {
                 break;
             }
             String[] splitLine = line.split("\\s");
-            Map hashMapAttributes = new HashMap();
+            AttributesMap attributes = AttributesMap.newHashMap();
             for (int x=0; x<8; x++) {
-                hashMapAttributes.put("attr"+x, Double.parseDouble(splitLine[x]));
+                attributes.put("attr" + x, Double.parseDouble(splitLine[x]));
             }
-            final Instance<Map<String, Serializable>> instance = new InstanceImpl(hashMapAttributes, splitLine[8]);
+            final Instance<AttributesMap> instance = new InstanceImpl(attributes, splitLine[8]);
             instances.add(instance);
 
         }
@@ -70,9 +70,9 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<Instance<Map<String, Serializable>>> loadIrisDataset() throws IOException {
+    public static List<Instance<AttributesMap>> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("iris.data.gz")))));
-        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
+        final List<Instance<AttributesMap>> instances = Lists.newLinkedList();
 
         String[] headings = new String[] {"sepal-length", "sepal-width", "petal-length", "petal-width"};
         while (true) {
@@ -82,11 +82,11 @@ public class Benchmarks {
             }
             String[] splitLine = line.split(",");
 
-            Map hashMapAttributes = new HashMap();
+            AttributesMap attributes = AttributesMap.newHashMap();
             for (int x=0; x<splitLine.length - 1; x++) {
-                hashMapAttributes.put(headings[x], splitLine[x]);
+                attributes.put(headings[x], splitLine[x]);
             }
-            final Instance<Map<String, Serializable>> instance = new InstanceImpl(hashMapAttributes, splitLine[splitLine.length-1]);
+            final Instance<AttributesMap> instance = new InstanceImpl(attributes, splitLine[splitLine.length-1]);
             instances.add(instance);
 
         }
@@ -94,10 +94,10 @@ public class Benchmarks {
         return instances;
     }
 
-    public static List<Instance<Map<String, Serializable>>> loadMoboDataset() throws IOException {
+    public static List<Instance<AttributesMap>> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
+        final List<Instance<AttributesMap>> instances = Lists.newLinkedList();
 
         int count = 0;
         while (true) {
@@ -107,10 +107,10 @@ public class Benchmarks {
                 break;
             }
             final JSONObject jo = (JSONObject) JSONValue.parse(line);
-            Map a = new HashMap();
+            AttributesMap a = AttributesMap.newHashMap();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = ((String) jo.get("output")).equals("none") ? "none" : "notNone";
-            Instance<Map<String, Serializable>> instance = new InstanceImpl(a,binaryClassification);
+            Instance<AttributesMap> instance = new InstanceImpl(a,binaryClassification);
             instances.add(instance);
         }
 

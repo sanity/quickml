@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.decisionTree.tree;
 
 import com.google.common.collect.Sets;
+import quickml.data.AttributesMap;
+
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 
 import java.io.Serializable;
@@ -18,7 +20,7 @@ public final class CategoricalBranch extends Branch {
 	}
 
     @Override
-    public boolean decide(final Map<String, Serializable> attributes) {
+    public boolean decide(final AttributesMap attributes) {
         Serializable attributeVal = attributes.get(attribute);
         if (attributeVal==null)
             attributeVal = MISSING_VALUE;

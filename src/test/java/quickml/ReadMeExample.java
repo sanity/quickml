@@ -20,40 +20,40 @@ import java.util.Set;
 public class ReadMeExample {
     
     public static void main(String[] args) {
-        final Set<Instance<Map<String,Serializable>>> instances = Sets.newHashSet();
+        final Set<Instance<AttributesMap>> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
-        Map<String,Serializable> attributes = new HashMap<>();
+        AttributesMap  attributes = AttributesMap.newHashMap() ;
         attributes.put("height",55);
         attributes.put("weight", 168);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "overweight"));
-        attributes = new HashMap<>();
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "overweight"));
+        attributes = AttributesMap.newHashMap() ;
         attributes.put("height",75);
         attributes.put("weight", 168);
         attributes.put("gender", "female");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
-        attributes = new HashMap<>();
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "healthy"));
+        attributes = AttributesMap.newHashMap() ;
         attributes.put("height",74);
         attributes.put("weight", 143);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
-        attributes = new HashMap<>();
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "underweight"));
+        attributes = AttributesMap.newHashMap() ;
         attributes.put("height",49);
         attributes.put("weight", 144);
         attributes.put("gender", "female");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
-        attributes = new HashMap<>();
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "underweight"));
+        attributes = AttributesMap.newHashMap() ;
         attributes.put("height",83);
         attributes.put("weight", 223);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "healthy"));
         
         {
             
             TreeBuilder treeBuilder = new TreeBuilder();
             Tree tree = treeBuilder.buildPredictiveModel(instances);
 
-            attributes = new HashMap<>();
+            attributes = AttributesMap.newHashMap() ;
             attributes.put("height",62);
             attributes.put("weight", 201);
             attributes.put("gender", "female");
@@ -78,7 +78,7 @@ public class ReadMeExample {
                 .numTrees(50);
             RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
 
-            attributes = new HashMap<>();
+            attributes = AttributesMap.newHashMap() ;
             attributes.put("height",62);
             attributes.put("weight", 201);
             attributes.put("gender", "female");

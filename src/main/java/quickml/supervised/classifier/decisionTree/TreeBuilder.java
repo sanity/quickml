@@ -8,6 +8,7 @@ import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
@@ -18,7 +19,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>, Tree> {
+public final class TreeBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 1000;
@@ -94,15 +95,15 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     @Override
-    public Tree buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    public Tree buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         Set<Serializable> classifications = getClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)), classifications);
     }
 
     @Override
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(Tree tree, final Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
         //first move all the data into the leaves
-        for (Instance<Map<String, Serializable>> instance : newData) {
+        for (Instance<AttributesMap> instance : newData) {
             addInstanceToNode(tree.node, instance);
         }
         //now split the leaves further if possible
@@ -111,10 +112,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private Set<Serializable> getClassificationProperties(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        ArrayList<Instance<Map<String, Serializable>>> generifiedTrainingData = Lists.newArrayList();
+    private Set<Serializable> getClassificationProperties(Iterable<? extends Instance<AttributesMap>> trainingData) {
+        ArrayList<Instance<AttributesMap>> generifiedTrainingData = Lists.newArrayList();
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
-        for (Instance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<AttributesMap> instance : trainingData) {
             generifiedTrainingData.add(instance);
             Serializable classification = instance.getLabel();
             if (classifications.containsKey(classification)) {
@@ -142,9 +143,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         stripNode(tree.node);
     }
 
-    private double[] createNumericSplit(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final String attribute) {
+    private double[] createNumericSplit(final Iterable<? extends Instance<AttributesMap>> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE,rand);
-        for (final Instance<Map<String, Serializable>> instance : trainingData) {
+        for (final Instance<AttributesMap> instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = 0;
             reservoirSampler.sample(((Number) value).doubleValue());
@@ -153,9 +154,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return getSplit(reservoirSampler);
     }
 
-    private Map<String, double[]> createNumericSplits(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    private Map<String, double[]> createNumericSplits(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        for (final Instance<Map<String, Serializable>> instance : trainingData) {
+        for (final Instance<AttributesMap> instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
@@ -195,7 +196,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<? extends Instance<AttributesMap>> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf;
@@ -221,8 +222,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             return thisLeaf;
         }
 
-        final ArrayList<Instance<Map<String, Serializable>>> trueTrainingSet = Lists.newArrayList();
-        final ArrayList<Instance<Map<String, Serializable>>> falseTrainingSet = Lists.newArrayList();
+        final ArrayList<Instance<AttributesMap>> trueTrainingSet = Lists.newArrayList();
+        final ArrayList<Instance<AttributesMap>> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestNode, trueTrainingSet, falseTrainingSet);
 
 
@@ -269,11 +270,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return bestNode;
     }
 
-    private void setTrueAndFalseTrainingSets(Iterable<? extends Instance<Map<String, Serializable>>> trainingData, Branch bestNode, ArrayList<Instance<Map<String, Serializable>>> trueTrainingSet, ArrayList<            Instance<Map<String, Serializable>>> falseTrainingSet) {
-        final ArrayList<Instance<Map<String, Serializable>>> supportingDataSet = Lists.newArrayList();
+    private void setTrueAndFalseTrainingSets(Iterable<? extends Instance<AttributesMap>> trainingData, Branch bestNode, ArrayList<Instance<AttributesMap>> trueTrainingSet, ArrayList<            Instance<AttributesMap>> falseTrainingSet) {
+        final ArrayList<Instance<AttributesMap>> supportingDataSet = Lists.newArrayList();
 
         //put instances with attribute values into appropriate training sets
-        for (Instance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<AttributesMap> instance : trainingData) {
             boolean isASupportingInstanceFromADifferentSplit = false;
             boolean instanceNotPermittedToContributeToInsetDefinition = false;
             boolean usingSplitModel = splitAttribute != null && id != null;
@@ -297,7 +298,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
 
         //put instances without values for the split attribute in the true and false set in proper proportions.
-        for (Instance<Map<String, Serializable>> instance : supportingDataSet) {
+        for (Instance<AttributesMap> instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size() / (trueTrainingSet.size() + falseTrainingSet.size());
             if (rand.nextDouble() < trueThreshold) {
                 trueTrainingSet.add(instance);
@@ -307,7 +308,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends Instance<AttributesMap>> trainingData, final Map<String, double[]> splits) {
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -341,18 +342,18 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return bestPair;
     }
 
-    private double getTotalWeight(List<Instance<Map<String, Serializable>>> trainingSet) {
+    private double getTotalWeight(List<Instance<AttributesMap>> trainingSet) {
         double trueWeight = 0;
-        for (Instance<Map<String, Serializable>> instance : trainingSet) {
+        for (Instance<AttributesMap> instance : trainingSet) {
             trueWeight += instance.getWeight();
         }
         return trueWeight;
     }
 
-    private boolean isSmallTrainingSet(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    private boolean isSmallTrainingSet(Iterable<? extends Instance<AttributesMap>> trainingData) {
         boolean smallTrainingSet = true;
         int tsCount = 0;
-        for (final Instance<Map<String, Serializable>> abstractInstance : trainingData) {
+        for (final Instance<AttributesMap> abstractInstance : trainingData) {
             tsCount++;
             if (tsCount > SMALL_TRAINING_SET_LIMIT) {
                 smallTrainingSet = false;
@@ -362,11 +363,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return smallTrainingSet;
     }
 
-    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
-        for (Instance<Map<String, Serializable>> instance : trainingData) {
+        for (Instance<AttributesMap> instance : trainingData) {
             for (Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
@@ -382,7 +383,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     private Pair<? extends Branch, Double> createCategoricalNode(Node parent, final String attribute,
-                                                                 final Iterable<? extends Instance<Map<String, Serializable>>> instances) {
+                                                                 final Iterable<? extends Instance<AttributesMap>> instances) {
         if (binaryClassifications) {
             return createTwoClassCategoricalNode(parent, attribute, instances);
         } else {
@@ -391,7 +392,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute,
-                                                                         final Iterable<? extends Instance<Map<String, Serializable>>> instances) {
+                                                                         final Iterable<? extends Instance<AttributesMap>> instances) {
 
         double bestScore = 0;
         final Set<Serializable> inSet = Sets.newHashSet();
@@ -451,7 +452,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
-                                                                       final Iterable<? extends Instance<Map<String, Serializable>>> instances) {
+                                                                       final Iterable<? extends Instance<AttributesMap>> instances) {
 
         final Set<Serializable> values = getAttrinbuteValues(instances, attribute);
 
@@ -510,7 +511,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return Pair.with(new CategoricalBranch(parent, attribute, inValueSet), insetScore);
     }
 
-    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final Set<Serializable> values) {
+    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends Instance<AttributesMap>> trainingData, final Set<Serializable> values) {
         final int averageInstancesPerValue = Iterables.size(trainingData) / values.size();
         final boolean notEnoughTrainingDataGivenNumberOfValues = averageInstancesPerValue < Math.max(this.minCategoricalAttributeValueOccurances,
                 HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE);
@@ -520,9 +521,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return false;
     }
 
-    private Set<Serializable> getAttrinbuteValues(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final String attribute) {
+    private Set<Serializable> getAttrinbuteValues(final Iterable<? extends Instance<AttributesMap>> trainingData, final String attribute) {
         final Set<Serializable> values = Sets.newHashSet();
-        for (final Instance<Map<String, Serializable>> instance : trainingData) {
+        for (final Instance<AttributesMap> instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = MISSING_VALUE;
             values.add(value);
@@ -536,7 +537,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
-                                                             final Iterable<? extends Instance<Map<String, Serializable>>> instances,
+                                                             final Iterable<? extends Instance<AttributesMap>> instances,
                                                              final double[] splits) {
         double bestScore = 0;
         double bestThreshold = 0;
@@ -550,8 +551,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
             }
             lastThreshold = threshold;
 
-            final Iterable<? extends Instance<Map<String, Serializable>>> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
-            final Iterable<? extends Instance<Map<String, Serializable>>> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
+            final Iterable<? extends Instance<AttributesMap>> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
+            final Iterable<? extends Instance<AttributesMap>> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
             if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances) {
@@ -593,7 +594,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
                     parent = branch;
                     toReplace = leaf;
                 }
-                Collection<Instance<Map<String, Serializable>>> leafData = getData(toReplace);
+                Collection<Instance<AttributesMap>> leafData = getData(toReplace);
                 Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
                 //replace the child that has the same reference as toReplace, intentionally checking reference using ==
                 if (parent.trueChild == toReplace) {
@@ -620,8 +621,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
     /**
      * @param node         a branch with UpdatableLeaf children or an UpdatableLeaf
      */
-    private Collection<Instance<Map<String, Serializable>>> getData(Node node) {
-        List<Instance<Map<String, Serializable>>> data = Lists.newArrayList();
+    private Collection<Instance<AttributesMap>> getData(Node node) {
+        List<Instance<AttributesMap>> data = Lists.newArrayList();
         if (node instanceof UpdatableLeaf) {
             data.addAll(((UpdatableLeaf) node).getInstances());
         } else if (node instanceof Branch) {
@@ -632,7 +633,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         return data;
     }
 
-    private void addInstanceToNode(Node node, Instance<Map<String, Serializable>> instance) {
+    private void addInstanceToNode(Node node, Instance<AttributesMap> instance) {
         if (node instanceof UpdatableLeaf) {
             UpdatableLeaf leaf = (UpdatableLeaf) node;
             leaf.addInstance(instance);
@@ -667,7 +668,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         public boolean isNumber = true;
     }
 
-    private class GreaterThanThresholdPredicate implements Predicate<Instance<Map<String, Serializable>>> {
+    private class GreaterThanThresholdPredicate implements Predicate<Instance<AttributesMap>> {
 
         private final String attribute;
         private final double threshold;
@@ -678,7 +679,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
 
         @Override
-        public boolean apply(@Nullable  Instance<Map<String, Serializable>> input) {
+        public boolean apply(@Nullable  Instance<AttributesMap> input) {
             try {
                 if (input == null) {//consider deleting
                     return false;
@@ -695,7 +696,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
     }
 
-    private class LessThanEqualThresholdPredicate implements Predicate<Instance<Map<String, Serializable>>> {
+    private class LessThanEqualThresholdPredicate implements Predicate<Instance<AttributesMap>> {
 
         private final String attribute;
         private final double threshold;
@@ -706,7 +707,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Map<St
         }
 
         @Override
-        public boolean apply(@Nullable Instance<Map<String, Serializable>> input) {
+        public boolean apply(@Nullable Instance<AttributesMap> input) {
             try {
                 if (input == null) {
                     return false;

@@ -1,6 +1,8 @@
 package quickml.supervised.classifier.decisionTree.tree;
 
 
+import quickml.data.AttributesMap;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public abstract class Node implements Serializable {
 	 * @param attributes
 	 * @return
 	 */
-	public abstract Leaf getLeaf(Map<String, Serializable> attributes);
+	public abstract Leaf getLeaf(AttributesMap attributes);
 
 	/**
 	 * Return the mean depth of leaves in the tree. A lower number generally

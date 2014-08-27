@@ -1,5 +1,6 @@
 package quickml.supervised.classifier;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 
@@ -9,9 +10,9 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 7/29/14.
  */
-public interface Classifier extends PredictiveModel<Map<String, Serializable>, PredictionMap> {
+public interface Classifier extends PredictiveModel<AttributesMap, PredictionMap> {
 
-    public double getProbability(Map<String, Serializable> attributes, Serializable classification);
-    public abstract PredictionMap predict(Map<String, Serializable> attributes);
-    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes);
+    public double getProbability(AttributesMap attributes, Serializable classification);
+    public abstract PredictionMap predict(AttributesMap attributes);
+    public Serializable getClassificationByMaxProb(AttributesMap attributes);
 }

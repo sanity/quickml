@@ -1,5 +1,6 @@
 package quickml.supervised.featureEngineering;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 
 import quickml.supervised.PredictiveModelBuilderFactory;
@@ -13,15 +14,15 @@ import java.util.Map;
 /**
  * Created by ian on 5/21/14.
  */
-public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<Map<String, Serializable>,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
+public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
 
-    private final PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, PredictionMap>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder;
 
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderFactory(
-            PredictiveModelBuilderFactory<Map<String, Serializable>, PredictiveModel<Map<String, Serializable>, PredictionMap>, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderFactory<AttributesMap, PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;

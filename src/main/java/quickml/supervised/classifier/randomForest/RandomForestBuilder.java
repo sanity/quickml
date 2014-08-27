@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -22,7 +23,7 @@ import java.util.concurrent.*;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>,RandomForest> {
+public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<AttributesMap,RandomForest> {
   private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
   private final TreeBuilder treeBuilder;
   private int numTrees = 20;
@@ -76,7 +77,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
 
 
     @Override
-    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
+    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
         treeBuilder.setID(id);
@@ -86,7 +87,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
 
         // Submit all tree building jobs to the executor
         for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
-            Iterable<? extends Instance<Map<String, Serializable>>> treeTrainingData = shuffleTrainingData(trainingData);
+            Iterable<? extends Instance<AttributesMap>> treeTrainingData = shuffleTrainingData(trainingData);
             treeFutures.add(submitTreeBuild(treeTrainingData, treeIndex));
         }
 
@@ -100,7 +101,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
   }
 
     @Override
-    public synchronized void updatePredictiveModel(RandomForest randomForest, final Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public synchronized void updatePredictiveModel(RandomForest randomForest, final Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Updating random forest with {} trees", numTrees);
 
@@ -109,7 +110,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
 
         // Submit all tree building jobs to the executor
         for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
-            Iterable<? extends Instance<Map<String, Serializable>>> treeTrainingData = shuffleTrainingData(newData);
+            Iterable<? extends Instance<AttributesMap>> treeTrainingData = shuffleTrainingData(newData);
             treeFutures.add(submitTreeUpdate(randomForest.trees.get(treeIndex), treeTrainingData, treeIndex, splitNodes));
         }
 
@@ -133,15 +134,15 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
         collectTreeFutures(trees, treeFutures);
     }
 
-    protected Iterable<? extends Instance<Map<String, Serializable>>> shuffleTrainingData(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        Iterable<? extends Instance<Map<String, Serializable>>> treeTrainingData;
+    protected Iterable<? extends Instance<AttributesMap>> shuffleTrainingData(Iterable<? extends Instance<AttributesMap>> trainingData) {
+        Iterable<? extends Instance<AttributesMap>> treeTrainingData;
         if (baggingSampleSize > 0) {
             final int bagSize = Math.min(Iterables.size(trainingData), baggingSampleSize);
-            ArrayList<Instance<Map<String, Serializable>>> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
-            for (Instance<Map<String, Serializable>> instance : Iterables.limit(trainingData, bagSize)) {
+            ArrayList<Instance<AttributesMap>> treeTrainingDataArrayList = Lists.newArrayListWithExpectedSize(bagSize);
+            for (Instance<AttributesMap> instance : Iterables.limit(trainingData, bagSize)) {
                 treeTrainingDataArrayList.add(instance);
             }
-            for (Instance<Map<String, Serializable>> instance : trainingData) {
+            for (Instance<AttributesMap> instance : trainingData) {
                 //TODO: using bagSize here was getting indexOutOfBounds, can't figure out why
                 int position = MapUtils.random.nextInt(treeTrainingDataArrayList.size());
                 treeTrainingDataArrayList.add(position, instance);
@@ -153,7 +154,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
         return treeTrainingData;
     }
 
-  private Future<Tree> submitTreeBuild(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData, final int treeIndex) {
+  private Future<Tree> submitTreeBuild(final Iterable<? extends Instance<AttributesMap>> trainingData, final int treeIndex) {
     return executorService.submit(new Callable<Tree>() {
       @Override
       public Tree call() throws Exception {
@@ -162,7 +163,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
     });
   }
 
-    private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends Instance<Map<String, Serializable>>> newData, final int treeIndex, final boolean splitNodes) {
+    private Future<Tree> submitTreeUpdate(final Tree tree, final Iterable<? extends Instance<AttributesMap>> newData, final int treeIndex, final boolean splitNodes) {
         return executorService.submit(new Callable<Tree>() {
             @Override
             public Tree call() throws Exception {
@@ -180,7 +181,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
         });
     }
 
-    private Tree updateModel(Tree tree, Iterable<? extends Instance<Map<String, Serializable>>> newData, int treeIndex, boolean splitNodes) {
+    private Tree updateModel(Tree tree, Iterable<? extends Instance<AttributesMap>> newData, int treeIndex, boolean splitNodes) {
         logger.debug("Updating tree {} of {}", treeIndex, numTrees);
         treeBuilder.updatePredictiveModel(tree, newData, splitNodes);
         return tree;
@@ -192,7 +193,7 @@ public class RandomForestBuilder implements UpdatablePredictiveModelBuilder<Map<
         return tree;
     }
 
-  private Tree buildModel(Iterable<? extends Instance<Map<String, Serializable>>> trainingData, int treeIndex) {
+  private Tree buildModel(Iterable<? extends Instance<AttributesMap>> trainingData, int treeIndex) {
     logger.debug("Building tree {} of {}", treeIndex, numTrees);
     return treeBuilder.buildPredictiveModel(trainingData);
   }

@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
@@ -21,16 +22,16 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
-        Instance<Map<String, Serializable>> instance = Mockito.mock(Instance.class);
+        Instance<AttributesMap> instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
-        Instance<Map<String, Serializable>> instance2 = Mockito.mock(Instance.class);
+        Instance<AttributesMap> instance2 = Mockito.mock(Instance.class);
         Mockito.when(instance2.getLabel()).thenReturn("instance2");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Instance<Map<String, Serializable>> instance3 = Mockito.mock(Instance.class);
+        Instance<AttributesMap> instance3 = Mockito.mock(Instance.class);
         Mockito.when(instance3.getLabel()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        List<Instance<Map<String, Serializable>>> instances = new LinkedList<>();
+        List<Instance<AttributesMap>> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);

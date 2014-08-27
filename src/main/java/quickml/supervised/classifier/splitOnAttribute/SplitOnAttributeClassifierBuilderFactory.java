@@ -2,6 +2,7 @@ package quickml.supervised.classifier.splitOnAttribute;
 
 import com.google.common.collect.Maps;
 
+import quickml.data.AttributesMap;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
@@ -16,16 +17,16 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 6/10/14.
  */
-public class SplitOnAttributeClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,SplitOnAttributeClassifier, SplitOnAttributeClassifierBuilder> {
+public class SplitOnAttributeClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,SplitOnAttributeClassifier, SplitOnAttributeClassifierBuilder> {
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
     private static final String PERCENT_CROSS_DATA = "percentCrossData";
 
-    private final UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>>  wrappedBuilderBuilder;
+    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder;
     private final String attributeKey;
     private final Set<String> attributeWhiteList;
 
-    public SplitOnAttributeClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
+    public SplitOnAttributeClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
 
 
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;

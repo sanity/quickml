@@ -2,6 +2,7 @@ package quickml.supervised.featureEngineering.enrichStrategies.probabilityInject
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.featureEngineering.*;
 
@@ -52,12 +53,12 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends Instance<Map<String,Serializable>>> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
 
-        for (Instance<Map<String,Serializable>> instance : trainingData) {
+        for (Instance<AttributesMap> instance : trainingData) {
             int classificationMatch = instance.getLabel().equals(classification) ? 1 : 0;
             for (String attributeKey : attributeKeysToInject) {
                 if (attributesWithTooManyValues.contains(attributeKey)) {

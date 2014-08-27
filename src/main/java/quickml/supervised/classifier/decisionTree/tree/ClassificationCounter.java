@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
@@ -26,10 +27,10 @@ public class ClassificationCounter implements Serializable {
         return newCC;
     }
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<? extends Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
+            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
-        for (final Instance<Map<String, Serializable>> instance : instances) {
+        for (final Instance<AttributesMap> instance : instances) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc = null;
             boolean acceptableMissingValue = attrVal ==null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
@@ -54,7 +55,7 @@ public class ClassificationCounter implements Serializable {
     }
 
 	public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<? extends Instance<Map<String, Serializable>>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
+            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
 
         Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances,attribute,splitAttribute,splitAttributeValue);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
@@ -82,7 +83,7 @@ public class ClassificationCounter implements Serializable {
 		return Pair.with(totals, attributesWithClassificationCounters);
 	}
 
-    private static boolean isAnAcceptableMissingValue(Instance<Map<String, Serializable>> instance, String splitAttribute, Serializable splitAttributeValue){
+    private static boolean isAnAcceptableMissingValue(Instance<AttributesMap> instance, String splitAttribute, Serializable splitAttributeValue){
         return  splitAttribute == null
                 || splitAttributeValue == null
                 || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
@@ -97,9 +98,9 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-	public static ClassificationCounter countAll(final Iterable<? extends Instance<Map<String, Serializable>>> instances) {
+	public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap>> instances) {
 		final ClassificationCounter result = new ClassificationCounter();
-		for (final Instance<Map<String, Serializable>> instance : instances) {
+		for (final Instance<AttributesMap> instance : instances) {
 			result.addClassification(instance.getLabel(), instance.getWeight());
 		}
 		return result;

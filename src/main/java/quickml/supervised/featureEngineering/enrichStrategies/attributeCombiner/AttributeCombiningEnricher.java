@@ -1,13 +1,12 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
 import com.google.common.base.Joiner;
+import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,8 +22,8 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
 
     @Nullable
     @Override
-    public Map<String, Serializable> apply(@Nullable final Map<String, Serializable> inputAttributes) {
-        Map<String, Serializable> outputAttributes = new HashMap();
+    public AttributesMap apply(@Nullable final AttributesMap inputAttributes) {
+        AttributesMap outputAttributes = AttributesMap.newHashMap();
         outputAttributes.putAll(inputAttributes);
         for (List<String> attributeKeys : attributesToCombine) {
             if (attributesNotCombinable(attributeKeys, inputAttributes))
@@ -35,7 +34,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
                 if (value != null && value.toString().length() > 0) {
                     values.append(value.toString());
                 } else {
-                    values.append("-"); 
+                    values.append("-");
                 }
             }
             outputAttributes.put(Joiner.on('-').join(attributeKeys), values.toString());
@@ -43,7 +42,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
         return outputAttributes;
     }
 
-    private boolean attributesNotCombinable(List<String> attributeKeys, @Nullable final Map<String, Serializable> inputAttributes) {
+    private boolean attributesNotCombinable(List<String> attributeKeys, @Nullable final AttributesMap inputAttributes) {
         for (String attribute : attributeKeys)
             if (!inputAttributes.containsKey(attribute))
                 return true;

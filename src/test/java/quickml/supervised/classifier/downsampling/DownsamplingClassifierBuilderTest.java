@@ -33,13 +33,13 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        final UpdatablePredictiveModelBuilder<Map<String,Serializable>, Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
+        final UpdatablePredictiveModelBuilder<AttributesMap , Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
         when(updatablePredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Iterable<Instance<Map<String, Serializable>>> instances = (Iterable<Instance<Map<String, Serializable>>>) invocationOnMock.getArguments()[0];
+                Iterable<Instance<AttributesMap>> instances = (Iterable<Instance<AttributesMap>>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
-                for (Instance<Map<String, Serializable>> instance : instances) {
+                for (Instance<AttributesMap> instance : instances) {
                     total++;
                     if (instance.getLabel().equals(true)) {
                         sum++;
@@ -50,12 +50,12 @@ public class DownsamplingClassifierBuilderTest {
             }
         });
         DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(updatablePredictiveModelBuilder, 0.2);
-        List<Instance<Map<String,Serializable>>> data = Lists.newArrayList();
+        List<Instance<AttributesMap>> data = Lists.newArrayList();
         for (int x=0; x<10000; x++) {
-            data.add(new InstanceImpl(new HashMap(), (MapUtils.random.nextDouble() < 0.05)));
+            data.add(new InstanceImpl(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
-        Map<String,Serializable> map = new HashMap<>();
+        AttributesMap  map = AttributesMap.newHashMap() ;
         map.put("true",Boolean.TRUE);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
@@ -68,8 +68,8 @@ public class DownsamplingClassifierBuilderTest {
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final PredictiveModelWithDataBuilder<Map<String,Serializable>,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final PredictiveModelWithDataBuilder<AttributesMap ,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
         final long startTime = System.currentTimeMillis();
         final DownsamplingClassifier downsamplingClassifier = wb.buildPredictiveModel(instances);
 
@@ -82,7 +82,7 @@ public class DownsamplingClassifierBuilderTest {
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
 
-        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final DownsamplingClassifier downsamplingClassifier1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) downsamplingClassifier1.wrappedClassifier;
         org.testng.Assert.assertTrue(downsamplingClassifier == downsamplingClassifier1, "Expect same tree to be updated");
@@ -107,7 +107,7 @@ public class DownsamplingClassifierBuilderTest {
 
 
         @Override
-        public PredictionMap predict(Map<String, Serializable> attributes) {
+        public PredictionMap predict(AttributesMap attributes) {
             Map<Serializable, Double> map = new HashMap<>();
             for(Serializable value : attributes.values()) {
                 map.put(value, prediction);

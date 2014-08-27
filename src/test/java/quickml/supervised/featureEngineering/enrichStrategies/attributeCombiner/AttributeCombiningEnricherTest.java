@@ -4,6 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -17,10 +18,10 @@ public class AttributeCombiningEnricherTest {
         Set<List<String>> attributesToCombine = Sets.newHashSet();
         attributesToCombine.add(Lists.newArrayList("k1", "k2"));
         AttributeCombiningEnricher attributeCombiningEnricher = new AttributeCombiningEnricher(attributesToCombine);
-        Map<String,Serializable> attributes = new HashMap();
+        AttributesMap attributes = AttributesMap.newHashMap();
         attributes.put("k1", "a");
         attributes.put("k2", "b");
-        final Map<String, Serializable> enhancedAttributes = attributeCombiningEnricher.apply(attributes);
+        final AttributesMap enhancedAttributes = attributeCombiningEnricher.apply(attributes);
         Assert.assertEquals(enhancedAttributes.size(), 3);
         Assert.assertEquals(enhancedAttributes.get("k1-k2"), "ab");
     }

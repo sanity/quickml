@@ -1,5 +1,6 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
@@ -20,12 +21,12 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
+    public double getProbability(final AttributesMap attributes, final Serializable classification) {
         return wrappedClassifier.getProbability(attributes, classification);
     }
 
     @Override
-    public PredictionMap predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(AttributesMap attributes) {
         return wrappedClassifier.predict(attributes);
     }
 
@@ -35,7 +36,7 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
+    public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
 

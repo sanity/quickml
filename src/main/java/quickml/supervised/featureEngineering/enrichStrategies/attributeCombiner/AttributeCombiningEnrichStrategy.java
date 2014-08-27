@@ -1,5 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;
@@ -21,7 +22,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends Instance<Map<String,Serializable>>> trainingData) {
+    public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

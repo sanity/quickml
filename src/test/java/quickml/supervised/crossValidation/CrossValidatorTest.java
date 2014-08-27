@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
@@ -27,18 +28,18 @@ public class CrossValidatorTest {
         int folds = 4;
         ClassifierStationaryCrossValidator crossValidator = new ClassifierStationaryCrossValidator(folds, folds, crossValLossFunction);
         TreeBuilder treeBuilder = new TreeBuilder();
-        List<Instance<Map<String, Serializable>>> instances = getInstances();
+        List<Instance<AttributesMap>> instances = getInstances();
         crossValidator.getCrossValidatedLoss(treeBuilder, instances);
 
         Mockito.verify(crossValLossFunction, Mockito.times(folds)).getLoss(Mockito.<List<LabelPredictionWeight<PredictionMap>>>any());
     }
 
-    private List<Instance<Map<String, Serializable>>> getInstances() {
-        final List<Instance<Map<String, Serializable>>> instances = Lists.newLinkedList();
+    private List<Instance<AttributesMap>> getInstances() {
+        final List<Instance<AttributesMap>> instances = Lists.newLinkedList();
         for(int i = 0; i < 5; i++) {
-            Map<String, Serializable> attributes = new HashMap<>();
+            AttributesMap attributes = AttributesMap.newHashMap() ;
 
-            Instance<Map<String, Serializable>> instance = Mockito.mock(InstanceImpl.class);
+            Instance<AttributesMap> instance = Mockito.mock(InstanceImpl.class);
             Mockito.when(instance.getWeight()).thenReturn(1.0);
             Mockito.when(instance.getLabel()).thenReturn("class");
             Mockito.when(instance.getAttributes()).thenReturn(attributes);

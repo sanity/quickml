@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 8/22/14.
  */
-public class ClassifierStationaryCrossValidator extends StationaryCrossValidator<Map<String, Serializable>, PredictionMap>{
+public class ClassifierStationaryCrossValidator extends StationaryCrossValidator<AttributesMap, PredictionMap>{
     public ClassifierStationaryCrossValidator(CrossValLossFunction<PredictionMap> lossFunction) {
         super(DEFAULT_NUMBER_OF_FOLDS, lossFunction);
     }
