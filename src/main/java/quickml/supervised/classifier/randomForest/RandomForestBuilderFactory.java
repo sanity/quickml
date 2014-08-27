@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class RandomForestBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,RandomForest, RandomForestBuilder> {
+public class RandomForestBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private static final String BAG_SIZE = "bagSize";
     private final TreeBuilderFactory treeBuilderBuilder;

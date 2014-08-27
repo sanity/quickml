@@ -17,20 +17,20 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributeClassifier> {
+public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier> {
     private static final  Logger logger =  LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
 
     public static final Double NO_VALUE_PLACEHOLDER = Double.MIN_VALUE;
 
     private final String attributeKey;
-    private final UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder;
+    private final UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder;
 
     private final int minimumAmountTotalCrossData;
     private final double percentCrossData;
     private final Set<String> attributeWhiteList;
     private final int minimumAmountCrossDataPerClassification;
 
-    public SplitOnAttributeClassifierBuilder(String attributeKey, UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
 
         this.attributeKey = attributeKey;
         this.wrappedBuilder = wrappedBuilder;
@@ -41,11 +41,11 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     @Override
-    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = splitTrainingData(trainingData);
+    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+        Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData = splitTrainingData(trainingData);
 
         Map<Serializable, Classifier> splitModels = Maps.newHashMap();
-        for (Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> trainingDataEntry : splitTrainingData.entrySet()) {
+        for (Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> trainingDataEntry : splitTrainingData.entrySet()) {
             logger.info("Building predictive model for "+attributeKey+"="+trainingDataEntry.getKey());
             setID(trainingDataEntry.getKey());
             splitModels.put(trainingDataEntry.getKey(), wrappedBuilder.buildPredictiveModel(trainingDataEntry.getValue()));
@@ -58,18 +58,18 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     @Override
-    public PredictiveModelBuilder<Map<String, Serializable>, SplitOnAttributeClassifier> updatable(boolean updatable) {
+    public PredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier> updatable(boolean updatable) {
         this.wrappedBuilder.updatable(updatable);
         return this;
     }
 
-    private Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData(Iterable<? extends Instance<Map<String, Serializable>>> trainingData) {
-        Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData = Maps.newHashMap();
-        ArrayList<Instance<Map<String, Serializable>>> allData = new ArrayList<>();
-        for (Instance<Map<String, Serializable>> instance : trainingData) {
+    private Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData(Iterable<? extends Instance<AttributesMap>> trainingData) {
+        Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData = Maps.newHashMap();
+        ArrayList<Instance<AttributesMap>> allData = new ArrayList<>();
+        for (Instance<AttributesMap> instance : trainingData) {
             Serializable value = instance.getAttributes().get(attributeKey);
             if (value == null) value = NO_VALUE_PLACEHOLDER;
-            ArrayList<Instance<Map<String, Serializable>>> splitData = splitTrainingData.get(value);
+            ArrayList<Instance<AttributesMap>> splitData = splitTrainingData.get(value);
             if (splitData == null) {
                 splitData = Lists.newArrayList();
                 splitTrainingData.put(value, splitData);
@@ -86,14 +86,14 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
     * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that in in the white list
     * */
-    private void crossPollinateData(Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitTrainingData, ArrayList<Instance<Map<String, Serializable>>> allData) {
-        for(Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> entry : splitTrainingData.entrySet()) {
+    private void crossPollinateData(Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData, ArrayList<Instance<AttributesMap>> allData) {
+        for(Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> entry : splitTrainingData.entrySet()) {
             ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue());
             long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);
-            Set<Instance<Map<String, Serializable>>> crossData = new HashSet<>();
+            Set<Instance<AttributesMap>> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
-                Instance<Map<String, Serializable>>instance = allData.get(i);
+                Instance<AttributesMap>instance = allData.get(i);
                 double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal();
                 double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
                 if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
@@ -112,7 +112,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     /*
      * Add instances such that the ratio of classifications is unchanged
     * */
-    private boolean shouldAddInstance(Serializable attributeValue, Instance<Map<String, Serializable>> instance, ClassificationCounter crossDataCount, double targetCount) {
+    private boolean shouldAddInstance(Serializable attributeValue, Instance<AttributesMap> instance, ClassificationCounter crossDataCount, double targetCount) {
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             if (targetCount > crossDataCount.getCount(instance.getLabel())) {
                 return true;
@@ -121,8 +121,8 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         return false;
     }
 
-    private Instance<Map<String, Serializable>>cleanSupportingData(Instance<Map<String, Serializable>> instance) {
-        Map<String, Serializable> attributes = new HashMap<>();
+    private Instance<AttributesMap>cleanSupportingData(Instance<AttributesMap> instance) {
+        AttributesMap attributes = new HashMap<>();
         for (String key : instance.getAttributes().keySet()) {
             if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
                 attributes.put(key, instance.getAttributes().get(key));
@@ -137,10 +137,10 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     @Override
-    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<? extends Instance<Map<String, Serializable>>> newData, boolean splitNodes) {
+    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
         if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            Map<Serializable, ArrayList<Instance<Map<String, Serializable>>>> splitNewData = splitTrainingData(newData);
-            for (Map.Entry<Serializable, ArrayList<Instance<Map<String, Serializable>>>> newDataEntry : splitNewData.entrySet()) {
+            Map<Serializable, ArrayList<Instance<AttributesMap>>> splitNewData = splitTrainingData(newData);
+            for (Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> newDataEntry : splitNewData.entrySet()) {
                 Classifier pm = predictiveModel.getSplitModels().get(newDataEntry.getKey());
                 if(pm == null) {
                     logger.info("Building predictive model for "+attributeKey+"="+newDataEntry.getKey());

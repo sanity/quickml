@@ -22,7 +22,7 @@ public class PredictiveAccuracyTests {
     @Test
     public void irisTest() throws Exception {
         StationaryCrossValidator stationaryCrossValidator = new StationaryCrossValidator(new ClassifierRMSECrossValLossFunction());
-        final List<Instance<Map<String, Serializable>>> irisDataset = Benchmarks.loadIrisDataset();
+        final List<Instance<AttributesMap>> irisDataset = Benchmarks.loadIrisDataset();
         final double crossValidatedLoss = stationaryCrossValidator.getCrossValidatedLoss(new RandomForestBuilder(), irisDataset);
         double previousLoss = 0.673;
         logger.info("Cross Validated Lost: {}", crossValidatedLoss);

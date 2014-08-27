@@ -3,6 +3,7 @@ package quickml.supervised.featureEngineering.enrichStrategies.probabilityInject
 import com.beust.jcommander.internal.Maps;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,9 +17,9 @@ public class ProbabilityInjectingEnricherTest {
         valueProbs.put(5, 0.2);
         valueProbsByAttr.put("testkey", valueProbs);
         ProbabilityInjectingEnricher probabilityInjectingEnricher = new ProbabilityInjectingEnricher(valueProbsByAttr);
-        Map<String,Serializable> inputAttributes = new HashMap();
+        Map<String,Serializable> inputAttributes = AttributesMap.newHashMap();
         inputAttributes.put("testkey", 5);
-        final Map<String, Serializable> outputAttributes = probabilityInjectingEnricher.apply(inputAttributes);
+        final AttributesMap outputAttributes = probabilityInjectingEnricher.apply(inputAttributes);
         Assert.assertEquals("The pre-existing attribute is still there", 5, outputAttributes.get("testkey"));
         Assert.assertEquals("The newly added attribute is there", 0.2, outputAttributes.get("testkey-PROB"));
     }

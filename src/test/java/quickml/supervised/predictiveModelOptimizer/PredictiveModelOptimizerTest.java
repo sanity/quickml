@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.Benchmarks;
+import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelWithDataBuilderFactory;
 import quickml.supervised.classifier.randomForest.RandomForestBuilderFactory;
 import quickml.supervised.crossValidation.ClassifierStationaryCrossValidator;
@@ -27,17 +28,17 @@ public class PredictiveModelOptimizerTest {
 
     @Test
     public void irisTest() throws IOException {
-        final List<Instance<Map<String, Serializable>>> instances = Benchmarks.loadIrisDataset();
+        final List<Instance<AttributesMap>> instances = Benchmarks.loadIrisDataset();
         testWithTrainingSet(instances);
     }
 
     @Test(enabled = false)
     public void diabetesTest() throws IOException {
-        final List<Instance<Map<String, Serializable>>> instances = Benchmarks.loadDiabetesDataset();
+        final List<Instance<AttributesMap>> instances = Benchmarks.loadDiabetesDataset();
         testWithTrainingSet(instances);
     }
 
-    private void testWithTrainingSet(final List<Instance<Map<String, Serializable>>> instances) {
+    private void testWithTrainingSet(final List<Instance<AttributesMap>> instances) {
         final PredictiveModelWithDataBuilderFactory predictiveModelBuilderFactory = new PredictiveModelWithDataBuilderFactory(new RandomForestBuilderFactory());
         final ClassifierStationaryCrossValidator crossVal = new ClassifierStationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
         PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderFactory, instances, crossVal);

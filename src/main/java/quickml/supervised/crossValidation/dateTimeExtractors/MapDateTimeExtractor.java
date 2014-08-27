@@ -10,10 +10,10 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public class MapDateTimeExtractor implements DateTimeExtractor<Map<String, Serializable>> {
+public class MapDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
     @Override
-    public  DateTime extractDateTime(Instance<Map<String, Serializable>> instance){
-        Map<String, Serializable> attributes = instance.getAttributes();
+    public  DateTime extractDateTime(Instance<AttributesMap> instance){
+        AttributesMap attributes = instance.getAttributes();
         int year = (Integer)attributes.get("timeOfArrival-year");
         int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
         int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");

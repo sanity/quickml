@@ -38,7 +38,7 @@ public class TrainingDataGenerator2 {
     }
 
     public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, RandomForest randomForest)  {
-        Map<String, Serializable> attributes;
+        AttributesMap attributes;
         double predictedProb;
         double rawPredictedProb;
         double actualClickProbability;
@@ -62,8 +62,8 @@ public class TrainingDataGenerator2 {
         System.out.println("average deviation" + deviation/samples);
     }
 
-    private Map<String, Serializable> getAttributesForAnInstance() {
-        Map<String, Serializable> attributes =  new HashMap<>();
+    private AttributesMap getAttributesForAnInstance() {
+        AttributesMap attributes =  new HashMap<>();
 
         double attributeValue;
         latentVariable = 0;
@@ -90,18 +90,18 @@ public class TrainingDataGenerator2 {
         //System.exit(0);
     }
 
-    public List<Instance<Map<String, Serializable>>> createTrainingData() {
+    public List<Instance<AttributesMap>> createTrainingData() {
 
-        List<Instance<Map<String, Serializable>>> trainingData = Lists.<Instance<Map<String, Serializable>>>newArrayList();
+        List<Instance<AttributesMap>> trainingData = Lists.<Instance<AttributesMap>>newArrayList();
         double attributeValue;
-        Instance<Map<String, Serializable>> instance;
-        Map<String, Serializable> attributes;
+        Instance<AttributesMap> instance;
+        AttributesMap attributes;
         double clickClassification;
 
         for (int i = 0; i < instances; i++)  {
             attributes = getAttributesForAnInstance();
             clickClassification = setClickValue();
-            instance = new InstanceImpl<Map<String, Serializable>>(attributes, clickClassification);
+            instance = new InstanceImpl<AttributesMap>(attributes, clickClassification);
             trainingData.add(instance);
         }
         return trainingData;

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 8/22/14.
  */
-public class ClassifierOutOfTimeCrossValidator extends OutOfTimeCrossValidator<Map<String, Serializable>, PredictionMap> {
+public class ClassifierOutOfTimeCrossValidator extends OutOfTimeCrossValidator<AttributesMap, PredictionMap> {
     public ClassifierOutOfTimeCrossValidator(CrossValLossFunction<PredictionMap> crossValLossFunction, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
         super(crossValLossFunction, fractionOfDataForCrossValidation, validationTimeSliceHours, dateTimeExtractor);
     }

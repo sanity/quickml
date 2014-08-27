@@ -15,12 +15,12 @@ import java.util.Map;
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>,DownsamplingClassifier, DownsamplingClassifierBuilder> {
+public class DownsamplingClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    private final UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder;
+    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<Map<String, Serializable>, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<Map<String, Serializable>, ? extends Classifier>> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
 
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }

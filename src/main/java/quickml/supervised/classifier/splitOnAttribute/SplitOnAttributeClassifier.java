@@ -1,5 +1,6 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
+import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
@@ -24,12 +25,12 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(final Map<String, Serializable> attributes, final Serializable classification) {
+    public double getProbability(final AttributesMap attributes, final Serializable classification) {
         return getModelForAttributes(attributes).getProbability(attributes, classification);
     }
 
     @Override
-    public PredictionMap predict(final Map<String, Serializable> attributes) {
+    public PredictionMap predict(final AttributesMap attributes) {
         return getModelForAttributes(attributes).predict(attributes);
     }
 
@@ -48,7 +49,7 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(final Map<String, Serializable> attributes) {
+    public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return getModelForAttributes(attributes).getClassificationByMaxProb(attributes);
     }
 
@@ -60,7 +61,7 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
         return splitModels;
     }
 
-    private Classifier getModelForAttributes(Map<String, Serializable> attributes) {
+    private Classifier getModelForAttributes(AttributesMap attributes) {
         Serializable value = attributes.get(attributeKey);
         if (value == null) value = SplitOnAttributeClassifierBuilder.NO_VALUE_PLACEHOLDER;
         Classifier predictiveModel = splitModels.get(value);

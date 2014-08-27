@@ -28,7 +28,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final SplitOnAttributeClassifierBuilder cpmb = new SplitOnAttributeClassifierBuilder("gender", rfb, 10, 0.1, whiteList, 1);
@@ -45,7 +45,7 @@ public class SplitOnAttributeClassifierBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(1000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,SplitOnAttributeClassifier> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -60,7 +60,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributeClassifier splitOnAttributeClassifier1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributeClassifier1.getDefaultPM();
         Assert.assertTrue(splitOnAttributeClassifier == splitOnAttributeClassifier1, "Expect same tree to be updated");
@@ -70,7 +70,7 @@ public class SplitOnAttributeClassifierBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(1000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,SplitOnAttributeClassifier> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final SplitOnAttributeClassifier splitOnAttributeClassifier = wb.buildPredictiveModel(instances);
@@ -84,7 +84,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final SplitOnAttributeClassifier splitOnAttributeClassifier1 = wb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) splitOnAttributeClassifier1.getDefaultPM();
         Assert.assertTrue(splitOnAttributeClassifier == splitOnAttributeClassifier1, "Expect same tree to be updated");

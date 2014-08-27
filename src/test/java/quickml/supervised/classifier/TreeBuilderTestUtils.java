@@ -12,8 +12,8 @@ import java.util.*;
  */
 public class TreeBuilderTestUtils {
 
-    public static List<Instance<Map<String,Serializable>>> getInstances(int numInstances) {
-        final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
+    public static List<Instance<AttributesMap>> getInstances(int numInstances) {
+        final List<Instance<AttributesMap>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
@@ -21,13 +21,13 @@ public class TreeBuilderTestUtils {
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("gender", MapUtils.random.nextInt(2));
-            instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, bmiHealthy(weight, height)));
+            instances.add(new InstanceImpl<AttributesMap>(attributes, bmiHealthy(weight, height)));
         }
         return instances;
     }
 
-    public static List<Instance<Map<String,Serializable>>> getIntegerInstances(int numInstances) {
-        final List<Instance<Map<String,Serializable>>> instances = new ArrayList<>();
+    public static List<Instance<AttributesMap>> getIntegerInstances(int numInstances) {
+        final List<Instance<AttributesMap>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
@@ -36,7 +36,7 @@ public class TreeBuilderTestUtils {
             final int month = calendar.get(Calendar.MONTH);
             final int day = MapUtils.random.nextInt(28)+1;
             final int hour = MapUtils.random.nextInt(24);
-            final Map<String, Serializable> attributes = new HashMap();
+            final AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("timeOfArrival-year", year);

@@ -11,10 +11,10 @@ package quickml.supervised.classifier.calibratedPredictiveModel;
 public class CalibratedPredictiveModel extends Classifier {
     private static final long serialVersionUID = 8291739965981425742L;
     public final Calibrator calibrator;
-    public final PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> predictiveModel;
+    public final PredictiveModel<AttributesMap, Map<Serializable, Double>> predictiveModel;
     public final Serializable positiveClassification;
 
-    public CalibratedPredictiveModel (PredictiveModel<Map<String, Serializable>, Map<Serializable, Double>> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
+    public CalibratedPredictiveModel (PredictiveModel<AttributesMap, Map<Serializable, Double>> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
         Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
         this.predictiveModel = predictiveModel;
         this.calibrator = calibrator;
@@ -22,7 +22,7 @@ public class CalibratedPredictiveModel extends Classifier {
     }
 
     @Override
-    public Map<Serializable, Double> predict(Map<String, Serializable> attributes) {
+    public Map<Serializable, Double> predict(AttributesMap attributes) {
         Map<Serializable, Double> predictions = predictiveModel.predict(attributes);
         Map<Serializable, Double> calibratedPredictions = new HashMap<>();
         for(Map.Entry<Serializable, Double> prediction : predictions.entrySet()) {

@@ -21,7 +21,7 @@ import java.util.Map;
 public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
@@ -34,7 +34,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final Map<String, Serializable> testAttributes = instances.get(0).getAttributes();
+        final AttributesMap testAttributes = instances.get(0).getAttributes();
         for (Map.Entry<Serializable, Double> entry : randomForest.predict(testAttributes).entrySet()) {
             Assert.assertEquals(entry.getValue(), randomForest.getProbability(testAttributes, entry.getKey()));
         }
@@ -42,7 +42,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
@@ -56,7 +56,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
@@ -77,7 +77,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
         final PredictiveModelWithDataBuilder<Map<String,Serializable>,RandomForest> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final RandomForest randomForest = wb.buildPredictiveModel(instances);
@@ -90,7 +90,7 @@ public class RandomForestBuilderTest {
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
-        final List<Instance<Map<String,Serializable>>> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final RandomForest newRandomForest = wb.buildPredictiveModel(newInstances);
         Assert.assertTrue(randomForest == newRandomForest, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
@@ -105,7 +105,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
-        final List<Instance<Map<String,Serializable>>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).updatable(true));
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
@@ -117,10 +117,10 @@ public class RandomForestBuilderTest {
             Assert.assertTrue(randomForest1.trees.get(i).node.size() == randomForest2.trees.get(i).node.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
-        final List<Instance<Map<String,Serializable>>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance<Map<String,Serializable>> instance : instancesTest) {
-            Map map1 = randomForest1.predict(instance.getAttributes());
-            Map map2 = randomForest2.predict(instance.getAttributes());
+        final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance<AttributesMap> instance : instancesTest) {
+           AttributesMap map1 = randomForest1.predict(instance.getAttributes());
+           AttributesMap map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

@@ -1,5 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.probabilityInjector;
 
+import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import java.io.Serializable;
@@ -23,9 +24,9 @@ public class ProbabilityInjectingEnricher implements AttributesEnricher {
     }
 
     @Override
-    public Map<String, Serializable> apply(final Map<String, Serializable> attributes) {
+    public AttributesMap apply(final AttributesMap attributes) {
         // TODO: Perhaps more efficient to use immutable map for attributes here
-        Map<String, Serializable> enrichedAttributes = new HashMap<>();
+        AttributesMap enrichedAttributes = new HashMap<>();
         enrichedAttributes.putAll(attributes);
 
         for (Map.Entry<String, Map<Serializable, Double>> attributeValueProbEntry : valueProbabilitiesByAttribute.entrySet()) {

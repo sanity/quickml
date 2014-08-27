@@ -2,6 +2,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class Leaf extends Node {
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
 
-    public Leaf(Node parent, final Iterable<? extends Instance<Map<String, Serializable>>> instances, final int depth) {
+    public Leaf(Node parent, final Iterable<? extends Instance<AttributesMap>> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
 	}
@@ -84,7 +85,7 @@ public class Leaf extends Node {
     }
 
 	@Override
-	public Leaf getLeaf(final Map<String, Serializable> attributes) {
+	public Leaf getLeaf(final AttributesMap attributes) {
 		return this;
 	}
 

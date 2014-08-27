@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 8/26/14.
  */
-public class AttributesMap implements Map<String, Serializable> {
+public class AttributesMap implements Map<String, Serializable>, Serializable {
 
     private final Map<String, Serializable> map;
 
@@ -18,7 +18,7 @@ public class AttributesMap implements Map<String, Serializable> {
         this.map = map;
     }
 
-    public static AttributesMap newMap() {
+    public static AttributesMap newHashMap() {
         return new AttributesMap(new HashMap<String, Serializable>());
     }
 

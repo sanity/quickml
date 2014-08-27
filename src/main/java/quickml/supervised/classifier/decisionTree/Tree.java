@@ -33,13 +33,13 @@ public class Tree extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(Map<String, Serializable> attributes, Serializable classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getProbability(classification);
     }
 
     @Override
-    public PredictionMap predict(Map<String, Serializable> attributes) {
+    public PredictionMap predict(AttributesMap attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
@@ -54,7 +54,7 @@ public class Tree extends AbstractClassifier {
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(Map<String, Serializable> attributes) {
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getBestClassification();
     }

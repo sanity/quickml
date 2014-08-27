@@ -20,33 +20,33 @@ import java.util.Set;
 public class ReadMeExample {
     
     public static void main(String[] args) {
-        final Set<Instance<Map<String,Serializable>>> instances = Sets.newHashSet();
+        final Set<Instance<AttributesMap>> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
         Map<String,Serializable> attributes = new HashMap<>();
         attributes.put("height",55);
         attributes.put("weight", 168);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "overweight"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "overweight"));
         attributes = new HashMap<>();
         attributes.put("height",75);
         attributes.put("weight", 168);
         attributes.put("gender", "female");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "healthy"));
         attributes = new HashMap<>();
         attributes.put("height",74);
         attributes.put("weight", 143);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "underweight"));
         attributes = new HashMap<>();
         attributes.put("height",49);
         attributes.put("weight", 144);
         attributes.put("gender", "female");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "underweight"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "underweight"));
         attributes = new HashMap<>();
         attributes.put("height",83);
         attributes.put("weight", 223);
         attributes.put("gender", "male");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(attributes, "healthy"));
+        instances.add(new InstanceImpl<AttributesMap>(attributes, "healthy"));
         
         {
             

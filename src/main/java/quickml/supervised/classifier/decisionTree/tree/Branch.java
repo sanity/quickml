@@ -20,35 +20,35 @@ public abstract class Branch extends Node {
         this.attribute = attribute;
 	}
 
-	public abstract boolean decide(Map<String, Serializable> attributes);
+	public abstract boolean decide(AttributesMap attributes);
 
 	@Override
 	public int size() {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<Instance<Map<String, Serializable>>> getInPredicate() {
-		return new Predicate<Instance<Map<String, Serializable>>>() {
+	public Predicate<Instance<AttributesMap>> getInPredicate() {
+		return new Predicate<Instance<AttributesMap>>() {
 
 			@Override
-			public boolean apply(final Instance<Map<String, Serializable>> input) {
+			public boolean apply(final Instance<AttributesMap> input) {
 				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance<Map<String, Serializable>>> getOutPredicate() {
-		return new Predicate<Instance<Map<String, Serializable>>>() {
+	public Predicate<Instance<AttributesMap>> getOutPredicate() {
+		return new Predicate<Instance<AttributesMap>>() {
 
 			@Override
-			public boolean apply(final Instance<Map<String, Serializable>> input) {
+			public boolean apply(final Instance<AttributesMap> input) {
 				return !decide(input.getAttributes());
 			}
 		};
 	}
 
 	@Override
-	public Leaf getLeaf(final Map<String, Serializable> attributes) {
+	public Leaf getLeaf(final AttributesMap attributes) {
 		if (decide(attributes))
 			return trueChild.getLeaf(attributes);
 		else

@@ -23,12 +23,12 @@ public class TemporallyReweightedClassifierBuilderTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testError3ClassificationsInDataSet() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = new LinkedList<>();
+        final List<Instance<AttributesMap>> instances = new LinkedList<>();
         Map<String,Serializable> map = new HashMap<>();
         map.put("2", "2");
-        instances.add(new InstanceImpl<Map<String, Serializable>>(map, "1"));
-        instances.add(new InstanceImpl<Map<String, Serializable>>(map, "2"));
-        instances.add(new InstanceImpl<Map<String, Serializable>>(map, "3"));
+        instances.add(new InstanceImpl<AttributesMap>(map, "1"));
+        instances.add(new InstanceImpl<AttributesMap>(map, "2"));
+        instances.add(new InstanceImpl<AttributesMap>(map, "3"));
         PredictiveModelBuilder predictiveModelBuilder = new TreeBuilder();
         final TemporallyReweightedClassifierBuilder cpmb = new TemporallyReweightedClassifierBuilder(predictiveModelBuilder, new MapDateTimeExtractor());
         cpmb.buildPredictiveModel(instances);
@@ -36,7 +36,7 @@ public class TemporallyReweightedClassifierBuilderTest {
 
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<Instance<Map<String,Serializable>>> instances = TreeBuilderTestUtils.getIntegerInstances(10000);
+        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(10000);
         final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, new MapDateTimeExtractor());
         final long startTime = System.currentTimeMillis();

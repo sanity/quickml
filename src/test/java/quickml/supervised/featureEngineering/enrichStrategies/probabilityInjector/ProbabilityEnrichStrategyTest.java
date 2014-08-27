@@ -16,7 +16,7 @@ public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
-        List<Instance<Map<String,Serializable>>> trainingData = Lists.newLinkedList();
+        List<Instance<AttributesMap>> trainingData = Lists.newLinkedList();
         Map<String,Serializable> attributes = new HashMap<>();
         attributes.put("k1",2);
         attributes.put("k2",1);
@@ -36,18 +36,18 @@ public class ProbabilityEnrichStrategyTest {
         ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(Sets.newHashSet("k1", "k2"), "true");
         final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {
-            Map<String, Serializable> inputAttributes = new HashMap<>();
+            AttributesMap inputAttributes = new HashMap<>();
             inputAttributes.put("k1", 1);
             inputAttributes.put("k2", 1);
-            final Map<String, Serializable> outputAttributes = attributesEnricher.apply(inputAttributes);
+            final AttributesMap outputAttributes = attributesEnricher.apply(inputAttributes);
             Assert.assertEquals(outputAttributes.get("k1-PROB"), 0.5);
             Assert.assertEquals(outputAttributes.get("k2-PROB"), 1.0);
         }
         {
-            Map<String, Serializable> inputAttributes = new HashMap<>();
+            AttributesMap inputAttributes = new HashMap<>();
             inputAttributes.put("k1", 2);
             inputAttributes.put("k2", 2);
-            final Map<String, Serializable> outputAttributes = attributesEnricher.apply(inputAttributes);
+            final AttributesMap outputAttributes = attributesEnricher.apply(inputAttributes);
             Assert.assertEquals(outputAttributes.get("k1-PROB"), 0.5);
             Assert.assertEquals(outputAttributes.get("k2-PROB"), 1.0/3.0);
         }
