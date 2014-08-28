@@ -15,4 +15,16 @@ public class InstanceWithAttributesMap extends InstanceImpl<AttributesMap> {
        super(attributes, label, weight);
     }
 
+    public static InstanceWithAttributesMap create(final Serializable classification, final Serializable... inputs) {
+        return create(classification, DEFAULT_WEIGHT, inputs);
+    }
+
+    public static InstanceWithAttributesMap create(final Serializable classification, final double weight, final Serializable... inputs) {
+        final AttributesMap a = AttributesMap.newHashMap();
+        for (int x = 0; x < inputs.length; x += 2) {
+            a.put((String) inputs[x], inputs[x + 1]);
+        }
+        return new InstanceWithAttributesMap(a, classification, weight);
+    }
+
 }
