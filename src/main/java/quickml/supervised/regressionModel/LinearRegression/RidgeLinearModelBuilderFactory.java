@@ -5,6 +5,7 @@ import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,23 +13,36 @@ import java.util.Map;
  */
 public class RidgeLinearModelBuilderFactory implements PredictiveModelBuilderFactory<double [], RidgeLinearModel, RidgeLinearModelBuilder> {
     private static final String REGULARIZATION_CONSTANT = "regularizationConstant";
+    private static final String INCLUDE_BIAS_TERM = "includeBiasTerm";
+    private String [] header;
 
+    Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
-        Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
-        parametersToOptimize.put(REGULARIZATION_CONSTANT, new FixedOrderRecommender(0.001, 0.003, .01, 0.03, 0.1, 0.3));
+        if (!parametersToOptimize.containsKey(REGULARIZATION_CONSTANT)) {
+            parametersToOptimize.put(REGULARIZATION_CONSTANT, new FixedOrderRecommender(0.001, 0.003, .01, 0.03, 0.1, 0.3));
+        }
         return parametersToOptimize;
     }
 
-    public Map<String, FieldValueRecommender> createDefaultParametersToOptimize(FieldValueRecommender fieldValueRecommender) {
-        Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
+    public RidgeLinearModelBuilderFactory regularizationConstants(FieldValueRecommender fieldValueRecommender) {
         parametersToOptimize.put(REGULARIZATION_CONSTANT, fieldValueRecommender);
-        return parametersToOptimize;
+        return this;
+    }
+
+    public RidgeLinearModelBuilderFactory header(String [] header) {
+        this.header = header;
+        return this;
+    }
+
+    public RidgeLinearModelBuilderFactory includeBiasTerm(Boolean includeBiasTerm) {
+        parametersToOptimize.put(INCLUDE_BIAS_TERM, new FixedOrderRecommender(includeBiasTerm));
+        return this;
     }
 
     @Override
     public RidgeLinearModelBuilder buildBuilder(Map<String, Object> predictiveModelParameters) {
-        return new RidgeLinearModelBuilder().regularizationConstant((Double)predictiveModelParameters.get(REGULARIZATION_CONSTANT));
+        return new RidgeLinearModelBuilder().regularizationConstant((Double)predictiveModelParameters.get(REGULARIZATION_CONSTANT)).header(header).includeBiasTerm((Boolean) predictiveModelParameters.get(INCLUDE_BIAS_TERM));
     }
 }
