@@ -6,8 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.StationaryCrossValidator;
+import quickml.supervised.crossValidation.crossValLossFunctions.SingleVariableRealValuedFunctionMSECVLossFunction;
+import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModel;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilder;
+import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +23,9 @@ import java.util.List;
 public class RidgeRegressionBuilderTest {
 
     RidgeLinearModelBuilder ridgeLinearModelBuilder;
+    final Logger logger = LoggerFactory.getLogger(RidgeRegressionBuilderTest.class);
 
-    @Test
-    public void ridgeRegressionBuilderTest (){
-        final Logger logger = LoggerFactory.getLogger(RidgeRegressionBuilderTest.class);
+    public List<Instance<double[]>> setUp() {
         String [] header = {"temperature"};
         double regularizationConstant = 0.1;
         ridgeLinearModelBuilder = new RidgeLinearModelBuilder().header(header).includeBiasTerm(true).regularizationConstant(regularizationConstant);
@@ -41,9 +45,13 @@ public class RidgeRegressionBuilderTest {
         trainingData.add(new InstanceImpl<double[]>(new double[]{16.0}, 80.6));
         trainingData.add(new InstanceImpl<double[]>(new double[]{17.0}, 83.5));
         trainingData.add(new InstanceImpl<double[]>(new double[]{14.4}, 76.3));
+        return trainingData;
+    }
 
+    @Test
+    public void ridgeRegressionBuilderTest (){
+        List<Instance<double[]>> trainingData = setUp();
         RidgeLinearModel ridgeLinearModel = ridgeLinearModelBuilder.buildPredictiveModel(trainingData);
-
         double pythonRMSE = Math.sqrt(212.32);
         double pythonEpsilon = pythonRMSE/25.0;
         double mse = 0;
@@ -58,4 +66,14 @@ public class RidgeRegressionBuilderTest {
         Assert.assertTrue("mse "+ RMSE + "python mse" + pythonRMSE, RMSE < pythonRMSE + pythonEpsilon);
     }
 
+    @Test
+    public void ridgePMOTest() {
+        List<Instance<double[]>> trainingData = setUp();
+        CrossValidator<double[], Double> crossValidator = new StationaryCrossValidator<>(4, new SingleVariableRealValuedFunctionMSECVLossFunction());
+        RidgeLinearModelBuilderFactory ridgeLinearModelBuilderFactory = new RidgeLinearModelBuilderFactory();
+        PredictiveModelOptimizer<double[], Double, RidgeLinearModel, RidgeLinearModelBuilder> predictiveModelOptimizer = new PredictiveModelOptimizer<>(ridgeLinearModelBuilderFactory, trainingData, crossValidator);
+    }
+
+
   }
+

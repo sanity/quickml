@@ -21,6 +21,12 @@ public class RidgeLinearModelBuilderFactory implements PredictiveModelBuilderFac
         return parametersToOptimize;
     }
 
+    public Map<String, FieldValueRecommender> createDefaultParametersToOptimize(FieldValueRecommender fieldValueRecommender) {
+        Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
+        parametersToOptimize.put(REGULARIZATION_CONSTANT, fieldValueRecommender);
+        return parametersToOptimize;
+    }
+
     @Override
     public RidgeLinearModelBuilder buildBuilder(Map<String, Object> predictiveModelParameters) {
         return new RidgeLinearModelBuilder().regularizationConstant((Double)predictiveModelParameters.get(REGULARIZATION_CONSTANT));
