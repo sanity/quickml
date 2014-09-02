@@ -9,6 +9,8 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
+import quickml.visualization.InstrumentedNode;
+import quickml.visualization.ModelWalker;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -85,6 +87,20 @@ public class RandomForest extends AbstractClassifier {
             return getPredictionForNClasses(attributes);
         }
     }
+
+
+    public InstrumentedNode[] walkPredictiveModel(AttributesMap attributes) {
+        InstrumentedNode[] instrumentedNodes = new InstrumentedNode[trees.size()];
+        for (int i = 0; i < trees.size(); i++) {
+            if (i == 0)
+                instrumentedNodes[i] = ModelWalker.walk(trees.get(i), attributes);
+            else
+                instrumentedNodes[i] = ModelWalker.walkChosenPath(trees.get(i), attributes);
+        }
+        return instrumentedNodes;
+    }
+
+
 
     private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
         PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
