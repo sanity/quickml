@@ -1,8 +1,12 @@
 package quickml.supervised;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * PredictiveModelBuilder that supports adding data to predictive models
@@ -15,6 +19,8 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
     protected Integer rebuildThreshold;
     protected Integer splitNodeThreshold;
     protected int buildCount = 0;
+    List<Instance<R>> instances = Lists.newArrayList();
+
 
     public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder) {
         this(updatablePredictiveModelBuilder, null);
@@ -42,6 +48,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
 
     @Override
     public PM buildPredictiveModel(Iterable<? extends Instance<R>> newData) {
+        Iterables.addAll(instances, newData);
         if (rebuildThreshold != null || splitNodeThreshold != null) {
             buildCount++;
         }
@@ -49,7 +56,8 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
         //check if we want to build a new predictive model or update existing
         if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold != 0 && buildCount > rebuildThreshold)) {
             buildCount = 1;
-            predictiveModel = buildUpdatablePredictiveModel(newData);
+            predictiveModel = buildUpdatablePredictiveModel(instances);
+
         } else {
             boolean splitNodes = splitNodeThreshold != null && splitNodeThreshold != 0 && buildCount % splitNodeThreshold == 0;
             updatePredictiveModel(predictiveModel, newData, splitNodes);
