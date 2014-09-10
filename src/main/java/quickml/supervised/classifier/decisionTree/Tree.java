@@ -76,4 +76,11 @@ public class Tree extends AbstractClassifier {
     public int hashCode() {
         return node.hashCode();
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder dump = new StringBuilder();
+        dump(dump);
+        return dump.toString();
+    }
 }
