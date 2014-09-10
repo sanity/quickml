@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
-    <version>0.4.5.3</version>
+    <version>0.4.6</version>
 
     <distributionManagement>
         <repository>
@@ -26,6 +26,17 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>koloboke-api-jdk6-7</artifactId>
+            <version>0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>koloboke-impl-jdk6-7</artifactId>
+            <version>0.6</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
