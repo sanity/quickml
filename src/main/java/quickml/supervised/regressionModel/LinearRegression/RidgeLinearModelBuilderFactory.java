@@ -15,8 +15,10 @@ public class RidgeLinearModelBuilderFactory implements PredictiveModelBuilderFac
     private static final String REGULARIZATION_CONSTANT = "regularizationConstant";
     private static final String INCLUDE_BIAS_TERM = "includeBiasTerm";
     private String [] header;
+    private boolean includeBiasTerm = true;
 
     Map<String, FieldValueRecommender> parametersToOptimize = Maps.newHashMap();
+
 
     @Override
     public Map<String, FieldValueRecommender> createDefaultParametersToOptimize() {
