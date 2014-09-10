@@ -76,13 +76,10 @@ public class RidgeRegressionBuilderTest {
         List<Instance<double[]>> trainingData = setUp();
         CrossValidator<double[], Double> crossValidator = new StationaryCrossValidator<>(4, new SingleVariableRealValuedFunctionMSECVLossFunction());
         RidgeLinearModelBuilderFactory ridgeLinearModelBuilderFactory = new RidgeLinearModelBuilderFactory().header(header).includeBiasTerm(true).regularizationConstants(new FixedOrderRecommender(0.001, 0.01, 0.1));
-
         PredictiveModelOptimizer<double[], Double, RidgeLinearModel, RidgeLinearModelBuilder> predictiveModelOptimizer = new PredictiveModelOptimizer<>(ridgeLinearModelBuilderFactory, trainingData, crossValidator);
         Map<String, Object> optimalParams = predictiveModelOptimizer.determineOptimalConfiguration();
         for (String key : optimalParams.keySet())
             logger.info(key+ " : " + optimalParams.get(key));
     }
-
-
   }
 
