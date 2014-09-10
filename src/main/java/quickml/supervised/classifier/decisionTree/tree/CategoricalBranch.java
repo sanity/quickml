@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.decisionTree.tree;
 
 import com.google.common.collect.Sets;
+import quickml.collections.FastApproximateSet;
 import quickml.data.AttributesMap;
 
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
@@ -11,11 +12,11 @@ import java.util.Set;
 
 public final class CategoricalBranch extends Branch {
 	private static final long serialVersionUID = -1723969623146234761L;
-	public final Set<Serializable> inSet;
+	public final FastApproximateSet<Serializable> inSet;
 
 	public CategoricalBranch(Node parent, final String attribute, final Set<Serializable> inSet) {
 		super(parent, attribute);
-		this.inSet = Sets.newHashSet(inSet);
+		this.inSet = new FastApproximateSet<>(inSet);
 
 	}
 
