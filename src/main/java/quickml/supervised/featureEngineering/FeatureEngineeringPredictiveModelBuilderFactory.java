@@ -17,12 +17,12 @@ import java.util.Map;
 public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
 
-    private final PredictiveModelBuilderFactory<AttributesMap, PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder;
 
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderFactory(
-            PredictiveModelBuilderFactory<AttributesMap, PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderFactory<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;
