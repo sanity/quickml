@@ -20,10 +20,10 @@ import java.util.Map;
 public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<AttributesMap,FeatureEngineeredPredictiveModel> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
 
-    private final PredictiveModelBuilder<AttributesMap,PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder;
+    private final PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap,PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap,? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
