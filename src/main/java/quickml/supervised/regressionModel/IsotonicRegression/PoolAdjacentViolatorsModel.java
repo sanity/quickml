@@ -112,11 +112,11 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
         }
 
-        boolean inputOnAPointInTheCalibrationSet = ceiling.input == input || input == floor.input;
+        boolean inputOnAPointInTheCalibrationSet = input.equals(ceiling.input) || input.equals(floor.input);
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
         boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
         if (exceptionalCase)
-            return input == ceiling.input ? ceiling.output : input;
+            return input.equals(ceiling.input) ? ceiling.output : input;
 
         kProp = (input - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
