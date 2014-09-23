@@ -2,12 +2,14 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>quickdt</groupId>
-    <artifactId>quickdt</artifactId>
-    <version>0.2.0.8</version>
+    <groupId>quickml</groupId>
+    <artifactId>quickml</artifactId>
+    <version>0.4.5.8</version>
+
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
+            <!-- Need a better approach than hardcoding the path like this -->
             <url>file:../../Documents/maven-repo/repository</url>
         </repository>
     </distributionManagement>
@@ -37,7 +39,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.2</version>
+            <version>3.3</version>
         </dependency>
         <dependency>
             <groupId>com.twitter.common</groupId>
