@@ -103,19 +103,25 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         Observation ceiling = calibrationSet.ceiling(toCorrect);
         if (ceiling == null) {
             try{
-                return Math.max(input, calibrationSet.last().output);
+                double slopeOffEnd = (calibrationSet.last().output - calibrationSet.lower(calibrationSet.last()).output) /
+                        (calibrationSet.last().input - calibrationSet.lower(calibrationSet.last()).input);
+                double inputDistanceFromLast = input - calibrationSet.last().input;
+                return calibrationSet.last().output + slopeOffEnd * inputDistanceFromLast;
             }
             catch (NoSuchElementException e){
-                logger.warn("NoSuchElementException finding ceiling");
+                logger.warn("NoSuchElementException finding ceiling or calibrationSet has no element calibrationSet.lower(calibrationSet.last()).input");
                 return input;
             }
 
         }
 
         boolean inputOnAPointInTheCalibrationSet = input.equals(ceiling.input) || input.equals(floor.input);
+        if (inputOnAPointInTheCalibrationSet) {
+            return input.equals(ceiling.input) ? ceiling.output : floor.output;
+        }
+        //PAV has just one point in calibration set
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
-        boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
-        if (exceptionalCase)
+        if (ceilingInputEqualFloorInput)
             return input.equals(ceiling.input) ? ceiling.output : input;
 
         kProp = (input - floor.input) / (ceiling.input - floor.input);
