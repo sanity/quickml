@@ -97,11 +97,11 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         final double kProp;
         final Observation toCorrect = new Observation(input, 0);
         Observation floor = calibrationSet.floor(toCorrect);
-        if (floor == null) {
+        if (floor == null || Double.isNaN(floor.output)) {
             floor = new Observation(0, 0);
         }
         Observation ceiling = calibrationSet.ceiling(toCorrect);
-        if (ceiling == null) {
+        if (ceiling == null || Double.isNaN(ceiling.output)) {
             try{
                 double slopeOffEnd = (calibrationSet.last().output - calibrationSet.lower(calibrationSet.last()).output) /
                         (calibrationSet.last().input - calibrationSet.lower(calibrationSet.last()).input);
@@ -121,9 +121,9 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         }
         //PAV has just one point in calibration set
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
-        if (ceilingInputEqualFloorInput)
+        if (ceilingInputEqualFloorInput) {
             return input.equals(ceiling.input) ? ceiling.output : input;
-
+        }
         kProp = (input - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
