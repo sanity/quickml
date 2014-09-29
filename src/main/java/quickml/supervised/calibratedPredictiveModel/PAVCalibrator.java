@@ -1,20 +1,17 @@
-package quickml.supervised.regressionModel.IsotonicRegression;
+package quickdt.predictiveModels.calibratedPredictiveModel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.regressionModel.SingleVariableRealValuedFunction;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-// TODO: This should be split out into a separate Builder rather than using the constructor,
-//       so that it follows the same pattern as other PredictiveModels
-public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunction  {
-    private static final Logger logger = LoggerFactory.getLogger(PoolAdjacentViolatorsModel.class);
+public class PAVCalibrator implements Serializable, Calibrator {
+    private static final Logger logger = LoggerFactory.getLogger(PAVCalibrator.class);
 
     private static final long serialVersionUID = 4389814244047503245L;
     private int size;
@@ -22,7 +19,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
     private static Random rand = new Random();
 
-    public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions) {
+    public PAVCalibrator(final Iterable<Observation> predictions) {
         this(predictions, 1);
     }
 
@@ -30,7 +27,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
      * @param predictions The input to the calibration function
      * @param minWeight   The minimum weight of a point, used to pre-smooth the function
      */
-    public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions, int minWeight) {
+    public PAVCalibrator(final Iterable<Observation> predictions, int minWeight) {
         Preconditions.checkNotNull(predictions);
         Preconditions.checkArgument(minWeight >= 1, "minWeight %s must be >= 1", minWeight);
 
@@ -79,10 +76,6 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         this.size = calibrationSet.size();
     }
 
-    public TreeSet<Observation> getCalibrationSet(){
-        return calibrationSet;
-    }
-
     public void stripZeroOutputs() {
         while (!calibrationSet.isEmpty() && calibrationSet.first().output == 0) {
             calibrationSet.pollFirst();
@@ -95,9 +88,8 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         calibrationSet.add(observation);
     }
 
-    @Override
-    public Double predict(Double input) {
 
+    public double correct(final double input) {
         final double kProp;
         final Observation toCorrect = new Observation(input, 0);
         Observation floor = calibrationSet.floor(toCorrect);
@@ -107,26 +99,19 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         Observation ceiling = calibrationSet.ceiling(toCorrect);
         if (ceiling == null) {
             try{
-                double slopeOffEnd = (calibrationSet.last().output - calibrationSet.lower(calibrationSet.last()).output) /
-                        (calibrationSet.last().input - calibrationSet.lower(calibrationSet.last()).input);
-                double inputDistanceFromLast = input - calibrationSet.last().input;
-                return calibrationSet.last().output + slopeOffEnd * inputDistanceFromLast;
+                return Math.max(input, calibrationSet.last().output);
             }
             catch (NoSuchElementException e){
-                logger.warn("NoSuchElementException finding ceiling or calibrationSet has no element calibrationSet.lower(calibrationSet.last()).input");
-                return input;
+                System.out.println("break point me");
             }
 
         }
 
-        boolean inputOnAPointInTheCalibrationSet = input.equals(ceiling.input) || input.equals(floor.input);
-        if (inputOnAPointInTheCalibrationSet) {
-            return input.equals(ceiling.input) ? ceiling.output : floor.output;
-        }
-        //PAV has just one point in calibration set
+        boolean inputOnAPointInTheCalibrationSet = ceiling.input == input || input == floor.input;
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
-        if (ceilingInputEqualFloorInput)
-            return input.equals(ceiling.input) ? ceiling.output : input;
+        boolean exceptionalCase = ceilingInputEqualFloorInput || inputOnAPointInTheCalibrationSet;
+        if (exceptionalCase)
+            return input == ceiling.input ? ceiling.output : input;
 
         kProp = (input - floor.input) / (ceiling.input - floor.input);
         double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
@@ -141,7 +126,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         double lowCPC = calibrationSet.first().input, highCPC = calibrationSet.last().input;
         for (int x = 0; x < 16; x++) {
             final double tst = (lowCPC + highCPC) / 2.0;
-            final double opt = predict(tst);
+            final double opt = correct(tst);
             if (opt < output) {
                 lowCPC = tst;
             } else {
@@ -174,7 +159,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
     public Observation minNonZeroObservation() {
         Observation minObs = null;
-        for (final PoolAdjacentViolatorsModel.Observation observation : calibrationSet) {
+        for (final PAVCalibrator.Observation observation : calibrationSet) {
             if (observation.input >= 0.0) {
                 minObs = observation;
                 break;
@@ -195,7 +180,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         public final double weight;
 
         /**
-         * This type of observation can be used to predict a previous observation.
+         * This type of observation can be used to correct a previous observation.
          * So adding:
          * Observation(1, 0) and Observation.WEIGHTLESS(1, 2)
          *
@@ -218,7 +203,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
             Preconditions.checkState(!(Double.isNaN(input) && Double.isNaN(output) && Double.isNaN((double) weight)));
             this.input = input;
             this.output = output;
-            seed = PoolAdjacentViolatorsModel.rand.nextInt();
+            seed = PAVCalibrator.rand.nextInt();
             this.weight = weight;
         }
 

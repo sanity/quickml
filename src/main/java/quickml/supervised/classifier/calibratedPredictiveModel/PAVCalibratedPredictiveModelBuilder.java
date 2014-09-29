@@ -34,9 +34,9 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends AbstractInstance> trainingData) {
         validateData(trainingData);
-        PredictiveModel<Object> predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
-        Calibrator calibrator = createCalibrator(predictiveModel, trainingData);
-        return new CalibratedPredictiveModel(predictiveModel, calibrator, positiveClassification);
+        PredictiveModel<Object> wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingData);
+        Calibrator calibrator = createCalibrator(wrappedPredictiveModel, trainingData);
+        return new CalibratedPredictiveModel(wrappedPredictiveModel, calibrator, positiveClassification);
     }
 
     private void validateData(Iterable<? extends AbstractInstance> trainingData) {
@@ -54,20 +54,20 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
     }
 
     @Override
-    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
+    public void updatePredictiveModel(CalibratedPredictiveModel wrappedPredictiveModel, Iterable<? extends AbstractInstance> newData, List<? extends AbstractInstance> trainingData, boolean splitNodes) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
             validateData(newData);
-            updateCalibrator(predictiveModel, newData);
-            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.predictiveModel, newData, trainingData, splitNodes);
+            updateCalibrator(wrappedPredictiveModel, newData);
+            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(wrappedPredictiveModel.wrappedPredictiveModel, newData, trainingData, splitNodes);
         } else {
             throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
         }
     }
 
     @Override
-    public void stripData(CalibratedPredictiveModel predictiveModel) {
+    public void stripData(CalibratedPredictiveModel wrappedPredictiveModel) {
         if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.predictiveModel);
+            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(wrappedPredictiveModel.wrappedPredictiveModel);
         } else {
             throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
         }
@@ -78,29 +78,29 @@ public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveM
         predictiveModelBuilder.setID(id);
     }
 
-    private void updateCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+    private void updateCalibrator(PredictiveModel<Object> wrappedPredictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(wrappedPredictiveModel, trainingInstances);
 
-        PoolAdjacentViolatorsModel calibrator = (PoolAdjacentViolatorsModel)((CalibratedPredictiveModel)predictiveModel).calibrator;
+        PoolAdjacentViolatorsModel calibrator = (PoolAdjacentViolatorsModel)((CalibratedPredictiveModel)wrappedPredictiveModel).calibrator;
         for(PoolAdjacentViolatorsModel.Observation observation : mobservations) {
             calibrator.addObservation(observation);
         }
     }
 
 
-    private Calibrator createCalibrator(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
-        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(predictiveModel, trainingInstances);
+    private Calibrator createCalibrator(PredictiveModel<Object> wrappedPredictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(wrappedPredictiveModel, trainingInstances);
         return new PoolAdjacentViolatorsModel(mobservations, Math.max(1, Iterables.size(trainingInstances)/binsInCalibrator));
     }
 
-    protected List<PoolAdjacentViolatorsModel.Observation> getObservations(PredictiveModel<Object> predictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
+    protected List<PoolAdjacentViolatorsModel.Observation> getObservations(PredictiveModel<Object> wrappedPredictiveModel, Iterable<? extends AbstractInstance> trainingInstances) {
         List<PoolAdjacentViolatorsModel.Observation> mobservations = Lists.<PoolAdjacentViolatorsModel.Observation>newArrayList();
         double prediction = 0;
         double groundTruth = 0;
         PoolAdjacentViolatorsModel.Observation observation;
         for(AbstractInstance instance : trainingInstances)  {
             groundTruth = ((Number)(instance.getLabel())).doubleValue();
-            prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassification);
+            prediction = wrappedPredictiveModel.getProbability(instance.getAttributes(), positiveClassification);
             observation = new PoolAdjacentViolatorsModel.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
         }
