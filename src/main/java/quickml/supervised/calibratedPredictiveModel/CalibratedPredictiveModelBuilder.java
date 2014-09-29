@@ -19,19 +19,19 @@ import java.util.TreeSet;
  * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
  * It currently has some severe implementation problems and it's use is not recommended.
  */
-public class PAVCalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
+public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
     private int binsInCalibrator = 5;
     private PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedPredictiveModelBuilder;
 
-    public PAVCalibratedPredictiveModelBuilder() {
+    public CalibratedPredictiveModelBuilder() {
         this(new RandomForestBuilder());
     }
 
-    public PAVCalibratedPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> predictiveModelBuilder) {
+    public CalibratedPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> predictiveModelBuilder) {
         this.wrappedPredictiveModelBuilder = predictiveModelBuilder;
     }
 
-    public PAVCalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
+    public CalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
         if (binsInCalibrator!=null) {
             this.binsInCalibrator = binsInCalibrator;
         }
