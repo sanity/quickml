@@ -63,11 +63,10 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         cont:
         while (true) {
             Observation currentObservation = null, preceedingObservation = null;
-            for (final Observation n : calibrationSet)  {
+            for (final Observation observation : calibrationSet)  {
                 preceedingObservation = currentObservation;
-                currentObservation = n;//observation we are on in current iteration
+                currentObservation = observation;
 
-                //if not at the beginning of the list and "current observation" is a violator
                 boolean currentObservationIsViolator = currentObservation.output <= preceedingObservation.output;
                 boolean atBeginingOfCalibrationSet = currentObservation != null && preceedingObservation != null;
                 if (atBeginingOfCalibrationSet && currentObservationIsViolator) {
