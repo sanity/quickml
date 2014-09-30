@@ -59,17 +59,27 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         }
 
         final Observation restartPos = null;
+        //What follows has complexity 2*O(N^2 Log(N))...it need only be O(N^2)...with large ammounts of training data...this will be an issue
         cont:
         while (true) {
-            Observation cur = null, last = null;
-            for (final Observation n : restartPos == null ? calibrationSet : calibrationSet.tailSet(restartPos, true)) {
-                last = cur;
-                cur = n;
-                if (cur != null && last != null && (cur.output <= last.output)) {
-                    calibrationSet.remove(cur);
-                    calibrationSet.remove(last);
-                    Observation merged = last.mergeWith(cur);
+            Observation currentObservation = null, preceedingObservation = null;
+            for (final Observation n : calibrationSet)  {
+                preceedingObservation = currentObservation;
+                currentObservation = n;//observation we are on in current iteration
+
+                //if not at the beginning of the list and "current observation" is a violator
+                boolean currentObservationIsViolator = currentObservation.output <= preceedingObservation.output;
+                boolean atBeginingOfCalibrationSet = currentObservation != null && preceedingObservation != null;
+                if (atBeginingOfCalibrationSet && currentObservationIsViolator) {
+                    //TODO: this removal is Log(N).  It should be constant time if calibration set is a linked list.
+                    calibrationSet.remove(currentObservation);
+                    calibrationSet.remove(preceedingObservation);
+                    Observation merged = preceedingObservation.mergeWith(currentObservation);//calibrationSet should be a "marked" linked list to allow for constant time add and removal
                     calibrationSet.add(merged);
+                    //TODO: don't need to return to the beginning of the list here (e.g. be stuck with N^2 evaluations of the loop body)
+                    //we only need to march backwards doing merges until we have a
+                    //superpoint that is not a violator with respect to it's preceding observation.
+                    //This approach is O(N) (provided we use a linked list for the calibration set), and the number of iterations cannot be greater than 3*calibrationSet.size()
                     continue cont;
                 }
             }
@@ -240,14 +250,14 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
 
         public Observation mergeWith(final Observation other) {
-            if (weight == 0 && other.weight == 0) {
+            if ((weight == 0 && other.weight == 0) || (weight + other.weight == 0))  {
                 return Observation.newWeightless((input + other.input) / 2.0, (output + other.output) / 2.0);
             } else if (other.weight == 0) {
-                return other.mergeWith(this);
+                return this;//other.mergeWith(this);
             } else if (weight == 0) {
-                return new Observation(other.input,
-                        (this.output + other.output * other.weight) / (other.weight + 1),
-                        other.weight);
+                return other;//new Observation(other.input,
+                // (this.output + other.output * other.weight) / (other.weight + 1),
+                //        other.weight);
             }
 
             return new Observation(
