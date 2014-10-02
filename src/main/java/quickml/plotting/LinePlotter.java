@@ -217,7 +217,7 @@ public class LinePlotter extends JFrame {
         y2.add(4.0);
         y2.add(6.0);
 
-        final LinePlotter linePlotter = new LinePlotter("linear plots");
+        LinePlotter linePlotter = new LinePlotter("linear plots");
         linePlotter.xAxisLabel("X").yAxisLabel("Y").addSeries(x, y1, "slope of 1").addSeries(x,y2,"slope of 2").createPlot();
     }
 
