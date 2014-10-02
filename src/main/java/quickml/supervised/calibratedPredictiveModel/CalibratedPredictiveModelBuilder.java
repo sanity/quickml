@@ -24,7 +24,7 @@ import java.util.TreeSet;
  * It currently has some severe implementation problems and it's use is not recommended.
  */
 public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
-    private int binsInCalibrator = 5;
+    private int binsInCalibrator = 10;
     private PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedPredictiveModelBuilder;
     boolean temporallyCalibrate = false;
     int hoursToCalibrateOver;
@@ -64,13 +64,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
         Classifier predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
-        List<Instance<AttributesMap>> allInstances = Lists.newArrayList();
-        for (Instance<AttributesMap> instance : trainingData) {
-            allInstances.add(instance);
-        }
-        if (temporallyCalibrate)
-            trainingData = sortInstances(allInstances);
-        PoolAdjacentViolatorsModel calibrator = createCalibrator(allInstances);
+        PoolAdjacentViolatorsModel calibrator = createCalibrator(trainingData);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
@@ -113,7 +107,13 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         return new PoolAdjacentViolatorsModel(observations, Math.max(1, observations.size()/binsInCalibrator));
         }
 
-    private PoolAdjacentViolatorsModel createCalibrator(List<Instance<AttributesMap>> allInstances) {
+    private PoolAdjacentViolatorsModel createCalibrator(Iterable<? extends Instance<AttributesMap>> allInstancesIterable) {
+        List<Instance<AttributesMap>> allInstances = Lists.newArrayList();
+        for (Instance<AttributesMap> instance : allInstancesIterable) {
+            allInstances.add(instance);
+        }
+        if (temporallyCalibrate)
+            allInstances = sortInstances(allInstances);
         List<PoolAdjacentViolatorsModel.Observation> allObservations = Lists.newArrayList();
         for (int fold = 0; fold < foldsForCalibrationSet; fold++) {
             List<Instance<AttributesMap>> trainingInstances = Lists.newArrayList();

@@ -32,6 +32,11 @@
             <version>2.2.0</version>
         </dependency>
         <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.12</version>
+        </dependency>
+        <dependency>
         	<groupId>com.amazonaws</groupId>
         	<artifactId>aws-java-sdk</artifactId>
         	<version>1.0.002</version>
