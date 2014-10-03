@@ -1,5 +1,6 @@
 package quickml.supervised.calibratedPredictiveModel;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -30,6 +31,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
     int hoursToCalibrateOver;
     int foldsForCalibrationSet = 4;
     private  DateTimeExtractor<AttributesMap> dateTimeExtractor = new defaultDateTimeExtractor();
+    Optional<? extends Classifier> wrappedPredictiveModel = Optional.absent();
 
     public CalibratedPredictiveModelBuilder() {
         this(new RandomForestBuilder());
@@ -39,14 +41,16 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         this.wrappedPredictiveModelBuilder = predictiveModelBuilder;
     }
 
+    public CalibratedPredictiveModelBuilder(Classifier wrappedPredictiveModel) {
+        this.wrappedPredictiveModel = Optional.fromNullable(wrappedPredictiveModel);
+    }
+
     public CalibratedPredictiveModelBuilder foldsForCalibrationSet(int foldsForCalibrationSet) {
         this.foldsForCalibrationSet = foldsForCalibrationSet;
         return this;
     }
-    public CalibratedPredictiveModelBuilder binsInCalibrator(Integer binsInCalibrator) {
-        if (binsInCalibrator!=null) {
-            this.binsInCalibrator = binsInCalibrator;
-        }
+    public CalibratedPredictiveModelBuilder binsInCalibrator(int binsInCalibrator) {
+        this.binsInCalibrator = binsInCalibrator;
         return this;
     }
 
@@ -63,7 +67,13 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
 
     @Override
     public CalibratedPredictiveModel buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
-        Classifier predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
+        Classifier predictiveModel;
+        if (wrappedPredictiveModel.isPresent()) {
+            predictiveModel = wrappedPredictiveModel.get();
+        }
+        else {
+            predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
+        }
         PoolAdjacentViolatorsModel calibrator = createCalibrator(trainingData);
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
