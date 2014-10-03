@@ -1,4 +1,4 @@
-package quickml.plotting;
+package quickml.Utilities;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;

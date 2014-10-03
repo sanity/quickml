@@ -1,4 +1,4 @@
-package quickml.plotting;
+package quickml.Utilities;
 
 /**
  * Created by alexanderhawk on 10/2/14.
