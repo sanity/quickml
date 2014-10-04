@@ -3,50 +3,13 @@ package quickml.Utilities;
 /**
  * Created by alexanderhawk on 10/2/14.
  */
-/* ===========================================================
- * JFreeChart : a free chart library for the Java(tm) platform
- * ===========================================================
- *
- * (C) Copyright 2000-2004, by Object Refinery Limited and Contributors.
- *
- * Project Info:  http://www.jfree.org/jfreechart/index.html
- *
- * This library is free software; you can redistribute it and/or modify it under the terms
- * of the GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
- *
- * -------------------
- * LineChartDemo6.java
- * -------------------
- * (C) Copyright 2004, by Object Refinery Limited and Contributors.
- *
- * Original Author:  David Gilbert (for Object Refinery Limited);
- * Contributor(s):   -;
- *
- * $Id: LineChartDemo6.java,v 1.5 2004/04/26 19:11:55 taqua Exp $
- *
- * Changes
- * -------
- * 27-Jan-2004 : Version 1 (DG);
- *
- */
 
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -59,33 +22,35 @@ import org.jfree.ui.RefineryUtilities;
 
 import javax.swing.*;
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
-/**
- * A simple demonstration application showing how to create a line chart using data from an
- * {@link org.jfree.data.xy.XYDataset}.
- *
- */
 public class LinePlotter extends JFrame {
 
-    /**
-     * Creates a new demo.
-     *
-     * @param title  the frame title.
-     */
     List<XYSeries> seriesList = Lists.newArrayList();
-    int GraphSizeInXDimension = 500;
-    int GraphSizeInYDimension = 270;
+    int graphSizeInXDimension = 500;
+    int graphSizeInYDimension = 270;
     String xAxisLabel = "X";
     String yAxisLabel = "Y";
     String chartTitle = "";
+    JFreeChart chart;
 
     public LinePlotter(final String chartTitle) {
         super(chartTitle);
         this.chartTitle = chartTitle;
     }
 
-    public LinePlotter addSeries(Iterable<? extends Number> xRange, Iterable<? extends Number> yRange, String name) {
+    public LinePlotter(String chartTitle, String xAxisLabel, String yAxisLabel, int graphSizeInXDimension, int graphSizeInYDimension) {
+        super(chartTitle);
+        this.chartTitle = chartTitle;
+        this.xAxisLabel = xAxisLabel;
+        this.yAxisLabel = yAxisLabel;
+        this.graphSizeInXDimension = graphSizeInXDimension;
+        this.graphSizeInYDimension = graphSizeInYDimension;
+    }
+
+    public void addSeries(Iterable<? extends Number> xRange, Iterable<? extends Number> yRange, String name) {
         XYSeries series= new XYSeries(name);
         Iterator<? extends Number> yIt = yRange.iterator();
         Iterator<? extends Number> xIt = xRange.iterator();
@@ -93,42 +58,34 @@ public class LinePlotter extends JFrame {
             series.add(xIt.next().doubleValue(), yIt.next().doubleValue());
         }
         seriesList.add(series);
-        return this;
+        return;
     }
 
-    public LinePlotter addSeries(Iterable<Pair<? extends Number, ? extends Number>> xyPairs, String name) {
+    public void addSeries(Iterable<Pair<? extends Number, ? extends Number>> xyPairs, String name) {
         XYSeries series= new XYSeries(name);
        for(Pair<? extends Number, ? extends Number> xyPair : xyPairs)  {
             series.add(xyPair.getValue0().doubleValue(), xyPair.getValue1().doubleValue());
        }
        seriesList.add(series);
-       return this;
+       return;
     }
 
-    public LinePlotter xyGraphDimensions(int xDim, int yDim) {
-        this.GraphSizeInXDimension = xDim;
-        this.GraphSizeInYDimension = yDim;
-        return this;
+    public void clearAllSeries(){
+        seriesList.clear();
     }
 
-    public LinePlotter xAxisLabel(String xLabel) {
-        this.xAxisLabel = xLabel;
-        return this;
-    }
-
-    public LinePlotter yAxisLabel(String xLabel) {
-        this.yAxisLabel = yAxisLabel;
-        return this;
-    }
-
-    public void createPlot() {
+    private void createChartFromData(){
         final XYSeriesCollection dataset = new XYSeriesCollection();
         for (XYSeries series : seriesList) {
             dataset.addSeries(series);
         }
-        final JFreeChart chart = createChart(dataset);
+        chart = createChart(dataset);
+    }
+
+    public void displayPlot() {
+        createChartFromData();
         final ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(GraphSizeInXDimension, GraphSizeInYDimension));
+        chartPanel.setPreferredSize(new java.awt.Dimension(graphSizeInXDimension, graphSizeInYDimension));
         setContentPane(chartPanel);
         this.pack();
         RefineryUtilities.centerFrameOnScreen(this);
@@ -136,14 +93,34 @@ public class LinePlotter extends JFrame {
     }
 
 
+    public void savePlot(String fileName){
+        createChartFromData();
+        File filename_png = new File(fileName);
+        try {
+            ChartUtilities.saveChartAsPNG(filename_png, chart, graphSizeInXDimension, graphSizeInYDimension);
+        } catch (IOException ex) {
+            throw new RuntimeException("Error saving a file",ex);
+        }
+    }
 
-    /**
-     * Creates a chart.
-     *
-     * @param dataset  the data for the chart.
-     *
-     * @return a chart.
-     */
+    public void saveAndDisplayPlot(String fileName) {
+        createChartFromData();
+        File filename_png = new File(fileName);
+        //saving
+        try {
+            ChartUtilities.saveChartAsPNG(filename_png, chart, graphSizeInXDimension, graphSizeInYDimension);
+        } catch (IOException ex) {
+            throw new RuntimeException("Error saving a file",ex);
+        }
+        //display
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(graphSizeInXDimension, graphSizeInYDimension));
+        setContentPane(chartPanel);
+        this.pack();
+        RefineryUtilities.centerFrameOnScreen(this);
+        this.setVisible(true);
+    }
+
     private JFreeChart createChart(final XYDataset dataset) {
 
         // create the chart...
@@ -187,22 +164,6 @@ public class LinePlotter extends JFrame {
 
     }
 
-    // ****************************************************************************
-    // * JFREECHART DEVELOPER GUIDE                                               *
-    // * The JFreeChart Developer Guide, written by David Gilbert, is available   *
-    // * to purchase from Object Refinery Limited:                                *
-    // *                                                                          *
-    // * http://www.object-refinery.com/jfreechart/guide.html                     *
-    // *                                                                          *
-    // * Sales are used to provide funding for the JFreeChart project - please    *
-    // * support us so that we can continue developing free software.             *
-    // ****************************************************************************
-
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args  ignored.
-     */
     public static void main(final String[] args) {
         List<Double> x = Lists.newArrayList();
         x.add(1.0);
@@ -217,8 +178,10 @@ public class LinePlotter extends JFrame {
         y2.add(4.0);
         y2.add(6.0);
 
-        LinePlotter linePlotter = new LinePlotter("linear plots");
-        linePlotter.xAxisLabel("X").yAxisLabel("Y").addSeries(x, y1, "slope of 1").addSeries(x,y2,"slope of 2").createPlot();
+        LinePlotter linePlotter = new LinePlotterBuilder().chartTitle("2 line plots").xAxisLabel("X").yAxisLabel("Y").buildLinePlotter();
+        linePlotter.addSeries(x, y1, "slope of 1");
+        linePlotter.addSeries(x,y2,"slope of 2");
+        linePlotter.savePlot("2dplot.png");
     }
 
 }

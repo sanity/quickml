@@ -1,5 +1,6 @@
 package quickml.Utilities;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -14,6 +15,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import quickml.Utilities.Selectors.*;
+
 /**
  * Created by alexanderhawk on 10/2/14.
  */
@@ -21,66 +24,37 @@ import java.util.Set;
 
 /* This class converts the contents of a csv file into quickml instances.
    Defaults:
-   1. instances are assumed to be unweighted
-   2. the column containing the instance label is assumed to be the first collumn in the csv file.
-   3. quoted variables values (either with single or double quotes) are assumed to be categorical, all others are assumed
+   1. the column containing the instance label is assumed to be the first collumn in the csv file.
+   2. quoted variables values (either with single or double quotes) are assumed to be categorical, all others are assumed
       to be numeric.
+   3. all instances are assumed to have equal weight
+
 
    Options:
    1. the column for an instances label can be specified by its name in the header in the function: columnNameForLabel.
    2. the column for an instances weight can be specified by its name in the header in the function: columnNameForWeight.
-   2. Specifying categorical variables / numeric variables (in situations where the csv file does not specify which
-      variables are categorical with quotes in the manner expected by the defualt settings of this class) can be accomplished by
-      by passing a set of names (Strings) for the categorical variables or the numeric variables into the functions categoricalVariables or numericVariables.
-      One only needs to define one of these sets as the other will be assumed to be it's complement.
-
+   2. One can specify which variables are categorical by providing either an instancet of a NumericSelector to numericSelector(), or
+      a CategoricalSelector to categoricalSelector.  Only one of the two needs to be provided.
 
  */
 public class CSVReader {
     private List<String> header;
-    private Set<String> categoricalVariables = Sets.newHashSet();
-    private Set<String> numericalVariables = null;
-    boolean allValuesAreQuoted = false;
-    boolean allCategorical = false;
     private String columnNameForLabel;
     private String columnNameForWeight;
     private boolean containsUnLabeledInstances = false;
+    private Optional<CategoricalSelector> categoricalSelector = Optional.absent();
+    private Optional<NumericSelector> numericSelector = Optional.absent();
+    private String delimiter = ",";
 
-    public CSVReader() {
-    }
+    public CSVReader(){}
 
-    public CSVReader categoricalVariables(Set<String> categoricalVariables) {
-        this.categoricalVariables = categoricalVariables;
-        return this;
-    }
-
-    public CSVReader numericVariables(Set<String> numericalVariables) {
-        this.numericalVariables = numericalVariables;
-        return this;
-    }
-
-    public CSVReader makeAllAttributesCategorical(boolean allCategorical) {
-        this.allCategorical = allCategorical;
-        return this;
-    }
-
-    public boolean containsUnLabeledInstances() {
-        return containsUnLabeledInstances;
-    }
-
-    public CSVReader collumnNameForLabel(String columnNameForLabel) {
+    public CSVReader(String delimiter, String columnNameForLabel, String columnNameForWeight, Optional<CategoricalSelector> categoricalSelector,
+        Optional<NumericSelector> numericSelector) {
+        this.delimiter = delimiter;
         this.columnNameForLabel = columnNameForLabel;
-        return this;
-    }
-
-    public CSVReader collumnNameForWeight(String columnNameForWeight) {
         this.columnNameForWeight = columnNameForWeight;
-        return this;
-    }
-
-    public CSVReader allValuesAreQuoted(boolean allValuesAreQuoted) {
-        this.allValuesAreQuoted = allValuesAreQuoted;
-        return this;
+        this.categoricalSelector = categoricalSelector;
+        this.numericSelector = numericSelector;
     }
 
     public List<Instance<AttributesMap>> readCsv(String fileName) {
@@ -103,13 +77,13 @@ public class CSVReader {
     }
 
     private List<String> parseHeader(String headerString) {
-        Splitter splitter = Splitter.on(",");
+        Splitter splitter = Splitter.on(delimiter);
         List<String> uncleanStrings = splitter.splitToList(headerString);
         return removeQuotesAndNonVisibleCharactersAndWhiteSpacesFromString(uncleanStrings);
     }
 
     private Instance<AttributesMap> instanceConverter(String instanceString) {
-        Splitter splitter = Splitter.on(",");
+        Splitter splitter = Splitter.on(delimiter);
         List<String> values = splitter.splitToList(instanceString);
         AttributesMap attributesMap = AttributesMap.newHashMap();
         Serializable label = null;
@@ -142,21 +116,30 @@ public class CSVReader {
     }
 
     private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
-
-        if (allValuesAreQuoted) {
-            varValue = varValue.substring(1, varValue.length() - 2);
-        } else {
+        boolean categoricalOrNumericSelectorProvided = categoricalSelector.isPresent() || numericSelector.isPresent();
+        //remove white spaces and invisible characters
+        varValue = varValue.replaceAll("\\s", "");
+        //perform default conversion if possible (where quoted values are taken to be categorical)
+        if (!categoricalOrNumericSelectorProvided) {
             if (varValue.startsWith("\"") || varValue.startsWith("\'")) {
                 return varValue.substring(1, varValue.length() - 2);
+            } else {
+                return tryToConvertToNumeric(varValue);
+            }
+        } else {
+            //note: quoted values will be treated as categorical unless a selector indicates otherwise
+            if (categoricalSelector.isPresent() && categoricalSelector.get().isCategorical(varName)) {
+                return categoricalSelector.get().cleanValue(varValue);
+            } else if (!numericSelector.isPresent() || numericSelector.get().isNumeric(varName)) {
+                if (numericSelector.isPresent()) {
+                    varValue = numericSelector.get().cleanValue(varValue);
+                }
+                return tryToConvertToNumeric(varValue);
+            } else {
+                //now account for the case where a numeric selector is provided, but no categorical selector is.
+                return varValue;
             }
         }
-        if (allCategorical || categoricalVariables.contains(varName))
-            return varValue;
-        if (numericalVariables == null || numericalVariables.contains(varName)) {
-            return tryToConvertToNumeric(varValue);
-        }
-        return varValue; //accounts for the case where categorical variables are defined as all variables not in numericalVariables
-        // (as opposed to explicitly defining  a categoricalVariables set.
     }
 
 
@@ -173,23 +156,25 @@ public class CSVReader {
         }
     }
 
-        private List<String> removeQuotesAndNonVisibleCharactersAndWhiteSpacesFromString(List<String> strings) {
-            List<String> cleanedStrings = Lists.newArrayList();
-            for (String string : strings) {
-                //remove quotes
-                if (string.startsWith("\"") || string.startsWith("\'"))
-                    cleanedStrings.add(string.substring(1, string.length() - 2));
-                else
-                    cleanedStrings.add(string);
-                //remove white spaces, and non visible characters
-                string.replaceAll("\\s", "");
-            }return cleanedStrings;
+    private List<String> removeQuotesAndNonVisibleCharactersAndWhiteSpacesFromString(List<String> strings) {
+        List<String> cleanedStrings = Lists.newArrayList();
+        for (String string : strings) {
+            //remove quotes
+            if (string.startsWith("\"") || string.startsWith("\'"))
+                cleanedStrings.add(string.substring(1, string.length() - 2));
+            else
+                cleanedStrings.add(string);
+            //remove white spaces, and non visible characters
+            string.replaceAll("\\s", "");
         }
+        return cleanedStrings;
+    }
 
     public static void main(String[] args) {
         Set<String> catVariables = Sets.newHashSet();
         catVariables.add("eap");
-        CSVReader csvReader = new CSVReader().collumnNameForLabel("campaignId").categoricalVariables(catVariables);
+        CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder().collumnNameForLabel("campaignId").categoricalSelector(new ExplicitCategoricalSelector(catVariables));
+        CSVReader csvReader = csvReaderBuilder.buildCsvReader();
         List<Instance<AttributesMap>> instances = csvReader.readCsv("test.csv");
 
         for (Instance<AttributesMap> instance : instances)
