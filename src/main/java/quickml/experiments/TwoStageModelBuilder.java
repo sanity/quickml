@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.javatuples.Pair;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.InstanceImpl;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
@@ -25,33 +26,36 @@ public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMa
 
     @Override
     public TwoStageModel buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
-        Pair<Iterable<? extends Instance<AttributesMap>>, Iterable<? extends Instance<AttributesMap>>> trainingPair = separateTrainingData(trainingData);
-        Classifier c1 = wrappedModelBuilder1.buildPredictiveModel(trainingPair.getValue0());
-        Classifier c2 = wrappedModelBuilder2.buildPredictiveModel(trainingPair.getValue1());
+        List<Instance<AttributesMap>> stage1Data = Lists.newArrayList();
+        List<Instance<AttributesMap>> stage2Data = Lists.newArrayList();
+        List<Instance<AttributesMap>> validationData = Lists.newArrayList();
+        createTrainingAndValidationData(trainingData, stage1Data, stage2Data, validationData);
+        Classifier c1 = wrappedModelBuilder1.buildPredictiveModel(stage1Data);
+        Classifier c2 = wrappedModelBuilder2.buildPredictiveModel(stage2Data);
         return new TwoStageModel(c1, c2);
     }
 
-    private Pair<Iterable<? extends Instance<AttributesMap>>, Iterable<? extends Instance<AttributesMap>>> separateTrainingData( Iterable<? extends Instance<AttributesMap>> trainingData) {
-        List<Instance<AttributesMap>> t1 = Lists.newArrayList();
-        List<Instance<AttributesMap>> t2 = Lists.newArrayList();
-        boolean foundMarkerLabel = false;
-        for (Instance<AttributesMap> instance : trainingData) {
-            if (((Double)(instance.getLabel())).equals(Double.valueOf(-100))) {
-                foundMarkerLabel = true;
-                continue;
-            }
+    private void createTrainingAndValidationData(Iterable<? extends Instance<AttributesMap>> trainingData,
+        List<Instance<AttributesMap>> stage1Data, List<Instance<AttributesMap>> stage2Data,
+        List<Instance<AttributesMap>> validationData) {
 
-            if (foundMarkerLabel) {
-                t2.add(instance);
-            }
-            else {
-                t1.add(instance);
+        for (Instance<AttributesMap> instance : trainingData) {
+            if (((String) (instance.getLabel())).equals("positive-both")) {
+                stage1Data.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 1.0));
+                stage2Data.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 1.0));
+                validationData.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 1.0));
+            } else if (((String) (instance.getLabel())).equals("positive-first")) {
+                stage1Data.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 1.0));
+                stage2Data.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 0.0));
+                validationData.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 0.0));
+            } else if (((String) (instance.getLabel())).equals("negative")) {
+                stage1Data.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 0.0));
+                validationData.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 0.0));
+            } else {
+                throw new RuntimeException("missing valid label");
             }
         }
-        return new Pair<Iterable<? extends Instance<AttributesMap>>, Iterable<? extends Instance<AttributesMap>>>(t1, t2);
     }
-
-
 
     @Override
     public TwoStageModelBuilder updatable(boolean updatable) {

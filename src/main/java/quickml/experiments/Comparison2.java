@@ -17,6 +17,7 @@ import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierOutOfTimeCrossValidator;
+import quickml.supervised.crossValidation.LabelConverter;
 import quickml.supervised.crossValidation.OutOfTimeCrossValidator;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
@@ -25,6 +26,7 @@ import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by alexanderhawk on 10/7/14.
@@ -33,18 +35,21 @@ public class Comparison2 {
     public static void main(String[] args) {
         //Get Auc loss of a 2stage model and a one stage
         CSVToInstanceReader csvToInstanceReader = new CSVToInstanceReaderBuilder().collumnNameForLabel("outcome").buildCsvReader();
+        ArrayList<Instance<AttributesMap>> allLabels = Lists.newArrayList();
         ArrayList<Instance<AttributesMap>> clickLabels = Lists.newArrayList();
         ArrayList<Instance<AttributesMap>> clickToPageViewLabels = Lists.newArrayList();
         ArrayList<Instance<AttributesMap>> clickPageViewLabels = Lists.newArrayList();
 
         try {
-            clickLabels = csvToInstanceReader.readCsv("clickLabelD.csv");//("cShort.csv");
-            clickToPageViewLabels = csvToInstanceReader.readCsv("targetpageViewLabelD.csv");//;("c2pShort.csv");
-            clickPageViewLabels = csvToInstanceReader.readCsv("clickPageViewLabelD.csv");//("cpShort.csv");
+     //       allLabels = csvToInstanceReader.readCsv("allLabelsW.csv");//("cShort.csv");
+     //       clickLabels = csvToInstanceReader.readCsv("clickLabelW.csv");//("cShort.csv");
+     //       clickToPageViewLabels = csvToInstanceReader.readCsv("targetpageViewLabelW.csv");//;("c2pShort.csv");
+     //       clickPageViewLabels = csvToInstanceReader.readCsv("clickPageViewLabelW.csv");//("cpShort.csv");
 
-//            clickLabels = csvToInstanceReader.readCsv("cShortW.csv");
-//           clickToPageViewLabels = csvToInstanceReader.readCsv("c2pShortW.csv");
-//         clickPageViewLabels = csvToInstanceReader.readCsv("cpShortW.csv");
+           allLabels = csvToInstanceReader.readCsv("aShortW.csv");
+            clickLabels = csvToInstanceReader.readCsv("cShortW.csv");
+           clickToPageViewLabels = csvToInstanceReader.readCsv("c2pShortW.csv");
+         clickPageViewLabels = csvToInstanceReader.readCsv("cpShortW.csv");
 
         } catch (Exception e) {
             //throw new IOException();
@@ -85,18 +90,40 @@ public class Comparison2 {
         CalibratedPredictiveModelBuilder cpCalibratedPredictiveModelBuilder = new CalibratedPredictiveModelBuilder(cpDownsamplingClassifierBuilder).binsInCalibrator(20).hoursToCalibrateOver(700).dateTimeExtractor(new TestDateTimeExtractor());
 
 
-        PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatac = new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(cCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
-        PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatac2p = new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(c2pCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
-        PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatacp= new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(cpCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+   //     PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatac = new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(cCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+   //     PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatac2p = new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(c2pCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+   //     PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel> pmbWithDatacp= new PredictiveModelWithDataBuilder<AttributesMap, CalibratedPredictiveModel>(cpCalibratedPredictiveModelBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+
+
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatac = new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(cDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatac2p = new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(c2pDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatacp= new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(cpDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
 
 
 
-       // TwoStageModelBuilder twoStageModelBuilder = new TwoStageModelBuilder(cCalibratedPredictiveModelBuilder, c2pCalibratedPredictiveModelBuilder);
+        // TwoStageModelBuilder twoStageModelBuilder = new TwoStageModelBuilder(cCalibratedPredictiveModelBuilder, c2pCalibratedPredictiveModelBuilder);
        TwoStageModelBuilder twoStageModelBuilder = new TwoStageModelBuilder(pmbWithDatac, pmbWithDatac2p);
+        LabelConverter<AttributesMap> labelConverter  = new LabelConverter<AttributesMap>() {
+            @Override
+            public List<Instance<AttributesMap>> convertLabels(List<Instance<AttributesMap>> initialInstances) {
+                List<Instance<AttributesMap>> convertedInstances = Lists.newArrayList();
+
+                for (Instance<AttributesMap> instance : initialInstances) {
+                    if (((String) (instance.getLabel())).equals("positive-both")) {
+                        convertedInstances.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 1.0));
+                    } else if (instance.getLabel().equals("negative") || instance.getLabel().equals("positive-first")) {
+                        convertedInstances.add(new InstanceImpl<AttributesMap>(instance.getAttributes(), 0.0));
+                    } else {
+                        throw new RuntimeException("missing valid label");
+                    }
+                }
+                return convertedInstances;
+            }
+        };
 
 
-        ClassifierOutOfTimeCrossValidator cv = new ClassifierOutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 24, new TestDateTimeExtractor());
-        double clickLoss = cv.getTwoStageCrossValidatedLoss(twoStageModelBuilder, clickLabels, clickToPageViewLabels, clickPageViewLabels);
+        ClassifierOutOfTimeCrossValidator cv = new ClassifierOutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
+        double clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder, allLabels);
         System.out.println("twoStageloss: " + clickLoss);
         cv = new ClassifierOutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 24, new TestDateTimeExtractor());
 

@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
@@ -34,6 +35,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     List<Instance<R>> allTrainingData;
     List<Instance<R>> trainingDataToAddToPredictiveModel;
     List<Instance<R>> validationSet;
+    Optional<LabelConverter<R>> labelConverter = Optional.absent();
 
     final private CrossValLossFunction<P> crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
@@ -76,8 +78,8 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         this.durationOfValidationSet = new Period(validationTimeSliceHours, 0, 0, 0);
     }
 
-    public OutOfTimeCrossValidator<R, P> doNotSort(boolean doNotSort) {
-        this.doNotSort = doNotSort;
+    public OutOfTimeCrossValidator<R, P> labelConverter(LabelConverter<R> labelConverter) {
+        this.labelConverter = Optional.of(labelConverter);
         return this;
     }
 
@@ -90,7 +92,12 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
+            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            List<Instance<R>> convertedValSet = validationSet;
+            if (labelConverter.isPresent()) {
+                convertedValSet = labelConverter.get().convertLabels(validationSet);
+            }
+            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
