@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.PredictionMap;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,10 +17,10 @@ import java.util.List;
 public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> implements UpdatablePredictiveModelBuilder<R, PM> {
     protected PM predictiveModel;
     private final UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder;
-    protected Integer rebuildThreshold;
-    protected Integer splitNodeThreshold;
+    protected Integer rebuildThreshold; //Integer.valueOf(1);
+    protected Integer splitNodeThreshold;// Integer.valueOf(1);
     protected int buildCount = 0;
-    List<Instance<R>> instances = Lists.newArrayList();
+    public List<Instance<R>> instances = Lists.newArrayList();
 
 
     public PredictiveModelWithDataBuilder(UpdatablePredictiveModelBuilder<R, PM> updatablePredictiveModelBuilder) {
@@ -54,7 +55,7 @@ public class PredictiveModelWithDataBuilder<R, PM extends PredictiveModel<R,?>> 
         }
 
         //check if we want to build a new predictive model or update existing
-        if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold != 0 && buildCount > rebuildThreshold)) {
+        if (predictiveModel == null || (rebuildThreshold != null && rebuildThreshold!= 0 && buildCount > rebuildThreshold)) {
             buildCount = 1;
             predictiveModel = buildUpdatablePredictiveModel(instances);
 

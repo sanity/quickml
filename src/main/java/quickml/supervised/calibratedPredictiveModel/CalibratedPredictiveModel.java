@@ -14,7 +14,8 @@ import java.io.Serializable;
  */
 
 /*
-  This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a random forest of probability estimation trees.
+  This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a binary classifier, where postive
+  classifications have a label of 1.0, and negative classifications have a label 0.0.
 */
 public class CalibratedPredictiveModel implements Classifier {
     private static final long serialVersionUID = 8291739965981425742L;
@@ -33,18 +34,14 @@ public class CalibratedPredictiveModel implements Classifier {
         return pavFunction.predict(rawProbability);
     }
 
-    /**
-     * Unsupported at this time, will throw UnsupportedOperationException
-     *
-     * @param attributes
-     * @return
-     */
+
     @Override
     public PredictionMap predict(final AttributesMap attributes) {
         PredictionMap predictionMap = wrappedPredictiveModel.predict(attributes);
-        for (Serializable prediction : predictionMap.keySet()) {
-            predictionMap.put(prediction, pavFunction.predict((Double) prediction));
-        }
+        double positiveClassProb =  pavFunction.predict(wrappedPredictiveModel.getProbability(attributes, 1.0));
+        predictionMap.put(Double.valueOf(1.0), positiveClassProb);
+        predictionMap.put(Double.valueOf(0.0), 1.0 - positiveClassProb);
+
         return predictionMap;
     }
 

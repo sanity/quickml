@@ -1,19 +1,8 @@
 package quickml.Utilities;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import quickml.Utilities.Selectors.*;
 
@@ -37,7 +26,7 @@ import quickml.Utilities.Selectors.*;
       a CategoricalSelector to categoricalSelector.  Only one of the two needs to be provided.
 
  */
-public class CSVReaderBuilder {
+public class CSVToInstanceReaderBuilder {
     private List<String> header;
     boolean allValuesAreQuoted = false;
     private String columnNameForLabel;
@@ -45,15 +34,15 @@ public class CSVReaderBuilder {
     private boolean containsUnLabeledInstances = false;
     private Optional<CategoricalSelector> categoricalSelector = Optional.absent();
     private Optional<NumericSelector> numericSelector = Optional.absent();
-    private String delimiter = ",";
+    private char delimiter = ',';
 
 
-    public CSVReaderBuilder categoricalSelector(CategoricalSelector categoricalSelector) {
+    public CSVToInstanceReaderBuilder categoricalSelector(CategoricalSelector categoricalSelector) {
         this.categoricalSelector = Optional.of(categoricalSelector);
         return this;
     }
 
-    public CSVReaderBuilder numericSelector(NumericSelector numericSelector) {
+    public CSVToInstanceReaderBuilder numericSelector(NumericSelector numericSelector) {
         this.numericSelector = Optional.of(numericSelector);
         return this;
     }
@@ -63,28 +52,28 @@ public class CSVReaderBuilder {
         return containsUnLabeledInstances;
     }
 
-    public CSVReaderBuilder collumnNameForLabel(String columnNameForLabel) {
+    public CSVToInstanceReaderBuilder collumnNameForLabel(String columnNameForLabel) {
         this.columnNameForLabel = columnNameForLabel;
         return this;
     }
 
-    public CSVReaderBuilder collumnNameForWeight(String columnNameForWeight) {
+    public CSVToInstanceReaderBuilder collumnNameForWeight(String columnNameForWeight) {
         this.columnNameForWeight = columnNameForWeight;
         return this;
     }
 
-    public CSVReaderBuilder allValuesAreQuoted(boolean allValuesAreQuoted) {
+    public CSVToInstanceReaderBuilder allValuesAreQuoted(boolean allValuesAreQuoted) {
         this.allValuesAreQuoted = allValuesAreQuoted;
         return this;
     }
 
-    public CSVReaderBuilder delimiter(String delimiter) {
+    public CSVToInstanceReaderBuilder delimiter(char delimiter) {
         this.delimiter = delimiter;
         return this;
     }
 
-    public CSVReader buildCsvReader(){
-        return new CSVReader(delimiter, columnNameForLabel, columnNameForWeight, categoricalSelector, numericSelector);
+    public CSVToInstanceReader buildCsvReader(){
+        return new CSVToInstanceReader(delimiter, columnNameForLabel, columnNameForWeight, categoricalSelector, numericSelector);
     }
 
 }

@@ -19,6 +19,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
+import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -61,13 +62,13 @@ public class LinePlotter extends JFrame {
         return;
     }
 
-    public void addSeries(Iterable<Pair<? extends Number, ? extends Number>> xyPairs, String name) {
+    public void addSeries(Iterable<PoolAdjacentViolatorsModel.Observation> xyPairs, String name) {
         XYSeries series= new XYSeries(name);
-       for(Pair<? extends Number, ? extends Number> xyPair : xyPairs)  {
-            series.add(xyPair.getValue0().doubleValue(), xyPair.getValue1().doubleValue());
-       }
-       seriesList.add(series);
-       return;
+        for(PoolAdjacentViolatorsModel.Observation xyPair : xyPairs)  {
+            series.add(xyPair.input, xyPair.output);
+        }
+        seriesList.add(series);
+        return;
     }
 
     public void clearAllSeries(){

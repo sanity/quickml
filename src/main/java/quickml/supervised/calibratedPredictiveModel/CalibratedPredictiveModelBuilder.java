@@ -4,9 +4,14 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.PredictionMap;
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
@@ -25,13 +30,15 @@ import java.util.TreeSet;
  * It currently has some severe implementation problems and it's use is not recommended.
  */
 public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
-    private int binsInCalibrator = 10;
+    private static final Logger logger = LoggerFactory.getLogger(CalibratedPredictiveModelBuilder.class);
+    private int binsInCalibrator = 25;
     private PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedPredictiveModelBuilder;
     boolean temporallyCalibrate = false;
     int hoursToCalibrateOver;
-    int foldsForCalibrationSet = 4;
-    private  DateTimeExtractor<AttributesMap> dateTimeExtractor = new defaultDateTimeExtractor();
+    int foldsForCalibrationSet = 6;
+    private DateTimeExtractor<AttributesMap> dateTimeExtractor = new defaultDateTimeExtractor();
     Optional<? extends Classifier> wrappedPredictiveModel = Optional.absent();
+    private List<PoolAdjacentViolatorsModel.Observation> storedObservations = Lists.newArrayList();
 
     public CalibratedPredictiveModelBuilder() {
         this(new RandomForestBuilder());
@@ -49,6 +56,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         this.foldsForCalibrationSet = foldsForCalibrationSet;
         return this;
     }
+
     public CalibratedPredictiveModelBuilder binsInCalibrator(int binsInCalibrator) {
         this.binsInCalibrator = binsInCalibrator;
         return this;
@@ -70,11 +78,13 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         Classifier predictiveModel;
         if (wrappedPredictiveModel.isPresent()) {
             predictiveModel = wrappedPredictiveModel.get();
-        }
-        else {
+        } else {
             predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingData);
         }
-        PoolAdjacentViolatorsModel calibrator = createCalibrator(trainingData);
+        PoolAdjacentViolatorsModel calibrator;
+        calibrator = createCalibrator(trainingData);
+
+        logger.info("calibration set: " + calibrator.getCalibrationSet().toString());
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
@@ -87,8 +97,8 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
     @Override
     public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
         if (wrappedPredictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            predictiveModel.pavFunction= updateCalibrator(predictiveModel, newData);
             ((UpdatablePredictiveModelBuilder) wrappedPredictiveModelBuilder).updatePredictiveModel(predictiveModel, newData, splitNodes);
+            predictiveModel.pavFunction = updateCalibrator(predictiveModel, newData);
 
 
         } else {
@@ -111,11 +121,8 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
     }
 
     private PoolAdjacentViolatorsModel updateCalibrator(CalibratedPredictiveModel predictiveModel, Iterable<? extends Instance<AttributesMap>> newData) {
-        TreeSet<PoolAdjacentViolatorsModel.Observation> observations = predictiveModel.pavFunction.getCalibrationSet();
-        List<PoolAdjacentViolatorsModel.Observation> mobservations = getObservations(predictiveModel, newData);
-        observations.addAll(mobservations);
-        return new PoolAdjacentViolatorsModel(observations, Math.max(1, observations.size()/binsInCalibrator));
-        }
+        return predictiveModel.pavFunction;
+    }
 
     private PoolAdjacentViolatorsModel createCalibrator(Iterable<? extends Instance<AttributesMap>> allInstancesIterable) {
         List<Instance<AttributesMap>> allInstances = Lists.newArrayList();
@@ -124,16 +131,17 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         }
         if (temporallyCalibrate)
             allInstances = sortInstances(allInstances);
-        List<PoolAdjacentViolatorsModel.Observation> allObservations = Lists.newArrayList();
-        for (int fold = 0; fold < foldsForCalibrationSet; fold++) {
+        storedObservations = Lists.newArrayList();
+        for (int fold = 1; fold <= foldsForCalibrationSet; fold++) {
             List<Instance<AttributesMap>> trainingInstances = Lists.newArrayList();
             List<Instance<AttributesMap>> calibrationInstances = Lists.newArrayList();
             createTrainingAndCalibrationSets(trainingInstances, calibrationInstances, allInstances, fold);
             Classifier predictiveModel = wrappedPredictiveModelBuilder.buildPredictiveModel(trainingInstances);
             List<PoolAdjacentViolatorsModel.Observation> foldObservations = getObservations(predictiveModel, calibrationInstances);
-            allObservations.addAll(foldObservations);
+            storedObservations.addAll(foldObservations);
         }
-        return new PoolAdjacentViolatorsModel(allObservations, Math.max(1, allObservations.size())/binsInCalibrator);
+
+        return new PoolAdjacentViolatorsModel(storedObservations, (int)Math.max(1, storedObservations.size() /(double) binsInCalibrator));
     }
 
     private void createTrainingAndCalibrationSets(List<Instance<AttributesMap>> trainingInstances, List<Instance<AttributesMap>> validationInstances, List<? extends Instance<AttributesMap>> allInstances, int fold) {
@@ -144,7 +152,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
                 DateTime dateTime = dateTimeExtractor.extractDateTime(instance);
                 Period timeSinceLastInstance = new Period(dateTime, lastInstance);
                 if (timeSinceLastInstance.getHours() < hoursToCalibrateOver) {
-                    if (i % fold == 0) {
+                    if (i % foldsForCalibrationSet == fold - 1) {
                         validationInstances.add(instance);
                     } else {
                         trainingInstances.add(instance);
@@ -171,11 +179,10 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         double prediction = 0;
         double groundTruth = 0;
         PoolAdjacentViolatorsModel.Observation observation;
-        for(Instance<AttributesMap> instance : trainingInstances)  {
+        for (Instance<AttributesMap> instance : trainingInstances) {
             try {
                 groundTruth = getGroundTruth(instance.getLabel());
-            }
-            catch (RuntimeException r){
+            } catch (RuntimeException r) {
                 r.printStackTrace();
                 System.exit(0);
             }
@@ -192,9 +199,10 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         if (!(classification instanceof Double) && !(classification instanceof Integer)) {
             throw new RuntimeException("classification is not an instance of Integer or Double.  Classification value is " + classification);
         }
-        return ((Number)(classification)).doubleValue();
+        return ((Number) (classification)).doubleValue();
     }
-//TODO: make the version of this in the out of time cross validator a utility method that can be shared between classes
+
+    //TODO: make the version of this in the out of time cross validator a utility method that can be shared between classes
     private List<Instance<AttributesMap>> sortInstances(List<Instance<AttributesMap>> instances) {
 
         Comparator<Instance<AttributesMap>> comparator = new Comparator<Instance<AttributesMap>>() {
@@ -218,13 +226,13 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
 
     class defaultDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
         @Override
-        public DateTime extractDateTime(Instance<AttributesMap> instance){
+        public DateTime extractDateTime(Instance<AttributesMap> instance) {
             AttributesMap attributes = instance.getAttributes();
-            int year = (Integer)attributes.get("timeOfArrival-year");
-            int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
-            int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");
-            int hour = (Integer)attributes.get("timeOfArrival-hourOfDay");
-            int minute = (Integer)attributes.get("timeOfArrival-minuteOfHour");
+            int year = (Integer) attributes.get("timeOfArrival-year");
+            int month = (Integer) attributes.get("timeOfArrival-monthOfYear");
+            int day = (Integer) attributes.get("timeOfArrival-dayOfMonth");
+            int hour = (Integer) attributes.get("timeOfArrival-hourOfDay");
+            int minute = (Integer) attributes.get("timeOfArrival-minuteOfHour");
             return new DateTime(year, month, day, hour, minute, 0, 0);
         }
     }
