@@ -23,7 +23,6 @@ public class CalibratedPredictiveModel implements Classifier {
     public Classifier wrappedPredictiveModel;
 
     public CalibratedPredictiveModel(Classifier wrappedPredictiveModel, PoolAdjacentViolatorsModel PAVFunction) {
-        Preconditions.checkArgument(!(wrappedPredictiveModel instanceof CalibratedPredictiveModel));
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.pavFunction = PAVFunction;
     }
