@@ -45,7 +45,9 @@ public class CalibratedPredictiveModel implements Classifier {
 
     @Override
     public void dump(Appendable appendable) {
+        //dump the defining information of the wrapped predictive model
         wrappedPredictiveModel.dump(appendable);
+        //dump the calibartion set of the PAV function.
         pavFunction.dump(appendable);
     }
 
