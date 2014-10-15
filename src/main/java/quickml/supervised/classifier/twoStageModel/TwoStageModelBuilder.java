@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMap,TwoStageModel> {
+public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMap,TwoStageModel> {//
     PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedModelBuilder1;
     PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedModelBuilder2;
 
