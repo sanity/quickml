@@ -44,7 +44,7 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
             return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
         }
 
-        final double dropProbability = 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
+        final double dropProbability = (naturalMinorityProportion > targetMinorityProportion)?  0 : 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
 
         Iterable<? extends Instance<AttributesMap>> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 

@@ -33,7 +33,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
         final PAVCalibratedPredictiveModelBuilder cpmb = new PAVCalibratedPredictiveModelBuilder(rfb, 1);
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = cpmb.buildPredictiveModel(instances);
-        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.wrappedPredictiveModel;
 
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
 
@@ -50,7 +50,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
         wb.splitNodeThreshold(1);
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
-        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.wrappedPredictiveModel;
 
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
 
@@ -62,7 +62,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
 
         final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final CalibratedPredictiveModel newCalibratedPredictiveModel = wb.buildPredictiveModel(newInstances);
-        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
+        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.wrappedPredictiveModel;
         Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
         Assert.assertNotEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected new nodes");
@@ -74,7 +74,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
         final PredictiveModelWithDataBuilder<CalibratedPredictiveModel> wb = getWrappedUpdatablePredictiveModelBuilder();
         final long startTime = System.currentTimeMillis();
         final CalibratedPredictiveModel calibratedPredictiveModel = wb.buildPredictiveModel(instances);
-        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.predictiveModel;
+        final RandomForest randomForest = (RandomForest) calibratedPredictiveModel.wrappedPredictiveModel;
 
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
 
@@ -86,7 +86,7 @@ public class PAVCalibratedPredictiveModelBuilderTest {
 
         final List<InstanceWithMapOfRegressors> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final CalibratedPredictiveModel newCalibratedPredictiveModel = wb.buildPredictiveModel(newInstances);
-        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.predictiveModel;
+        final RandomForest newRandomForest = (RandomForest) newCalibratedPredictiveModel.wrappedPredictiveModel;
         Assert.assertTrue(calibratedPredictiveModel == newCalibratedPredictiveModel, "Expect same tree to be updated");
         Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
         Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");

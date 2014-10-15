@@ -6,7 +6,7 @@ import com.google.common.base.Preconditions;
  * Created by alexanderhawk on 4/10/14.
  */
 public class ClassifierLogCVLossFunction extends OnlineClassifierCVLossFunction {
-    private static final double DEFAULT_MIN_PROBABILITY = 10E-16;
+    private static final double DEFAULT_MIN_PROBABILITY = 10E-7;
     public  double minProbability;
     public  double maxError;
 

@@ -11,19 +11,19 @@ package quickml.supervised.classifier.calibratedPredictiveModel;
 public class CalibratedPredictiveModel extends Classifier {
     private static final long serialVersionUID = 8291739965981425742L;
     public final Calibrator calibrator;
-    public final PredictiveModel<AttributesMap, Map<Serializable, Double>> predictiveModel;
+    public final PredictiveModel<AttributesMap, Map<Serializable, Double>> wrappedPredictiveModel;
     public final Serializable positiveClassification;
 
-    public CalibratedPredictiveModel (PredictiveModel<AttributesMap, Map<Serializable, Double>> predictiveModel, Calibrator calibrator, Serializable positiveClassification) {
-        Preconditions.checkArgument(!(predictiveModel instanceof CalibratedPredictiveModel));
-        this.predictiveModel = predictiveModel;
+    public CalibratedPredictiveModel (PredictiveModel<AttributesMap, Map<Serializable, Double>> wrappedPredictiveModel, Calibrator calibrator, Serializable positiveClassification) {
+        Preconditions.checkArgument(!(wrappedPredictiveModel instanceof CalibratedPredictiveModel));
+        this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.calibrator = calibrator;
         this.positiveClassification = positiveClassification;
     }
 
     @Override
     public Map<Serializable, Double> predict(AttributesMap attributes) {
-        Map<Serializable, Double> predictions = predictiveModel.predict(attributes);
+        Map<Serializable, Double> predictions = wrappedPredictiveModel.predict(attributes);
         Map<Serializable, Double> calibratedPredictions = AttributesMap.newHashMap() ;
         for(Map.Entry<Serializable, Double> prediction : predictions.entrySet()) {
             calibratedPredictions.put(prediction.getKey(), calibrator.correct(prediction.getValue()));
@@ -34,7 +34,7 @@ public class CalibratedPredictiveModel extends Classifier {
 
     @Override
     public void dump(Appendable appendable) {
-        predictiveModel.dump(appendable);
+        wrappedPredictiveModel.dump(appendable);
     }
 }
 */

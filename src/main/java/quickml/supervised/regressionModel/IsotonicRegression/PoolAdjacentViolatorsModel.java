@@ -19,8 +19,15 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
     private static final long serialVersionUID = 4389814244047503245L;
     private int size;
     TreeSet<Observation> calibrationSet = Sets.newTreeSet();
+    TreeSet<Observation> preSmoothingSet = Sets.newTreeSet();
+
+    boolean reversed = false;
 
     private static Random rand = new Random();
+    private boolean interpolateThroughOrigin = true;
+    private boolean extropolateOffUpperEnd = true;
+
+
 
     public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions) {
         this(predictions, 1);
@@ -30,6 +37,8 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
      * @param predictions The input to the calibration function
      * @param minWeight   The minimum weight of a point, used to pre-smooth the function
      */
+
+
     public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions, int minWeight) {
         Preconditions.checkNotNull(predictions);
         Preconditions.checkArgument(minWeight >= 1, "minWeight %s must be >= 1", minWeight);
@@ -57,19 +66,36 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         } else {
             calibrationSet.addAll(orderedCalibrations);
         }
+        preSmoothingSet.addAll(calibrationSet);
 
         final Observation restartPos = null;
+        //What follows has complexity 2*O(N^2 Log(N))...it need only be O(N^2)...with large ammounts of training data...this will be an issue
         cont:
         while (true) {
-            Observation cur = null, last = null;
-            for (final Observation n : restartPos == null ? calibrationSet : calibrationSet.tailSet(restartPos, true)) {
-                last = cur;
-                cur = n;
-                if (cur != null && last != null && (cur.output <= last.output)) {
-                    calibrationSet.remove(cur);
-                    calibrationSet.remove(last);
-                    Observation merged = last.mergeWith(cur);
+            Observation currentObservation = null, preceedingObservation = null;
+            NavigableSet<Observation> navigableSet = reversed ? calibrationSet.descendingSet() : calibrationSet;
+            for (final Observation observation : navigableSet)  {
+                preceedingObservation = currentObservation;
+                currentObservation = observation;
+
+                boolean currentObservationIsViolator = false;
+                boolean notAtBeginingOfCalibrationSet = currentObservation != null && preceedingObservation != null;
+                if (notAtBeginingOfCalibrationSet)
+                    if (!reversed) {                        currentObservationIsViolator = currentObservation.output < preceedingObservation.output;
+                    } else {
+                        currentObservationIsViolator = currentObservation.output > preceedingObservation.output;
+                    }
+
+                if (currentObservationIsViolator) {
+                    //TODO: this removal is Log(N).  It should be constant time if calibration set is a linked list.
+                    calibrationSet.remove(currentObservation);
+                    calibrationSet.remove(preceedingObservation);
+                    Observation merged = preceedingObservation.mergeWith(currentObservation);//calibrationSet should be a "marked" linked list to allow for constant time add and removal
                     calibrationSet.add(merged);
+                    //TODO: don't need to return to the beginning of the list here (e.g. be stuck with N^2 evaluations of the loop body)
+                    //we only need to march backwards doing merges until we have a
+                    //superpoint that is not a violator with respect to it's preceding observation.
+                    //This approach is O(N) (provided we use a linked list for the calibration set), and the number of iterations cannot be greater than 3*calibrationSet.size()
                     continue cont;
                 }
             }
@@ -77,6 +103,24 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         }
 
         this.size = calibrationSet.size();
+    }
+
+    public PoolAdjacentViolatorsModel interpolateThroughOrigin(boolean interpolateThroughOrigin) {
+        this.interpolateThroughOrigin = interpolateThroughOrigin;
+        return this;
+    }
+
+    public PoolAdjacentViolatorsModel extropolateOffUpperEnd(boolean extropolateOffUpperEnd) {
+        this.extropolateOffUpperEnd = extropolateOffUpperEnd;
+        return this;
+    }
+
+
+    public TreeSet<Observation> getCalibrationSet(){
+        return calibrationSet;
+    }
+    public TreeSet<Observation> getPreSmoothingSet(){
+        return preSmoothingSet;
     }
 
     public void stripZeroOutputs() {
@@ -93,26 +137,47 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
     @Override
     public Double predict(Double input) {
-
+        Preconditions.checkState(!calibrationSet.isEmpty());
         final double kProp;
         final Observation toCorrect = new Observation(input, 0);
         Observation floor = calibrationSet.floor(toCorrect);
-        if (floor == null) {
-            floor = new Observation(0, 0);
+        if (!interpolateThroughOrigin && floor == null && calibrationSet.higher(calibrationSet.first()) != null) {
+            double upperXCoord = 0, upperYCoord = 0;
+            if (calibrationSet.higher(calibrationSet.first()) != null) {
+                upperXCoord = (calibrationSet.higher(calibrationSet.first())).input;
+                upperYCoord = (calibrationSet.higher(calibrationSet.first())).output;
+            }
+            try {
+                double slopeOffEnd = (upperYCoord - calibrationSet.first().output) /
+                        (upperXCoord - calibrationSet.first().input);
+                double inputDistanceFromFirst = input - calibrationSet.first().input;
+                return Math.max(0, calibrationSet.first().output + slopeOffEnd * inputDistanceFromFirst);
+            } catch (NoSuchElementException e) {
+                logger.warn("NoSuchElementException finding calibrationSet elements");
+                return input;
+            }
+        } else {
+            floor = new Observation(0, 0, calibrationSet.first().weight);
         }
+
         Observation ceiling = calibrationSet.ceiling(toCorrect);
-        if (ceiling == null) {
-            try{
-                double slopeOffEnd = (calibrationSet.last().output - calibrationSet.lower(calibrationSet.last()).output) /
-                        (calibrationSet.last().input - calibrationSet.lower(calibrationSet.last()).input);
+        if (ceiling == null && extropolateOffUpperEnd) {
+            double lowerXcoord = 0, lowerYCoord = 0;
+            if (calibrationSet.lower(calibrationSet.last()) != null) {
+                lowerXcoord = calibrationSet.lower(calibrationSet.last()).input;
+                lowerYCoord = calibrationSet.lower(calibrationSet.last()).output;
+            }
+            try {
+                double slopeOffEnd = (calibrationSet.last().output - lowerYCoord) /
+                        (calibrationSet.last().input - lowerXcoord);
                 double inputDistanceFromLast = input - calibrationSet.last().input;
                 return calibrationSet.last().output + slopeOffEnd * inputDistanceFromLast;
-            }
-            catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
                 logger.warn("NoSuchElementException finding ceiling or calibrationSet has no element calibrationSet.lower(calibrationSet.last()).input");
                 return input;
             }
-
+        } else if (ceiling == null){
+            return input;
         }
 
         boolean inputOnAPointInTheCalibrationSet = input.equals(ceiling.input) || input.equals(floor.input);
@@ -124,8 +189,13 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         if (ceilingInputEqualFloorInput)
             return input.equals(ceiling.input) ? ceiling.output : input;
 
-        kProp = (input - floor.input) / (ceiling.input - floor.input);
-        double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
+        double floorWeight = (ceiling.input - input)*floor.weight;
+        double ceilingWeight = (input - floor.input)*ceiling.weight;
+        double corrected = (floor.output*floorWeight + ceiling.output*ceilingWeight)/(floorWeight + ceilingWeight);
+
+
+    //    kProp = (input - floor.input) / (ceiling.input - floor.input);
+      //  double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
             return input;
         } else {
@@ -236,14 +306,14 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
 
         public Observation mergeWith(final Observation other) {
-            if (weight == 0 && other.weight == 0) {
+            if ((weight == 0 && other.weight == 0) || (weight + other.weight == 0))  {
                 return Observation.newWeightless((input + other.input) / 2.0, (output + other.output) / 2.0);
             } else if (other.weight == 0) {
-                return other.mergeWith(this);
+                return this;//other.mergeWith(this);
             } else if (weight == 0) {
-                return new Observation(other.input,
-                        (this.output + other.output * other.weight) / (other.weight + 1),
-                        other.weight);
+                return other;//new Observation(other.input,
+                // (this.output + other.output * other.weight) / (other.weight + 1),
+                //        other.weight);
             }
 
             return new Observation(

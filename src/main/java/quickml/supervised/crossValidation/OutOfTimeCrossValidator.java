@@ -1,10 +1,12 @@
 package quickml.supervised.crossValidation;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
@@ -27,21 +29,31 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     List<Instance<R>> allTrainingData;
     List<Instance<R>> trainingDataToAddToPredictiveModel;
     List<Instance<R>> validationSet;
+    Optional<LabelConverter<R>> labelConverter = Optional.absent();
 
     final private CrossValLossFunction<P> crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
 
     private final DateTimeExtractor<R> dateTimeExtractor;
+    DateTime timeOfFirstInstanceInValidationSet;
+    DateTime leastOuterBoundOfValidationSet;
+
     final Period durationOfValidationSet;
     private DateTime maxTime;
     private double weightOfValidationSet;
     private int currentTrainingSetSize = 0;
+    int clicksInValSet = 0;
 
     public OutOfTimeCrossValidator(CrossValLossFunction<P> crossValLossFunction, double fractionOfDataForCrossValidation, int validationTimeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.crossValLossFunction = crossValLossFunction;
         this.fractionOfDataForCrossValidation = fractionOfDataForCrossValidation;
         this.dateTimeExtractor = dateTimeExtractor;
         this.durationOfValidationSet = new Period(validationTimeSliceHours, 0, 0, 0);
+    }
+
+    public OutOfTimeCrossValidator<R, P> labelConverter(LabelConverter<R> labelConverter) {
+        this.labelConverter = Optional.of(labelConverter);
+        return this;
     }
 
     @Override
@@ -53,20 +65,28 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
+            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            List<Instance<R>> convertedValSet = validationSet;
+            if (labelConverter.isPresent()) {
+                convertedValSet = labelConverter.get().convertLabels(validationSet);
+            }
+            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
+
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
             runningWeightOfValidationSet += weightOfValidationSet;
             logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+
             updateTrainingSet();
             updateCrossValidationSet();
         }
         final double averageLoss = runningLoss / runningWeightOfValidationSet;
         logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
+
         return averageLoss;
     }
 
-    private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R>> rawTrainingData) {
 
+    private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R>> rawTrainingData) {
         setAndSortAllTrainingData(rawTrainingData);
         setMaxValidationTime();
 
@@ -75,23 +95,32 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         validationSet = Lists.<Instance<R>>newArrayList();
 
         DateTime timeOfInstance;
-        DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(initialTrainingSetSize));
-        DateTime leastUpperBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
+
+        timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(initialTrainingSetSize));
+        leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
 
         weightOfValidationSet = 0;
+        clicksInValSet = 0;
         for (Instance<R> instance : allTrainingData) {
             timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet)) {
                 trainingDataToAddToPredictiveModel.add(instance);
-            } else if (timeOfInstance.isBefore(leastUpperBoundOfValidationSet)) {
+            } else if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
                 validationSet.add(instance);
                 weightOfValidationSet += instance.getWeight();
+                if (instance.getLabel().equals(Double.valueOf(1.0))) {
+                    clicksInValSet++;
+                }
+
             } else {
                 break;
             }
         }
+      //  logger.info("timeOfFirstInstanceInValidationSet: " + timeOfFirstInstanceInValidationSet.toString() + "\nleastOuterBoundOfValidationSet: " + leastOuterBoundOfValidationSet.toString());
+      //  logger.info("initial clicks in valset: " + clicksInValSet);
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
     }
+
 
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
@@ -103,8 +132,9 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         if (!newValidationSetExists()) {
             return;
         }
-        DateTime timeOfFirstInstanceInValidationSet = dateTimeExtractor.extractDateTime(allTrainingData.get(currentTrainingSetSize));
-        DateTime leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
+        timeOfFirstInstanceInValidationSet = leastOuterBoundOfValidationSet;
+        leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
+   //     logger.info("first val set instance: " + timeOfFirstInstanceInValidationSet + "\n time of last instance " + leastOuterBoundOfValidationSet);
 
         while(validationSet.isEmpty()) {
             for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
@@ -113,17 +143,20 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
                 if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
                     validationSet.add(instance);
                     weightOfValidationSet += instance.getWeight();
+                    if (instance.getLabel().equals(Double.valueOf(1.0)))
+                        clicksInValSet++;
                 } else
                     break;
             }
-            leastOuterBoundOfValidationSet = leastOuterBoundOfValidationSet.plus(durationOfValidationSet);
         }
+        logger.info("clicks in val set: " + clicksInValSet);
     }
 
     private void clearValidationSet() {
         weightOfValidationSet = 0;
         validationSet = Lists.<Instance<R>>newArrayList();
     }
+
 
     private void setMaxValidationTime() {
         Instance<R> latestInstance = allTrainingData.get(allTrainingData.size() - 1);
@@ -135,6 +168,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         verifyInitialValidationSetExists(initialTrainingSetSize);
         return initialTrainingSetSize;
     }
+
 
     private void verifyInitialValidationSetExists(int initialTrainingSetSize) {
         if (initialTrainingSetSize == allTrainingData.size()) {
@@ -170,4 +204,19 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
 
         Collections.sort(this.allTrainingData, comparator);
     }
+
+    static class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
+        @Override
+        public DateTime extractDateTime(Instance<AttributesMap> instance) {
+            AttributesMap attributes = instance.getAttributes();
+            int year = ((Long) attributes.get("timeOfArrival-year")).intValue();
+            int month = ((Long) attributes.get("timeOfArrival-monthOfYear")).intValue();
+            int day = ((Long) attributes.get("timeOfArrival-dayOfMonth")).intValue();
+            int hour = ((Long) attributes.get("timeOfArrival-hourOfDay")).intValue();
+            int minute = ((Long) attributes.get("timeOfArrival-minuteOfHour")).intValue();
+            return new DateTime(year, month, day, hour, minute, 0, 0);
+        }
+    }
+
 }
+
