@@ -1,7 +1,6 @@
-package quickml.experiments;
+package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
-import org.javatuples.Pair;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;

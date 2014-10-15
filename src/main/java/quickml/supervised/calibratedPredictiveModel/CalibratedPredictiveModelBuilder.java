@@ -39,6 +39,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
     private DateTimeExtractor<AttributesMap> dateTimeExtractor = new defaultDateTimeExtractor();
     Optional<? extends Classifier> wrappedPredictiveModel = Optional.absent();
     private List<PoolAdjacentViolatorsModel.Observation> storedObservations = Lists.newArrayList();
+    Serializable positiveClassLabel = Double.valueOf(1.0);
 
     public CalibratedPredictiveModelBuilder() {
         this(new RandomForestBuilder());
@@ -56,6 +57,11 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         this.foldsForCalibrationSet = foldsForCalibrationSet;
         return this;
     }
+    public CalibratedPredictiveModelBuilder positiveClassLabel(Serializable positiveClassLabel) {
+        this.positiveClassLabel = positiveClassLabel;
+        return this;
+    }
+
 
     public CalibratedPredictiveModelBuilder binsInCalibrator(int binsInCalibrator) {
         this.binsInCalibrator = binsInCalibrator;
@@ -186,8 +192,7 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
                 r.printStackTrace();
                 System.exit(0);
             }
-            // TODO: We can't assume that the classification will be 1.0
-            prediction = predictiveModel.getProbability(instance.getAttributes(), 1.0);
+            prediction = predictiveModel.getProbability(instance.getAttributes(), positiveClassLabel);
             observation = new PoolAdjacentViolatorsModel.Observation(prediction, groundTruth, instance.getWeight());
             mobservations.add(observation);
         }

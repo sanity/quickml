@@ -28,7 +28,6 @@ public class CalibratedPredictiveModel implements Classifier {
         this.pavFunction = PAVFunction;
     }
 
-    // FIXME: This assumes that the second parameter will always be the same.
     public double getProbability(AttributesMap attributes, Serializable label) {
         double rawProbability = wrappedPredictiveModel.getProbability(attributes, label);
         return pavFunction.predict(rawProbability);
@@ -63,7 +62,9 @@ public class CalibratedPredictiveModel implements Classifier {
                 classification = prediction;
             }
         }
-        assert (classification != null);
+        if (classification == null)
+            throw new RuntimeException("unable to make a classification");
+
         return classification;
     }
 }
