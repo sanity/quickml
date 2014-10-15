@@ -17,10 +17,9 @@ public class ExplicitNumericSelector implements NumericSelector {
     }
     public String cleanValue(String value) {
         value = value.replaceAll("\\s", "");
-        if (value.startsWith("\"") || value.startsWith("\'")) {
+        if ((value.startsWith("\"") && value.endsWith("\""))|| (value.startsWith("\'")) && value.endsWith("\'")) {
             return value.substring(1, value.length() - 2);
         }
-        ;
         return value;
     }
 }

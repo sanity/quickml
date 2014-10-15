@@ -20,7 +20,7 @@ public class ExplicitCategoricalSelector implements CategoricalSelector {
 
     public String cleanValue(String value) {
         value = value.replaceAll("\\s", "");
-        if (value.startsWith("\"") || value.startsWith("\'")) {
+        if ((value.startsWith("\"") && value.endsWith("\""))|| (value.startsWith("\'")) && value.endsWith("\'")) {
             return value.substring(1, value.length() - 2);
         }
         ;
