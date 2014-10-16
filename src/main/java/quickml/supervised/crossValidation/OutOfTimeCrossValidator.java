@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
+import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
@@ -58,6 +59,34 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
 
     @Override
     public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData) {
+
+        initializeTrainingAndValidationSets(rawTrainingData);
+
+        double runningLoss = 0;
+        double runningWeightOfValidationSet = 0;
+        while (!validationSet.isEmpty()) {
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            List<Instance<R>> convertedValSet = validationSet;
+            if (labelConverter.isPresent()) {
+                convertedValSet = labelConverter.get().convertLabels(validationSet);
+            }
+            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
+
+            runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
+            runningWeightOfValidationSet += weightOfValidationSet;
+            logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+
+            updateTrainingSet();
+            updateCrossValidationSet();
+        }
+        final double averageLoss = runningLoss / runningWeightOfValidationSet;
+        logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
+
+        return averageLoss;
+    }
+
+    public <PM extends PredictiveModel<R, P>> double getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData, MultiLossFunctionWithModelConfigurations multiLossFunctionWithModelConfigurations) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
