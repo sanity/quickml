@@ -156,7 +156,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                 logger.warn("NoSuchElementException finding calibrationSet elements");
                 return input;
             }
-        } else {
+        } else if (floor ==null) {
             floor = new Observation(0, 0, calibrationSet.first().weight);
         }
 
@@ -194,9 +194,10 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         double corrected = (floor.output*floorWeight + ceiling.output*ceilingWeight)/(floorWeight + ceilingWeight);
 
 
-    //    kProp = (input - floor.input) / (ceiling.input - floor.input);
-      //  double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
+       // kProp = (input - floor.input) / (ceiling.input - floor.input);
+     //   double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
+            logger.info("corrected is NaN or inf");
             return input;
         } else {
             return corrected;

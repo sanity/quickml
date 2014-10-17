@@ -104,9 +104,18 @@ public class CSVToMapOfNumericLists {
         }
 
         PoolAdjacentViolatorsModel pav = new PoolAdjacentViolatorsModel(observations, 4);
+        PoolAdjacentViolatorsModel.Observation prev = null;
+     //   observations.sort(Comparator.<PoolAdjacentViolatorsModel.Observation>naturalOrder());
         for (PoolAdjacentViolatorsModel.Observation observation : observations) {
-            predictions.add(new PoolAdjacentViolatorsModel.Observation(observation.input, pav.predict(observation.input)));
+
+            PoolAdjacentViolatorsModel.Observation obsToAdd = new PoolAdjacentViolatorsModel.Observation(observation.input, pav.predict(observation.input));
+            predictions.add(obsToAdd);
+
+        if (prev !=null && prev.output < observation.output)
+                System.out.println("prev out: " + prev.toString() + ". obs.input: " + obsToAdd.toString());
+            prev = obsToAdd;
         }
+
 
         TreeSet<PoolAdjacentViolatorsModel.Observation> calibrationSet = pav.getCalibrationSet();
         TreeSet<PoolAdjacentViolatorsModel.Observation> preSmoothingSet = pav.getPreSmoothingSet();
