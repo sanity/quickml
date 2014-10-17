@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
+import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
 import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
@@ -19,6 +20,7 @@ import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunc
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 5/5/14.
@@ -72,10 +74,16 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
                 convertedValSet = labelConverter.get().convertLabels(validationSet);
             }
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
+            int positiveInstances  = 0;
+            for (LabelPredictionWeight<P> labelPredictionWeight : labelPredictionWeights) {
+                if (labelPredictionWeight.getLabel().equals(Double.valueOf(1.0)))
+                    positiveInstances++;
+            }
 
             runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
+
             runningWeightOfValidationSet += weightOfValidationSet;
-            logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
+            logger.info("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet + ". pos instances: " + positiveInstances);
 
             updateTrainingSet();
             updateCrossValidationSet();
@@ -86,12 +94,10 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
         return averageLoss;
     }
 
-    public <PM extends PredictiveModel<R, P>> double getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData, MultiLossFunctionWithModelConfigurations multiLossFunctionWithModelConfigurations) {
+    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData, MultiLossFunctionWithModelConfigurations<P> multiLossFunction) {
 
         initializeTrainingAndValidationSets(rawTrainingData);
 
-        double runningLoss = 0;
-        double runningWeightOfValidationSet = 0;
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
             List<LabelPredictionWeight<P>> labelPredictionWeights;
@@ -101,17 +107,16 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
             }
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
 
-            runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
-            runningWeightOfValidationSet += weightOfValidationSet;
-            logger.debug("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet);
-
+            multiLossFunction.updateRunningLosses(labelPredictionWeights);
             updateTrainingSet();
             updateCrossValidationSet();
         }
-        final double averageLoss = runningLoss / runningWeightOfValidationSet;
-        logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
-
-        return averageLoss;
+        multiLossFunction.normalizeRunningAverages();
+        Map<String, LossWithModelConfiguration> lossMap = multiLossFunction.getLossesWithModelConfigurations();
+        for (String lossFunctionName : lossMap.keySet()) {
+            logger.info("Loss function: " + lossFunctionName + "loss: " + lossMap.get(lossFunctionName).getLoss() + ".  Weight of val set: " + multiLossFunction.getRunningWeight());
+        }
+        return multiLossFunction;
     }
 
 

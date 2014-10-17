@@ -1,12 +1,14 @@
 package quickml.experiments;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.Utilities.CSVToInstanceReader;
 import quickml.Utilities.CSVToInstanceReaderBuilder;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
+import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.calibratedPredictiveModel.CalibratedPredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
@@ -17,13 +19,13 @@ import quickml.supervised.classifier.twoStageModel.TwoStageModelBuilder;
 import quickml.supervised.crossValidation.ClassifierOutOfTimeCrossValidator;
 import quickml.supervised.crossValidation.LabelConverter;
 
-import quickml.supervised.crossValidation.crossValLossFunctions.NonWeightedAUCCrossValLossFunction;
-import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.crossValLossFunctions.*;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexanderhawk on 10/7/14.
@@ -43,9 +45,9 @@ public class Comparison2 {
           //firstStageInstances2 = csvToInstanceReader.readCsv("clickLabelDel.csv");//("cShort.csv");
           //  instancesForCompositeModel = csvToInstanceReader.readCsv("clickPageViewLabelR.csv");//("cpShort.csv");
 
-          instancesWithLabelsForAllStages = csvToInstanceReader.readCsv("aShortW.csv");
-          firstStageInstances = csvToInstanceReader.readCsv("cShortW.csv");
-          instancesForCompositeModel = csvToInstanceReader.readCsv("cpShortW.csv");
+          instancesWithLabelsForAllStages = csvToInstanceReader.readCsv("aShortDx.csv");
+      //    firstStageInstances = csvToInstanceReader.readCsv("cShortDx.csv");
+          instancesForCompositeModel = csvToInstanceReader.readCsv("cpShortDx.csv");
 
         } catch (Exception e) {
             System.exit(2);
@@ -99,11 +101,26 @@ public class Comparison2 {
             }
         };
 
+        ClassifierOutOfTimeCrossValidator cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
+        Map<String, CrossValLossFunction<PredictionMap>> lossFunctions = Maps.newHashMap();
+        lossFunctions.put("auc", new NonWeightedAUCCrossValLossFunction());
+        lossFunctions.put("rmse", new ClassifierRMSECrossValLossFunction());
+       // lossFunctions.put("auc", new NonWeightedAUCCrossValLossFunction());
+        MultiLossFunctionWithModelConfigurations<PredictionMap> multiLossFunctionWithModelConfigurations = new MultiLossFunctionWithModelConfigurations<PredictionMap>(lossFunctions, "Auc");
 
-       ClassifierOutOfTimeCrossValidator cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
+       multiLossFunctionWithModelConfigurations = cv.getMultipleCrossValidatedLossesWithModelConfiguration(twoStageModelBuilder, instancesWithLabelsForAllStages, multiLossFunctionWithModelConfigurations);
+       Map<String, LossWithModelConfiguration> lossWithModelConfigurationMap = multiLossFunctionWithModelConfigurations.getLossesWithModelConfigurations();
+        System.out.println(lossWithModelConfigurationMap.toString());
+
+       cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
        double clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder, instancesWithLabelsForAllStages);
-       System.out.println("twoStageloss: " + clickLoss);
-       cv = new ClassifierOutOfTimeCrossValidator(new NonWeightedAUCCrossValLossFunction(), 0.29, 24, new TestDateTimeExtractor());
+       System.out.println("twoStagelosses: " + clickLoss);
+
+        cv = new ClassifierOutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
+        clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder, instancesWithLabelsForAllStages);
+        System.out.println("twoStagelosses: " + clickLoss);
+
+       cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor());
 
        double compositeModelLoss = cv.getCrossValidatedLoss(pmbWithDatacp, instancesForCompositeModel);
        System.out.println("singleStageloss: " + compositeModelLoss);
