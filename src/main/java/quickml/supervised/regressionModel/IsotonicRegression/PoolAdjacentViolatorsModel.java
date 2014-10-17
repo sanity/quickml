@@ -69,18 +69,23 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
             calibrationList.addAll(orderedCalibrations);
         }
         preSmoothingSet.addAll(calibrationList);
+        calibrationSet = createCalibrationSet(calibrationList);
+        this.size = calibrationSet.size();
 
+    }
+
+    public TreeSet<Observation> createCalibrationSet(List<Observation> inputOrderedList) {
         Observation currentObservation = null, preceedingObservation = null;
         int preceedingObservationIndex = 0;
 
-        for (int i = 1; i<calibrationList.size(); i++) {
+        for (int i = 1; i<inputOrderedList.size(); i++) {
             boolean currentObservationIsViolator = true;
-            currentObservation = calibrationList.get(i);
+            currentObservation = inputOrderedList.get(i);
 
             while (currentObservationIsViolator) {
 
                 if (preceedingObservationIndex >= 0) {
-                    preceedingObservation = calibrationList.get(preceedingObservationIndex);
+                    preceedingObservation = inputOrderedList.get(preceedingObservationIndex);
                 } else {
                     break;
                 }
@@ -96,14 +101,14 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                     preceedingObservationIndex--;
                 }
             }
-            calibrationList.set(preceedingObservationIndex+1, currentObservation);
+            inputOrderedList.set(preceedingObservationIndex+1, currentObservation);
+            preceedingObservationIndex++;
         }
-
+        TreeSet<Observation> localCalibrationSet = Sets.newTreeSet();
         for (int i = 0; i< preceedingObservationIndex+1; i++) {
-            calibrationSet.add(calibrationList.get(i));
+            localCalibrationSet.add(inputOrderedList.get(i));
         }
-
-        this.size = calibrationSet.size();
+        return localCalibrationSet;
     }
 
     public PoolAdjacentViolatorsModel interpolateThroughOrigin(boolean interpolateThroughOrigin) {
