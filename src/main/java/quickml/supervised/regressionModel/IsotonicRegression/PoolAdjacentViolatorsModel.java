@@ -162,7 +162,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                 logger.warn("NoSuchElementException finding calibrationSet elements");
                 return input;
             }
-        } else {
+        }  else if (floor ==null) {
             floor = new Observation(0, 0, calibrationSet.first().weight);
         }
 
