@@ -80,9 +80,16 @@ public class Comparison2 {
         PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatacp= new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(cpDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
 
 
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatac2 = new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(cDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatac2p2 = new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(c2pDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+        PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> pmbWithDatacp2= new PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier>(cpDownsamplingClassifierBuilder).rebuildThreshold(1).splitNodeThreshold(1);
+
+
 
         //TwoStageModelBuilder twoStageModelBuilder = new TwoStageModelBuilder(cCalibratedPredictiveModelBuilder, c2pCalibratedPredictiveModelBuilder);
        TwoStageModelBuilder twoStageModelBuilder = new TwoStageModelBuilder(pmbWithDatac, pmbWithDatac2p);
+        TwoStageModelBuilder twoStageModelBuilder2 = new TwoStageModelBuilder(pmbWithDatac2, pmbWithDatac2p2);
+
         LabelConverter<AttributesMap> labelConverter  = new LabelConverter<AttributesMap>() {
             @Override
             public List<Instance<AttributesMap>> convertLabels(List<Instance<AttributesMap>> initialInstances) {
@@ -100,31 +107,35 @@ public class Comparison2 {
                 return convertedInstances;
             }
         };
+// make sure data sets are the same.  Yes.
+//first note average click prob different for later data sets
+//the number of clicks are different?  confirm these 2 points.
+
+
 
         ClassifierOutOfTimeCrossValidator cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
         Map<String, CrossValLossFunction<PredictionMap>> lossFunctions = Maps.newHashMap();
         lossFunctions.put("auc", new NonWeightedAUCCrossValLossFunction());
         lossFunctions.put("rmse", new ClassifierRMSECrossValLossFunction());
-       // lossFunctions.put("auc", new NonWeightedAUCCrossValLossFunction());
         MultiLossFunctionWithModelConfigurations<PredictionMap> multiLossFunctionWithModelConfigurations = new MultiLossFunctionWithModelConfigurations<PredictionMap>(lossFunctions, "Auc");
 
        multiLossFunctionWithModelConfigurations = cv.getMultipleCrossValidatedLossesWithModelConfiguration(twoStageModelBuilder, instancesWithLabelsForAllStages, multiLossFunctionWithModelConfigurations);
        Map<String, LossWithModelConfiguration> lossWithModelConfigurationMap = multiLossFunctionWithModelConfigurations.getLossesWithModelConfigurations();
-        System.out.println(lossWithModelConfigurationMap.toString());
-
+       System.out.println(lossWithModelConfigurationMap.toString());
+/*
        cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
-       double clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder, instancesWithLabelsForAllStages);
+       double clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder2, instancesWithLabelsForAllStages);
        System.out.println("twoStagelosses: " + clickLoss);
-
+*/
         cv = new ClassifierOutOfTimeCrossValidator(new ClassifierRMSECrossValLossFunction(), 0.25, 24, new TestDateTimeExtractor()).labelConverter(labelConverter);
-        clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder, instancesWithLabelsForAllStages);
+        double clickLoss = cv.getCrossValidatedLoss(twoStageModelBuilder2, instancesWithLabelsForAllStages);
         System.out.println("twoStagelosses: " + clickLoss);
-
+/*
        cv = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 24, new TestDateTimeExtractor());
 
        double compositeModelLoss = cv.getCrossValidatedLoss(pmbWithDatacp, instancesForCompositeModel);
        System.out.println("singleStageloss: " + compositeModelLoss);
-
+*/
 
     }
 
