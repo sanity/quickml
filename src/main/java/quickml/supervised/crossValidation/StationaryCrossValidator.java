@@ -10,8 +10,11 @@ import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionW
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
+import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -63,6 +66,24 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         logger.info("Average loss: "+averageLoss);
         return averageLoss;
     }
+
+    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData, MultiLossFunctionWithModelConfigurations<P> multiLossFunction) {
+        DataSplit dataSplit;
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
+            dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
+            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
+            multiLossFunction.updateRunningLosses(labelPredictionWeights);
+        }
+        multiLossFunction.normalizeRunningAverages();
+        Map<String, LossWithModelConfiguration> lossMap = multiLossFunction.getLossesWithModelConfigurations();
+        for (String lossFunctionName : lossMap.keySet()) {
+            logger.info("Loss function: " + lossFunctionName + "loss: " + lossMap.get(lossFunctionName).getLoss() + ".  Weight of val set: " + multiLossFunction.getRunningWeight());
+        }
+        return multiLossFunction;
+
+    }
+
 
     private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {
         DataSplit dataSplit = new DataSplit();

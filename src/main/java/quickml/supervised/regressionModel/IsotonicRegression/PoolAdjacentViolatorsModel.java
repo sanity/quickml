@@ -2,6 +2,7 @@ package quickml.supervised.regressionModel.IsotonicRegression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
 
     private static final long serialVersionUID = 4389814244047503245L;
     private int size;
+    ArrayList<Observation> calibrationList = Lists.newArrayList();
     TreeSet<Observation> calibrationSet = Sets.newTreeSet();
     TreeSet<Observation> preSmoothingSet = Sets.newTreeSet();
 
@@ -58,51 +60,55 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                     toAdd = toAdd.mergeWith(p);
                     continue;
                 }
-                calibrationSet.add(toAdd);
+                calibrationList.add(toAdd);
                 toAdd = p;
             }
             if (toAdd != null)
-                calibrationSet.add(toAdd);
+                calibrationList.add(toAdd);
         } else {
-            calibrationSet.addAll(orderedCalibrations);
+            calibrationList.addAll(orderedCalibrations);
         }
-        preSmoothingSet.addAll(calibrationSet);
+        preSmoothingSet.addAll(calibrationList);
+        calibrationSet = createCalibrationSet(calibrationList);
+        this.size = calibrationSet.size();
 
-        final Observation restartPos = null;
-        //What follows has complexity 2*O(N^2 Log(N))...it need only be O(N^2)...with large ammounts of training data...this will be an issue
-        cont:
-        while (true) {
-            Observation currentObservation = null, preceedingObservation = null;
-            NavigableSet<Observation> navigableSet = reversed ? calibrationSet.descendingSet() : calibrationSet;
-            for (final Observation observation : navigableSet)  {
-                preceedingObservation = currentObservation;
-                currentObservation = observation;
+    }
 
-                boolean currentObservationIsViolator = false;
-                boolean notAtBeginingOfCalibrationSet = currentObservation != null && preceedingObservation != null;
-                if (notAtBeginingOfCalibrationSet)
-                    if (!reversed) {                        currentObservationIsViolator = currentObservation.output < preceedingObservation.output;
-                    } else {
-                        currentObservationIsViolator = currentObservation.output > preceedingObservation.output;
-                    }
+    public TreeSet<Observation> createCalibrationSet(List<Observation> inputOrderedList) {
+        Observation currentObservation = null, preceedingObservation = null;
+        int preceedingObservationIndex = 0;
+
+        for (int i = 1; i<inputOrderedList.size(); i++) {
+            boolean currentObservationIsViolator = true;
+            currentObservation = inputOrderedList.get(i);
+
+            while (currentObservationIsViolator) {
+
+                if (preceedingObservationIndex >= 0) {
+                    preceedingObservation = inputOrderedList.get(preceedingObservationIndex);
+                } else {
+                    break;
+                }
+
+                if (!reversed) {
+                    currentObservationIsViolator = currentObservation.output < preceedingObservation.output;
+                } else {
+                    currentObservationIsViolator = currentObservation.output > preceedingObservation.output;
+                }
 
                 if (currentObservationIsViolator) {
-                    //TODO: this removal is Log(N).  It should be constant time if calibration set is a linked list.
-                    calibrationSet.remove(currentObservation);
-                    calibrationSet.remove(preceedingObservation);
-                    Observation merged = preceedingObservation.mergeWith(currentObservation);//calibrationSet should be a "marked" linked list to allow for constant time add and removal
-                    calibrationSet.add(merged);
-                    //TODO: don't need to return to the beginning of the list here (e.g. be stuck with N^2 evaluations of the loop body)
-                    //we only need to march backwards doing merges until we have a
-                    //superpoint that is not a violator with respect to it's preceding observation.
-                    //This approach is O(N) (provided we use a linked list for the calibration set), and the number of iterations cannot be greater than 3*calibrationSet.size()
-                    continue cont;
+                    currentObservation = preceedingObservation.mergeWith(currentObservation);
+                    preceedingObservationIndex--;
                 }
             }
-            break;
+            inputOrderedList.set(preceedingObservationIndex+1, currentObservation);
+            preceedingObservationIndex++;
         }
-
-        this.size = calibrationSet.size();
+        TreeSet<Observation> localCalibrationSet = Sets.newTreeSet();
+        for (int i = 0; i< preceedingObservationIndex+1; i++) {
+            localCalibrationSet.add(inputOrderedList.get(i));
+        }
+        return localCalibrationSet;
     }
 
     public PoolAdjacentViolatorsModel interpolateThroughOrigin(boolean interpolateThroughOrigin) {
@@ -156,6 +162,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                 logger.warn("NoSuchElementException finding calibrationSet elements");
                 return input;
             }
+
         } else if (floor ==null) {
             floor = new Observation(0, 0, calibrationSet.first().weight);
         }
