@@ -25,15 +25,15 @@ public class Utils {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
                     predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
-            if (instance.getLabel() instanceof Double && ((Double) instance.getLabel()).doubleValue() == 1.0) {
-                numPositives++;
-            }
-            avWeightOfPositivePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(1.0);
-            avWeightOfNegativePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(0.0);
+//            if (instance.getLabel() instanceof Double && ((Double) instance.getLabel()).doubleValue() == 1.0) {
+ //               numPositives++;
+   //         }
+       //     avWeightOfPositivePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(1.0);
+         //   avWeightOfNegativePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(0.0);
 
         }
-        logger.info("num Positives: " + numPositives);
-        logger.info("avWeightOfPositivePrediction: " + avWeightOfPositivePrediction);
+     //   logger.info("num Positives: " + numPositives);
+       // logger.info("avWeightOfPositivePrediction: " + avWeightOfPositivePrediction);
 
 
         return labelPredictionWeights;
