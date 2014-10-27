@@ -160,7 +160,7 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                 return Math.max(0, calibrationSet.first().output + slopeOffEnd * inputDistanceFromFirst);
             } catch (NoSuchElementException e) {
                 logger.warn("NoSuchElementException finding calibrationSet elements");
-                return input;
+                return calibrationSet.first().output;
             }
 
         } else if (floor ==null) {
@@ -173,6 +173,8 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
             if (calibrationSet.lower(calibrationSet.last()) != null) {
                 lowerXcoord = calibrationSet.lower(calibrationSet.last()).input;
                 lowerYCoord = calibrationSet.lower(calibrationSet.last()).output;
+            } else {
+                return floor.output;
             }
             try {
                 double slopeOffEnd = (calibrationSet.last().output - lowerYCoord) /
@@ -181,10 +183,8 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
                 return calibrationSet.last().output + slopeOffEnd * inputDistanceFromLast;
             } catch (NoSuchElementException e) {
                 logger.warn("NoSuchElementException finding ceiling or calibrationSet has no element calibrationSet.lower(calibrationSet.last()).input");
-                return input;
+                return floor.output;
             }
-        } else if (ceiling == null){
-            return input;
         }
 
         boolean inputOnAPointInTheCalibrationSet = input.equals(ceiling.input) || input.equals(floor.input);
@@ -194,14 +194,14 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         //PAV has just one point in calibration set
         boolean ceilingInputEqualFloorInput = ceiling.input == floor.input;
         if (ceilingInputEqualFloorInput)
-            return input.equals(ceiling.input) ? ceiling.output : input;
+            return input.equals(ceiling.input) ? ceiling.output : floor.output;
 
         double floorWeight = (ceiling.input - input)*floor.weight;
         double ceilingWeight = (input - floor.input)*ceiling.weight;
         double corrected = (floor.output*floorWeight + ceiling.output*ceilingWeight)/(floorWeight + ceilingWeight);
 
 
-       // kProp = (input - floor.input) / (ceiling.input - floor.input);
+     // kProp = (input - floor.input) / (ceiling.input - floor.input);
      //   double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
             logger.info("corrected is NaN or inf");
