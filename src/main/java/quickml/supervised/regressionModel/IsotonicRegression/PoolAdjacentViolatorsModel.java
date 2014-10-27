@@ -141,6 +141,16 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         calibrationSet.add(observation);
     }
 
+    public boolean willExtrapolate(double input) {
+        final Observation toCorrect = new Observation(input, 0);
+        Observation floor = calibrationSet.floor(toCorrect);
+        Observation ceil = calibrationSet.ceiling(toCorrect);
+        if (floor == null || ceil ==null)
+            return true;
+        else
+            return false;
+    }
+
     @Override
     public Double predict(Double input) {
         Preconditions.checkState(!calibrationSet.isEmpty());
