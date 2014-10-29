@@ -2,6 +2,8 @@ package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 import quickml.supervised.classifier.Classifier;
@@ -14,12 +16,12 @@ import java.util.Map;
  */
 public class TwoStageBuilderFactory implements UpdatablePredictiveModelBuilderFactory <AttributesMap, TwoStageModel, TwoStageModelBuilder> {
 
-    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory1;
-    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory2;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory1;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory2;
 
 
-    public TwoStageBuilderFactory(UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder1,
-                                                UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder2
+    public TwoStageBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder1,
+                                                PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder2
                                                 ) {
         this.wrappedBuilderFactory1 = wrappedBuilderBuilder1;
         this.wrappedBuilderFactory2 = wrappedBuilderBuilder2;
