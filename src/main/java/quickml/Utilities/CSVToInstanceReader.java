@@ -133,6 +133,9 @@ public class CSVToInstanceReader {
 
 
     private Serializable tryToConvertToNumeric(String varValue) {
+        if ((varValue.startsWith("\"") && varValue.endsWith("\""))  || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
+            varValue = varValue.substring(1, varValue.length() -1);
+        }
         try {
             return Long.valueOf(varValue);
 
