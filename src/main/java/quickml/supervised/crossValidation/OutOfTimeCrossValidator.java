@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 5/5/14.
  */
-public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
+public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
 
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
 
@@ -74,7 +74,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
                 convertedValSet = labelConverter.get().convertLabels(validationSet);
             }
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
-            int positiveInstances  = 0;
+            int positiveInstances = 0;
             for (LabelPredictionWeight<P> labelPredictionWeight : labelPredictionWeights) {
                 if (labelPredictionWeight.getLabel().equals(Double.valueOf(1.0)))
                     positiveInstances++;
@@ -100,11 +100,13 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
 
         while (!validationSet.isEmpty()) {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+
             List<LabelPredictionWeight<P>> labelPredictionWeights;
             List<Instance<R>> convertedValSet = validationSet;
             if (labelConverter.isPresent()) {
                 convertedValSet = labelConverter.get().convertLabels(validationSet);
             }
+
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
 
             multiLossFunction.updateRunningLosses(labelPredictionWeights);
@@ -135,23 +137,33 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
 
         weightOfValidationSet = 0;
         clicksInValSet = 0;
-        for (Instance<R> instance : allTrainingData) {
-            timeOfInstance = dateTimeExtractor.extractDateTime(instance);
-            if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet)) {
-                trainingDataToAddToPredictiveModel.add(instance);
-            } else if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
-                validationSet.add(instance);
-                weightOfValidationSet += instance.getWeight();
-                if (instance.getLabel().equals(Double.valueOf(1.0))) {
-                    clicksInValSet++;
-                }
+        boolean secondPass = false;
+        while (validationSet.isEmpty()) {
+            for (Instance<R> instance : allTrainingData) {
+                timeOfInstance = dateTimeExtractor.extractDateTime(instance);
+                if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet) && !secondPass) {
+                    trainingDataToAddToPredictiveModel.add(instance);
+                } else if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
+                    validationSet.add(instance);
+                    weightOfValidationSet += instance.getWeight();
+                    if (instance.getLabel().equals(Double.valueOf(1.0))) {
+                        clicksInValSet++;
+                    }
 
-            } else {
-                break;
+                } else {
+                    break;
+                }
             }
+            if (validationSet.isEmpty()) {
+                secondPass = true;
+                timeOfFirstInstanceInValidationSet = leastOuterBoundOfValidationSet;
+                leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
+                logger.info("bumping boundaries: currentTrainingSetSize: " + currentTrainingSetSize + ", allTrainingData.size" + allTrainingData.size());
+            }
+
         }
-      //  logger.info("timeOfFirstInstanceInValidationSet: " + timeOfFirstInstanceInValidationSet.toString() + "\nleastOuterBoundOfValidationSet: " + leastOuterBoundOfValidationSet.toString());
-      //  logger.info("initial clicks in valset: " + clicksInValSet);
+        //  logger.info("timeOfFirstInstanceInValidationSet: " + timeOfFirstInstanceInValidationSet.toString() + "\nleastOuterBoundOfValidationSet: " + leastOuterBoundOfValidationSet.toString());
+        //  logger.info("initial clicks in valset: " + clicksInValSet);
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
     }
 
@@ -162,18 +174,22 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
     }
 
     private void updateCrossValidationSet() {
+
         clearValidationSet();
         if (!newValidationSetExists()) {
             return;
         }
+        logger.info("cleared validation set");
         timeOfFirstInstanceInValidationSet = leastOuterBoundOfValidationSet;
         leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
-   //     logger.info("first val set instance: " + timeOfFirstInstanceInValidationSet + "\n time of last instance " + leastOuterBoundOfValidationSet);
-
-        while(validationSet.isEmpty()) {
+        logger.info("first val set instance: " + timeOfFirstInstanceInValidationSet.toString() + "\n time of last instance " + leastOuterBoundOfValidationSet.toString());
+        logger.info("currentTrainingSetSize: " + currentTrainingSetSize + "\nallTrainingData.size" + allTrainingData.size());
+        while (validationSet.isEmpty()) {
             for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
                 Instance<R> instance = allTrainingData.get(i);
                 DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
+                if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet))
+                    throw new RuntimeException("val instance before earliest possible boundary: " + timeOfInstance.toString());
                 if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
                     validationSet.add(instance);
                     weightOfValidationSet += instance.getWeight();
@@ -181,6 +197,11 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P>{
                         clicksInValSet++;
                 } else
                     break;
+            }
+            if (validationSet.isEmpty()) {
+                timeOfFirstInstanceInValidationSet = leastOuterBoundOfValidationSet;
+                leastOuterBoundOfValidationSet = timeOfFirstInstanceInValidationSet.plus(durationOfValidationSet);
+                logger.info("bumping boundaries: currentTrainingSetSize: " + currentTrainingSetSize + ", allTrainingData.size" + allTrainingData.size());
             }
         }
         logger.info("clicks in val set: " + clicksInValSet);
