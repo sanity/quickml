@@ -92,7 +92,7 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
             runningLosses.put(lossFunctionName, weightedLossFromValidationRun + previousWeightedLoss);
         }
         for (String lossFunctionName : runningLosses.keySet()) {
-            logger.info("Loss function: " + lossFunctionName + "loss: " + runningLosses.get(lossFunctionName)/runningWeight + ".  Weight of val set: " + weightOfNewValidationSet);
+            logger.info("Loss function: " + lossFunctionName + "running loss: " + runningLosses.get(lossFunctionName)/runningWeight + ".  Weight of val set: " + weightOfNewValidationSet);
         }
     }
 
