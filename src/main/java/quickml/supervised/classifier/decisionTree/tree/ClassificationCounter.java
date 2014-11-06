@@ -2,6 +2,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.AttributesMap;
@@ -26,16 +27,17 @@ public class ClassificationCounter implements Serializable {
         }
         return newCC;
     }
+
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
+            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final int minCategoricalAttributeValueOccurences) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
         for (final Instance<AttributesMap> instance : instances) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc = null;
-            boolean acceptableMissingValue = attrVal ==null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
+            boolean acceptableMissingValue = attrVal == null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
 
-            if (attrVal!=null)
+            if (attrVal != null)
                 cc = result.get(attrVal);
             else if (acceptableMissingValue) //means attrValue is null (ie.e not provided)
                 cc = result.get(MISSING_VALUE);
@@ -51,22 +53,35 @@ public class ClassificationCounter implements Serializable {
             totals.addClassification(instance.getLabel(), instance.getWeight());
         }
 
+        //now remove the classification counters with insufficient data and merge them into the insufficientDataValuesClassificationCounter.
+        ClassificationCounter insufficientDataClassificationCounter = new ClassificationCounter();
+        HashSet<Serializable> toRemove = Sets.newHashSet();
         for (Serializable attrVal : result.keySet()) {
-            if (result.get(attribute).getTotal() < min)
+            if (result.get(attrVal).getTotal() < minCategoricalAttributeValueOccurences) {
+                insufficientDataClassificationCounter = ClassificationCounter.merge(insufficientDataClassificationCounter, result.get(attrVal));
+                toRemove.add(attrVal);
+            }
+        }
+        for (Serializable val : toRemove) {
+            result.remove(val);
+        }
+
+        if (insufficientDataClassificationCounter.getTotal() > minCategoricalAttributeValueOccurences) {  //could require thath the total is greater than minCategoricalAttributeValueOccurrences...not clear if we should though
+            result.put(INSUFFICIENT_DATA_VALUE, insufficientDataClassificationCounter);
         }
 
         return Pair.with(totals, result);
     }
 
-	public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
+    public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
+            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification, final int minCategoricalAttributeValueOccurences) {
 
-        Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances,attribute,splitAttribute,splitAttributeValue);
+        Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances, attribute, splitAttribute, splitAttributeValue, minCategoricalAttributeValueOccurences);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
-		final ClassificationCounter totals = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue0();
+        final ClassificationCounter totals = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue0();
 
         List<AttributeValueWithClassificationCounter> attributesWithClassificationCounters = Lists.newArrayList();
-        for(Serializable key : result.keySet()) {
+        for (Serializable key : result.keySet()) {
             attributesWithClassificationCounters.add(new AttributeValueWithClassificationCounter(key, result.get(key)));
         }
         Collections.sort(attributesWithClassificationCounters, new Comparator<AttributeValueWithClassificationCounter>() {
@@ -84,11 +99,11 @@ public class ClassificationCounter implements Serializable {
             }
         });
 
-		return Pair.with(totals, attributesWithClassificationCounters);
-	}
+        return Pair.with(totals, attributesWithClassificationCounters);
+    }
 
-    private static boolean isAnAcceptableMissingValue(Instance<AttributesMap> instance, String splitAttribute, Serializable splitAttributeValue){
-        return  splitAttribute == null
+    private static boolean isAnAcceptableMissingValue(Instance<AttributesMap> instance, String splitAttribute, Serializable splitAttributeValue) {
+        return splitAttribute == null
                 || splitAttributeValue == null
                 || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue); //all missing values are acceptable for an instance that is not cross pollinated (i.e. the splitAttribute of the instance is the splitAttribute value
     }
@@ -102,62 +117,62 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-	public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap>> instances) {
-		final ClassificationCounter result = new ClassificationCounter();
-		for (final Instance<AttributesMap> instance : instances) {
-			result.addClassification(instance.getLabel(), instance.getWeight());
-		}
-		return result;
-	}
+    public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap>> instances) {
+        final ClassificationCounter result = new ClassificationCounter();
+        for (final Instance<AttributesMap> instance : instances) {
+            result.addClassification(instance.getLabel(), instance.getWeight());
+        }
+        return result;
+    }
 
-	public void addClassification(final Serializable classification, double weight) {
-		counts.addToValue(classification, weight);
-	}
+    public void addClassification(final Serializable classification, double weight) {
+        counts.addToValue(classification, weight);
+    }
 
-	public double getCount(final Serializable classification) {
-		Number count = counts.get(classification);
+    public double getCount(final Serializable classification) {
+        Number count = counts.get(classification);
         if (count == null) {
             return 0;
         } else {
             return count.doubleValue();
         }
-	}
+    }
 
-	public Set<Serializable> allClassifications() {
-		return counts.keySet();
-	}
+    public Set<Serializable> allClassifications() {
+        return counts.keySet();
+    }
 
-	public ClassificationCounter add(final ClassificationCounter other) {
-		final ClassificationCounter result = new ClassificationCounter();
-		result.counts.putAll(counts);
-		for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
-			result.counts.addToValue(e.getKey(), e.getValue().doubleValue());
-		}
-		return result;
-	}
-
-	public ClassificationCounter subtract(final ClassificationCounter other) {
-		final ClassificationCounter result = new ClassificationCounter();
+    public ClassificationCounter add(final ClassificationCounter other) {
+        final ClassificationCounter result = new ClassificationCounter();
         result.counts.putAll(counts);
-		for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
-			result.counts.addToValue(e.getKey(), -other.getCount(e.getKey()));
-		}
-		return result;
-	}
+        for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
+            result.counts.addToValue(e.getKey(), e.getValue().doubleValue());
+        }
+        return result;
+    }
 
-	public double getTotal() {
-		return counts.getSumOfValues();
-	}
+    public ClassificationCounter subtract(final ClassificationCounter other) {
+        final ClassificationCounter result = new ClassificationCounter();
+        result.counts.putAll(counts);
+        for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
+            result.counts.addToValue(e.getKey(), -other.getCount(e.getKey()));
+        }
+        return result;
+    }
 
-	public Pair<Serializable, Double> mostPopular() {
-		Entry<Serializable, Number> best = null;
-		for (final Entry<Serializable, Number> e : counts.entrySet()) {
-			if (best == null || e.getValue().doubleValue() > best.getValue().doubleValue()) {
-				best = e;
-			}
-		}
-		return Pair.with(best.getKey(), best.getValue().doubleValue());
-	}
+    public double getTotal() {
+        return counts.getSumOfValues();
+    }
+
+    public Pair<Serializable, Double> mostPopular() {
+        Entry<Serializable, Number> best = null;
+        for (final Entry<Serializable, Number> e : counts.entrySet()) {
+            if (best == null || e.getValue().doubleValue() > best.getValue().doubleValue()) {
+                best = e;
+            }
+        }
+        return Pair.with(best.getKey(), best.getValue().doubleValue());
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -396,27 +396,35 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                                                                          final Iterable<? extends Instance<AttributesMap>> instances) {
 
         double bestScore = 0;
-        final Set<Serializable> inSet = Sets.newHashSet();
-        final Set<Serializable> outSet = Sets.newHashSet();
+        final Set<Serializable> trialInSet = Sets.newHashSet();
+        final Set<Serializable> trialOutSet = Sets.newHashSet();
 
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
-                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
+                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification, minCategoricalAttributeValueOccurances);  //returs a list of ClassificationCounterList
 
         ClassificationCounter outCounts = valueOutcomeCountsPairs.getValue0(); //classification counter treating all values the same
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
         final List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters = valueOutcomeCountsPairs.getValue1(); //map of value _> classificationCounter
-        Serializable lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;
+        Serializable lastValOfInset = null;
+        if (valuesWithClassificationCounters.size()>0) {
+            lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;
+        }
+        else {
+            return null;
+        }
+
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-            if (testValCounts == null || valueWithClassificationCounter.attributeValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
+            if (testValCounts == null) { // Also a kludge, figure out why
                 continue;
             }
-            if (this.minCategoricalAttributeValueOccurances > 0) {
+/*            if (this.minCategoricalAttributeValueOccurances > 0) {
                 if (shouldWeIgnoreThisValue(testValCounts))
                     continue;
             }
+ */
             inCounts = inCounts.add(testValCounts);
             outCounts = outCounts.subtract(testValCounts);
 
@@ -431,16 +439,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
             }
         }
-
-        boolean insetIsBuiltNowBuildingOutset = false;
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
-            if (!insetIsBuiltNowBuildingOutset) {
-                inSet.add(attributeValueWithClassificationCounter.attributeValue);
-                if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
-                    insetIsBuiltNowBuildingOutset = true;
-                }
-            } else {
-                outSet.add(attributeValueWithClassificationCounter.attributeValue);
+            trialInSet.add(attributeValueWithClassificationCounter.attributeValue);
+            if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
+                break;
             }
         }
 
@@ -448,8 +450,28 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             return null;
         }
 
-        final Set<Serializable> returnSet = (MapUtils.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, returnSet), bestScore);
+        boolean insetIsBuiltNowBuildingOutset = false;
+        for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
+            if (!insetIsBuiltNowBuildingOutset) {
+                trialInSet.add(attributeValueWithClassificationCounter.attributeValue);
+                if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
+                    insetIsBuiltNowBuildingOutset = true;
+                }
+            } else {
+                trialOutSet.add(attributeValueWithClassificationCounter.attributeValue);
+            }
+        }
+
+        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
+            return null;
+        }
+        // Because instances with sparsly sampled attribute values (i.e. values that are insufficient) will always flow the way of the outset, make
+        // the inset be the partition that does not contain the insufficient_data attribute value.
+        boolean returnTrialInset = !trialInSet.contains(INSUFFICIENT_DATA_VALUE) || (!trialInSet.contains(INSUFFICIENT_DATA_VALUE) && !trialOutSet.contains(INSUFFICIENT_DATA_VALUE));
+        final Set<Serializable> actualInset = (returnTrialInset) ? trialInSet : trialOutSet ; //the in-set
+
+        //return null if the actual inset has a size of 0 (meaning no attribute values satisfied the minCatAttributeOccurences
+        Pair<CategoricalBranch, Double> bestPair = (trialInSet.size() == 0 ||trialOutSet.size() ==0)? null : Pair.with(new CategoricalBranch(parent, attribute, actualInset), bestScore);
         return bestPair;
     }
 
@@ -465,7 +487,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
-                .countAllByAttributeValues(instances, attribute, splitAttribute, id);
+                .countAllByAttributeValues(instances, attribute, splitAttribute, id, minCategoricalAttributeValueOccurances);
         ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter
