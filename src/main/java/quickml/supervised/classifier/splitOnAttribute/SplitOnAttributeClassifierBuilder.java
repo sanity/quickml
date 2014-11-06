@@ -65,6 +65,8 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     private Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData(Iterable<? extends Instance<AttributesMap>> trainingData) {
+
+       //create lists of data for each split attribute val
         Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData = Maps.newHashMap();
         ArrayList<Instance<AttributesMap>> allData = new ArrayList<>();
         for (Instance<AttributesMap> instance : trainingData) {
@@ -78,28 +80,28 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
             splitData.add(instance);
             allData.add(instance);
         }
-
+        //do cross polination
         crossPollinateData(splitTrainingData, allData);
         return splitTrainingData;
     }
 
     /*
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
-    * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that in in the white list
+    * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that are in the white list
     * */
     private void crossPollinateData(Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData, ArrayList<Instance<AttributesMap>> allData) {
         for(Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> entry : splitTrainingData.entrySet()) {
-            ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue());
-            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);
+            ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue()); //counts training instances associated with each split value (by classification and total)
+            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);  //gets number of cross training instances to add
             Set<Instance<AttributesMap>> crossData = new HashSet<>();
             ClassificationCounter crossDataCount = new ClassificationCounter();
             for(int i = allData.size()-1; i >= 0; i--) {
-                Instance<AttributesMap>instance = allData.get(i);
-                double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal();
-                double targetCount = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification);
-                if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCount)) {
+                Instance<AttributesMap> instance = allData.get(i);
+                double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal(); //fraction of data by classification type in the un cross polinated data set
+                double targetCountByClassification = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification); //number of instances to add of a particular classification
+                if(shouldAddInstance(entry.getKey(), instance, crossDataCount, targetCountByClassification)) {
                     crossData.add(cleanSupportingData(instance));
-                    crossDataCount.addClassification(instance.getLabel(), instance.getWeight());
+                    crossDataCount.addClassification(instance.getLabel(), instance.getWeight());  //updates the amount of instances we have added by classification
                 }
                 if(crossDataCount.getTotal() >= amountCrossData) {
                     break;
@@ -114,10 +116,12 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
      * Add instances such that the ratio of classifications is unchanged
     * */
     private boolean shouldAddInstance(Serializable attributeValue, Instance<AttributesMap> instance, ClassificationCounter crossDataCount, double targetCount) {
+        //if the model's split valaue is not the same as the instance's split value (avoids redundancy)
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
-            if (targetCount > crossDataCount.getCount(instance.getLabel())) {
+            //if we still need instances of a particular classification
+//            if (targetCount > crossDataCount.getCount(instance.getLabel())) {
                 return true;
-            }
+  //          }
         }
         return false;
     }

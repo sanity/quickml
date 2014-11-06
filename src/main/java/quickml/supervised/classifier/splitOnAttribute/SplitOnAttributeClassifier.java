@@ -70,5 +70,4 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
         }
         return predictiveModel;
     }
-
 }
