@@ -37,18 +37,22 @@ public class ClassificationCounter implements Serializable {
 
             if (attrVal!=null)
                 cc = result.get(attrVal);
-            else if (acceptableMissingValue)
+            else if (acceptableMissingValue) //means attrValue is null (ie.e not provided)
                 cc = result.get(MISSING_VALUE);
             else
                 continue;
 
-            if (cc == null) {
+            if (cc == null) {  //means we have not seen this attribute before.
                 cc = new ClassificationCounter();
                 Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
                 result.put(newKey, cc);
             }
             cc.addClassification(instance.getLabel(), instance.getWeight());
             totals.addClassification(instance.getLabel(), instance.getWeight());
+        }
+
+        for (Serializable attrVal : result.keySet()) {
+            if (result.get(attribute).getTotal() < min)
         }
 
         return Pair.with(totals, result);
@@ -86,7 +90,7 @@ public class ClassificationCounter implements Serializable {
     private static boolean isAnAcceptableMissingValue(Instance<AttributesMap> instance, String splitAttribute, Serializable splitAttributeValue){
         return  splitAttribute == null
                 || splitAttributeValue == null
-                || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
+                || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue); //all missing values are acceptable for an instance that is not cross pollinated (i.e. the splitAttribute of the instance is the splitAttribute value
     }
 
     public Map<Serializable, Double> getCounts() {

@@ -24,6 +24,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
+    public static final Serializable INSUFFICIENT_DATA_VALUE = "%insufficientVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     private final Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
@@ -413,7 +414,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 continue;
             }
             if (this.minCategoricalAttributeValueOccurances > 0) {
-                if (shouldWeIgnoreThisValue(testValCounts)) continue;
+                if (shouldWeIgnoreThisValue(testValCounts))
+                    continue;
             }
             inCounts = inCounts.add(testValCounts);
             outCounts = outCounts.subtract(testValCounts);
@@ -473,13 +475,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
-                if (testValCounts == null|| thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
+                if (testValCounts == null|| thisValue == null) { // Also a kludge, figure out why
                     // this would happen
                     //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
                     continue;
                 }
                 if (this.minCategoricalAttributeValueOccurances > 0) {
-                    if (shouldWeIgnoreThisValue(testValCounts)) continue;
+                    if (shouldWeIgnoreThisValue(testValCounts))
+                        continue; //this should become unneeded if the Map of classification counters only has attributes that are sufficient.
                 }
                 final ClassificationCounter testInCounts = inSetClassificationCounts.add(testValCounts);
                 final ClassificationCounter testOutCounts = outSetClassificationCounts.subtract(testValCounts);
