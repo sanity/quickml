@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
-    <artifactId>quickml</artifactId>
+    <artifactId>0.4.6.8</artifactId>
     <version>SNAPSHOT</version>
     <!--0.4.6.7-->
     <distributionManagement>
