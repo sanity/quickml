@@ -8,7 +8,7 @@
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
-            <!-- 0.4.6.8Need a better approach than hardcoding the path like this -->
+            <!-- Need a better approach than hardcoding the path like this -->
             <url>file:../../Documents/maven-repo/repository</url>
         </repository>
     </distributionManagement>
