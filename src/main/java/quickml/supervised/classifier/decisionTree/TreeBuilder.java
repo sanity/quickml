@@ -438,7 +438,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                     insetIsBuiltNowBuildingOutset = true;
                 }
             } else {
-                outSet.add(attributeValueWithClassificationCounter.attributeValue);
+                break;
+                //outSet.add(attributeValueWithClassificationCounter.attributeValue);
             }
         }
 
@@ -446,7 +447,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             return null;
         }
 
-//        final Set<Serializable> returnSet = (MapUtils.random.nextDouble() > 0.5) ? inSet : outSet ; //the in-set
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet), bestScore);
         return bestPair;
     }
