@@ -24,7 +24,7 @@ public final class NumericBranch extends Branch {
 	public boolean decide(final AttributesMap attributes) {
         Serializable value = attributes.get(attribute);
         if (value == null) value = 0;
-        if (!(value instanceof Number)) {
+        else if (!(value instanceof Number)) {
             throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());
         }
         final double valueAsDouble = ((Number) value).doubleValue();

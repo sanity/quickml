@@ -22,8 +22,9 @@ public final class CategoricalBranch extends Branch {
     @Override
     public boolean decide(final AttributesMap attributes) {
         Serializable attributeVal = attributes.get(attribute);
-        if (attributeVal==null)
-            attributeVal = MISSING_VALUE;
+    //TODO: the below commented code is actually not needed if we agree missing values must always go the way of the outset...which strangely seems to be most accurate for the time being
+    //        if (attributeVal==null)
+    //            attributeVal = MISSING_VALUE;
         return inSet.contains(attributeVal);
     }
 
