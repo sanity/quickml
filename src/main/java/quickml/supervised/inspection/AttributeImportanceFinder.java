@@ -45,17 +45,17 @@ public class AttributeImportanceFinder {
         LinkedList<Instance<AttributesMap>> trainingSet = Lists.newLinkedList();
         LinkedList<Instance<AttributesMap>> testingSet = Lists.newLinkedList();
         for (Instance<AttributesMap> instance : trainingData) {
-            if (Math.abs(instance.getAttributes().hashCode()) % 10 == 0) {
+            if (Math.abs(instance.getAttributes().hashCode()) % 10 == 0) {//10 folds does not match 4 in crossvalidator
                 testingSet.add(instance);
             } else {
                 trainingSet.add(instance);
             }
         }
-
+//create a resevoir sampler for each map.  Question: does the resevoir sampler provide samples?
         Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
         for (Instance<AttributesMap> instance : trainingData) {
             for (Map.Entry<String,Serializable> attributeKeyValue : instance.getAttributes().entrySet()) {
-                ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
+                ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());//getValue?
                 if (sampler == null) {
                     sampler = new ReservoirSampler<Serializable>(1000);
                     samplesPerAttribute.put(attributeKeyValue.getKey(), sampler);

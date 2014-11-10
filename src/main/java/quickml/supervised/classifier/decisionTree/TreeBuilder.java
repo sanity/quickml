@@ -144,7 +144,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private double[] createNumericSplit(final Iterable<? extends Instance<AttributesMap>> trainingData, final String attribute) {
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE,rand);
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
         for (final Instance<AttributesMap> instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = 0;
@@ -270,7 +270,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         return bestNode;
     }
 
-    private void setTrueAndFalseTrainingSets(Iterable<? extends Instance<AttributesMap>> trainingData, Branch bestNode, ArrayList<Instance<AttributesMap>> trueTrainingSet, ArrayList<            Instance<AttributesMap>> falseTrainingSet) {
+    private void setTrueAndFalseTrainingSets(Iterable<? extends Instance<AttributesMap>> trainingData, Branch bestNode, ArrayList<Instance<AttributesMap>> trueTrainingSet, ArrayList<Instance<AttributesMap>> falseTrainingSet) {
         final ArrayList<Instance<AttributesMap>> supportingDataSet = Lists.newArrayList();
 
         //put instances with attribute values into appropriate training sets
@@ -283,9 +283,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 instanceNotPermittedToContributeToInsetDefinition = !splitModelWhiteList.contains(bestNode.attribute);
             }
 
-             boolean instanceIsInTheSupportingDataSet = usingSplitModel
-                     && isASupportingInstanceFromADifferentSplit
-                     && instanceNotPermittedToContributeToInsetDefinition; //and the attribute isn't in the whitelist
+            boolean instanceIsInTheSupportingDataSet = usingSplitModel
+                    && isASupportingInstanceFromADifferentSplit
+                    && instanceNotPermittedToContributeToInsetDefinition; //and the attribute isn't in the whitelist
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             } else {
@@ -326,7 +326,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
                 numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
-            } else if (!attributeCharacteristicsEntry.getValue().isNumber){
+            } else if (!attributeCharacteristicsEntry.getValue().isNumber) {
                 categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             }
 
@@ -473,7 +473,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
-                if (testValCounts == null|| thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
+                if (testValCounts == null || thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
                     // this would happen
                     //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
                     continue;
@@ -532,8 +532,12 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-        double totalCounts = testValCounts.getTotal();
-        return totalCounts < minCategoricalAttributeValueOccurances;
+        Map<Serializable, Double> counts = testValCounts.getCounts();
+        for (Serializable key : counts.keySet()) {
+            if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
+                return true;
+        }
+        return false;
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
@@ -619,7 +623,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     /**
-     * @param node         a branch with UpdatableLeaf children or an UpdatableLeaf
+     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
      */
     private Collection<Instance<AttributesMap>> getData(Node node) {
         List<Instance<AttributesMap>> data = Lists.newArrayList();
@@ -679,7 +683,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         }
 
         @Override
-        public boolean apply(@Nullable  Instance<AttributesMap> input) {
+        public boolean apply(@Nullable Instance<AttributesMap> input) {
             try {
                 if (input == null) {//consider deleting
                     return false;
