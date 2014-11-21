@@ -1,5 +1,4 @@
 package quickml.supervised.calibratedPredictiveModel;
-import com.google.common.base.Preconditions;
 
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
@@ -7,6 +6,7 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
 
 import java.io.Serializable;
+import java.util.Set;
 
 
 /**
@@ -26,9 +26,15 @@ public class CalibratedPredictiveModel implements Classifier {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.pavFunction = PAVFunction;
     }
-
+    @Override
     public double getProbability(AttributesMap attributes, Serializable label) {
         double rawProbability = wrappedPredictiveModel.getProbability(attributes, label);
+        return pavFunction.predict(rawProbability);
+    }
+
+    @Override
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable label, Set<String> attributesToIgnore) {
+        double rawProbability = wrappedPredictiveModel.getProbabilityWithoutAttributes(attributes, label, attributesToIgnore);
         return pavFunction.predict(rawProbability);
     }
 
@@ -37,6 +43,16 @@ public class CalibratedPredictiveModel implements Classifier {
     public PredictionMap predict(final AttributesMap attributes) {
         PredictionMap predictionMap = wrappedPredictiveModel.predict(attributes);
         double positiveClassProb =  pavFunction.predict(wrappedPredictiveModel.getProbability(attributes, 1.0));
+        predictionMap.put(Double.valueOf(1.0), positiveClassProb);
+        predictionMap.put(Double.valueOf(0.0), 1.0 - positiveClassProb);
+
+        return predictionMap;
+    }
+
+    @Override
+    public PredictionMap predictWithoutAttributes(final AttributesMap attributes, Set<String> attributesToIgnore) {
+        PredictionMap predictionMap = wrappedPredictiveModel.predictWithoutAttributes(attributes, attributesToIgnore);
+        double positiveClassProb =  pavFunction.predict(wrappedPredictiveModel.getProbabilityWithoutAttributes(attributes, 1.0, attributesToIgnore));
         predictionMap.put(Double.valueOf(1.0), positiveClassProb);
         predictionMap.put(Double.valueOf(0.0), 1.0 - positiveClassProb);
 

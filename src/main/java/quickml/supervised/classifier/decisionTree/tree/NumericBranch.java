@@ -14,8 +14,8 @@ public final class NumericBranch extends Branch {
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-	public NumericBranch(Node parent, final String attribute, final double threshold) {
-		super(parent, attribute);
+	public NumericBranch(Node parent, final String attribute, final double threshold, double probabilityOfTrueChild) {
+		super(parent, attribute, probabilityOfTrueChild);
 		this.threshold = threshold;
 
 	}
@@ -23,7 +23,7 @@ public final class NumericBranch extends Branch {
 	@Override
 	public boolean decide(final AttributesMap attributes) {
         Serializable value = attributes.get(attribute);
-        if (value == null) value = 0;
+        if (value == null) value = Double.valueOf(0);
         else if (!(value instanceof Number)) {
             throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());
         }

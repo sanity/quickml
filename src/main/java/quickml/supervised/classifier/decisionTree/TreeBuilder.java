@@ -275,7 +275,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
         //put instances with attribute values into appropriate training sets
         for (Instance<AttributesMap> instance : trainingData) {
-            boolean isASupportingInstanceFromADifferentSplit = false;
+   /*         boolean isASupportingInstanceFromADifferentSplit = false;
             boolean instanceNotPermittedToContributeToInsetDefinition = false;
             boolean usingSplitModel = splitAttribute != null && id != null;
             if (usingSplitModel) {
@@ -289,14 +289,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             if (instanceIsInTheSupportingDataSet) {
                 supportingDataSet.add(instance);
             } else {
-                if (bestNode.decide(instance.getAttributes())) {
+     */           if (bestNode.decide(instance.getAttributes())) {
                     trueTrainingSet.add(instance);
                 } else {
                     falseTrainingSet.add(instance);
                 }
-            }
+            //}
         }
-
+/*
         //put instances without values for the split attribute in the true and false set in proper proportions.
         for (Instance<AttributesMap> instance : supportingDataSet) {
             double trueThreshold = trueTrainingSet.size() / (trueTrainingSet.size() + falseTrainingSet.size());
@@ -306,6 +306,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 falseTrainingSet.add(instance);
             }
         }
+  */
     }
 
     private Pair<? extends Branch, Double> getBestNodePair(Node parent, final Iterable<? extends Instance<AttributesMap>> trainingData, final Map<String, double[]> splits) {
@@ -406,7 +407,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
         final List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters = valueOutcomeCountsPairs.getValue1(); //map of value _> classificationCounter
         Serializable lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;
-
+        double probabilityOfBeingInInset = 0;
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
             if (testValCounts == null || valueWithClassificationCounter.attributeValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
@@ -427,6 +428,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
+                probabilityOfBeingInInset = inCounts.getTotal()/(inCounts.getTotal() + outCounts.getTotal());
             }
         }
 
@@ -446,8 +448,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
             return null;
         }
-
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet), bestScore);
+        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet, probabilityOfBeingInInset), bestScore);
         return bestPair;
     }
 
@@ -507,8 +508,9 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         if (inSetClassificationCounts.getTotal() < minLeafInstances || outSetClassificationCounts.getTotal() < minLeafInstances) {
             return null;
         }
-
-        return Pair.with(new CategoricalBranch(parent, attribute, inValueSet), insetScore);
+        //because inSetClassificationCounts is only mutated to better insets during the for loop...it corresponds to the actual inset here.
+        double probabilityOfBeingInInset = inSetClassificationCounts.getTotal()/(inSetClassificationCounts.getTotal() + outSetClassificationCounts.getTotal());
+        return Pair.with(new CategoricalBranch(parent, attribute, inValueSet, probabilityOfBeingInInset), insetScore);
     }
 
     private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<? extends Instance<AttributesMap>> trainingData, final Set<Serializable> values) {
@@ -547,6 +549,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         double bestThreshold = 0;
 
         double lastThreshold = Double.MIN_VALUE;
+        double probabilityOfBeingInInset = 0;
         for (final double threshold : splits) {
             // Sometimes we can get a few thresholds the same, avoid wasted
             // effort when we do
@@ -559,7 +562,12 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             final Iterable<? extends Instance<AttributesMap>> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
-            if (inClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < minLeafInstances) {
+/*            if (inClassificationCounts.getTotal() < minLeafInstances
+                    || outClassificationCounts.getTotal() < minLeafInstances) {
+                continue;
+            }
+*/            if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances
+                    || outClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances) {
                 continue;
             }
 
@@ -568,12 +576,13 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;
+                probabilityOfBeingInInset = inClassificationCounts.getTotal()/(inClassificationCounts.getTotal() + outClassificationCounts.getTotal());
             }
         }
         if (bestScore == 0) {
             return null;
         }
-        return Pair.with(new NumericBranch(parent, attribute, bestThreshold), bestScore);
+        return Pair.with(new NumericBranch(parent, attribute, bestThreshold, probabilityOfBeingInInset), bestScore);
     }
 
     /**

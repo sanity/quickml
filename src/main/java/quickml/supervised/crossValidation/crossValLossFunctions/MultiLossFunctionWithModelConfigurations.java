@@ -1,14 +1,18 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.apache.mahout.math.function.Mult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.inspection.AttributeImportanceFinder;
 
+import javax.swing.text.html.Option;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 10/15/14.
@@ -19,11 +23,13 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
     This class stores a map of loss functions to LossForModelConfigurations (which stores a model's calculated loss and the model's configuration parameters).   */
 
     private Map<String, LossWithModelConfiguration> lossesWithModelConfigurations = Maps.newHashMap();
+    private Map<String, Double> lossMap = Maps.newHashMap();
     private String primaryLossFunctionName;
     private double runningWeight;
     private Map<String, Double> runningLosses = Maps.newHashMap();
     private Map<String, CrossValLossFunction<P>> lossFunctions;
     private boolean normalizedAverages = false;
+    public boolean scrambleAttributes = false;
 
 
     public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName) {
@@ -31,18 +37,21 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
         this.primaryLossFunctionName = primaryLossFunctionName;
         for (String lossFunctionName : lossFunctions.keySet()) {
             runningLosses.put(lossFunctionName, 0.0);
+            lossesWithModelConfigurations.put(lossFunctionName, new LossWithModelConfiguration());
         }
+    }
+
+    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations, boolean scrambleAttributes) {
+
+        this(lossFunctions, primaryLossFunctionName);
+        this.lossesWithModelConfigurations = lossesWithModelConfigurations;
+        this.scrambleAttributes = scrambleAttributes;
     }
 
     public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations) {
-        this.lossFunctions = lossFunctions;
-        this.primaryLossFunctionName = primaryLossFunctionName;
+        this(lossFunctions,primaryLossFunctionName);
         this.lossesWithModelConfigurations = lossesWithModelConfigurations;
-        for (String lossFunctionName : lossFunctions.keySet()) {
-            runningLosses.put(lossFunctionName, 0.0);
-        }
     }
-
 
     public double getRunningWeight() {
         return runningWeight;
@@ -52,6 +61,13 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
         CrossValLossFunction<P> primaryLossFunction = lossFunctions.get(primaryLossFunctionName);
         return primaryLossFunction.getLoss(labelPredictionWeights);
     }
+
+   public Map<String, Double> getLossMap() {
+      for (String lossFunction : lossesWithModelConfigurations.keySet()) {
+               lossMap.put(lossFunction, lossesWithModelConfigurations.get(lossFunction).getLoss());
+      }
+      return lossMap;
+   }
 
    public MultiLossFunctionWithModelConfigurations<P> mergeByBestLosses(MultiLossFunctionWithModelConfigurations<P> other) {
        Map<String, LossWithModelConfiguration> mergedLossesWithModelConfigurations = Maps.newHashMap();
@@ -92,7 +108,7 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
             runningLosses.put(lossFunctionName, weightedLossFromValidationRun + previousWeightedLoss);
         }
         for (String lossFunctionName : runningLosses.keySet()) {
-            logger.info("Loss function: " + lossFunctionName + "running loss: " + runningLosses.get(lossFunctionName)/runningWeight + ".  Weight of val set: " + weightOfNewValidationSet);
+     //       logger.info("Loss function: " + lossFunctionName + "running loss: " + runningLosses.get(lossFunctionName)/runningWeight + ".  Weight of val set: " + weightOfNewValidationSet);
         }
     }
 

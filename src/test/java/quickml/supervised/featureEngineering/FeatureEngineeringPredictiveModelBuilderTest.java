@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FeatureEngineeringPredictiveModelBuilderTest {
 
@@ -85,6 +86,11 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
                 map.put(valueToTest, 0.0);
                 return new PredictionMap(map);
             }
+
+        @Override
+        public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+            return predict(attributes);
+        }
 
             @Override
             public void dump(Appendable appendable) {

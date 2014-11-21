@@ -8,6 +8,7 @@ import quickml.supervised.classifier.Classifier;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ian on 5/29/14.
@@ -30,8 +31,17 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     }
 
     @Override
+    public double getProbabilityWithoutAttributes(final AttributesMap attributes, final Serializable classification, Set<String> attributesToIgnore) {
+        return getModelForAttributes(attributes).getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+    }
+
+    @Override
     public PredictionMap predict(final AttributesMap attributes) {
         return getModelForAttributes(attributes).predict(attributes);
+    }
+    @Override
+    public PredictionMap predictWithoutAttributes(final AttributesMap attributes, Set<String> attributesToIgnore) {
+        return getModelForAttributes(attributes).predictWithoutAttributes(attributes, attributesToIgnore);
     }
 
     @Override

@@ -8,6 +8,7 @@ import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionW
 import quickml.data.Instance;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 7/31/14.
@@ -17,26 +18,23 @@ public class Utils {
 
     public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        int numPositives = 0;
-        double avWeightOfPositivePrediction = 0;
-        double avWeightOfNegativePrediction = 0;
-
         for (Instance<R> instance : instances) {
             LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
                     predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
-//            if (instance.getLabel() instanceof Double && ((Double) instance.getLabel()).doubleValue() == 1.0) {
- //               numPositives++;
-   //         }
-       //     avWeightOfPositivePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(1.0);
-         //   avWeightOfNegativePrediction += ((PredictionMap)(labelPredictionWeight.getPrediction())).get(0.0);
-
         }
-     //   logger.info("num Positives: " + numPositives);
-       // logger.info("avWeightOfPositivePrediction: " + avWeightOfPositivePrediction);
-
-
         return labelPredictionWeights;
     }
+
+    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeightsWithoutAttributes(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel, Set<String> attributesToIgnore) {
+        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
+        for (Instance<R> instance : instances) {
+            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
+                    predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore),  instance.getWeight());
+            labelPredictionWeights.add(labelPredictionWeight);
+        }
+        return labelPredictionWeights;
+    }
+
 }
 

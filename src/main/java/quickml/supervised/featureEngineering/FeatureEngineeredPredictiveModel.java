@@ -8,6 +8,7 @@ import quickml.supervised.PredictiveModel;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A predictive model that wraps another predictive model but modifies the input
@@ -28,6 +29,12 @@ public class FeatureEngineeredPredictiveModel extends AbstractClassifier {
     public PredictionMap predict(AttributesMap attributes) {
         AttributesMap enrichedAttributes = enrichAttributes(attributes);
         return wrappedPredictiveModel.predict(enrichedAttributes);
+    }
+
+    @Override
+    public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+        AttributesMap enrichedAttributes = enrichAttributes(attributes);
+        return wrappedPredictiveModel.predictWithoutAttributes(enrichedAttributes, attributesToIgnore);
     }
 
     private AttributesMap enrichAttributes(final AttributesMap attributes) {

@@ -2,11 +2,15 @@ package quickml.supervised.crossValidation;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.javatuples.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
@@ -17,10 +21,7 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 5/5/14.
@@ -121,6 +122,70 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         return multiLossFunction;
     }
 
+    @Override
+    public <PM extends PredictiveModel<R, P>,  PMB extends PredictiveModelBuilder<R, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config,  Iterable<? extends Instance<R>> rawTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<P>> lossFunctions) {
+        //list of attributes are provided
+        //initialize the loss functions for each attribute
+        PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
+        Map<String, MultiLossFunctionWithModelConfigurations<P>> attributeToLossMap = Maps.newHashMap();
+
+        for (String attribute : attributes) {
+            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<P>(lossFunctions, primaryLossFunction));
+        }
+        initializeTrainingAndValidationSets(rawTrainingData);
+        while (!validationSet.isEmpty()) {
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+
+            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            Set<String> attributesToIgnore = Sets.newHashSet();
+            for (String attribute : attributes) {
+                attributesToIgnore.add(attribute);
+                labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(validationSet, predictiveModel, attributesToIgnore);
+          //      labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
+                double positives = 0;
+                for(LabelPredictionWeight<P> labelPredictionWeight: labelPredictionWeights) {
+                    positives+=(Double)(labelPredictionWeight.getLabel());
+                }
+                MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+                multiLossFunction.updateRunningLosses(labelPredictionWeights);
+
+                attributesToIgnore.remove(attribute);
+            }
+            updateTrainingSet();
+            updateCrossValidationSet();
+        }
+
+        for (String attribute : attributes) {
+            MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+            multiLossFunction.normalizeRunningAverages();
+        }
+        List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> attributesWithLosses = Lists.newArrayList();
+        for (String attribute : attributeToLossMap.keySet()) {
+            attributesWithLosses.add(new Pair<String, MultiLossFunctionWithModelConfigurations<P>>(attribute, attributeToLossMap.get(attribute)));
+        }
+        //sort in descending order.  The higher the loss, the more damage was done by removing the attribute
+        Collections.sort(attributesWithLosses, new Comparator<Pair<String, MultiLossFunctionWithModelConfigurations<P>>>() {
+                    @Override
+                    public int compare(Pair<String, MultiLossFunctionWithModelConfigurations<P>> o1, Pair<String, MultiLossFunctionWithModelConfigurations<P>> o2) {
+                        if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() <
+                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
+                            return 1;
+                        } else if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() ==
+                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
+                            return 0;
+                        } else {
+                            return -1;
+                        }
+                    }
+                }
+        );
+
+        for (Pair<String, MultiLossFunctionWithModelConfigurations<P>> pair : attributesWithLosses) {
+    //        logger.info("attribute Name function: " + pair.getValue0() + "losses: " + pair.getValue1() + ".  Weight of val set: " + pair.getValue1().getRunningWeight());
+        }
+        return attributesWithLosses;
+    }
+
 
     private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R>> rawTrainingData) {
         setAndSortAllTrainingData(rawTrainingData);
@@ -167,6 +232,13 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
     }
 
+    private Set<String> getAllAttributesInTrainingSet(Iterable<? extends Instance<AttributesMap>> trainingData) {
+        Set<String> attributes = Sets.newHashSet();
+        for (Instance<AttributesMap> instance : trainingData) {
+            attributes.addAll(instance.getAttributes().keySet());
+        }
+        return attributes;
+    }
 
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
@@ -258,6 +330,13 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         };
 
         Collections.sort(this.allTrainingData, comparator);
+    }
+
+    private void resetTrainingDataVariables() {
+        weightOfValidationSet = 0;
+        currentTrainingSetSize = 0;
+        clicksInValSet = 0;
+
     }
 
     static class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap> {

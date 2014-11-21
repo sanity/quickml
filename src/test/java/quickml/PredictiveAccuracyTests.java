@@ -7,12 +7,12 @@ import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.StationaryCrossValidator;
+import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ian on 7/4/14.
@@ -22,7 +22,7 @@ public class PredictiveAccuracyTests {
 
     @Test
     public void irisTest() throws Exception {
-        StationaryCrossValidator stationaryCrossValidator = new StationaryCrossValidator(new ClassifierRMSECrossValLossFunction());
+        CrossValidator stationaryCrossValidator = new StationaryCrossValidatorBuilder().setLossFunction(new ClassifierRMSECrossValLossFunction()).createCrossValidator();
         final List<Instance<AttributesMap>> irisDataset = Benchmarks.loadIrisDataset();
         final double crossValidatedLoss = stationaryCrossValidator.getCrossValidatedLoss(new RandomForestBuilder(), irisDataset);
         double previousLoss = 0.673;

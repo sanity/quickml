@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        final UpdatablePredictiveModelBuilder<AttributesMap , Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
+        final UpdatablePredictiveModelBuilder<AttributesMap, Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
         when(updatablePredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -51,12 +52,12 @@ public class DownsamplingClassifierBuilderTest {
         });
         DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(updatablePredictiveModelBuilder, 0.2);
         List<Instance<AttributesMap>> data = Lists.newArrayList();
-        for (int x=0; x<10000; x++) {
+        for (int x = 0; x < 10000; x++) {
             data.add(new InstanceImpl(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
-        AttributesMap  map = AttributesMap.newHashMap() ;
-        map.put("true",Boolean.TRUE);
+        AttributesMap map = AttributesMap.newHashMap();
+        map.put("true", Boolean.TRUE);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
         Assert.assertTrue(String.format("Error should be < 0.1 but was %s (prob=%s, desired=0.05)", error, correctedMinorityInstanceOccurance), error < 0.01);
@@ -69,7 +70,7 @@ public class DownsamplingClassifierBuilderTest {
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final PredictiveModelWithDataBuilder<AttributesMap ,DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
+        final PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
         final long startTime = System.currentTimeMillis();
         final DownsamplingClassifier downsamplingClassifier = wb.buildPredictiveModel(instances);
 
@@ -109,11 +110,15 @@ public class DownsamplingClassifierBuilderTest {
         @Override
         public PredictionMap predict(AttributesMap attributes) {
             Map<Serializable, Double> map = new HashMap<>();
-            for(Serializable value : attributes.values()) {
+            for (Serializable value : attributes.values()) {
                 map.put(value, prediction);
             }
             return new PredictionMap(map);
         }
+
+        @Override
+        public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+            return predict(attributes);
+        }
     }
 }
-

@@ -118,7 +118,11 @@ public class Leaf extends Node {
         return probability;
     }
 
-    public Set<Serializable> getClassifications() {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attribute) {
+        return getProbability(classification);
+    }
+
+        public Set<Serializable> getClassifications() {
         return classificationCounts.getCounts().keySet();
     }
 

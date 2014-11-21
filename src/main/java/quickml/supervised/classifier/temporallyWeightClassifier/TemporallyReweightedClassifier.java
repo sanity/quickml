@@ -7,6 +7,7 @@ import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 6/20/14.
@@ -28,6 +29,16 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     @Override
     public PredictionMap predict(AttributesMap attributes) {
         return wrappedClassifier.predict(attributes);
+    }
+
+    @Override
+    public double getProbabilityWithoutAttributes(final AttributesMap attributes, final Serializable classification, Set<String> attributesToIgnore) {
+        return wrappedClassifier.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+    }
+
+    @Override
+    public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+        return wrappedClassifier.predictWithoutAttributes(attributes, attributesToIgnore);
     }
 
     @Override

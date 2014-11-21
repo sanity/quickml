@@ -5,6 +5,7 @@ import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -8713974861744567620L;
@@ -17,6 +18,7 @@ public abstract class Node implements Serializable {
         this.parent = parent;
     }
 
+    public abstract double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attribute);
 
 	/**
 	 * Writes a textual representation of this tree to a PrintStream

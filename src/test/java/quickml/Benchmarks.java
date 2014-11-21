@@ -3,7 +3,9 @@ package quickml;
 import com.google.common.collect.Lists;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.StationaryCrossValidator;
+import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
 import quickml.data.*;
 import quickml.supervised.classifier.decisionTree.Scorer;
@@ -13,9 +15,7 @@ import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class Benchmarks {
@@ -36,7 +36,7 @@ public class Benchmarks {
     }
 
     private static void testWithInstances(String dsName, final List<Instance<AttributesMap>> instances) {
-        StationaryCrossValidator crossValidator = new StationaryCrossValidator(new ClassifierLogCVLossFunction());
+       CrossValidator crossValidator = new StationaryCrossValidatorBuilder().setLossFunction(new ClassifierLogCVLossFunction(.000001)).createCrossValidator();
 
         for (final Scorer scorer : Lists.newArrayList(new SplitDiffScorer(), new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE), new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE))) {
             final TreeBuilder singleTreeBuilder = new TreeBuilder(scorer).binaryClassification(true);
