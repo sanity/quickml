@@ -20,6 +20,7 @@ import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
+import quickml.supervised.inspection.AttributeWithLossComparator;
 
 import java.util.*;
 
@@ -141,10 +142,9 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
             for (String attribute : attributes) {
                 attributesToIgnore.add(attribute);
                 labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(validationSet, predictiveModel, attributesToIgnore);
-          //      labelPredictionWeights = Utils.createLabelPredictionWeights(validationSet, predictiveModel);
                 double positives = 0;
                 for(LabelPredictionWeight<P> labelPredictionWeight: labelPredictionWeights) {
-                    positives+=(Double)(labelPredictionWeight.getLabel());
+                    positives+=(Double)(labelPredictionWeight.getLabel()); //tracked for debugging purposes
                 }
                 MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
                 multiLossFunction.updateRunningLosses(labelPredictionWeights);
@@ -164,25 +164,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
             attributesWithLosses.add(new Pair<String, MultiLossFunctionWithModelConfigurations<P>>(attribute, attributeToLossMap.get(attribute)));
         }
         //sort in descending order.  The higher the loss, the more damage was done by removing the attribute
-        Collections.sort(attributesWithLosses, new Comparator<Pair<String, MultiLossFunctionWithModelConfigurations<P>>>() {
-                    @Override
-                    public int compare(Pair<String, MultiLossFunctionWithModelConfigurations<P>> o1, Pair<String, MultiLossFunctionWithModelConfigurations<P>> o2) {
-                        if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() <
-                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
-                            return 1;
-                        } else if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() ==
-                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
-                            return 0;
-                        } else {
-                            return -1;
-                        }
-                    }
-                }
-        );
-
-        for (Pair<String, MultiLossFunctionWithModelConfigurations<P>> pair : attributesWithLosses) {
-    //        logger.info("attribute Name function: " + pair.getValue0() + "losses: " + pair.getValue1() + ".  Weight of val set: " + pair.getValue1().getRunningWeight());
-        }
+        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<P>(primaryLossFunction));
         return attributesWithLosses;
     }
 

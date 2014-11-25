@@ -16,6 +16,7 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
 import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
+import quickml.supervised.inspection.AttributeWithLossComparator;
 
 import java.util.*;
 
@@ -123,25 +124,7 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
             attributesWithLosses.add(new Pair<String, MultiLossFunctionWithModelConfigurations<P>>(attribute, attributeToLossMap.get(attribute)));
         }
         //sort in descending order.  The higher the primary loss, the more damage was done by removing the attribute
-        Collections.sort(attributesWithLosses, new Comparator<Pair<String, MultiLossFunctionWithModelConfigurations<P>>>() {
-                    @Override
-                    public int compare(Pair<String, MultiLossFunctionWithModelConfigurations<P>> o1, Pair<String, MultiLossFunctionWithModelConfigurations<P>> o2) {
-                        if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() <
-                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
-                            return 1;
-                        } else if (o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss() ==
-                                o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss()) {
-                            return 0;
-                        } else {
-                            return -1;
-                        }
-                    }
-                }
-        );
-
-        for (Pair<String, MultiLossFunctionWithModelConfigurations<P>> pair : attributesWithLosses) {
-           // logger.info("attribute Name function: " + pair.getValue0() + "losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction) + ".  Weight of val set: " + pair.getValue1().getRunningWeight());
-        }
+        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<P>(primaryLossFunction));
         return attributesWithLosses;
     }
 

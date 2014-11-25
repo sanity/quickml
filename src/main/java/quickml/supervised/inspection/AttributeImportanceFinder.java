@@ -26,12 +26,16 @@ public class AttributeImportanceFinder {
         this.attributesToNotRemove = attributesToNotRemove;
     }
 
-    public<PM extends PredictiveModel<AttributesMap, PredictionMap>,  PMB extends PredictiveModelBuilder<AttributesMap, PM>>  void determineAttributeImportance(CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder,
-                                             PredictiveModelBuilderFactory<AttributesMap,  PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config, final Iterable<? extends Instance<AttributesMap>> trainingData,
-                                             int iterations, double percentageOfFeaturesToRemovePerIteration, String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
+    public<PM extends PredictiveModel<AttributesMap, PredictionMap>,  PMB extends PredictiveModelBuilder<AttributesMap, PM>>
+            List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
+         (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap,  PM, PMB> predictiveModelBuilderFactory,
+          Map<String, Object> config, final Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
+          String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
 
         Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
-        attributes.add("noAttributesRemoved");
+        String noAttributesRemoved = "noAttributesRemoved";
+        attributes.add(noAttributesRemoved);
+
         //do recursive feature elimination
         List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses = Lists.newArrayList();
         for (int i = 0; i < iterations; i++) {
@@ -51,9 +55,14 @@ public class AttributeImportanceFinder {
             }
         }
 
-        for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
-            logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
+        for (int i = 0; i< attributesWithLosses.size(); i++) {
+            Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair = attributesWithLosses.get(i);
+            if(pair.getValue0().equals(noAttributesRemoved)) {
+                attributesWithLosses.remove(i);
+                break;
+            }
         }
+        return attributesWithLosses;
     }
 
     private Map<String, Double> getModelLoss( List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
@@ -77,6 +86,11 @@ public class AttributeImportanceFinder {
                 allAttributes.remove(attributeToRemove);
             }
         }
+    /*    attributesToRemove.add("eap");
+        attributesToRemove.add("ecp");
+        allAttributes.remove("eap");
+        allAttributes.remove("ecp");
+*/
         allAttributes.add("noAttributesRemoved");
 
         //remove attributes from training data
