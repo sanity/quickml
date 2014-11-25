@@ -595,11 +595,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             final Iterable<? extends Instance<AttributesMap>> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             final ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             final ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
-/*            if (inClassificationCounts.getTotal() < minLeafInstances
-                    || outClassificationCounts.getTotal() < minLeafInstances) {
-                continue;
-            }
-*/            if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances
+
+            //here, we treat bins as categorical attributes, and therefore require a minimum number of samples be had for both the inset and outset.  this minimum number is
+            //somewhat arbitrarily sets to 4*minCategoricalAttributeValueOccurances
+           if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances
                     || outClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances) {
                 continue;
             }
