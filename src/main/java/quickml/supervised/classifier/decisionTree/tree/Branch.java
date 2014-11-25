@@ -7,6 +7,7 @@ import quickml.data.Instance;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 
 public abstract class Branch extends Node {
@@ -15,9 +16,11 @@ public abstract class Branch extends Node {
 	public final String attribute;
 
 	public Node trueChild, falseChild;
+    private double probabilityOfTrueChild;
 
-	public Branch(Node parent, final String attribute) {
+	public Branch(Node parent, final String attribute, double probabilityOfTrueChild) {
 		super(parent);
+        this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
 	}
 
@@ -48,6 +51,7 @@ public abstract class Branch extends Node {
 		};
 	}
 
+
 	@Override
 	public Leaf getLeaf(final AttributesMap attributes) {
 		if (decide(attributes))
@@ -56,7 +60,22 @@ public abstract class Branch extends Node {
 			return falseChild.getLeaf(attributes);
 	}
 
-	@Override
+    @Override
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        if (attributesToIgnore.contains(this.attribute)) {
+            return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
+                    (1 - probabilityOfTrueChild) * falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+        } else {
+            if (decide(attributes)) {
+                return trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+            }
+            else {
+                return falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+            }
+         }
+    }
+
+    @Override
 	public void dump(final int indent, final Appendable ap) {
         try {
             for (int x = 0; x < indent; x++) {
@@ -73,7 +92,6 @@ public abstract class Branch extends Node {
         catch (IOException e) {
             throw new RuntimeException();
         }
-
 	}
 
 	public abstract String toNotString();

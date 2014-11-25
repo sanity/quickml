@@ -9,11 +9,13 @@ import quickml.supervised.classifier.Classifier;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ian on 4/22/14.
  */
 public class DownsamplingClassifier extends AbstractClassifier {
+
     private static final long serialVersionUID = -265699047882740160L;
 
     public final Classifier wrappedClassifier;
@@ -36,7 +38,16 @@ public class DownsamplingClassifier extends AbstractClassifier {
         } else {
             return 1 - probabilityOfMinorityInstance;
         }
-
+    }
+    @Override
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        double uncorrectedProbability = wrappedClassifier.getProbabilityWithoutAttributes(attributes, minorityClassification, attributesToIgnore);
+        double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
+        if (classification.equals(minorityClassification)) {
+            return probabilityOfMinorityInstance;
+        } else {
+            return 1 - probabilityOfMinorityInstance;
+        }
     }
 
     @Override
@@ -54,6 +65,14 @@ public class DownsamplingClassifier extends AbstractClassifier {
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
         probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
+        return new PredictionMap(probsByClassification);
+    }
+
+    @Override
+    public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        probsByClassification.put(minorityClassification, getProbabilityWithoutAttributes(attributes, minorityClassification, attributesToIgnore));
+        probsByClassification.put(majorityClassification, getProbabilityWithoutAttributes(attributes, majorityClassification, attributesToIgnore));
         return new PredictionMap(probsByClassification);
     }
 

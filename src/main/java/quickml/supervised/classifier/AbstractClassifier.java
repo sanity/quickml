@@ -10,6 +10,7 @@ import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionW
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 8/17/14.
@@ -31,7 +32,10 @@ public abstract class AbstractClassifier implements Classifier {
     public double getProbability(AttributesMap attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }
-    public abstract PredictionMap predict(AttributesMap attributes);
+
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        return predictWithoutAttributes(attributes, attributesToIgnore).get(classification);
+    }
 
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         PredictionMap predictions = predict(attributes);

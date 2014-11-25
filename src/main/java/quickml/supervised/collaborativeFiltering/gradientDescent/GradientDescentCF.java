@@ -6,6 +6,7 @@ import quickml.supervised.collaborativeFiltering.UserItem;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ian on 8/16/14.
@@ -18,6 +19,13 @@ public class GradientDescentCF extends CollaborativeFilter {
     public Double predict(final UserItem attributes) {
         return null;
     }
+
+    @Override
+    public Double predictWithoutAttributes(final UserItem attributes, Set<String> attributesToIgnore)
+    {
+        return null;
+    }
+
 
     @Override
     public void dump(final Appendable appendable) {

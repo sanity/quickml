@@ -2,8 +2,12 @@ package quickml.supervised.crossValidation;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
@@ -12,9 +16,9 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
 import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
+import quickml.supervised.inspection.AttributeWithLossComparator;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -83,6 +87,47 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return multiLossFunction;
 
     }
+
+    @Override
+    public <PM extends PredictiveModel<R, P>,  PMB extends PredictiveModelBuilder<R, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config,  Iterable<? extends Instance<R>> allTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<P>> lossFunctions) {
+        //list of attributes are provided
+        //initialize the loss functions for each attribute
+        PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
+
+        Map<String, MultiLossFunctionWithModelConfigurations<P>> attributeToLossMap = Maps.newHashMap();
+        for (String attribute : attributes) {
+            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<P>(lossFunctions, primaryLossFunction));
+        }
+        DataSplit dataSplit;
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
+            dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
+            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
+
+            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            Set<String> attributesToIgnore = Sets.newHashSet();
+            for (String attribute : attributes) {
+                attributesToIgnore.add(attribute);
+                labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(dataSplit.validation, predictiveModel, attributesToIgnore);
+                MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+                multiLossFunction.updateRunningLosses(labelPredictionWeights);
+
+                attributesToIgnore.remove(attribute);
+            }
+        }
+
+        for (String attribute : attributes) {
+            MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+            multiLossFunction.normalizeRunningAverages();
+        }
+        List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> attributesWithLosses = Lists.newArrayList();
+        for (String attribute : attributeToLossMap.keySet()) {
+            attributesWithLosses.add(new Pair<String, MultiLossFunctionWithModelConfigurations<P>>(attribute, attributeToLossMap.get(attribute)));
+        }
+        //sort in descending order.  The higher the primary loss, the more damage was done by removing the attribute
+        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<P>(primaryLossFunction));
+        return attributesWithLosses;
+    }
+
 
 
     private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {

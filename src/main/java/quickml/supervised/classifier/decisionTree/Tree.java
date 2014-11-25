@@ -40,11 +40,26 @@ public class Tree extends AbstractClassifier {
     }
 
     @Override
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        return node.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+    }
+
+
+    @Override
     public PredictionMap predict(AttributesMap attributes) {
         Leaf leaf = node.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
             probsByClassification.put(classification, leaf.getProbability(classification));
+        }
+        return new PredictionMap(probsByClassification);
+    }
+
+    @Override
+    public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        for (Serializable classification : classifications) {
+            probsByClassification.put(classification, getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore));
         }
         return new PredictionMap(probsByClassification);
     }

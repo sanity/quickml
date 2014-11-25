@@ -7,6 +7,7 @@ import quickml.supervised.regressionModel.MultiVariableRealValuedFunction;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -44,6 +45,15 @@ public class RidgeLinearModel implements MultiVariableRealValuedFunction {
             prediction += attributes[i] * modelCoeficients[i + oneIfUsingBias];
         }
         return prediction;
+    }
+
+    @Override
+    public Double predictWithoutAttributes(double[] attributes, Set<String> attributesToIgnore) {
+        boolean currentlyUnsupported = true;
+        if(currentlyUnsupported) {
+            throw new UnsupportedOperationException("this operation is currently unsupported");
+        }
+        return Double.valueOf(0.0);
     }
 
     @Override

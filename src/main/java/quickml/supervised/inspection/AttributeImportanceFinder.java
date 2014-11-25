@@ -1,99 +1,113 @@
 package quickml.supervised.inspection;
 
-import com.google.common.base.Function;
 import com.google.common.collect.*;
-import com.twitter.common.stats.ReservoirSampler;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.collections.MapUtils;
-import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.crossValidation.StationaryCrossValidator;
-import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
-import quickml.data.*;
 import quickml.supervised.PredictiveModel;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.CrossValidatorBuilder;
+import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
+import quickml.supervised.crossValidation.crossValLossFunctions.*;
+import quickml.data.*;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
-import java.io.Serializable;
 import java.util.*;
 
 public class AttributeImportanceFinder {
-    private static final  Logger logger =  LoggerFactory.getLogger(AttributeImportanceFinder.class);
+    private static final Logger logger = LoggerFactory.getLogger(AttributeImportanceFinder.class);
+    Set<String> attributesToNotRemove = Sets.newHashSet();
 
     public AttributeImportanceFinder() {
 
     }
-
-    public TreeSet<AttributeScore> determineAttributeImportance(final Iterable<? extends Instance<AttributesMap>> trainingData) {
-        return determineAttributeImportance(new TreeBuilder(), trainingData);
+    public AttributeImportanceFinder(Set<String> attributesToNotRemove) {
+        this.attributesToNotRemove = attributesToNotRemove;
     }
 
+    public<PM extends PredictiveModel<AttributesMap, PredictionMap>,  PMB extends PredictiveModelBuilder<AttributesMap, PM>>
+            List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
+         (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap,  PM, PMB> predictiveModelBuilderFactory,
+          Map<String, Object> config, final Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
+          String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
 
-    public TreeSet<AttributeScore> determineAttributeImportance(PredictiveModelBuilder predictiveModelBuilder, final Iterable<? extends Instance<AttributesMap>> trainingData) {
-        return determineAttributeImportance(new StationaryCrossValidator(4, new ClassifierLogCVLossFunction()), predictiveModelBuilder, trainingData);
+        Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
+        String noAttributesRemoved = "noAttributesRemoved";
+        attributes.add(noAttributesRemoved);
+
+        //do recursive feature elimination
+        List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses = Lists.newArrayList();
+        for (int i = 0; i < iterations; i++) {
+            CrossValidator<AttributesMap, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
+            crossValLossFunctionMap = Maps.newHashMap();
+            crossValLossFunctionMap.put("LogLoss", new ClassifierLogCVLossFunction(.000001));
+            crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
+            crossValLossFunctionMap.put("LogLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
+
+            attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
+            if (i < iterations - 1) {
+                updateAttributesUsedInTraining(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+            }
+            logger.info("model losses" + getModelLoss(attributesWithLosses).toString());
+            for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+                logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
+            }
+        }
+
+        for (int i = 0; i< attributesWithLosses.size(); i++) {
+            Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair = attributesWithLosses.get(i);
+            if(pair.getValue0().equals(noAttributesRemoved)) {
+                attributesWithLosses.remove(i);
+                break;
+            }
+        }
+        return attributesWithLosses;
     }
 
-    public TreeSet<AttributeScore> determineAttributeImportance(CrossValidator<AttributesMap, PredictiveModel> crossValidator, PredictiveModelBuilder predictiveModelBuilder, final Iterable<? extends Instance<AttributesMap>> trainingData) {
+    private Map<String, Double> getModelLoss( List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
+        for (int i = attributesWithLosses.size() - 1; i >= 0; i--) {
+            if (attributesWithLosses.get(i).getValue0().equals("noAttributesRemoved")) {
+                return attributesWithLosses.get(i).getValue1().getLossMap();
+            }
+        }
+        return null;
+    }
 
+    private void updateAttributesUsedInTraining(final Iterable<? extends Instance<AttributesMap>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses,
+                                                Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
+        int numberOfAttributesToRemove = (int) (percentageOfAttributesToRemoveAtEachIteration * allAttributes.size());
+        Set<String> attributesToRemove = Sets.newHashSet();
+        for (int i = attributesWithLosses.size() - 1; i >= Math.max(0, attributesWithLosses.size() - 1 - numberOfAttributesToRemove); i--) {
+
+            String attributeToRemove = attributesWithLosses.get(i).getValue0();
+            if (!attributesToNotRemove.contains(attributeToRemove)) {
+                attributesToRemove.add(attributeToRemove);
+                allAttributes.remove(attributeToRemove);
+            }
+        }
+    /*    attributesToRemove.add("eap");
+        attributesToRemove.add("ecp");
+        allAttributes.remove("eap");
+        allAttributes.remove("ecp");
+*/
+        allAttributes.add("noAttributesRemoved");
+
+        //remove attributes from training data
+        for (Instance<AttributesMap> instance : trainingData) {
+            AttributesMap attributes = instance.getAttributes();
+            for (String attributeName : attributesToRemove) {
+                if (attributes.containsKey(attributeName))
+                    attributes.remove(attributeName);
+            }
+        }
+    }
+
+    private Set<String> getAllAttributesInTrainingSet(Iterable<? extends Instance<AttributesMap>> trainingData) {
         Set<String> attributes = Sets.newHashSet();
         for (Instance<AttributesMap> instance : trainingData) {
             attributes.addAll(instance.getAttributes().keySet());
         }
-
-        TreeSet<AttributeScore> scores = Sets.newTreeSet();
-
-        LinkedList<Instance<AttributesMap>> trainingSet = Lists.newLinkedList();
-        LinkedList<Instance<AttributesMap>> testingSet = Lists.newLinkedList();
-        for (Instance<AttributesMap> instance : trainingData) {
-            if (Math.abs(instance.getAttributes().hashCode()) % 10 == 0) {
-                testingSet.add(instance);
-            } else {
-                trainingSet.add(instance);
-            }
-        }
-
-        Map<String, ReservoirSampler<Serializable>> samplesPerAttribute = Maps.newHashMap();
-        for (Instance<AttributesMap> instance : trainingData) {
-            for (Map.Entry<String,Serializable> attributeKeyValue : instance.getAttributes().entrySet()) {
-                ReservoirSampler<Serializable> sampler = samplesPerAttribute.get(attributeKeyValue.getKey());
-                if (sampler == null) {
-                    sampler = new ReservoirSampler<Serializable>(1000);
-                    samplesPerAttribute.put(attributeKeyValue.getKey(), sampler);
-                }
-                sampler.sample(attributeKeyValue.getValue());
-            }
-        }
-
-        for (String attributeToExclude : attributes) {
-            final ReservoirSampler<Serializable> samplerForAttributeToExclude = samplesPerAttribute.get(attributeToExclude);
-            final ArrayList<Serializable> samplesForAttribute = Lists.newArrayList(samplerForAttributeToExclude.getSamples());
-            if (samplesForAttribute.size() < 2) continue;
-            Iterable<? extends Instance<AttributesMap>> scrambledTestingSet = Lists.newLinkedList(Iterables.transform(testingSet, new AttributeScrambler(attributeToExclude, samplesForAttribute)));
-            double score = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, scrambledTestingSet);
-            logger.info("Attribute \""+attributeToExclude+"\" score is "+score);
-            scores.add(new AttributeScore(attributeToExclude, score));
-        }
-
-        return scores;
+        return attributes;
     }
-
-    public static class AttributeScrambler implements Function<Instance<AttributesMap>, Instance<AttributesMap>> {
-
-        public AttributeScrambler(final String attributeToExclude, ArrayList<Serializable> attributeValueSamples) {
-            this.attributeToExclude = attributeToExclude;
-            this.attributeValueSamples = attributeValueSamples;
-        }
-
-        private final String attributeToExclude;
-        private final ArrayList<Serializable> attributeValueSamples;
-
-        public Instance<AttributesMap> apply(final Instance<AttributesMap> instance) {
-            AttributesMap randomizedAttributes = AttributesMap.newHashMap();
-            randomizedAttributes.putAll(instance.getAttributes());
-            final Serializable randomValue = attributeValueSamples.get(MapUtils.random.nextInt(attributeValueSamples.size()));
-            randomizedAttributes.put(attributeToExclude, randomValue);
-            return new InstanceImpl(randomizedAttributes, instance.getLabel());
-        }
-    }
-
- }
+}

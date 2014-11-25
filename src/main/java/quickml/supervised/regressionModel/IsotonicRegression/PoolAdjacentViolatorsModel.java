@@ -44,7 +44,6 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
     public PoolAdjacentViolatorsModel(final Iterable<Observation> predictions, int minWeight) {
         Preconditions.checkNotNull(predictions);
         Preconditions.checkArgument(minWeight >= 1, "minWeight %s must be >= 1", minWeight);
-
         TreeSet<Observation> orderedCalibrations = Sets.newTreeSet();
 
         Iterables.addAll(orderedCalibrations, predictions);
@@ -71,7 +70,6 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         preSmoothingSet.addAll(calibrationList);
         calibrationSet = createCalibrationSet(calibrationList);
         this.size = calibrationSet.size();
-
     }
 
     public TreeSet<Observation> createCalibrationSet(List<Observation> inputOrderedList) {
@@ -149,6 +147,12 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
             return true;
         else
             return false;
+    }
+
+    @Override
+    public Double predictWithoutAttributes(Double input, Set<String> attributesToIgnore) {
+        //there is only one attribute in predict, therefore it does not make sense to drop anything
+        return predict(input);
     }
 
     @Override

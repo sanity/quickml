@@ -76,6 +76,18 @@ public class RandomForest extends AbstractClassifier {
         return total / trees.size();
     }
 
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        double total = 0;
+        for (Tree tree : trees) {
+            final double probability = tree.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+            if (Double.isInfinite(probability) || Double.isNaN(probability)) {
+                throw new RuntimeException("Probability must be a normal number, not "+probability);
+            }
+            total += probability;
+        }
+        return total / trees.size();
+    }
+
     @Override
     public PredictionMap predict(final AttributesMap attributes) {
         if (binaryClassification)  {
@@ -101,7 +113,25 @@ public class RandomForest extends AbstractClassifier {
         for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
         }
+        return probsByClassification;
+    }
 
+    @Override
+    public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        for (Tree tree : trees) {
+            final PredictionMap treeProbs = tree.predictWithoutAttributes(attributes, attributesToIgnore);
+            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
+                Double sum = sumsByClassification.get(tpe.getKey());
+                if (sum == null) sum = 0.0;
+                sum += tpe.getValue();
+                sumsByClassification.put(tpe.getKey(), sum);
+            }
+        }
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
+            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
+        }
         return probsByClassification;
     }
 
