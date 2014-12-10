@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
-    <version>0.4.7.2</version>
+    <version>0.4.7.5</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>
-            <!--0.4.7.1 Need a better approach than hardcoding the path like this -->
+            <!--0.4.7.3Need a better approach than hardcoding the path like this -->
             <url>file:../../Documents/maven-repo/repository</url>
         </repository>
     </distributionManagement>

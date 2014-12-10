@@ -566,13 +566,13 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-        Map<Serializable, Double> counts = testValCounts.getCounts();
+       Map<Serializable, Double> counts = testValCounts.getCounts();
         for (Serializable key : counts.keySet()) {
             if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
                 return true;
-        }
+  }
         return false;
-    }
+   }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                              final Iterable<? extends Instance<AttributesMap>> instances,

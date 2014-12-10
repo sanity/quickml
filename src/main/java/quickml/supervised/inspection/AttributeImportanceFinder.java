@@ -29,7 +29,7 @@ public class AttributeImportanceFinder {
     public<PM extends PredictiveModel<AttributesMap, PredictionMap>,  PMB extends PredictiveModelBuilder<AttributesMap, PM>>
             List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
          (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap,  PM, PMB> predictiveModelBuilderFactory,
-          Map<String, Object> config, final Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
+          Map<String, Object> config, Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
           String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
 
         Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
@@ -41,13 +41,13 @@ public class AttributeImportanceFinder {
         for (int i = 0; i < iterations; i++) {
             CrossValidator<AttributesMap, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
             crossValLossFunctionMap = Maps.newHashMap();
-            crossValLossFunctionMap.put("LogLoss", new ClassifierLogCVLossFunction(.000001));
+            crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
             crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
-            crossValLossFunctionMap.put("LogLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
+            crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
 
             attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
             if (i < iterations - 1) {
-                updateAttributesUsedInTraining(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+                trainingData = updateAttributesUsedInTraining(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
             }
             logger.info("model losses" + getModelLoss(attributesWithLosses).toString());
             for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
@@ -74,7 +74,7 @@ public class AttributeImportanceFinder {
         return null;
     }
 
-    private void updateAttributesUsedInTraining(final Iterable<? extends Instance<AttributesMap>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses,
+    private List<Instance<AttributesMap>> updateAttributesUsedInTraining(final Iterable<? extends Instance<AttributesMap>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses,
                                                 Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
         int numberOfAttributesToRemove = (int) (percentageOfAttributesToRemoveAtEachIteration * allAttributes.size());
         Set<String> attributesToRemove = Sets.newHashSet();
@@ -94,13 +94,17 @@ public class AttributeImportanceFinder {
         allAttributes.add("noAttributesRemoved");
 
         //remove attributes from training data
+        List<Instance<AttributesMap>> newInstances = Lists.newArrayList();
         for (Instance<AttributesMap> instance : trainingData) {
             AttributesMap attributes = instance.getAttributes();
-            for (String attributeName : attributesToRemove) {
-                if (attributes.containsKey(attributeName))
-                    attributes.remove(attributeName);
+            AttributesMap newAttributes = AttributesMap.newHashMap();
+            for (String attributeName : attributes.keySet()) {
+                if (!attributesToRemove.contains(attributeName))
+                    newAttributes.put(attributeName, attributes.get(attributeName));
             }
+            newInstances.add(new InstanceImpl<AttributesMap>(newAttributes, instance.getLabel(), instance.getWeight()));
         }
+        return newInstances;
     }
 
     private Set<String> getAllAttributesInTrainingSet(Iterable<? extends Instance<AttributesMap>> trainingData) {
