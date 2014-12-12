@@ -294,7 +294,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
         Pair<? extends Branch, Double> bestPair = null;
-
+        //TODO: make this lazy in the sense that only numeric attributes that are not randomly rignored should have this done
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
             if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
                 continue;
@@ -375,9 +375,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                                                                          final Iterable<? extends Instance<AttributesMap>> instances) {
 
         double bestScore = 0;
-        final Set<Serializable> inSet = Sets.newHashSet();
-        final Set<Serializable> outSet = Sets.newHashSet();
-
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
                 .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
 
@@ -385,15 +382,16 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
         final List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters = valueOutcomeCountsPairs.getValue1(); //map of value _> classificationCounter
-        if (valuesWithClassificationCounters.size()<=1)
-            return null; //there is just 1 value available.
+
 
         double numTrainingExamples = valueOutcomeCountsPairs.getValue0().getTotal();
 
         Serializable lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;
         double probabilityOfBeingInInset = 0;
         int valuesInTheInset = 0;
-        labelAttributeValuesWithInsufficientData(valuesWithClassificationCounters);
+        int attributesWithSufficientValues = labelAttributeValuesWithInsufficientData(valuesWithClassificationCounters);
+        if (attributesWithSufficientValues<=1)
+            return null; //there is just 1 value available.
         double informationValue = getInformationValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
@@ -423,35 +421,58 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 probabilityOfBeingInInset = inCounts.getTotal()/(inCounts.getTotal() + outCounts.getTotal());
             }
         }
-
+        final Set<Serializable> inSet = Sets.newHashSet();
+        final Set<Serializable> outSet = Sets.newHashSet();
         boolean insetIsBuiltNowBuildingOutset = false;
+        inCounts = new ClassificationCounter();
+        outCounts = new ClassificationCounter();
+
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithClassificationCounters) {
-            if (!insetIsBuiltNowBuildingOutset) {
+            if (!insetIsBuiltNowBuildingOutset && attributeValueWithClassificationCounter.classificationCounter.hasSufficientData()) {
                 inSet.add(attributeValueWithClassificationCounter.attributeValue);
+                inCounts.add(attributeValueWithClassificationCounter.classificationCounter);
                 if (attributeValueWithClassificationCounter.attributeValue.equals(lastValOfInset)) {
                     insetIsBuiltNowBuildingOutset = true;
                 }
             } else {
-                break;
+                outCounts.add(attributeValueWithClassificationCounter.classificationCounter);
+
                 //outSet.add(attributeValueWithClassificationCounter.attributeValue);
             }
         }
 
-        if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
+
+        if (childrenHaveInsufficientData(outCounts, inCounts)) {
             return null;
         }
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet, probabilityOfBeingInInset), bestScore);
         return bestPair;
     }
 
-    private void labelAttributeValuesWithInsufficientData(List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters) {
+    private boolean childrenHaveInsufficientData(ClassificationCounter outCounts, ClassificationCounter inCounts) {
+        return true;//inCounts.getTotal() < Math.max(minLeafInstances, 1)
+                //|| outCounts.getTotal() < Math.max(minLeafInstances, 1);
+             /*   || inCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
+                || outCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
+                || inCounts.getTotal() - inCounts.getCount(minorityClassification)  < minCategoricalAttributeValueOccurances
+                || outCounts.getTotal() - outCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances;
+                */
+    }
+
+    private int labelAttributeValuesWithInsufficientData(List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters) {
+        int attributesWithSuffValues = 0;
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             if (this.minCategoricalAttributeValueOccurances > 0) {
                 ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-                if (shouldWeIgnoreThisValue(testValCounts))
+                if (shouldWeIgnoreThisValue(testValCounts)) {
                     testValCounts.setHasSufficientData(false);
+                }
+                else {
+                    attributesWithSuffValues++;
+                }
             }
         }
+        return  attributesWithSuffValues;
     }
 
     private double getInformationValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {

@@ -6,12 +6,10 @@ import quickml.supervised.classifier.decisionTree.tree.Node;
 import quickml.supervised.classifier.decisionTree.tree.NumericBranch;
 import quickml.supervised.classifier.randomForest.RandomForest;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 
 public class RandomForestDumper {
@@ -136,7 +134,7 @@ public class RandomForestDumper {
         }
     }
 
-    private RandomForest loadModelFromFile(final String modelFile) {
+    public static RandomForest loadModelFromFile(final String modelFile) {
         try (ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFile)));) {
             return (RandomForest) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
@@ -145,5 +143,13 @@ public class RandomForestDumper {
     }
 
 
+
+    public static void writeModelToFile(final String modelFileName, RandomForest randomForest) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(modelFileName)));) {
+             oos.writeObject(randomForest);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading predictive model", e);
+        }
+    }
 
 }

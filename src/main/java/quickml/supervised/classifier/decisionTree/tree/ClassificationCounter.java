@@ -84,15 +84,9 @@ public class ClassificationCounter implements Serializable {
         Collections.sort(attributesWithClassificationCounters, new Comparator<AttributeValueWithClassificationCounter>() {
             @Override
             public int compare(AttributeValueWithClassificationCounter cc1, AttributeValueWithClassificationCounter cc2) {
-                double p1 = cc1.classificationCounter.getCount(minorityClassification) / cc1.classificationCounter.getTotal();
-                double p2 = cc2.classificationCounter.getCount(minorityClassification) / cc2.classificationCounter.getTotal();
-
-                if (p2 > p1)
-                    return 1;
-                else if (p1 == p2)
-                    return 0;
-                else
-                    return -1;
+                double probOfMinority1 = cc1.classificationCounter.getCount(minorityClassification) / cc1.classificationCounter.getTotal();
+                double probOfMinority2 = cc2.classificationCounter.getCount(minorityClassification) / cc2.classificationCounter.getTotal();
+                return -Double.compare(probOfMinority1, probOfMinority2);
             }
         });
 
