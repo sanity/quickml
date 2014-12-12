@@ -592,7 +592,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         Map<Serializable, Double> counts = testValCounts.getCounts();
-        if (counts.size()
+        if (counts.size() ==1)
+            return true;
         for (Serializable key : counts.keySet()) {
             if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
                 return true;
