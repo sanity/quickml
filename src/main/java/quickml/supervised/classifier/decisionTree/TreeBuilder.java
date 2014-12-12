@@ -63,6 +63,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         this.minLeafInstances = minLeafInstances;
         return this;
     }
+
     public TreeBuilder penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
         this.penalizeCategoricalSplitsBySplitAttributeInformationValue = useGainRatio;
         return this;
@@ -280,11 +281,11 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
         //put instances with attribute values into appropriate training sets
         for (Instance<AttributesMap> instance : trainingData) {
-         if (bestNode.decide(instance.getAttributes())) {
-                    trueTrainingSet.add(instance);
-                } else {
-                    falseTrainingSet.add(instance);
-                }
+            if (bestNode.decide(instance.getAttributes())) {
+                trueTrainingSet.add(instance);
+            } else {
+                falseTrainingSet.add(instance);
+            }
         }
     }
 
@@ -390,7 +391,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         double probabilityOfBeingInInset = 0;
         int valuesInTheInset = 0;
         int attributesWithSufficientValues = labelAttributeValuesWithInsufficientData(valuesWithClassificationCounters);
-        if (attributesWithSufficientValues<=1)
+        if (attributesWithSufficientValues <= 1)
             return null; //there is just 1 value available.
         double informationValue = getInformationValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
 
@@ -412,13 +413,13 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
-                thisScore/=informationValue;
+                thisScore /= informationValue;
             }
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
-                probabilityOfBeingInInset = inCounts.getTotal()/(inCounts.getTotal() + outCounts.getTotal());
+                probabilityOfBeingInInset = inCounts.getTotal() / (inCounts.getTotal() + outCounts.getTotal());
             }
         }
         final Set<Serializable> inSet = Sets.newHashSet();
@@ -450,8 +451,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private boolean childrenHaveInsufficientData(ClassificationCounter outCounts, ClassificationCounter inCounts) {
-        return true;//inCounts.getTotal() < Math.max(minLeafInstances, 1)
-                //|| outCounts.getTotal() < Math.max(minLeafInstances, 1);
+        return false;//inCounts.getTotal() < Math.max(minLeafInstances, 1)
+        //|| outCounts.getTotal() < Math.max(minLeafInstances, 1);
              /*   || inCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
                 || outCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
                 || inCounts.getTotal() - inCounts.getCount(minorityClassification)  < minCategoricalAttributeValueOccurances
@@ -466,19 +467,21 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
                 if (shouldWeIgnoreThisValue(testValCounts)) {
                     testValCounts.setHasSufficientData(false);
-                }
-                else {
+                } else {
                     attributesWithSuffValues++;
                 }
+            } else {
+                attributesWithSuffValues++;
             }
         }
-        return  attributesWithSuffValues;
+
+        return attributesWithSuffValues;
     }
 
     private double getInformationValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
         double informationValue = 0;
         double insufficientDataInstances = 0;
-        double attributeValProb=0;
+        double attributeValProb = 0;
 /*
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithCCs) {
             ClassificationCounter classificationCounter = attributeValueWithClassificationCounter.classificationCounter;
@@ -495,14 +498,15 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 continue;
             }
           */
-            attributeValProb = classificationCounter.getTotal()/(numTrainingExamples);//-insufficientDataInstances);
-            informationValue -= attributeValProb*Math.log(attributeValProb)/Math.log(2);
+            attributeValProb = classificationCounter.getTotal() / (numTrainingExamples);//-insufficientDataInstances);
+            informationValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
         }
 
         return informationValue;
     }
+
     private double getInformationValueOfNumericAttribute(int numberOfBins) {
-        return  1;//-Math.log(1/numberOfBins)/Math.log(2);
+        return 1;//-Math.log(1/numberOfBins)/Math.log(2);
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
@@ -562,7 +566,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             return null;
         }
         //because inSetClassificationCounts is only mutated to better insets during the for loop...it corresponds to the actual inset here.
-        double probabilityOfBeingInInset = inSetClassificationCounts.getTotal()/(inSetClassificationCounts.getTotal() + outSetClassificationCounts.getTotal());
+        double probabilityOfBeingInInset = inSetClassificationCounts.getTotal() / (inSetClassificationCounts.getTotal() + outSetClassificationCounts.getTotal());
         return Pair.with(new CategoricalBranch(parent, attribute, inValueSet, probabilityOfBeingInInset), insetScore);
     }
 
@@ -587,13 +591,14 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-       Map<Serializable, Double> counts = testValCounts.getCounts();
+        Map<Serializable, Double> counts = testValCounts.getCounts();
+        if (counts.size()
         for (Serializable key : counts.keySet()) {
             if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
                 return true;
-  }
+        }
         return false;
-   }
+    }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
                                                              final Iterable<? extends Instance<AttributesMap>> instances,
@@ -619,19 +624,19 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
             //here, we treat bins as categorical attributes, and therefore require a minimum number of samples be had for both the inset and outset.  this minimum number is
             //somewhat arbitrarily sets to 4*minCategoricalAttributeValueOccurances
-           if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances
-                    || outClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < 4*minCategoricalAttributeValueOccurances) {
+            if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4 * minCategoricalAttributeValueOccurances
+                    || outClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < 4 * minCategoricalAttributeValueOccurances) {
                 continue;
             }
 
             double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
-            if (penalizeCategoricalSplitsBySplitAttributeInformationValue){
-                thisScore/=informationValue;
+            if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
+                thisScore /= informationValue;
             }
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;
-                probabilityOfBeingInInset = inClassificationCounts.getTotal()/(inClassificationCounts.getTotal() + outClassificationCounts.getTotal());
+                probabilityOfBeingInInset = inClassificationCounts.getTotal() / (inClassificationCounts.getTotal() + outClassificationCounts.getTotal());
             }
         }
         if (bestScore == 0) {
