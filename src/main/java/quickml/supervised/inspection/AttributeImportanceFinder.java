@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilderFactory;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.CrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.*;
@@ -18,8 +17,11 @@ import java.util.*;
 public class AttributeImportanceFinder {
     private static final Logger logger = LoggerFactory.getLogger(AttributeImportanceFinder.class);
     Set<String> attributesToNotRemove = Sets.newHashSet();
-    List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> bestAttributesWithLosses;
-
+    Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> overallBestAttributesWithLosses;
+    Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> bestNAttributesWithLosses;
+    private boolean gotBestNAttributesWithLosses;
+    Optional<Integer> desiredNumberOfAttributesInOptimalSet;
+    //List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> overallBestAttributesWithLosses;
     public AttributeImportanceFinder() {
 
     }
@@ -28,8 +30,13 @@ public class AttributeImportanceFinder {
         this.attributesToNotRemove = attributesToNotRemove;
     }
 
+    public AttributeImportanceFinder(Set<String> attributesToNotRemove, int desiredNumberOfAttributesInOptimalSet) {
+        this.attributesToNotRemove = attributesToNotRemove;
+        this.desiredNumberOfAttributesInOptimalSet = Optional.of(desiredNumberOfAttributesInOptimalSet);
+    }
+
     public <PM extends PredictiveModel<AttributesMap, PredictionMap>, PMB extends PredictiveModelBuilder<AttributesMap, PM>>
-    List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
+        AttributeImportanceFinderSummary determineAttributeImportance
             (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap, PM, PMB> predictiveModelBuilderFactory,
              Map<String, Object> config, Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
              String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
@@ -53,7 +60,8 @@ public class AttributeImportanceFinder {
             if (i == 0) {
                 bestPrimaryLossSeenSoFar = currentPrimaryLoss;
             }
-            bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(trainingData, primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
+            bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
+            updateBestNAttributesWithLosseIfNeccessary(attributesWithLosses);
             logger.info("model losses" + getModelLoss(attributesWithLosses).toString());
 
             for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
@@ -61,18 +69,23 @@ public class AttributeImportanceFinder {
             }
             trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
         }
+        overallBestAttributesWithLosses.remove(noAttributesRemoved);
 
-        for (int i = 0; i < bestAttributesWithLosses.size(); i++) {
-            Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair = bestAttributesWithLosses.get(i);
-            if (pair.getValue0().equals(noAttributesRemoved)) {
-                attributesWithLosses.remove(i);
-                break;
-            }
-        }
-        return bestAttributesWithLosses;
+        AttributeImportanceFinderSummary attributeImportanceFinderSummary = getAttributeImportanceFinderSummary();
+        return attributeImportanceFinderSummary;
     }
 
-    private double updateBestAttributesWithLosseIfNeccessary(Iterable<? extends Instance<AttributesMap>> trainingData, String primaryLossFunction, double currentPrimaryLoss, double bestPrimaryLossSeenSoFar,
+    private AttributeImportanceFinderSummary getAttributeImportanceFinderSummary() {
+        AttributeImportanceFinderSummary attributeImportanceFinderSummary;
+        if (desiredNumberOfAttributesInOptimalSet.isPresent()) {
+            attributeImportanceFinderSummary = new AttributeImportanceFinderSummary(overallBestAttributesWithLosses, bestNAttributesWithLosses);
+        }  else {
+            attributeImportanceFinderSummary = new AttributeImportanceFinderSummary(overallBestAttributesWithLosses);
+        }
+        return attributeImportanceFinderSummary;
+    }
+
+    private double updateBestAttributesWithLosseIfNeccessary(String primaryLossFunction, double currentPrimaryLoss, double bestPrimaryLossSeenSoFar,
                                                              List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
         if (currentPrimaryLoss < bestPrimaryLossSeenSoFar) {
             bestPrimaryLossSeenSoFar = currentPrimaryLoss;
@@ -81,10 +94,20 @@ public class AttributeImportanceFinder {
         return bestPrimaryLossSeenSoFar;
     }
 
+    private void updateBestNAttributesWithLosseIfNeccessary(List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
+        if (desiredNumberOfAttributesInOptimalSet.isPresent() && attributesWithLosses.size() < desiredNumberOfAttributesInOptimalSet.get() && !gotBestNAttributesWithLosses) {
+            bestNAttributesWithLosses = Maps.newHashMap();
+            for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+                bestNAttributesWithLosses.put(pair.getValue0(), pair.getValue1());
+            }
+        }
+    }
+
     private void updateBestAttributesWithLosses(String primaryLossFunction, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
-        bestAttributesWithLosses = Lists.newArrayList();
-        bestAttributesWithLosses.addAll(attributesWithLosses);
-        logger.info("best attributes so far are: ");
+        overallBestAttributesWithLosses = Maps.newHashMap();
+        for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+            overallBestAttributesWithLosses.put(pair.getValue0(), pair.getValue1());
+        }        logger.info("best attributes so far are: ");
         for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
             logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
         }
@@ -135,5 +158,19 @@ public class AttributeImportanceFinder {
             attributes.addAll(instance.getAttributes().keySet());
         }
         return attributes;
+    }
+
+    private static class AttributeImportanceFinderSummary {
+        public Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> overallBestAttributesWithLosses;
+        public Optional<Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> bestNAttributesWithLosses;
+
+        private AttributeImportanceFinderSummary(Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> overallBestAttributesWithLosses) {
+            this.overallBestAttributesWithLosses = overallBestAttributesWithLosses;
+        }
+        private AttributeImportanceFinderSummary(Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> overallBestAttributesWithLosses,
+                           Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> bestNAttributesWithLosses) {
+            this.overallBestAttributesWithLosses = overallBestAttributesWithLosses;
+            this.bestNAttributesWithLosses = Optional.of(bestNAttributesWithLosses);
+        }
     }
 }
