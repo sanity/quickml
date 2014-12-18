@@ -1,5 +1,6 @@
 package quickml.supervised.inspection;
 
+import quickml.Utilities.SerializationUtility;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.CategoricalBranch;
 import quickml.supervised.classifier.decisionTree.tree.Node;
@@ -24,7 +25,8 @@ public class RandomForestDumper {
     }
 
     public void summarizeForest(PrintStream out, String file) {
-        RandomForest randomForest = loadModelFromFile(file);
+        SerializationUtility<RandomForest> serializationUtility = new SerializationUtility<>();
+        RandomForest randomForest = serializationUtility.loadObjectFromGZIPFile(file);
         summarizeModel(out, randomForest);
     }
 
@@ -134,22 +136,5 @@ public class RandomForestDumper {
         }
     }
 
-    public static RandomForest loadModelFromFile(final String modelFile) {
-        try (ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFile)));) {
-            return (RandomForest) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error reading predictive model", e);
-        }
-    }
-
-
-
-    public static void writeModelToFile(final String modelFileName, RandomForest randomForest) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(modelFileName)));) {
-             oos.writeObject(randomForest);
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading predictive model", e);
-        }
-    }
 
 }

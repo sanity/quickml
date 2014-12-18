@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.CrossValidatorBuilder;
-import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.*;
 import quickml.data.*;
 import quickml.supervised.PredictiveModelBuilder;
@@ -18,25 +18,28 @@ import java.util.*;
 public class AttributeImportanceFinder {
     private static final Logger logger = LoggerFactory.getLogger(AttributeImportanceFinder.class);
     Set<String> attributesToNotRemove = Sets.newHashSet();
+    List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> bestAttributesWithLosses;
 
     public AttributeImportanceFinder() {
 
     }
+
     public AttributeImportanceFinder(Set<String> attributesToNotRemove) {
         this.attributesToNotRemove = attributesToNotRemove;
     }
 
-    public<PM extends PredictiveModel<AttributesMap, PredictionMap>,  PMB extends PredictiveModelBuilder<AttributesMap, PM>>
-            List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
-         (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap,  PM, PMB> predictiveModelBuilderFactory,
-          Map<String, Object> config, Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
-          String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
+    public <PM extends PredictiveModel<AttributesMap, PredictionMap>, PMB extends PredictiveModelBuilder<AttributesMap, PM>>
+    List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> determineAttributeImportance
+            (CrossValidatorBuilder<AttributesMap, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap, PM, PMB> predictiveModelBuilderFactory,
+             Map<String, Object> config, Iterable<? extends Instance<AttributesMap>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
+             String primaryLossFunction, Map<String, CrossValLossFunction<PredictionMap>> crossValLossFunctionMap) {
 
         Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
         String noAttributesRemoved = "noAttributesRemoved";
         attributes.add(noAttributesRemoved);
 
         //do recursive feature elimination
+        double bestPrimaryLossSeenSoFar = Double.MAX_VALUE;
         List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses = Lists.newArrayList();
         for (int i = 0; i < iterations; i++) {
             CrossValidator<AttributesMap, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
@@ -46,26 +49,48 @@ public class AttributeImportanceFinder {
             crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
 
             attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
-            if (i < iterations - 1) {
-                trainingData = updateAttributesUsedInTraining(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+            double currentPrimaryLoss = getModelLoss(attributesWithLosses).get(primaryLossFunction);
+            if (i == 0) {
+                bestPrimaryLossSeenSoFar = currentPrimaryLoss;
             }
+            bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(trainingData, primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
             logger.info("model losses" + getModelLoss(attributesWithLosses).toString());
+
             for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
                 logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
             }
+            trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
         }
 
-        for (int i = 0; i< attributesWithLosses.size(); i++) {
-            Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair = attributesWithLosses.get(i);
-            if(pair.getValue0().equals(noAttributesRemoved)) {
+        for (int i = 0; i < bestAttributesWithLosses.size(); i++) {
+            Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair = bestAttributesWithLosses.get(i);
+            if (pair.getValue0().equals(noAttributesRemoved)) {
                 attributesWithLosses.remove(i);
                 break;
             }
         }
-        return attributesWithLosses;
+        return bestAttributesWithLosses;
     }
 
-    private Map<String, Double> getModelLoss( List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
+    private double updateBestAttributesWithLosseIfNeccessary(Iterable<? extends Instance<AttributesMap>> trainingData, String primaryLossFunction, double currentPrimaryLoss, double bestPrimaryLossSeenSoFar,
+                                                             List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
+        if (currentPrimaryLoss < bestPrimaryLossSeenSoFar) {
+            bestPrimaryLossSeenSoFar = currentPrimaryLoss;
+            updateBestAttributesWithLosses(primaryLossFunction, attributesWithLosses);
+        }
+        return bestPrimaryLossSeenSoFar;
+    }
+
+    private void updateBestAttributesWithLosses(String primaryLossFunction, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
+        bestAttributesWithLosses = Lists.newArrayList();
+        bestAttributesWithLosses.addAll(attributesWithLosses);
+        logger.info("best attributes so far are: ");
+        for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+            logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
+        }
+    }
+
+    private Map<String, Double> getModelLoss(List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
         for (int i = attributesWithLosses.size() - 1; i >= 0; i--) {
             if (attributesWithLosses.get(i).getValue0().equals("noAttributesRemoved")) {
                 return attributesWithLosses.get(i).getValue1().getLossMap();
@@ -74,9 +99,10 @@ public class AttributeImportanceFinder {
         return null;
     }
 
-    private List<Instance<AttributesMap>> updateAttributesUsedInTraining(final Iterable<? extends Instance<AttributesMap>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses,
-                                                Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
+    private List<Instance<AttributesMap>> updateAttributesUsedInTrainingAndBestAttributes(final Iterable<? extends Instance<AttributesMap>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses,
+                                                                                          Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
         int numberOfAttributesToRemove = (int) (percentageOfAttributesToRemoveAtEachIteration * allAttributes.size());
+
         Set<String> attributesToRemove = Sets.newHashSet();
         for (int i = attributesWithLosses.size() - 1; i >= Math.max(0, attributesWithLosses.size() - 1 - numberOfAttributesToRemove); i--) {
 
@@ -86,11 +112,7 @@ public class AttributeImportanceFinder {
                 allAttributes.remove(attributeToRemove);
             }
         }
-    /*    attributesToRemove.add("eap");
-        attributesToRemove.add("ecp");
-        allAttributes.remove("eap");
-        allAttributes.remove("ecp");
-*/
+
         allAttributes.add("noAttributesRemoved");
 
         //remove attributes from training data

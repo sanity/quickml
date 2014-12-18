@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
-    <version>SNAPSHOT</version>
+    <version>0.4.7.9</version>
     <distributionManagement>
         <repository>
             <id>gh-pages</id>

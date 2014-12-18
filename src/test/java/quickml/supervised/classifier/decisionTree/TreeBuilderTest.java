@@ -63,6 +63,7 @@ public class TreeBuilderTest {
     @Test
     public void treeMadeExpectedSplits() {
         final List<Instance<AttributesMap>> instances = Lists.newArrayList();
+        //TODO: make code that generates test instances like these automatic
         AttributesMap attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", true);
         instances.add(new InstanceImpl<AttributesMap>(attributesMap, 1.0));
@@ -81,7 +82,6 @@ public class TreeBuilderTest {
         AttributesMap attributes = new AttributesMap();
         attributes.put("a", true);
         Assert.assertEquals(tree.getProbability(attributes, 1.0),.5);
-        attributes = new AttributesMap();
         attributes.put("a", false);
         Assert.assertEquals(tree.getProbability(attributes, 0.0), 1.0);
 

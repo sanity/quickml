@@ -451,6 +451,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     }
 
     private boolean childrenHaveInsufficientData(ClassificationCounter outCounts, ClassificationCounter inCounts) {
+      //TODO: experiment with conditions here
         return false;//inCounts.getTotal() < Math.max(minLeafInstances, 1)
         //|| outCounts.getTotal() < Math.max(minLeafInstances, 1);
              /*   || inCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
@@ -531,9 +532,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             //values should be greater than 1
             for (final Serializable thisValue : values) {
                 final ClassificationCounter testValCounts = valueOutcomeCounts.get(thisValue);
-                if (testValCounts == null || thisValue == null || thisValue.equals(MISSING_VALUE)) { // Also a kludge, figure out why
-                    // this would happen
-                    //  .countAllByAttributeValues has a bug...or there is an issue with negative weights
+                //TODO: the next 3 lines may no longer be needed. Verify.
+                if (testValCounts == null || thisValue == null || thisValue.equals(MISSING_VALUE)) {
                     continue;
                 }
                 if (this.minCategoricalAttributeValueOccurances > 0) {
@@ -593,7 +593,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         Map<Serializable, Double> counts = testValCounts.getCounts();
         if (counts.size() ==1)
-            return true;
+            if (testValCounts.getTotal() < 2*minCategoricalAttributeValueOccurances)
+                return true;
         for (Serializable key : counts.keySet()) {
             if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
                 return true;
