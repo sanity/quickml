@@ -2,6 +2,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.AttributesMap;
@@ -81,18 +82,14 @@ public class ClassificationCounter implements Serializable {
         for(Serializable key : result.keySet()) {
             attributesWithClassificationCounters.add(new AttributeValueWithClassificationCounter(key, result.get(key)));
         }
+
         Collections.sort(attributesWithClassificationCounters, new Comparator<AttributeValueWithClassificationCounter>() {
             @Override
             public int compare(AttributeValueWithClassificationCounter cc1, AttributeValueWithClassificationCounter cc2) {
-                double p1 = cc1.classificationCounter.getCount(minorityClassification) / cc1.classificationCounter.getTotal();
-                double p2 = cc2.classificationCounter.getCount(minorityClassification) / cc2.classificationCounter.getTotal();
+                double probOfMinority1 = cc1.classificationCounter.getCount(minorityClassification) / cc1.classificationCounter.getTotal();
+                double probOfMinority2 = cc2.classificationCounter.getCount(minorityClassification) / cc2.classificationCounter.getTotal();
 
-                if (p2 > p1)
-                    return 1;
-                else if (p1 == p2)
-                    return 0;
-                else
-                    return -1;
+                return  Ordering.natural().reverse().compare(probOfMinority1, probOfMinority2);
             }
         });
 
