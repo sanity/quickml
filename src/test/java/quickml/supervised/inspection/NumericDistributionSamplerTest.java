@@ -11,7 +11,6 @@ import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class NumericDistributionSamplerTest {
         double samples = 800;
 
         for (int i = 0; i<samples; i++) {
-            double val = (Double) numericDistributionSampler.sampleHistogram();
+            double val = (Double) numericDistributionSampler.sampleDistribution();
             int bin = numericDistributionSampler.getBinIndex(val);
             if (sampledDistribution.containsKey(bin)) {
                 sampledDistribution.put(bin, (Double) (sampledDistribution.get(bin)).doubleValue() + 1.0);
@@ -90,7 +89,7 @@ public class NumericDistributionSamplerTest {
         double tolerance = 0.1;
         double samples = 400;
         for (int i = 0; i<samples; i++) {
-            double val = (Double) numericDistributionSampler.sampleHistogram();
+            double val = (Double) numericDistributionSampler.sampleDistribution();
             int bin = numericDistributionSampler.getBinIndex(val);
             if (sampledDistribution.containsKey(bin)) {
                 sampledDistribution.put(bin, (Double) (sampledDistribution.get(bin)).doubleValue() + 1.0);

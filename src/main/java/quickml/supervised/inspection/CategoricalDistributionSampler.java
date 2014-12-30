@@ -13,7 +13,7 @@ import java.util.Random;
 /**
  * Created by alexanderhawk on 11/14/14.
  */
-public class CategoricalDistributionSampler {
+public class CategoricalDistributionSampler implements DistributionSampler<Serializable>{
     public Map<Serializable, Long> getHistogramOfCountsForValues() {
         return histogramOfCountsForValues;
     }
@@ -87,7 +87,7 @@ public class CategoricalDistributionSampler {
         }
     }
 
-    public Serializable sampleHistogram() {
+    public Serializable sampleDistribution() {
         return attributeValueRangeMap.get(rand.nextDouble());
     }
 

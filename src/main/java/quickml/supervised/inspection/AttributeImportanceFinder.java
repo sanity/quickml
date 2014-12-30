@@ -40,11 +40,11 @@ public class AttributeImportanceFinder {
         List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses = Lists.newArrayList();
         for (int i = 0; i < iterations; i++) {
             CrossValidator<AttributesMap, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
-            crossValLossFunctionMap = Maps.newHashMap();
+         /*   crossValLossFunctionMap = Maps.newHashMap();
             crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
             crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
             crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
-
+*/
             attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
             if (i < iterations - 1) {
                 trainingData = updateAttributesUsedInTraining(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);

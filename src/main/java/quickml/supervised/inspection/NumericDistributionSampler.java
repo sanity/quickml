@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Created by alexanderhawk on 11/14/14.
  */
-public class NumericDistributionSampler {
+public class NumericDistributionSampler implements  DistributionSampler<Double> {
 
     public Map<Integer, Long> getHistogramOfCountsForValues() {
         return histogramOfCountsForValues;
@@ -180,7 +180,7 @@ public class NumericDistributionSampler {
         return rand.nextDouble() * (upper - lower) + lower;
     }
 
-    public Number sampleHistogram() {
+    public Double sampleDistribution() {
         int randBin = attributeValueRangeMap.get(rand.nextDouble());
         return getRandomDoubleInBin(randBin);
     }

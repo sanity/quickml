@@ -41,7 +41,7 @@ public class CategoricalDistributionSamplerTest {
         double tolerance = 0.1;
         double samples = 800;
         for (int i = 0; i<samples; i++) {
-            String val = (String) categoricalDistributionSampler.sampleHistogram();
+            String val = (String) categoricalDistributionSampler.sampleDistribution();
             if (sampledDistribution.containsKey(val)) {
                 sampledDistribution.put(val, (Double) (sampledDistribution.get(val)).doubleValue() + 1.0);
             } else {
@@ -75,7 +75,7 @@ public class CategoricalDistributionSamplerTest {
         double tolerance = 0.1;
         double samples = 400;
         for (int i = 0; i<samples; i++) {
-            String val = (String) categoricalDistributionSampler.sampleHistogram();
+            String val = (String) categoricalDistributionSampler.sampleDistribution();
             if (sampledDistribution.containsKey(val)) {
                 sampledDistribution.put(val, (Double) (sampledDistribution.get(val)).doubleValue() + 1.0);
             } else {
