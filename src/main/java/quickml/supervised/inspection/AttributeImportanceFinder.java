@@ -60,11 +60,11 @@ public class AttributeImportanceFinder {
         boolean startedTrackingBestAttributes = false;
         for (int i = 0; i < iterations; i++) {
             CrossValidator<AttributesMap, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
-            crossValLossFunctionMap = Maps.newHashMap();
+         /*   crossValLossFunctionMap = Maps.newHashMap();
             crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
             crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
             crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
-
+*/
             attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
             double currentPrimaryLoss = getModelLoss(attributesWithLosses).get(primaryLossFunction);
             if (attributesWithLosses.size() <= maxAttributesInOptimalSet && !startedTrackingBestAttributes) {
@@ -73,12 +73,12 @@ public class AttributeImportanceFinder {
             }
             bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
             updateBestNAttributesWithLosseIfNeccessary(attributesWithLosses);
-            logger.info("model losses" + getModelLoss(attributesWithLosses).toString());
+            logger.info("model losses: " + getModelLoss(attributesWithLosses).toString() + ", at iteration: " + i + "out of iterations: " + iterations);
 
-            for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+      /*      for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
                 logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
             }
-            trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+      */      trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
         }
         overallBestAttributesWithLosses.remove(noAttributesRemoved);
 

@@ -15,10 +15,10 @@ public class MapDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
     @Override
     public  DateTime extractDateTime(Instance<AttributesMap> instance){
         AttributesMap attributes = instance.getAttributes();
-        int year = (Integer)attributes.get("timeOfArrival-year");
-        int month = (Integer)attributes.get("timeOfArrival-monthOfYear");
-        int day = (Integer)attributes.get("timeOfArrival-dayOfMonth");
-        int hour = (Integer)attributes.get("timeOfArrival-hourOfDay");
-        return new DateTime(year,month, day, hour, 0, 0, 0, DateTimeZone.UTC);
+        int year = Math.max(1, (Integer)attributes.get("timeOfArrival-year"));
+        int month = Math.max(1, (Integer)attributes.get("timeOfArrival-monthOfYear"));
+        int day = Math.max(1, (Integer)attributes.get("timeOfArrival-dayOfMonth"));
+        int hour = Math.max(1, (Integer)attributes.get("timeOfArrival-hourOfDay"));
+        return new DateTime(year,month, day, hour, 1, 1, 1, DateTimeZone.UTC);
     }
 }
