@@ -9,6 +9,8 @@ import quickml.data.Instance;
 import quickml.data.InstanceImpl;
 
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +61,16 @@ public class CSVToInstanceReader {
     public ArrayList<Instance<AttributesMap>> readCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
+        return getInstancesFromReader(reader);
+    }
+
+    public ArrayList<Instance<AttributesMap>> readCsvFromReader(Reader reader) throws Exception {
+
+        CSVReader csvReader = new CSVReader(reader, delimiter, '"');
+        return getInstancesFromReader(csvReader);
+    }
+
+    private ArrayList<Instance<AttributesMap>> getInstancesFromReader(CSVReader reader) throws IOException {
         List<String[]> csvLines = reader.readAll();
 
         ArrayList<Instance<AttributesMap>> instances = Lists.newArrayList();

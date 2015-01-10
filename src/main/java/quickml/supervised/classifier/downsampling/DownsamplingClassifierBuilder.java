@@ -3,6 +3,8 @@ package quickml.supervised.classifier.downsampling;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
@@ -11,6 +13,7 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.UpdatablePredictiveModelBuilder;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 
 public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap,DownsamplingClassifier> {
-
+    private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private final double targetMinorityProportion;
     private final UpdatablePredictiveModelBuilder<AttributesMap,? extends Classifier> predictiveModelBuilder;
 
@@ -33,7 +36,10 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
     @Override
     public DownsamplingClassifier buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
-        Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s", classificationProportions.size());
+        if (classificationProportions.size() != 2) {
+            printSampleInstancesForInspection(trainingData);
+        }
+        Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s. mapOfClassificationsToOutcomes: %s", classificationProportions.size(), classificationProportions.get(1.0), classificationProportions.toString());
         final Map.Entry<Serializable, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
         final Map.Entry<Serializable, Double> minorityEntry = MapUtils.getEntryWithLowestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
@@ -51,6 +57,24 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
         final Classifier wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
+    }
+
+    private void printSampleInstancesForInspection(Iterable<? extends Instance<AttributesMap>> trainingData) {
+        Iterator<? extends Instance<AttributesMap>> trainingDataIterator = trainingData.iterator();
+        logger.info("length of training data" + Iterables.size(trainingData));
+        for (int i = 0; i < 1000; i+=100) {
+            if (trainingDataIterator.hasNext()) {
+                Instance<AttributesMap> instance = trainingDataIterator.next();
+                if (instance.getLabel().equals(Double.valueOf(1.0))) {
+                    logger.info("instance " + i);
+                    logger.info(instance.getAttributes().toString());
+                    logger.info("label:" + instance.getLabel().toString());
+                    logger.info("weight:" + instance.getWeight());
+                }
+            } else {
+                break;
+            }
+        }
     }
 
     @Override

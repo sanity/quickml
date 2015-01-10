@@ -24,4 +24,17 @@ public class GiniImpurityScorerTest {
         GiniImpurityScorer scorer = new GiniImpurityScorer();
         Assert.assertEquals(scorer.scoreSplit(a, b), 0.5);
     }
+
+
+    @Test
+    public void parentClassificationSameAsIdenticalChildTest() {
+        ClassificationCounter a = new ClassificationCounter();
+        a.addClassification("a", 4);
+        a.addClassification("b", 3);
+
+        ClassificationCounter b = new ClassificationCounter();
+       // b.addClassification("b", 4);
+        GiniImpurityScorer scorer = new GiniImpurityScorer();
+        Assert.assertEquals(scorer.scoreSplit(a, b), 0.0);
+    }
 }

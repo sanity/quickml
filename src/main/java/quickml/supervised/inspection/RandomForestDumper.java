@@ -1,17 +1,16 @@
 package quickml.supervised.inspection;
 
+import quickml.Utilities.SerializationUtility;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.CategoricalBranch;
 import quickml.supervised.classifier.decisionTree.tree.Node;
 import quickml.supervised.classifier.decisionTree.tree.NumericBranch;
 import quickml.supervised.classifier.randomForest.RandomForest;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 
 public class RandomForestDumper {
@@ -26,7 +25,8 @@ public class RandomForestDumper {
     }
 
     public void summarizeForest(PrintStream out, String file) {
-        RandomForest randomForest = loadModelFromFile(file);
+        SerializationUtility<RandomForest> serializationUtility = new SerializationUtility<>();
+        RandomForest randomForest = serializationUtility.loadObjectFromGZIPFile(file);
         summarizeModel(out, randomForest);
     }
 
@@ -135,15 +135,6 @@ public class RandomForestDumper {
             return result;
         }
     }
-
-    private RandomForest loadModelFromFile(final String modelFile) {
-        try (ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(modelFile)));) {
-            return (RandomForest) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error reading predictive model", e);
-        }
-    }
-
 
 
 }
