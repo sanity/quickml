@@ -108,7 +108,7 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
     }
 
     private void updateWeightsAndBiasesWithDeltas(double[] deltas) {
-        // TODO: Implement
+        // TODO: Implement updating
     }
 
     public double[] initializeOutputDeltas(List<Double> outputs, double[] activations) {
