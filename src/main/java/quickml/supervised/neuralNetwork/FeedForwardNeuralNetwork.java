@@ -15,11 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by ian on 12/23/14.
  */
-public final class NeuralNetwork implements PredictiveModel<List<Double>, List<Double>> {
+public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Double>, List<Double>> {
     List<List<Neuron>> layers;
     private int neuronCount;
 
-    public NeuralNetwork(List<Integer> layerSizes) {
+    public FeedForwardNeuralNetwork(List<Integer> layerSizes) {
         createLayers(layerSizes);
 
         connectLayers();
@@ -40,7 +40,7 @@ public final class NeuralNetwork implements PredictiveModel<List<Double>, List<D
     }
 
     private void connectLayers() {
-        for (int layerNo = 0; layerNo < layers.size() - 2; layerNo++) {
+        for (int layerNo = 0; layerNo < layers.size() - 1; layerNo++) {
             List<Neuron> lowerLayer = layers.get(layerNo);
             List<Neuron> upperLayer = layers.get(layerNo+1);
             for (Neuron lower : lowerLayer) {
@@ -51,42 +51,92 @@ public final class NeuralNetwork implements PredictiveModel<List<Double>, List<D
         }
     }
 
-    public int getNeuronCount() {
-        return neuronCount;
-    }
-
     @java.lang.Override
     public List<Double> predict(List<Double> inputNeuronActivations) {
-        double[] neuronActivations = convertInputActivationsToActivationMap(inputNeuronActivations);
-        for (List<Neuron> layer : layers) {
-            for (Neuron neuron : layer) {
-                neuron.computeAndStoreOutputActivation(neuronActivations);
-            }
-        }
+        double[] neuronActivations = computeNeuronActivations(inputNeuronActivations);
         return extractOutputNeuronActivations(neuronActivations);
     }
 
-    private double[] convertInputActivationsToActivationMap(List<Double> inputNeuronActivations) {
-        List<Neuron> inputNeurons = layers.get(0);
-        int inputLayerSize = inputNeurons.size();
-        int inputNeuronActivationsSize = inputNeuronActivations.size();
-        Preconditions.checkArgument(inputNeuronActivationsSize == inputLayerSize,
-                String.format("%d input activations, but %d input neurons", inputNeuronActivationsSize, inputLayerSize));
-        double[] neuronActivations = new double[neuronCount];
-        for (int neuronIx = 0; neuronIx < inputLayerSize; neuronIx++) {
-            Neuron inputNeuron = inputNeurons.get(neuronIx);
-            neuronActivations[inputNeuron.getId()] = inputNeuronActivations.get(neuronIx);
+    public double[] computeNeuronActivations(List<Double> inputNeuronActivations) {
+        double[] neuronActivations = convertInputActivationsToActivationMap(inputNeuronActivations);
+        for (List<Neuron> layer : layers) {
+            if (layer == getInputLayer()) {
+                continue;
+            }
+            for (Neuron neuron : layer) {
+                neuron.computeAndStoreOutputActivation(neuronActivations);
+            }
         }
         return neuronActivations;
     }
 
     private List<Double> extractOutputNeuronActivations(double[] neuronActivations) {
-        List<Neuron> outputLayer = layers.get(layers.size() - 1);
-        List<Double> outputActivations = Lists.newArrayListWithCapacity(outputLayer.size());
-        for (Neuron neuron : outputLayer) {
+        List<Double> outputActivations = Lists.newArrayListWithCapacity(getOutputLayer().size());
+        for (Neuron neuron : getOutputLayer()) {
             outputActivations.add(neuronActivations[neuron.getId()]);
         }
         return outputActivations;
+    }
+
+    private double[] convertInputActivationsToActivationMap(List<Double> inputNeuronActivations) {
+        int inputLayerSize = getInputLayer().size();
+        int inputNeuronActivationsSize = inputNeuronActivations.size();
+        Preconditions.checkArgument(inputNeuronActivationsSize == inputLayerSize,
+                String.format("%d input activations, but %d input neurons", inputNeuronActivationsSize, inputLayerSize));
+        double[] neuronActivations = new double[neuronCount];
+        for (int neuronIx = 0; neuronIx < inputLayerSize; neuronIx++) {
+            Neuron inputNeuron = getInputLayer().get(neuronIx);
+            neuronActivations[inputNeuron.getId()] = inputNeuronActivations.get(neuronIx);
+        }
+        return neuronActivations;
+    }
+
+    private List<Neuron> getInputLayer() {
+        return layers.get(0);
+    }
+
+    public void updateWeightsAndBiases(List<Double> inputs, List<Double> outputs, double learningRate) {
+        Preconditions.checkArgument(outputs.size() == getOutputLayer().size());
+        double[] activations = computeNeuronActivations(inputs);
+        double[] deltas = initializeOutputDeltas(outputs, activations);
+
+        for (int layerIx = layers.size() - 2; layerIx > 0; layerIx--) {
+            updateDeltasForLayer(deltas, layers.get(layerIx));
+        }
+
+        updateWeightsAndBiasesWithDeltas(deltas);
+    }
+
+    private void updateWeightsAndBiasesWithDeltas(double[] deltas) {
+        // TODO: Implement
+    }
+
+    public double[] initializeOutputDeltas(List<Double> outputs, double[] activations) {
+        double[] deltas = new double[this.getNeuronCount()];
+        int outputNeuronCount = 0;
+        for (Neuron neuron : getOutputLayer()) {
+            deltas[neuron.getId()] = activations[neuron.getId()] - outputs.get(outputNeuronCount);
+            outputNeuronCount++;
+        }
+        return deltas;
+    }
+
+    private void updateDeltasForLayer(double[] deltas, List<Neuron> neurons) {
+        for (Neuron neuron : neurons) {
+            double runningSumOfError = 0;
+            for (Synapse synapse : neuron.getOutputs()) {
+                runningSumOfError += synapse.getWeight() * deltas[synapse.b.getId()];
+            }
+            deltas[neuron.getId()] = runningSumOfError;
+        }
+    }
+
+    private List<Neuron> getOutputLayer() {
+        return layers.get(layers.size() - 1);
+    }
+
+    public int getNeuronCount() {
+        return neuronCount;
     }
 
     @java.lang.Override
