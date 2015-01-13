@@ -32,7 +32,8 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         for (int numNodes : layerSizes) {
             ArrayList<Neuron> layer = Lists.newArrayListWithCapacity(numNodes);
             for (int x = 0; x < numNodes; x++) {
-                layer.add(new Neuron(neuronIdCounter++));
+                boolean isInputLayer = layers.isEmpty();
+                layer.add(new Neuron(neuronIdCounter++, isInputLayer));
             }
             layers.add(layer);
         }
@@ -95,6 +96,10 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         return layers.get(0);
     }
 
+    private List<Neuron> getOutputLayer() {
+        return layers.get(layers.size() - 1);
+    }
+
     public void updateWeightsAndBiases(List<Double> inputs, List<Double> outputs, double learningRate) {
         Preconditions.checkArgument(outputs.size() == getOutputLayer().size());
         double[] activations = computeNeuronActivations(inputs);
@@ -104,18 +109,16 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
             updateDeltasForLayer(deltas, layers.get(layerIx));
         }
 
-        updateWeightsAndBiasesWithDeltas(deltas);
-    }
-
-    private void updateWeightsAndBiasesWithDeltas(double[] deltas) {
-        // TODO: Implement updating
+        updateWeightsAndBiasesWithDeltas(learningRate, deltas, activations);
     }
 
     public double[] initializeOutputDeltas(List<Double> outputs, double[] activations) {
         double[] deltas = new double[this.getNeuronCount()];
         int outputNeuronCount = 0;
         for (Neuron neuron : getOutputLayer()) {
-            deltas[neuron.getId()] = activations[neuron.getId()] - outputs.get(outputNeuronCount);
+            double desiredOutput = outputs.get(outputNeuronCount);
+            double actualOutput = activations[neuron.getId()];
+            deltas[neuron.getId()] =  desiredOutput - actualOutput;
             outputNeuronCount++;
         }
         return deltas;
@@ -131,8 +134,12 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         }
     }
 
-    private List<Neuron> getOutputLayer() {
-        return layers.get(layers.size() - 1);
+    private void updateWeightsAndBiasesWithDeltas(double learningRate, double[] activations, double[] deltas) {
+        for (List<Neuron> layer : layers) {
+            for (Neuron neuron : layer) {
+                neuron.updateWeightsAndBias(learningRate, activations[neuron.getId()], deltas[neuron.getId()]);
+            }
+        }
     }
 
     public int getNeuronCount() {

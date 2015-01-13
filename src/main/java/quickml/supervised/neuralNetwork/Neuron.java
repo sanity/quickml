@@ -1,5 +1,6 @@
 package quickml.supervised.neuralNetwork;
 
+import com.google.common.base.Preconditions;
 import quickml.supervised.neuralNetwork.activationFunctions.Sigmoid;
 
 import java.util.ArrayList;
@@ -17,17 +18,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class Neuron {
     private final ActivationFunction activationFunction;
     private final int id;
+    private final boolean isInputNeuron;
 
     List<Synapse> inputs = new ArrayList<>(), outputs = new ArrayList<>();
     private double bias = 0;
 
-    public Neuron(int id) {
-        this(id, Sigmoid.SINGLETON);
+    public Neuron(int id, boolean isInputNeuron) {
+        this(id, Sigmoid.SINGLETON, isInputNeuron);
     }
 
-    public Neuron(int id, ActivationFunction activationFunction) {
+    public Neuron(int id, ActivationFunction activationFunction, boolean isInputNeuron) {
         this.id = id;
         this.activationFunction = activationFunction;
+        this.isInputNeuron = isInputNeuron;
     }
 
     public double getBias() {
@@ -86,5 +89,16 @@ public final class Neuron {
     @Override
     public int hashCode() {
         return id;
+    }
+
+    public void updateWeightsAndBias(double learningRate, double activation, double delta) {
+        Preconditions.checkState(activationFunction == Sigmoid.SINGLETON, "Only sigmoid activation function is currently supported for training");
+        if (!isInputNeuron) {
+            bias = bias + learningRate * 1.0 * delta;
+        }
+        for (Synapse synapse : outputs) {
+            double outputOfA = activationFunction.apply(activation);
+            synapse.updateWeight(synapse.getWeight() + learningRate * 1.0 * outputOfA * delta);
+        }
     }
 }
