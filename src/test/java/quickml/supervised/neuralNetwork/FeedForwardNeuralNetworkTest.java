@@ -58,36 +58,36 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
-    public void xorTest() {
+    public void andTrainTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
-        List<XorTrainingPair> trainingData = Lists.newArrayList();
-        trainingData.add(new XorTrainingPair(0, 0, 0));
-        trainingData.add(new XorTrainingPair(1, 0, 1));
-        trainingData.add(new XorTrainingPair(0, 1, 1));
-        //trainingData.add(new XorTrainingPair(1, 1, 0));
+        List<SimpleTrainingPair> trainingData = Lists.newArrayList();
+        trainingData.add(new SimpleTrainingPair(0, 0, 0));
+        trainingData.add(new SimpleTrainingPair(1, 0, 1));
+        trainingData.add(new SimpleTrainingPair(0, 1, 1));
 
-        for (int x=0; x<1000; x++) {
-            for (XorTrainingPair xorTrainingPair : trainingData) {
-                feedForwardNeuralNetwork.updateWeightsAndBiases(xorTrainingPair.inputs, xorTrainingPair.outputs, 0.1);
+        int trainingCycles = 1000;
+        for (int x=0; x< trainingCycles; x++) {
+            for (SimpleTrainingPair simpleTrainingPair : trainingData) {
+                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.1);
             }
             double mse = 0;
-            for (XorTrainingPair xorTrainingPair : trainingData) {
-                List<Double> prediction = feedForwardNeuralNetwork.predict(xorTrainingPair.inputs);
-                double error = prediction.get(0) - xorTrainingPair.outputs.get(0);
+            for (SimpleTrainingPair simpleTrainingPair : trainingData) {
+                List<Double> prediction = feedForwardNeuralNetwork.predict(simpleTrainingPair.inputs);
+                double error = prediction.get(0) - simpleTrainingPair.outputs.get(0);
                 double errorSquared = error*error;
                 mse += errorSquared;
             }
-            System.out.println("RMSE: "+Math.sqrt(mse / trainingData.size()));
+            double rmse = Math.sqrt(mse / trainingData.size());
+            if (rmse < 0.1) return;
         }
-
-        System.out.println();
+        Assert.fail(String.format("Failed to reach an RMSE < 0.1 after %d training cycles", trainingCycles));
     }
 
-    private static class XorTrainingPair {
+    private static class SimpleTrainingPair {
         public List<Double> inputs;
         public List<Double> outputs;
 
-        public XorTrainingPair(double input1, double input2, double output) {
+        public SimpleTrainingPair(double input1, double input2, double output) {
             inputs = Lists.newArrayList(input1, input2);
             outputs = Collections.singletonList(output);
         }
