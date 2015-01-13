@@ -58,6 +58,19 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
+    public void convergeTest() {
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
+        int iterationCount = 1000;
+        for (int x=0; x< iterationCount; x++) {
+            feedForwardNeuralNetwork.updateWeightsAndBiases(Lists.newArrayList(0.0, 0.0), Lists.newArrayList(0.43), 0.1);
+            double prediction = feedForwardNeuralNetwork.predict(Lists.newArrayList(0.0, 0.0)).get(0);
+            double error = Math.abs(prediction - 0.43);
+            if (error < 0.0001) return;
+        }
+        Assert.fail(String.format("Failed to converge after %d iterations", iterationCount));
+    }
+
+    @Test
     public void andTrainTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
         List<SimpleTrainingPair> trainingData = Lists.newArrayList();
