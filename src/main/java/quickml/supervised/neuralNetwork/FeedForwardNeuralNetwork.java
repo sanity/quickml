@@ -6,10 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import quickml.supervised.PredictiveModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,12 +38,13 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
     }
 
     private void connectLayers() {
+        Random random = new Random();
         for (int layerNo = 0; layerNo < layers.size() - 1; layerNo++) {
             List<Neuron> lowerLayer = layers.get(layerNo);
             List<Neuron> upperLayer = layers.get(layerNo+1);
             for (Neuron lower : lowerLayer) {
                 for (Neuron upper : upperLayer) {
-                    Synapse.CONNECT(lower, upper);
+                    Synapse.CONNECT(lower, upper).updateWeight(random.nextDouble());
                 }
             }
         }
@@ -128,16 +126,18 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         for (Neuron neuron : neurons) {
             double runningSumOfError = 0;
             for (Synapse synapse : neuron.getOutputs()) {
-                runningSumOfError += synapse.getWeight() * deltas[synapse.b.getId()];
+                final double delta = deltas[synapse.b.getId()];
+                final double weight = synapse.getWeight();
+                runningSumOfError += weight * delta;
             }
             deltas[neuron.getId()] = runningSumOfError;
         }
     }
 
-    private void updateWeightsAndBiasesWithDeltas(double learningRate, double[] activations, double[] deltas) {
+    private void updateWeightsAndBiasesWithDeltas(double learningRate, double[] deltas, double[] activations) {
         for (List<Neuron> layer : layers) {
             for (Neuron neuron : layer) {
-                neuron.updateWeightsAndBias(learningRate, activations[neuron.getId()], deltas[neuron.getId()]);
+                neuron.updateWeightsAndBias(learningRate, activations, deltas);
             }
         }
     }

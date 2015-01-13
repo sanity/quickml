@@ -3,6 +3,7 @@ package quickml.supervised.neuralNetwork;
 import com.google.common.collect.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickml.supervised.neuralNetwork.activationFunctions.Sigmoid;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,21 +46,29 @@ public class FeedForwardNeuralNetworkTest {
         Neuron inputNeuron1 = inputLayer.get(0);
         inputNeuron1.getOutputs().get(0).updateWeight(0.5);
         Neuron inputNeuron2 = inputLayer.get(1);
-        inputNeuron2.getOutputs().get(0).updateWeight(0.5);
+        inputNeuron2.getOutputs().get(0).updateWeight(0.4);
+        Neuron outputNeuron = feedForwardNeuralNetwork.layers.get(1).get(0);
+        outputNeuron.setBias(0.5);
+        double inputNeuron1Output = 0.3;
+        double inputNeuron2Output = 0.2;
+        double outputNeuronInput = inputNeuron1Output * 0.5 + inputNeuron2Output * 0.4;
+        double outputNeuronOutput = Sigmoid.SINGLETON.apply(outputNeuronInput + 0.5);
+        List<Double> output = feedForwardNeuralNetwork.predict(Lists.newArrayList(0.3, 0.2));
+        Assert.assertEquals(output.get(0), outputNeuronOutput);
     }
 
     @Test
     public void xorTest() {
-        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
         List<XorTrainingPair> trainingData = Lists.newArrayList();
         trainingData.add(new XorTrainingPair(0, 0, 0));
         trainingData.add(new XorTrainingPair(1, 0, 1));
         trainingData.add(new XorTrainingPair(0, 1, 1));
-        trainingData.add(new XorTrainingPair(1, 1, 0));
+        //trainingData.add(new XorTrainingPair(1, 1, 0));
 
         for (int x=0; x<1000; x++) {
             for (XorTrainingPair xorTrainingPair : trainingData) {
-                feedForwardNeuralNetwork.updateWeightsAndBiases(xorTrainingPair.inputs, xorTrainingPair.outputs, 0.01);
+                feedForwardNeuralNetwork.updateWeightsAndBiases(xorTrainingPair.inputs, xorTrainingPair.outputs, 0.1);
             }
             double mse = 0;
             for (XorTrainingPair xorTrainingPair : trainingData) {
@@ -70,6 +79,8 @@ public class FeedForwardNeuralNetworkTest {
             }
             System.out.println("RMSE: "+Math.sqrt(mse / trainingData.size()));
         }
+
+        System.out.println();
     }
 
     private static class XorTrainingPair {

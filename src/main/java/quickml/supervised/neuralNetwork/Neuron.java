@@ -41,12 +41,17 @@ public final class Neuron {
         this.bias = bias;
     }
 
+    public double activate(double input) {
+        return activationFunction.apply(input);
+    }
+
     protected void computeAndStoreOutputActivation(double[] neuronActivations) {
         neuronActivations[id] = computeOutputActivation(neuronActivations);
     }
 
     public double computeOutputActivation(double[] neuronActivations) {
-        return activationFunction.apply(computeInputActivation(neuronActivations) + bias);
+        double inputActivation = computeInputActivation(neuronActivations);
+        return activationFunction.apply(inputActivation + bias);
     }
 
     protected double computeInputActivation(double[] neuronActivations) {
@@ -91,14 +96,25 @@ public final class Neuron {
         return id;
     }
 
-    public void updateWeightsAndBias(double learningRate, double activation, double delta) {
+    public void updateWeightsAndBias(double learningRate, double activations[], double[] deltas) {
         Preconditions.checkState(activationFunction == Sigmoid.SINGLETON, "Only sigmoid activation function is currently supported for training");
+        double activation = activations[id];
         if (!isInputNeuron) {
-            bias = bias + learningRate * 1.0 * delta;
+            bias = bias + learningRate * 1.0 * deltas[this.getId()];
         }
         for (Synapse synapse : outputs) {
-            double outputOfA = activationFunction.apply(activation);
-            synapse.updateWeight(synapse.getWeight() + learningRate * 1.0 * outputOfA * delta);
+            double outputDelta = deltas[synapse.b.getId()];
+            double correction = learningRate * 1.0 * activation * outputDelta;
+            synapse.updateWeight(synapse.getWeight() + correction);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Neuron{" +
+                "id=" + id +
+                ", bias=" + bias +
+                ", isInputNeuron=" + isInputNeuron +
+                '}';
     }
 }
