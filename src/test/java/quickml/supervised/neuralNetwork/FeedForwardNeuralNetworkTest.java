@@ -134,7 +134,7 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     public void testNetWithTrainingData(FeedForwardNeuralNetwork feedForwardNeuralNetwork, List<SimpleTrainingPair> trainingData) {
-        int trainingCycles = 10000000;
+        int trainingCycles = 100000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
                 feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.01);
@@ -147,7 +147,7 @@ public class FeedForwardNeuralNetworkTest {
                 mse += errorSquared;
             }
             double rmse = Math.sqrt(mse / trainingData.size());
-            if (x % 10000 == 0) System.out.println("Cycle: "+x+"\tRMSE: "+rmse);
+            if (x % 1000 == 0) System.out.println("Cycle: "+x+"\tRMSE: "+rmse);
             if (rmse < 0.1) return;
         }
         Assert.fail(String.format("Failed to reach an RMSE < 0.1 after %d training cycles", trainingCycles));
