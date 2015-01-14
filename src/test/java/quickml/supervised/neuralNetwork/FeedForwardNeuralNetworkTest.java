@@ -40,32 +40,6 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
-    public void workedExampleVerfification() {
-        // See: http://arduinobasics.blogspot.com/2011/08/neural-network-part-6-back-propagation.html
-        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2));
-        List<Neuron> layer1 = feedForwardNeuralNetwork.layers.get(1);
-        layer1.get(0).getInputs().get(0).updateWeight(0.3);
-        layer1.get(0).getInputs().get(1).updateWeight(0.8);
-        layer1.get(0).setBias(0.5);
-        layer1.get(1).getInputs().get(0).updateWeight(0.1);
-        layer1.get(1).getInputs().get(1).updateWeight(0.1);
-        layer1.get(1).setBias(0.2);
-
-        List<Neuron> layer2 = feedForwardNeuralNetwork.layers.get(2);
-        layer2.get(0).getInputs().get(0).updateWeight(0.6);
-        layer2.get(0).getInputs().get(1).updateWeight(0.4);
-        layer2.get(0).setBias(0.4);
-        layer2.get(1).getInputs().get(0).updateWeight(0.9);
-        layer2.get(1).getInputs().get(1).updateWeight(0.9);
-        layer2.get(1).setBias(0.5);
-
-        List<Double> initialPrediction = feedForwardNeuralNetwork.predict(Lists.newArrayList(0.0, 1.0));
-
-        Assert.assertEquals(initialPrediction.get(0), 0.74855);
-        Assert.assertEquals(initialPrediction.get(1), 0.653463);
-    }
-
-    @Test
     public void simpleTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 1));
         List<Neuron> inputLayer = feedForwardNeuralNetwork.layers.get(0);
