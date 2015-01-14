@@ -1,4 +1,4 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Optional;
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import quickml.Utilities.Selectors.*;
+import quickml.utlities.selectors.*;
 
 /**
  * Created by alexanderhawk on 10/2/14.

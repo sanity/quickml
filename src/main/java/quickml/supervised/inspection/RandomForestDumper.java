@@ -1,6 +1,6 @@
 package quickml.supervised.inspection;
 
-import quickml.Utilities.SerializationUtility;
+import quickml.utlities.SerializationUtility;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.CategoricalBranch;
 import quickml.supervised.classifier.decisionTree.tree.Node;
@@ -9,8 +9,6 @@ import quickml.supervised.classifier.randomForest.RandomForest;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 
 public class RandomForestDumper {

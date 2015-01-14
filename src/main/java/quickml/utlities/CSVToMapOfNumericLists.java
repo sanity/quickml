@@ -1,4 +1,4 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Lists;
