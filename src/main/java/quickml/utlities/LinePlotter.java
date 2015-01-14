@@ -1,4 +1,4 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 /**
  * Created by alexanderhawk on 10/2/14.
@@ -6,7 +6,6 @@ package quickml.Utilities;
 
 
 import com.google.common.collect.Lists;
-import org.javatuples.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;

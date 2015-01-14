@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.Benchmarks;
-import quickml.Utilities.CSVToInstanceReader;
-import quickml.Utilities.CSVToInstanceReaderBuilder;
+import quickml.utlities.CSVToInstanceReader;
+import quickml.utlities.CSVToInstanceReaderBuilder;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 

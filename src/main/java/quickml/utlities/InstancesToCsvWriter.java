@@ -1,11 +1,10 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import au.com.bytecode.opencsv.CSVWriter;
-import quickml.data.InstanceImpl;
 
 import java.io.*;
 import java.util.List;

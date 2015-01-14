@@ -1,10 +1,10 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 import com.google.common.base.Optional;
 
 import java.util.List;
 
-import quickml.Utilities.Selectors.*;
+import quickml.utlities.selectors.*;
 
 /**
  * Created by alexanderhawk on 10/2/14.

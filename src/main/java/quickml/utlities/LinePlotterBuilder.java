@@ -1,4 +1,4 @@
-package quickml.Utilities;
+package quickml.utlities;
 
 /**
  * Created by alexanderhawk on 10/2/14.

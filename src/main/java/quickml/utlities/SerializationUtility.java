@@ -1,6 +1,4 @@
-package quickml.Utilities;
-
-import quickml.supervised.classifier.randomForest.RandomForest;
+package quickml.utlities;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;

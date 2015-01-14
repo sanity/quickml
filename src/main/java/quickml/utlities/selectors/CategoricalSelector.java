@@ -1,4 +1,4 @@
-package quickml.Utilities.Selectors;
+package quickml.utlities.selectors;
 
 /**
  * Created by alexanderhawk on 10/4/14.
