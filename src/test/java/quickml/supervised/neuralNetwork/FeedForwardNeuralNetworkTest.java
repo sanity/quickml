@@ -40,6 +40,32 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
+    public void workedExampleVerfification() {
+        // See: http://arduinobasics.blogspot.com/2011/08/neural-network-part-6-back-propagation.html
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2));
+        List<Neuron> layer1 = feedForwardNeuralNetwork.layers.get(1);
+        layer1.get(0).getInputs().get(0).updateWeight(0.3);
+        layer1.get(0).getInputs().get(1).updateWeight(0.8);
+        layer1.get(0).setBias(0.5);
+        layer1.get(1).getInputs().get(0).updateWeight(0.1);
+        layer1.get(1).getInputs().get(1).updateWeight(0.1);
+        layer1.get(1).setBias(0.2);
+
+        List<Neuron> layer2 = feedForwardNeuralNetwork.layers.get(2);
+        layer2.get(0).getInputs().get(0).updateWeight(0.6);
+        layer2.get(0).getInputs().get(1).updateWeight(0.4);
+        layer2.get(0).setBias(0.4);
+        layer2.get(1).getInputs().get(0).updateWeight(0.9);
+        layer2.get(1).getInputs().get(1).updateWeight(0.9);
+        layer2.get(1).setBias(0.5);
+
+        List<Double> initialPrediction = feedForwardNeuralNetwork.predict(Lists.newArrayList(0.0, 1.0));
+
+        Assert.assertEquals(initialPrediction.get(0), 0.74855);
+        Assert.assertEquals(initialPrediction.get(1), 0.653463);
+    }
+
+    @Test
     public void simpleTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 1));
         List<Neuron> inputLayer = feedForwardNeuralNetwork.layers.get(0);
@@ -59,7 +85,7 @@ public class FeedForwardNeuralNetworkTest {
 
     @Test
     public void convergeTest() {
-        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
         int iterationCount = 1000;
         for (int x=0; x< iterationCount; x++) {
             feedForwardNeuralNetwork.updateWeightsAndBiases(Lists.newArrayList(0.0, 0.0), Lists.newArrayList(0.43), 0.1);
@@ -71,17 +97,47 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
-    public void andTrainTest() {
-        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 2, 1));
+    public void orTrainTest() {
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
         List<SimpleTrainingPair> trainingData = Lists.newArrayList();
         trainingData.add(new SimpleTrainingPair(0, 0, 0));
         trainingData.add(new SimpleTrainingPair(1, 0, 1));
         trainingData.add(new SimpleTrainingPair(0, 1, 1));
+        trainingData.add(new SimpleTrainingPair(1, 1, 1));
 
-        int trainingCycles = 1000;
+        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+    }
+
+    @Test
+    public void andTrainTest() {
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
+        List<SimpleTrainingPair> trainingData = Lists.newArrayList();
+        trainingData.add(new SimpleTrainingPair(0, 0, 0));
+        trainingData.add(new SimpleTrainingPair(1, 0, 0));
+        trainingData.add(new SimpleTrainingPair(0, 1, 0));
+        trainingData.add(new SimpleTrainingPair(1, 1, 1));
+
+        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+    }
+
+    @Test
+    public void xorTrainTest() {
+        FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
+        List<SimpleTrainingPair> trainingData = Lists.newArrayList();
+        trainingData.add(new SimpleTrainingPair(0, 0, 0));
+        trainingData.add(new SimpleTrainingPair(1, 0, 1));
+        trainingData.add(new SimpleTrainingPair(0, 1, 1));
+        trainingData.add(new SimpleTrainingPair(1, 1, 0));
+
+
+        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+    }
+
+    public void testNetWithTrainingData(FeedForwardNeuralNetwork feedForwardNeuralNetwork, List<SimpleTrainingPair> trainingData) {
+        int trainingCycles = 10000000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
-                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.1);
+                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.01);
             }
             double mse = 0;
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
@@ -91,6 +147,7 @@ public class FeedForwardNeuralNetworkTest {
                 mse += errorSquared;
             }
             double rmse = Math.sqrt(mse / trainingData.size());
+            if (x % 10000 == 0) System.out.println("Cycle: "+x+"\tRMSE: "+rmse);
             if (rmse < 0.1) return;
         }
         Assert.fail(String.format("Failed to reach an RMSE < 0.1 after %d training cycles", trainingCycles));
