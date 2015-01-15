@@ -29,7 +29,6 @@ public class FeedForwardNeuralNetworkTest {
 
     private void verifyFirstNeuron(Neuron firstNeuron) {
         Assert.assertEquals(firstNeuron.getId(), 0);
-        Assert.assertTrue(firstNeuron.getInputs().isEmpty());
         Assert.assertEquals(firstNeuron.getOutputs().size(), 1);
     }
 

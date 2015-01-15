@@ -41,20 +41,22 @@ public final class Neuron {
         this.bias = bias;
     }
 
-    public double activate(double input) {
-        return activationFunction.apply(input);
-    }
-
     protected void computeAndStoreOutputActivation(double[] neuronActivations) {
         neuronActivations[id] = computeOutputActivation(neuronActivations);
     }
 
     public double computeOutputActivation(double[] neuronActivations) {
+        if (isInputNeuron) {
+            throw new IllegalStateException("Input neurons don't compute output activation");
+        }
         double inputActivation = computeInputActivation(neuronActivations);
         return activationFunction.apply(inputActivation + bias);
     }
 
     protected double computeInputActivation(double[] neuronActivations) {
+        if (isInputNeuron) {
+            throw new IllegalStateException("Input neurons don't compute input activation");
+        }
         double activation = 0.0;
         for (Synapse synapse : inputs) {
             Double aActivation = neuronActivations[synapse.a.getId()];
@@ -72,6 +74,9 @@ public final class Neuron {
     }
 
     public List<Synapse> getInputs() {
+        if (isInputNeuron) {
+            throw new IllegalStateException("Input neurons don't have input synapses");
+        }
         return inputs;
     }
 

@@ -44,7 +44,7 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
             List<Neuron> upperLayer = layers.get(layerNo+1);
             for (Neuron lower : lowerLayer) {
                 for (Neuron upper : upperLayer) {
-                    Synapse.CONNECT(lower, upper).updateWeight(random.nextDouble());
+                    Synapse.CONNECT(lower, upper).updateWeight(random.nextDouble()*0.1);
                 }
             }
         }
@@ -104,7 +104,7 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         double[] deltas = initializeOutputDeltas(outputs, activations);
 
         for (int layerIx = layers.size() - 2; layerIx > 0; layerIx--) {
-            updateDeltasForLayer(deltas, layers.get(layerIx));
+            updateDeltasForLayer(activations, deltas, layers.get(layerIx));
         }
 
         updateWeightsAndBiasesWithDeltas(learningRate, deltas, activations);
@@ -122,15 +122,16 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         return deltas;
     }
 
-    private void updateDeltasForLayer(double[] deltas, List<Neuron> neurons) {
+    private void updateDeltasForLayer(double activations[], double[] deltas, List<Neuron> neurons) {
         for (Neuron neuron : neurons) {
-            double runningSumOfError = 0;
+            double runningSumOfDelta = 0;
             for (Synapse synapse : neuron.getOutputs()) {
                 final double delta = deltas[synapse.b.getId()];
                 final double weight = synapse.getWeight();
-                runningSumOfError += weight * delta;
+                final double activation = activations[neuron.getId()];
+                runningSumOfDelta += weight * delta * activation * (1.0 - activation);
             }
-            deltas[neuron.getId()] = runningSumOfError;
+            deltas[neuron.getId()] = runningSumOfDelta;
         }
     }
 
