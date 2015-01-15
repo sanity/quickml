@@ -109,7 +109,7 @@ public class FeedForwardNeuralNetworkTest {
         int trainingCycles = 100000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
-                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.01);
+                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.06);
             }
             double mse = 0;
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {

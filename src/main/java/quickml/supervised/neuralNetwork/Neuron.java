@@ -13,7 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* FIXME: Input neurons really don't do much, they're placeholders and most of the logic
  *       in this class isn't used for input neurons.  This doesn't really hurt but it
- *       is an annoying inelegance.
+ *       is an annoying inelegance.  A refinement might be to have subclasses
+ *       for InputNeuron, HiddenNeuron, and OutputNeuron.
  */
 public final class Neuron {
     private final ActivationFunction activationFunction;
