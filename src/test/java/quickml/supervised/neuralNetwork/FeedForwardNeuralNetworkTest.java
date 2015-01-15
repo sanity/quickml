@@ -78,7 +78,7 @@ public class FeedForwardNeuralNetworkTest {
         trainingData.add(new SimpleTrainingPair(0, 1, 1));
         trainingData.add(new SimpleTrainingPair(1, 1, 1));
 
-        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+        System.out.println("OR: RMSE < 0.1 after " + testNetWithTrainingData(feedForwardNeuralNetwork, trainingData) + " training cycles");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class FeedForwardNeuralNetworkTest {
         trainingData.add(new SimpleTrainingPair(0, 1, 0));
         trainingData.add(new SimpleTrainingPair(1, 1, 1));
 
-        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+        System.out.println("AND: RMSE < 0.1 after " + testNetWithTrainingData(feedForwardNeuralNetwork, trainingData) + " training cycles");
     }
 
     @Test
@@ -102,11 +102,10 @@ public class FeedForwardNeuralNetworkTest {
         trainingData.add(new SimpleTrainingPair(0, 1, 1));
         trainingData.add(new SimpleTrainingPair(1, 1, 0));
 
-
-        testNetWithTrainingData(feedForwardNeuralNetwork, trainingData);
+        System.out.println("XOR: RMSE < 0.1 after " + testNetWithTrainingData(feedForwardNeuralNetwork, trainingData) + " training cycles");
     }
 
-    public void testNetWithTrainingData(FeedForwardNeuralNetwork feedForwardNeuralNetwork, List<SimpleTrainingPair> trainingData) {
+    public int testNetWithTrainingData(FeedForwardNeuralNetwork feedForwardNeuralNetwork, List<SimpleTrainingPair> trainingData) {
         int trainingCycles = 100000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
@@ -120,10 +119,12 @@ public class FeedForwardNeuralNetworkTest {
                 mse += errorSquared;
             }
             double rmse = Math.sqrt(mse / trainingData.size());
-            if (x % 1000 == 0) System.out.println("Cycle: "+x+"\tRMSE: "+rmse);
-            if (rmse < 0.1) return;
+            if (rmse < 0.1) {
+                return x;
+            }
         }
         Assert.fail(String.format("Failed to reach an RMSE < 0.1 after %d training cycles", trainingCycles));
+        return 0;
     }
 
     private static class SimpleTrainingPair {
