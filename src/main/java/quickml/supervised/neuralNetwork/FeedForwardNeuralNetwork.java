@@ -114,8 +114,8 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
         double[] deltas = new double[this.getNeuronCount()];
         int outputNeuronCount = 0;
         for (Neuron neuron : getOutputLayer()) {
-            double desiredOutput = outputs.get(outputNeuronCount);
-            double actualOutput = activations[neuron.getId()];
+            final double desiredOutput = outputs.get(outputNeuronCount);
+            final double actualOutput = activations[neuron.getId()];
             deltas[neuron.getId()] =  desiredOutput - actualOutput;
             outputNeuronCount++;
         }

@@ -40,7 +40,7 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     @Test
-    public void simpleTest() {
+    public void feedForwardTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 1));
         List<Neuron> inputLayer = feedForwardNeuralNetwork.layers.get(0);
         Neuron inputNeuron1 = inputLayer.get(0);
