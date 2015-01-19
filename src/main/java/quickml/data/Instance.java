@@ -10,12 +10,12 @@ import java.io.Serializable;
  * Time: 1:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Instance<R> {
-    public abstract R getAttributes();
+public interface Instance<INPUT, OUTPUT> {
+    public abstract INPUT getAttributes();
 
-    public abstract Serializable getLabel();
+    public abstract OUTPUT getOutput();
 
     public abstract double getWeight();
 
-    public abstract Instance<R>reweight(double newWeight);
+    public abstract Instance<INPUT, OUTPUT>reweight(double newWeight);
 }

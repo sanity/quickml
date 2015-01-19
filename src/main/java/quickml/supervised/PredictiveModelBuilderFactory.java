@@ -7,8 +7,8 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public interface PredictiveModelBuilderFactory<R, PM extends PredictiveModel<R, ?>, PMB extends PredictiveModelBuilder<R, PM>> {
-    public Map<String, FieldValueRecommender> createDefaultParametersToOptimize();
+public interface PredictiveModelBuilderFactory<INPUT, OUTPUT, PREDICTION, PM extends PredictiveModel<INPUT, OUTPUT>, PMB extends PredictiveModelBuilder<INPUT, OUTPUT, PREDICTION, PM>> {
+    public Map<String, FieldValueRecommender> createefaultParametersToOptimize();
     public PMB buildBuilder(Map<String, Object> predictiveModelConfig);
 
 }
