@@ -3,25 +3,23 @@ package quickml.supervised.classifier.downsampling;
 import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilderFactory;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by ian on 4/24/14.
  */
-public class DownsamplingClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,DownsamplingClassifier, DownsamplingClassifierBuilder> {
+//TODO[mk] is this being used? bidder doesn't use it
+public class DownsamplingClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderFactory(UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
 
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }

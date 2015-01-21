@@ -1,28 +1,26 @@
 package quickml.supervised.classifier.temporallyWeightClassifier;
 
 import com.google.common.collect.Maps;
-
 import quickml.data.AttributesMap;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.supervised.crossValidation.dateTimeExtractors.SimpleDateFormatExtractor;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilderFactory;
 
-import java.io.Serializable;
 import java.util.Map;
 
-public class TemporallyReweightedClassifierBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
+//TODO[mk] - doesn't look like it's being used
+public class TemporallyReweightedClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,?  extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,?  extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder;
 
-    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap,? extends Classifier, ? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap,? extends Classifier, ? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

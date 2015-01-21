@@ -8,9 +8,8 @@ import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -21,12 +20,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap,DownsamplingClassifier> {
+public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<AttributesMap,DownsamplingClassifier> {
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private final double targetMinorityProportion;
-    private final UpdatablePredictiveModelBuilder<AttributesMap,? extends Classifier> predictiveModelBuilder;
+    private final PredictiveModelBuilder<AttributesMap,? extends Classifier> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
 
         this.predictiveModelBuilder = predictiveModelBuilder;
         Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
@@ -78,12 +77,6 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
     }
 
     @Override
-    public PredictiveModelBuilder<AttributesMap, DownsamplingClassifier> updatable(boolean updatable) {
-        predictiveModelBuilder.updatable(updatable);
-        return this;
-    }
-
-    @Override
     public void setID(Serializable id) {
         predictiveModelBuilder.setID(id);
     }
@@ -105,24 +98,5 @@ public class DownsamplingClassifierBuilder implements UpdatablePredictiveModelBu
             classificationProportions.put(classCount.getKey(),  classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;
-    }
-
-    @Override
-    public void updatePredictiveModel(DownsamplingClassifier predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            Iterable<? extends Instance<AttributesMap>> downsampledNewData = Iterables.filter(newData, new RandomDroppingInstanceFilter(predictiveModel.getMajorityClassification(), predictiveModel.getDropProbability()));
-            ((UpdatablePredictiveModelBuilder)predictiveModelBuilder).updatePredictiveModel(predictiveModel.wrappedClassifier, downsampledNewData, splitNodes);
-        } else {
-            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
-        }
-    }
-
-    @Override
-    public void stripData(DownsamplingClassifier predictiveModel) {
-        if (predictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ((UpdatablePredictiveModelBuilder) predictiveModelBuilder).stripData(predictiveModel.wrappedClassifier);
-        } else {
-            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
-        }
     }
 }

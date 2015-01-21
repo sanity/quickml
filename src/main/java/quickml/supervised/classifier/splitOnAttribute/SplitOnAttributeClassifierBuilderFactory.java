@@ -1,23 +1,20 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
 import com.google.common.collect.Maps;
-
 import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelBuilderFactory;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by chrisreeves on 6/10/14.
  */
+//TODO[mk] is this being used?
 public class SplitOnAttributeClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,SplitOnAttributeClassifier, SplitOnAttributeClassifierBuilder> {
     private static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
     private static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
@@ -28,8 +25,6 @@ public class SplitOnAttributeClassifierBuilderFactory implements PredictiveModel
     private final Set<String> attributeWhiteList;
 
     public SplitOnAttributeClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder, String attributeKey, Set<String> attributeWhiteList) {
-
-
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.attributeKey = attributeKey;
         this.attributeWhiteList = attributeWhiteList;

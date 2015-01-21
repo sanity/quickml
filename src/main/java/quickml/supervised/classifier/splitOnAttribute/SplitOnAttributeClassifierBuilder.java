@@ -7,18 +7,20 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceImpl;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier> {
+public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier> {
     private static final  Logger logger =  LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
 
     public static final Double NO_VALUE_PLACEHOLDER = Double.MIN_VALUE;
@@ -58,11 +60,6 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         return new SplitOnAttributeClassifier(attributeKey, splitModels, defaultPM);
     }
 
-    @Override
-    public PredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier> updatable(boolean updatable) {
-        this.wrappedBuilder.updatable(updatable);
-        return this;
-    }
 
     private Map<Serializable, ArrayList<Instance<AttributesMap>>> splitTrainingData(Iterable<? extends Instance<AttributesMap>> trainingData) {
 
@@ -141,39 +138,5 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         wrappedBuilder.setID(id);
     }
 
-    @Override
-    public void updatePredictiveModel(SplitOnAttributeClassifier predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            Map<Serializable, ArrayList<Instance<AttributesMap>>> splitNewData = splitTrainingData(newData);
-            for (Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> newDataEntry : splitNewData.entrySet()) {
-                Classifier pm = predictiveModel.getSplitModels().get(newDataEntry.getKey());
-                if(pm == null) {
-                    logger.info("Building predictive model for "+attributeKey+"="+newDataEntry.getKey());
-                    setID(newDataEntry.getKey());
-                    pm = wrappedBuilder.buildPredictiveModel(newDataEntry.getValue());
-                    predictiveModel.getSplitModels().put(newDataEntry.getKey(), pm);
-                } else {
-                    logger.info("Updating predictive model for "+attributeKey+"="+newDataEntry.getKey());
-                    ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataEntry.getValue(), splitNodes);
-                }
-            }
-            logger.info("Updating default predictive model");
-            setID(null);
-            ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(predictiveModel.getDefaultPM(), newData, splitNodes);
-        } else {
-            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
-        }
-    }
 
-    @Override
-    public void stripData(SplitOnAttributeClassifier predictiveModel) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            for(Classifier pm : predictiveModel.getSplitModels().values()) {
-                ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(pm);
-            }
-            ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getDefaultPM());
-        } else {
-            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
-        }
-    }
 }

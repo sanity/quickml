@@ -8,11 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.data.PredictionMap;
-import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.PredictiveModelWithDataBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
@@ -22,14 +18,13 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * Created by alexanderhawk on 3/10/14.
  * This class builds a calibrated predictive model, where the calibrator is implements the Pool Adjacent Violators algorithm.
  * It currently has some severe implementation problems and it's use is not recommended.
  */
-public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
+public class CalibratedPredictiveModelBuilder implements PredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> {
     private static final Logger logger = LoggerFactory.getLogger(CalibratedPredictiveModelBuilder.class);
     private int binsInCalibrator = 25;
     private PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedPredictiveModelBuilder;
@@ -94,40 +89,10 @@ public class CalibratedPredictiveModelBuilder implements UpdatablePredictiveMode
         return new CalibratedPredictiveModel(predictiveModel, calibrator);
     }
 
-    @Override
-    public PredictiveModelBuilder<AttributesMap, CalibratedPredictiveModel> updatable(boolean updatable) {
-        wrappedPredictiveModelBuilder.updatable(updatable);
-        return this;
-    }
-
-    @Override
-    public void updatePredictiveModel(CalibratedPredictiveModel predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        if (wrappedPredictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ((UpdatablePredictiveModelBuilder) wrappedPredictiveModelBuilder).updatePredictiveModel(predictiveModel, newData, splitNodes);
-            predictiveModel.pavFunction = updateCalibrator(predictiveModel, newData);
-
-
-        } else {
-            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
-        }
-    }
-
-    @Override
-    public void stripData(CalibratedPredictiveModel predictiveModel) {
-        if (wrappedPredictiveModelBuilder instanceof UpdatablePredictiveModelBuilder) {
-            ((UpdatablePredictiveModelBuilder) wrappedPredictiveModelBuilder).stripData(predictiveModel);
-        } else {
-            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
-        }
-    }
 
     @Override
     public void setID(Serializable id) {
         wrappedPredictiveModelBuilder.setID(id);
-    }
-
-    private PoolAdjacentViolatorsModel updateCalibrator(CalibratedPredictiveModel predictiveModel, Iterable<? extends Instance<AttributesMap>> newData) {
-        return predictiveModel.pavFunction;
     }
 
     private PoolAdjacentViolatorsModel createCalibrator(Iterable<? extends Instance<AttributesMap>> allInstancesIterable) {

@@ -2,21 +2,17 @@ package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
-import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
-import java.io.Serializable;
 import java.util.Map;
 
-/**
- * Created by ian on 4/12/14.
- */
-public class TreeBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap, Tree, TreeBuilder> {
+public class TreeBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";

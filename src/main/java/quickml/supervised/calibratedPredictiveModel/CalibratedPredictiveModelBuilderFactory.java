@@ -2,29 +2,29 @@ package quickml.supervised.calibratedPredictiveModel;
 
 import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.randomForest.RandomForestBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-
 
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/10/14.
  */
-public class CalibratedPredictiveModelBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap, CalibratedPredictiveModel, CalibratedPredictiveModelBuilder> {
+//TODO[mk] is this being used?
+public class CalibratedPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, CalibratedPredictiveModel, CalibratedPredictiveModelBuilder> {
     private static final String BINS_IN_CALIBRATOR = "binsInCalibrator";
 
-    private final UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory;
+    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderFactory;
 
     public CalibratedPredictiveModelBuilderFactory() {
         this(new RandomForestBuilderFactory());
     }
 
-    public CalibratedPredictiveModelBuilderFactory(UpdatablePredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends UpdatablePredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
+    public CalibratedPredictiveModelBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
         this.wrappedBuilderFactory = wrappedBuilderBuilder;
     }
 

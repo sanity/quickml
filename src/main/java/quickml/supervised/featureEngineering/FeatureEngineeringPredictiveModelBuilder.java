@@ -47,13 +47,6 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public PredictiveModelBuilder<AttributesMap, FeatureEngineeredPredictiveModel> updatable(boolean updatable) {
-        wrappedBuilder.updatable(updatable);
-        return this;
-    }
-
-
-    @Override
     public void setID(Serializable id) {
         wrappedBuilder.setID(id);
     }

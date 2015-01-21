@@ -60,11 +60,6 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
 
         @Override
-        public TestPMBuilder updatable(boolean updatable) {
-            return this;
-        }
-
-        @Override
         public void setID(Serializable id) {
 
         }

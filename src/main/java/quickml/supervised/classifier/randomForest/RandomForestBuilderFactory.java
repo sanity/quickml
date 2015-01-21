@@ -2,19 +2,18 @@ package quickml.supervised.classifier.randomForest;
 
 import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
+import quickml.supervised.PredictiveModelBuilderFactory;
+import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.TreeBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.UpdatablePredictiveModelBuilderFactory;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class RandomForestBuilderFactory implements UpdatablePredictiveModelBuilderFactory<AttributesMap,RandomForest, RandomForestBuilder> {
+public class RandomForestBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private final TreeBuilderFactory treeBuilderBuilder;
     public RandomForestBuilderFactory() {

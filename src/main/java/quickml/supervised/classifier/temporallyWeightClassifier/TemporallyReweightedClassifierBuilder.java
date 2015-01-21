@@ -10,7 +10,6 @@ import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.data.Instance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
@@ -19,7 +18,7 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap,TemporallyReweightedClassifier> {
+public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<AttributesMap,TemporallyReweightedClassifier> {
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
@@ -61,11 +60,6 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
         return new TemporallyReweightedClassifier(predictiveModel);
     }
 
-    @Override
-    public PredictiveModelBuilder<AttributesMap, TemporallyReweightedClassifier> updatable(boolean updatable) {
-        wrappedBuilder.updatable(updatable);
-        return this;
-    }
 
     private List<Instance<AttributesMap>> reweightTrainingData(Iterable<? extends Instance<AttributesMap>> sortedData, DateTime mostRecentInstance) {
         ArrayList<Instance<AttributesMap>> trainingDataList = Lists.newArrayList();
@@ -84,23 +78,6 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
 
-
-
-    @Override
-    public void updatePredictiveModel(TemporallyReweightedClassifier predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            validateData(newData);
-            DateTime mostRecentInstance = getMostRecentInstance(newData);
-
-            List<Instance<AttributesMap>> newDataList = reweightTrainingData(newData, mostRecentInstance);
-
-            Classifier pm = predictiveModel.getWrappedClassifier();
-            ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataList, splitNodes);
-        } else {
-            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
-        }
-    }
-
     private DateTime getMostRecentInstance(Iterable<? extends Instance<AttributesMap>> newData) {
         DateTime mostRecent = null;
         for(Instance<AttributesMap>instance : newData) {
@@ -110,16 +87,6 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
             }
         }
         return mostRecent;
-    }
-
-    @Override
-    public void stripData(TemporallyReweightedClassifier predictiveModel) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-                ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getWrappedClassifier());
-        } else {
-            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
-        }
-
     }
 
 }

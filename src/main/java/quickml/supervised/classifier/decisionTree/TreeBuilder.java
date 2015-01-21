@@ -10,7 +10,7 @@ import org.javatuples.Pair;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 
@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements UpdatablePredictiveModelBuilder<AttributesMap, Tree> {
+public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, Tree> {
     public static final int ORDINAL_TEST_SPLITS = 5;
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 1000;
@@ -31,9 +31,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
-    private boolean updatable = false;
     private boolean binaryClassifications = true;
-    private Set<Serializable> classifications = new HashSet<>();
     private Serializable minorityClassification;
     private String splitAttribute = null;
     private Set<String> splitModelWhiteList;
@@ -69,6 +67,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         return this;
     }
 
+    //TODO[mk] - this is only used by a test, and not by the bidder, splitModelWhiteList never used
     public TreeBuilder splitPredictiveModel(String splitAttribute, Set<String> splitModelWhiteList) {
         this.splitAttribute = splitAttribute;
         this.splitModelWhiteList = splitModelWhiteList;
@@ -90,11 +89,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
         return this;
     }
 
-    public TreeBuilder updatable(boolean updatable) {
-        this.updatable = updatable;
-        return this;
-    }
-
     @Override
     public void setID(Serializable id) {
         this.id = id;
@@ -104,18 +98,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     public Tree buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         Set<Serializable> classifications = getClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)), classifications);
-    }
-
-    @Override
-    public void updatePredictiveModel(Tree tree, final Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        //first move all the data into the leaves
-        for (Instance<AttributesMap> instance : newData) {
-            addInstanceToNode(tree.node, instance);
-        }
-        //now split the leaves further if possible
-        if (splitNodes) {
-            splitNode(tree.node);
-        }
     }
 
     private Set<Serializable> getClassificationProperties(Iterable<? extends Instance<AttributesMap>> trainingData) {
@@ -131,7 +113,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
             if (classifications.size() > 2) {
                 binaryClassifications = false;
-                return new HashSet<Serializable>(classifications.keySet());
+                return new HashSet<>(classifications.keySet());
             }
         }
 
@@ -142,11 +124,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
                 minorityClassification = val;
                 minorityClassificationCount = classifications.get(val).doubleValue();
             }
-        return new HashSet<Serializable>(classifications.keySet());
-    }
-
-    public void stripData(Tree tree) {
-        stripNode(tree.node);
+        return new HashSet<>(classifications.keySet());
     }
 
     private double[] createNumericSplit(final Iterable<? extends Instance<AttributesMap>> trainingData, final String attribute) {
@@ -205,12 +183,7 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
     private Node buildTree(Node parent, final Iterable<? extends Instance<AttributesMap>> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
-        final Leaf thisLeaf;
-        if (updatable) {
-            thisLeaf = new UpdatableLeaf(parent, trainingData, depth);
-        } else {
-            thisLeaf = new Leaf(parent, trainingData, depth);
-        }
+        final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
         if (depth >= maxDepth) {
             return thisLeaf;
@@ -442,23 +415,8 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             }
         }
 
-
-        if (childrenHaveInsufficientData(outCounts, inCounts)) {
-            return null;
-        }
         Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet, probabilityOfBeingInInset), bestScore);
         return bestPair;
-    }
-
-    private boolean childrenHaveInsufficientData(ClassificationCounter outCounts, ClassificationCounter inCounts) {
-      //TODO: experiment with conditions here
-        return false;//inCounts.getTotal() < Math.max(minLeafInstances, 1)
-        //|| outCounts.getTotal() < Math.max(minLeafInstances, 1);
-             /*   || inCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
-                || outCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances
-                || inCounts.getTotal() - inCounts.getCount(minorityClassification)  < minCategoricalAttributeValueOccurances
-                || outCounts.getTotal() - outCounts.getCount(minorityClassification) < minCategoricalAttributeValueOccurances;
-                */
     }
 
     private int labelAttributeValuesWithInsufficientData(List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters) {
@@ -481,24 +439,10 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
     private double getInformationValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
         double informationValue = 0;
-        double insufficientDataInstances = 0;
         double attributeValProb = 0;
-/*
+
         for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithCCs) {
             ClassificationCounter classificationCounter = attributeValueWithClassificationCounter.classificationCounter;
-            if (!classificationCounter.hasSufficientData()) {
-                insufficientDataInstances += classificationCounter.getTotal();
-            }
-        }
-        double attributeValProb = insufficientDataInstances/(numTrainingExamples);//-insufficientDataInstances);
-        informationValue -= attributeValProb*Math.log(attributeValProb)/Math.log(2);
-*/
-        for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithCCs) {
-            ClassificationCounter classificationCounter = attributeValueWithClassificationCounter.classificationCounter;
-        /*    if (!classificationCounter.hasSufficientData()) {
-                continue;
-            }
-          */
             attributeValProb = classificationCounter.getTotal() / (numTrainingExamples);//-insufficientDataInstances);
             informationValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
         }
@@ -610,7 +554,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
 
         double lastThreshold = Double.MIN_VALUE;
         double probabilityOfBeingInInset = 0;
-        double informationValue = getInformationValueOfNumericAttribute(ORDINAL_TEST_SPLITS);
         for (final double threshold : splits) {
             // Sometimes we can get a few thresholds the same, avoid wasted
             // effort when we do
@@ -632,9 +575,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             }
 
             double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
-            if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
-                thisScore /= informationValue;
-            }
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;
@@ -645,98 +585,6 @@ public final class TreeBuilder implements UpdatablePredictiveModelBuilder<Attrib
             return null;
         }
         return Pair.with(new NumericBranch(parent, attribute, bestThreshold, probabilityOfBeingInInset), bestScore);
-    }
-
-    /**
-     * Iterate through tree until we get to a leaf. Using the training data indexes in the leaf and the training data
-     * provided build a tree from the leaf if possible. If a branch has only leaves as direct children, this will combine the data from the leaves
-     * and recreate the branch
-     *
-     * @param node The node we are attempting to further split
-     */
-    private void splitNode(Node node) {
-        if (node instanceof UpdatableLeaf) {
-            UpdatableLeaf leaf = (UpdatableLeaf) node;
-            if (leaf.parent != null) {
-                Branch branch = (Branch) leaf.parent;
-                Branch parent;
-                Node toReplace;
-                //determine if we are combining leaves and will be replacing the parent branch or if we are replacing just this leaf
-                if (shouldCombineData(branch)) {
-                    parent = (Branch) branch.parent;
-                    toReplace = branch;
-                } else {
-                    parent = branch;
-                    toReplace = leaf;
-                }
-                Collection<Instance<AttributesMap>> leafData = getData(toReplace);
-                Node newNode = buildTree(parent, leafData, leaf.depth, createNumericSplits(leafData));
-                //replace the child that has the same reference as toReplace, intentionally checking reference using ==
-                if (parent.trueChild == toReplace) {
-                    parent.trueChild = newNode;
-                } else {
-                    parent.falseChild = newNode;
-                }
-            }
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            splitNode(branch.trueChild);
-            //only split false child if we aren't combining leaves
-            if (!shouldCombineData(branch)) {
-                splitNode(branch.falseChild);
-            }
-
-        }
-    }
-
-    private boolean shouldCombineData(Branch branch) {
-        return branch.trueChild instanceof UpdatableLeaf && branch.falseChild instanceof UpdatableLeaf && branch.parent != null;
-    }
-
-    /**
-     * @param node a branch with UpdatableLeaf children or an UpdatableLeaf
-     */
-    private Collection<Instance<AttributesMap>> getData(Node node) {
-        List<Instance<AttributesMap>> data = Lists.newArrayList();
-        if (node instanceof UpdatableLeaf) {
-            data.addAll(((UpdatableLeaf) node).getInstances());
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            data.addAll(((UpdatableLeaf) branch.trueChild).getInstances());
-            data.addAll(((UpdatableLeaf) branch.falseChild).getInstances());
-        }
-        return data;
-    }
-
-    private void addInstanceToNode(Node node, Instance<AttributesMap> instance) {
-        if (node instanceof UpdatableLeaf) {
-            UpdatableLeaf leaf = (UpdatableLeaf) node;
-            leaf.addInstance(instance);
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            if (branch.getInPredicate().apply(instance)) {
-                addInstanceToNode(branch.trueChild, instance);
-            } else {
-                addInstanceToNode(branch.falseChild, instance);
-            }
-        }
-    }
-
-    private void stripNode(Node node) {
-        if (node instanceof UpdatableLeaf) {
-            UpdatableLeaf leaf = (UpdatableLeaf) node;
-            Branch branch = (Branch) leaf.parent;
-            Leaf newLeaf = new Leaf(leaf.parent, leaf.classificationCounts, leaf.depth);
-            if (branch.trueChild == node) {
-                branch.trueChild = newLeaf;
-            } else {
-                branch.falseChild = newLeaf;
-            }
-        } else if (node instanceof Branch) {
-            Branch branch = (Branch) node;
-            stripNode(branch.trueChild);
-            stripNode(branch.falseChild);
-        }
     }
 
     public static class AttributeCharacteristics {

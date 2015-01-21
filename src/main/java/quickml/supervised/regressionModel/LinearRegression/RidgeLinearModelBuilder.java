@@ -77,11 +77,6 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         }
     }
 
-    @Override
-    public RidgeLinearModelBuilder updatable(boolean updatable) {
-        this.updatable = updatable;
-        return this;
-    }
 
     @Override
     public void setID(Serializable id) {
