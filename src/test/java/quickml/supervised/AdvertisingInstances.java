@@ -1,9 +1,11 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.Benchmarks;
+import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 import quickml.data.AttributesMap;
@@ -36,4 +38,25 @@ public class AdvertisingInstances {
        }
        return advertisingInstances;
    }
+
+   public static class AdvertisingDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
+        @Override
+        public DateTime extractDateTime(Instance<AttributesMap> instance) {
+            AttributesMap attributes = instance.getAttributes();
+            int year = 2014, month = 7, day = 1, hour = 0, minute = 0;
+            if (attributes.containsKey("timeOfArrival-year")) {
+                year = ((Long) attributes.get("timeOfArrival-year")).intValue();
+            }
+            if (attributes.containsKey("timeOfArrival-monthOfYear")) {
+                month = ((Long) attributes.get("timeOfArrival-monthOfYear")).intValue();
+            }
+            if (attributes.containsKey("timeOfArrival-dayOfMonth")) {
+                day = ((Long) attributes.get("timeOfArrival-dayOfMonth")).intValue();
+            }
+            if (attributes.containsKey("timeOfArrival-hourOfDay")) {
+                hour = ((Long) attributes.get("timeOfArrival-hourOfDay")).intValue();
+            }
+            return new DateTime(year, month, day, hour, minute, 0, 0);
+        }
+    }
 }
