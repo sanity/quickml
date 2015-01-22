@@ -3,9 +3,8 @@ package quickml.supervised;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.PredictionMap;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.data.Instance;
+import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
 import java.util.List;
 import java.util.Set;
@@ -19,8 +18,7 @@ public class Utils {
     public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
         for (Instance<R> instance : instances) {
-            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    predictiveModel.predict(instance.getAttributes()), instance.getWeight());
+            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;

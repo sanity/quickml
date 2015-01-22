@@ -76,11 +76,6 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Att
         }
     }
 
-    @Override
-    public void setID(Serializable id) {
-        predictiveModelBuilder.setID(id);
-    }
-
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;

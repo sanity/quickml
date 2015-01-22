@@ -23,7 +23,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         whiteList.add("weight");
         whiteList.add("height");
         final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final SplitOnAttributeClassifierBuilder cpmb = new SplitOnAttributeClassifierBuilder("gender", rfb, 10, 0.1, whiteList, 1);
         final long startTime = System.currentTimeMillis();
@@ -35,17 +35,5 @@ public class SplitOnAttributeClassifierBuilderTest {
         final int treeSize = trees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
-    }
-
-
-
-    private SplitOnAttributeClassifierBuilder getWrappedUpdatablePredictiveModelBuilder() {
-        Set<String> whiteList = new HashSet<>();
-        whiteList.add("weight");
-        whiteList.add("height");
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer()).splitPredictiveModel("gender", whiteList);
-        final RandomForestBuilder urfb = new RandomForestBuilder(tb);
-        return new SplitOnAttributeClassifierBuilder("gender", urfb, 10, 0.1, whiteList, 1);
-
     }
 }

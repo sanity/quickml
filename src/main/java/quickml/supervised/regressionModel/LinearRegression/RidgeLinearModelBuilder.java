@@ -78,11 +78,6 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
 
-    @Override
-    public void setID(Serializable id) {
-        this.id = id;
-    }
-
     private RealMatrix getIdentiytMatrixTimesRegularizationConstant() {
          RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
         for (int i = 0; i < collumnsInDataMatrix; i++) {

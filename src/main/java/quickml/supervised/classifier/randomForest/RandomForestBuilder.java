@@ -51,11 +51,6 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
     }
 
     @Override
-    public void setID(Serializable id) {
-        treeBuilder.setID(id);
-    }
-
-    @Override
     public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);

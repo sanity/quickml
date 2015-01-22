@@ -46,8 +46,4 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
         return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
     }
 
-    @Override
-    public void setID(Serializable id) {
-        wrappedBuilder.setID(id);
-    }
 }

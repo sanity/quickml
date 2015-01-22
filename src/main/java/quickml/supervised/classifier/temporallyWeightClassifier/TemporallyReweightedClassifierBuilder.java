@@ -46,10 +46,6 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
         return this;
     }
 
-    @Override
-    public void setID(Serializable iD) {
-        wrappedBuilder.setID(iD);
-    }
 
     @Override
     public TemporallyReweightedClassifier buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {

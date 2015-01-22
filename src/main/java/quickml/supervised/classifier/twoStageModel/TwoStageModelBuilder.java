@@ -7,7 +7,6 @@ import quickml.data.InstanceImpl;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -55,11 +54,5 @@ public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMa
             }
         }
     }
-
-    @Override
-    public void setID(Serializable id){
-        return;
-    }
-
 
 }

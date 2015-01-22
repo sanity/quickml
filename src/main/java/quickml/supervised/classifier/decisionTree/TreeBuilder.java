@@ -34,8 +34,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, 
     private boolean binaryClassifications = true;
     private Serializable minorityClassification;
     private String splitAttribute = null;
-    private Set<String> splitModelWhiteList;
-    private Serializable id;
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
     private boolean penalizeCategoricalSplitsBySplitAttributeInformationValue = true;
 
@@ -67,13 +65,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, 
         return this;
     }
 
-    //TODO[mk] - this is only used by a test, and not by the bidder, splitModelWhiteList never used
-    public TreeBuilder splitPredictiveModel(String splitAttribute, Set<String> splitModelWhiteList) {
-        this.splitAttribute = splitAttribute;
-        this.splitModelWhiteList = splitModelWhiteList;
-        return this;
-    }
-
     public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {
         this.ignoreAttributeAtNodeProbability = probability;
         return this;
@@ -87,11 +78,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, 
     public TreeBuilder minimumScore(double minimumScore) {
         this.minimumScore = minimumScore;
         return this;
-    }
-
-    @Override
-    public void setID(Serializable id) {
-        this.id = id;
     }
 
     @Override
@@ -349,8 +335,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, 
                                                                          final Iterable<? extends Instance<AttributesMap>> instances) {
 
         double bestScore = 0;
+        //TODO[mk] What is the id for? -currently passing in 0
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs = ClassificationCounter
-                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, id, minorityClassification);  //returs a list of ClassificationCounterList
+                .getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, splitAttribute, 0, minorityClassification);  //returs a list of ClassificationCounterList
 
         ClassificationCounter outCounts = new ClassificationCounter(valueOutcomeCountsPairs.getValue0()); //classification counter treating all values the same
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
@@ -465,8 +452,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<AttributesMap, 
 
         ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
+        //TODO[mk] added counter here, should they be there
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
-                .countAllByAttributeValues(instances, attribute, splitAttribute, id);
+                .countAllByAttributeValues(instances, attribute, splitAttribute, 0);
         ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
 
         final Map<Serializable, ClassificationCounter> valueOutcomeCounts = valueOutcomeCountsPair.getValue1(); //map of value _> classificationCounter

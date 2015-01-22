@@ -16,6 +16,7 @@ import java.util.Map;
 public class RandomForestBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private final TreeBuilderFactory treeBuilderBuilder;
+
     public RandomForestBuilderFactory() {
         this(new TreeBuilderFactory());
     }
@@ -37,5 +38,6 @@ public class RandomForestBuilderFactory implements PredictiveModelBuilderFactory
         TreeBuilder treeBuilder = treeBuilderBuilder.buildBuilder(predictiveModelParameters);
         final int numTrees = (Integer) predictiveModelParameters.get(NUM_TREES);
         return new RandomForestBuilder(treeBuilder)
-                .numTrees(numTrees);    }//don't consider Bagging
+                .numTrees(numTrees);
+    }
 }

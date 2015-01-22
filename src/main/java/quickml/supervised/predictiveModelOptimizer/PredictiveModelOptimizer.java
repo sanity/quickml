@@ -27,6 +27,24 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
     private static final int MAX_ITERATIONS = 10;
     private int maxIterations;
 
+
+    // TODO[mk] What exactly do we want from the PredictiveModelOptimizer
+
+    // Question - What is the training set
+
+    // Determine an initial configuration
+
+    // Take each parameter
+
+    // Try each possible value, with the training data (Define try each value)
+
+    // Record the loss for each possible value
+
+    // If the loss is better than that new value joins the best configuration value
+
+    // Repeat until we have tried all parameters
+
+
     public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator) {
         this(MAX_ITERATIONS, predictiveModelBuilderFactory, trainingData, crossValidator, predictiveModelBuilderFactory.createDefaultParametersToOptimize());
     }
@@ -95,7 +113,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
             logger.info("For field " + fieldName + ", best value is " + bestValue + " with loss " + bestValueLoss);
             currentConfiguration.put(fieldName, bestValue);
         }
-        return new ObjectWithLoss<Map<String, Object>>(currentConfiguration, currentConfigurationLoss);
+        return new ObjectWithLoss<>(currentConfiguration, currentConfigurationLoss);
     }
 
     private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends Instance<R>> trainingData,

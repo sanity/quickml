@@ -50,12 +50,10 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         Map<Serializable, Classifier> splitModels = Maps.newHashMap();
         for (Map.Entry<Serializable, ArrayList<Instance<AttributesMap>>> trainingDataEntry : splitTrainingData.entrySet()) {
             logger.info("Building predictive model for "+attributeKey+"="+trainingDataEntry.getKey());
-            setID(trainingDataEntry.getKey());
             splitModels.put(trainingDataEntry.getKey(), wrappedBuilder.buildPredictiveModel(trainingDataEntry.getValue()));
         }
 
         logger.info("Building default predictive model");
-        setID(null);
         final Classifier defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
         return new SplitOnAttributeClassifier(attributeKey, splitModels, defaultPM);
     }
@@ -132,11 +130,5 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         }
         return new InstanceImpl(attributes, instance.getLabel(), instance.getWeight());
     }
-
-    @Override
-    public void setID(Serializable id) {
-        wrappedBuilder.setID(id);
-    }
-
 
 }

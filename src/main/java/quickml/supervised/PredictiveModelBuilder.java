@@ -10,5 +10,4 @@ import java.io.Serializable;
 public interface PredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> {
 
     PM buildPredictiveModel(Iterable<? extends Instance<R>> trainingData);
-    void setID(Serializable id);
 }

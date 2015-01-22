@@ -1,6 +1,5 @@
 package quickml.supervised.crossValidation;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -10,16 +9,16 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
+import quickml.data.Instance;
+import quickml.supervised.PredictiveModel;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.Utils;
+import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.crossValLossFunctions.LossWithModelConfiguration;
 import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctionWithModelConfigurations;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
-import quickml.data.Instance;
-import quickml.supervised.PredictiveModel;
-import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.inspection.AttributeWithLossComparator;
 
 import java.util.*;
@@ -34,7 +33,6 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
     List<Instance<R>> allTrainingData;
     List<Instance<R>> trainingDataToAddToPredictiveModel;
     List<Instance<R>> validationSet;
-    Optional<LabelConverter<R>> labelConverter = Optional.absent();
 
     final private CrossValLossFunction<P> crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
@@ -56,10 +54,6 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         this.durationOfValidationSet = new Period(validationTimeSliceHours, 0, 0, 0);
     }
 
-    public OutOfTimeCrossValidator<R, P> labelConverter(LabelConverter<R> labelConverter) {
-        this.labelConverter = Optional.of(labelConverter);
-        return this;
-    }
 
     @Override
     public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> rawTrainingData) {
@@ -72,9 +66,6 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
             List<LabelPredictionWeight<P>> labelPredictionWeights;
             List<Instance<R>> convertedValSet = validationSet;
-            if (labelConverter.isPresent()) {
-                convertedValSet = labelConverter.get().convertLabels(validationSet);
-            }
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
             int positiveInstances = 0;
             for (LabelPredictionWeight<P> labelPredictionWeight : labelPredictionWeights) {
@@ -105,10 +96,6 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
 
             List<LabelPredictionWeight<P>> labelPredictionWeights;
             List<Instance<R>> convertedValSet = validationSet;
-            if (labelConverter.isPresent()) {
-                convertedValSet = labelConverter.get().convertLabels(validationSet);
-            }
-
             labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
 
             multiLossFunction.updateRunningLosses(labelPredictionWeights);
@@ -214,14 +201,6 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         currentTrainingSetSize = trainingDataToAddToPredictiveModel.size();
     }
 
-    private Set<String> getAllAttributesInTrainingSet(Iterable<? extends Instance<AttributesMap>> trainingData) {
-        Set<String> attributes = Sets.newHashSet();
-        for (Instance<AttributesMap> instance : trainingData) {
-            attributes.addAll(instance.getAttributes().keySet());
-        }
-        return attributes;
-    }
-
     private void updateTrainingSet() {
         trainingDataToAddToPredictiveModel = validationSet;
         currentTrainingSetSize += trainingDataToAddToPredictiveModel.size();
@@ -314,13 +293,7 @@ public class OutOfTimeCrossValidator<R, P> extends CrossValidator<R, P> {
         Collections.sort(this.allTrainingData, comparator);
     }
 
-    private void resetTrainingDataVariables() {
-        weightOfValidationSet = 0;
-        currentTrainingSetSize = 0;
-        clicksInValSet = 0;
-
-    }
-
+    //TODO[mk] maybe move this
     static class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
         @Override
         public DateTime extractDateTime(Instance<AttributesMap> instance) {

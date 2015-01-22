@@ -32,8 +32,7 @@ public class OutOfTimeCrossValidatorTests {
         int millisInMinute = 60000;
         int instanceNumber = 0;
         for (Instance<AttributesMap> instance : trainingData) {
-            instance.getAttributes().put("currentTimeMillis", millisInMinute * instanceNumber);
-            instanceNumber++;
+            instance.getAttributes().put("currentTimeMillis", millisInMinute * instanceNumber++);
         }
     }
 
