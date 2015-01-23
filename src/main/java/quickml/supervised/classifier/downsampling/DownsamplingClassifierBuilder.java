@@ -16,29 +16,30 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<AttributesMap,DownsamplingClassifier> {
+public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<AttributesMap, Serializable, DownsamplingClassifier> {
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private final double targetMinorityProportion;
-    private final PredictiveModelBuilder<AttributesMap,? extends Classifier> predictiveModelBuilder;
+    private final PredictiveModelBuilder<AttributesMap,Serializable,? extends Classifier> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
-
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<AttributesMap,Serializable, ? extends Classifier> predictiveModelBuilder, double targetMinorityProportion) {
+        checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.predictiveModelBuilder = predictiveModelBuilder;
-        Preconditions.checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.targetMinorityProportion = targetMinorityProportion;
     }
 
     @Override
-    public DownsamplingClassifier buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public DownsamplingClassifier buildPredictiveModel(final Iterable<? extends Instance<AttributesMap,Serializable>> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         if (classificationProportions.size() != 2) {
             printSampleInstancesForInspection(trainingData);
         }
-        Preconditions.checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s. mapOfClassificationsToOutcomes: %s", classificationProportions.size(), classificationProportions.get(1.0), classificationProportions.toString());
+        checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s. mapOfClassificationsToOutcomes: %s", classificationProportions.size(), classificationProportions.get(1.0), classificationProportions.toString());
         final Map.Entry<Serializable, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
         final Map.Entry<Serializable, Double> minorityEntry = MapUtils.getEntryWithLowestValue(classificationProportions).get();
         Serializable majorityClassification = majorityEntry.getKey();
@@ -51,19 +52,19 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Att
 
         final double dropProbability = (naturalMinorityProportion > targetMinorityProportion)?  0 : 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
 
-        Iterable<? extends Instance<AttributesMap>> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
+        Iterable<? extends Instance<AttributesMap,Serializable>> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
         final Classifier wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
     }
 
-    private void printSampleInstancesForInspection(Iterable<? extends Instance<AttributesMap>> trainingData) {
-        Iterator<? extends Instance<AttributesMap>> trainingDataIterator = trainingData.iterator();
+    private void printSampleInstancesForInspection(Iterable<? extends Instance<AttributesMap,Serializable>> trainingData) {
+        Iterator<? extends Instance<AttributesMap,Serializable>> trainingDataIterator = trainingData.iterator();
         logger.info("length of training data" + Iterables.size(trainingData));
         for (int i = 0; i < 1000; i+=100) {
             if (trainingDataIterator.hasNext()) {
-                Instance<AttributesMap> instance = trainingDataIterator.next();
+                Instance<AttributesMap,Serializable> instance = trainingDataIterator.next();
                 if (instance.getLabel().equals(Double.valueOf(1.0))) {
                     logger.info("instance " + i);
                     logger.info(instance.getAttributes().toString());
@@ -76,10 +77,10 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Att
         }
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends Instance<AttributesMap,Serializable>> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
-        for (Instance<AttributesMap>instance : trainingData) {
+        for (Instance<AttributesMap,Serializable>instance : trainingData) {
             AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
                 count = new AtomicLong(0);

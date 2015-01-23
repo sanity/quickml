@@ -42,9 +42,9 @@ public class DownsamplingClassifierBuilderTest {
         when(mockPredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Iterable<Instance<AttributesMap>> instances = (Iterable<Instance<AttributesMap>>) invocationOnMock.getArguments()[0];
+                Iterable<Instance<AttributesMap, Serializable>> instances = (Iterable<Instance<AttributesMap, Serializable>>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
-                for (Instance<AttributesMap> instance : instances) {
+                for (Instance<AttributesMap, Serializable> instance : instances) {
                     total++;
                     if (instance.getLabel().equals(true)) {
                         sum++;
@@ -55,7 +55,7 @@ public class DownsamplingClassifierBuilderTest {
             }
         });
         DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(mockPredictiveModelBuilder, 0.2);
-        List<Instance<AttributesMap>> data = Lists.newArrayList();
+        List<Instance<AttributesMap, Serializable>> data = Lists.newArrayList();
         for (int x = 0; x < 10000; x++) {
             data.add(new InstanceImpl(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
@@ -73,7 +73,7 @@ public class DownsamplingClassifierBuilderTest {
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final long startTime = System.currentTimeMillis();
         final DownsamplingClassifier downsamplingClassifier = dpmb.buildPredictiveModel(instances);
 
@@ -86,7 +86,7 @@ public class DownsamplingClassifierBuilderTest {
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<Instance<AttributesMap, Serializable>> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final DownsamplingClassifier downsamplingClassifier1 = dpmb.buildPredictiveModel(newInstances);
         final RandomForest newRandomForest = (RandomForest) downsamplingClassifier1.wrappedClassifier;
         assertTrue("Expect same tree to be updated", downsamplingClassifier == downsamplingClassifier1);

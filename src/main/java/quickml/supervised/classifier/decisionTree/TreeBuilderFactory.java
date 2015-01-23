@@ -10,9 +10,10 @@ import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class TreeBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Tree, TreeBuilder> {
+public class TreeBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Serializable, Tree, TreeBuilder> {
 
     private static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     private static final String MAX_DEPTH = "maxDepth";

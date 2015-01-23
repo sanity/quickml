@@ -19,7 +19,7 @@ import java.util.Map;
 public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
@@ -42,7 +42,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
-        final List<Instance<AttributesMap>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()));
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
@@ -54,8 +54,8 @@ public class RandomForestBuilderTest {
             Assert.assertTrue(randomForest1.trees.get(i).node.size() == randomForest2.trees.get(i).node.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
-        final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance<AttributesMap> instance : instancesTest) {
+        final List<Instance<AttributesMap, Serializable>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance<AttributesMap, Serializable> instance : instancesTest) {
            PredictionMap map1 = randomForest1.predict(instance.getAttributes());
            PredictionMap map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");

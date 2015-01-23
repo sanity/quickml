@@ -15,11 +15,11 @@ import java.io.Serializable;
 /**
  * Created by alexanderhawk on 8/14/14.
  */
-public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[], RidgeLinearModel> {
+public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[], Serializable, RidgeLinearModel> {
     private static final Logger logger = LoggerFactory.getLogger(RidgeLinearModelBuilder.class);
 
     double regularizationConstant = 0;
-    Iterable<? extends Instance<double[]>> trainingData;
+    Iterable<? extends Instance<double[], Serializable>> trainingData;
     boolean includeBiasTerm = false;
     boolean updatable = false;
     int collumnsInDataMatrix = 0;
@@ -46,7 +46,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
     @Override
-    public RidgeLinearModel buildPredictiveModel(Iterable<? extends Instance<double[]>> trainingData) {
+    public RidgeLinearModel buildPredictiveModel(Iterable<? extends Instance<double[], Serializable>> trainingData) {
 
         //compute modelCoefficients = (X^t * X + regularizationConstant*IdentityMatrix)^-1 * X^t * labels, where X is the data matrix
         this.trainingData = trainingData;
@@ -87,11 +87,11 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
 
-    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<? extends Instance<double[]>> trainingData) {
+    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<? extends Instance<double[], Serializable>> trainingData) {
         RealMatrix dataMatrix = new Array2DRowRealMatrix(Iterables.size(trainingData), collumnsInDataMatrix);
         double[] labels = new double[Iterables.size(trainingData)];
         int row = 0;
-        for (Instance<double[]> instance : trainingData) {
+        for (Instance<double[], Serializable> instance : trainingData) {
             labels[row] = (Double) instance.getLabel();
             double[] attributes = instance.getAttributes();
             int oneIfUsingBiasTerm = 0;

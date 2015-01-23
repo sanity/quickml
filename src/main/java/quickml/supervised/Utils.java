@@ -15,24 +15,25 @@ import java.util.Set;
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
-        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        for (Instance<R> instance : instances) {
-            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight());
+    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance<R, L>> instances, PredictiveModel<R, P> predictiveModel) {
+        List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
+        for (Instance<R, L> instance : instances) {
+            LabelPredictionWeight<L, P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
     }
 
-    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeightsWithoutAttributes(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel, Set<String> attributesToIgnore) {
-        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        for (Instance<R> instance : instances) {
-            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore),  instance.getWeight());
+    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeightsWithoutAttributes(List<? extends Instance<R, L>> instances, PredictiveModel<R, P> predictiveModel, Set<String> attributesToIgnore) {
+        List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
+        for (Instance<R, L> instance : instances) {
+            LabelPredictionWeight<L, P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
+                    predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
     }
+
 
 }
 

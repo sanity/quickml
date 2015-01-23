@@ -10,17 +10,18 @@ import quickml.supervised.crossValidation.dateTimeExtractors.SimpleDateFormatExt
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.io.Serializable;
 import java.util.Map;
 
 //TODO[mk] - doesn't look like it's being used
-public class TemporallyReweightedClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
+public class TemporallyReweightedClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Serializable,TemporallyReweightedClassifier, TemporallyReweightedClassifierBuilder> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
     public static final String DATE_EXTRACTOR = "dateExtractor";
-    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,?  extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, Serializable, ? extends Classifier,?  extends PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier>>  wrappedBuilderBuilder;
 
-    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap,? extends Classifier, ? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderBuilder) {
+    public TemporallyReweightedClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, Serializable,? extends Classifier, ? extends PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier>>  wrappedBuilderBuilder) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }
 

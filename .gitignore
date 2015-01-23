@@ -8,3 +8,6 @@ testdata/
 .settings/
 local-*
 logback.xsd
+src/test/resources/onespot_training_instances_small.json
+src/test/resources/onespot_training_instances_large.json
+

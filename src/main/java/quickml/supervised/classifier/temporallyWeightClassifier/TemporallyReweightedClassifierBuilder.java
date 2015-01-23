@@ -18,19 +18,19 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<AttributesMap,TemporallyReweightedClassifier> {
+public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<AttributesMap, Serializable, TemporallyReweightedClassifier> {
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder;
+    private final PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier> wrappedBuilder;
     private final DateTimeExtractor dateTimeExtractor;
     private final Serializable positiveClassification;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
         this(wrappedBuilder, dateTimeExtractor, 1.0);
     }
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
         this.wrappedBuilder = wrappedBuilder;
         this.dateTimeExtractor = dateTimeExtractor;
         this.positiveClassification = positiveClassification;
@@ -48,35 +48,36 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
 
 
     @Override
-    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
-        List<Instance<AttributesMap>> trainingDataList = reweightTrainingData(trainingData, mostRecent);
+        List<Instance<AttributesMap, Serializable>> trainingDataList = reweightTrainingData(trainingData, mostRecent);
         final Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedClassifier(predictiveModel);
     }
 
 
-    private List<Instance<AttributesMap>> reweightTrainingData(Iterable<? extends Instance<AttributesMap>> sortedData, DateTime mostRecentInstance) {
-        ArrayList<Instance<AttributesMap>> trainingDataList = Lists.newArrayList();
-        for (Instance<AttributesMap> instance : sortedData) {
+    private List<Instance<AttributesMap, Serializable>> reweightTrainingData(Iterable<? extends Instance<AttributesMap, Serializable>> sortedData, DateTime mostRecentInstance) {
+        ArrayList<Instance<AttributesMap, Serializable>> trainingDataList = Lists.newArrayList();
+        for (Instance<AttributesMap, Serializable> instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
             double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
-            trainingDataList.add(instance.reweight(newWeight));
+            //TODO[mk] Reweight needs to be moved / removed
+//            trainingDataList.add(instance.reweight(newWeight));
         }
         return trainingDataList;
     }
 
-    private void validateData(Iterable<? extends Instance<AttributesMap>> trainingData) {
+    private void validateData(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
         ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
 
-    private DateTime getMostRecentInstance(Iterable<? extends Instance<AttributesMap>> newData) {
+    private DateTime getMostRecentInstance(Iterable<? extends Instance<AttributesMap, Serializable>> newData) {
         DateTime mostRecent = null;
-        for(Instance<AttributesMap>instance : newData) {
+        for (Instance<AttributesMap, Serializable> instance : newData) {
             DateTime instanceTime = dateTimeExtractor.extractDateTime(instance);
             if (mostRecent == null || instanceTime.isAfter(mostRecent)) {
                 mostRecent = instanceTime;

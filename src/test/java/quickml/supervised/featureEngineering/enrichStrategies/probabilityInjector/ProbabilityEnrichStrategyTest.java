@@ -16,7 +16,7 @@ public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
-        List<Instance<AttributesMap>> trainingData = Lists.newLinkedList();
+        List<Instance<AttributesMap, Serializable>> trainingData = Lists.newLinkedList();
         AttributesMap  attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",2);
         attributes.put("k2",1);

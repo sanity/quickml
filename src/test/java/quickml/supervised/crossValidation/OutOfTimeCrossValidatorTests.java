@@ -14,6 +14,7 @@ import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVL
 import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.crossValidation.dateTimeExtractors.TestDateTimeExtractor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ import java.util.List;
  */
 public class OutOfTimeCrossValidatorTests {
     private static final Logger logger = LoggerFactory.getLogger(OutOfTimeCrossValidator.class);
-    List<Instance<AttributesMap>> trainingData;
+    List<Instance<AttributesMap, Serializable>> trainingData;
 
     @Before
     public void setUp() throws Exception {
@@ -31,7 +32,7 @@ public class OutOfTimeCrossValidatorTests {
         trainingData = trainingDataGenerator.createTrainingData();
         int millisInMinute = 60000;
         int instanceNumber = 0;
-        for (Instance<AttributesMap> instance : trainingData) {
+        for (Instance<AttributesMap, Serializable> instance : trainingData) {
             instance.getAttributes().put("currentTimeMillis", millisInMinute * instanceNumber++);
         }
     }

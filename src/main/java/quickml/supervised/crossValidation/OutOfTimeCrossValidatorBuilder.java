@@ -3,13 +3,13 @@ package quickml.supervised.crossValidation;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 
-public class OutOfTimeCrossValidatorBuilder<R, P> implements CrossValidatorBuilder<R, P>{
-    private CrossValLossFunction<P> crossValLossFunction;
+public class OutOfTimeCrossValidatorBuilder<R, L, P> implements CrossValidatorBuilder<R, L, P>{
+    private CrossValLossFunction<L, P> crossValLossFunction;
     private double fractionOfDataForCrossValidation;
     private int validationTimeSliceHours;
     private DateTimeExtractor dateTimeExtractor;
 
-    public OutOfTimeCrossValidatorBuilder setCrossValLossFunction(CrossValLossFunction<P> crossValLossFunction) {
+    public OutOfTimeCrossValidatorBuilder setCrossValLossFunction(CrossValLossFunction<L,P> crossValLossFunction) {
         this.crossValLossFunction = crossValLossFunction;
         return this;
     }
@@ -29,7 +29,7 @@ public class OutOfTimeCrossValidatorBuilder<R, P> implements CrossValidatorBuild
         return this;
     }
 
-    public CrossValidator<R, P> createCrossValidator() {
+    public CrossValidator<R, L, P> createCrossValidator() {
         return new OutOfTimeCrossValidator(crossValLossFunction, fractionOfDataForCrossValidation, validationTimeSliceHours, dateTimeExtractor);
     }
 }

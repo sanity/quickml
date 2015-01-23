@@ -17,13 +17,13 @@ import java.util.Map;
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<AttributesMap,FeatureEngineeredPredictiveModel> {
+public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<AttributesMap, Serializable,FeatureEngineeredPredictiveModel> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
 
-    private final PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder;
+    private final PredictiveModelBuilder<AttributesMap, Serializable, ? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap,? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<AttributesMap, Serializable,? extends PredictiveModel<AttributesMap, PredictionMap>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
@@ -32,14 +32,14 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {
             enrichers.add(enrichStrategy.build(trainingData));
         }
 
-        final Iterable<? extends Instance<AttributesMap>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
+        final Iterable<? extends Instance<AttributesMap, Serializable>> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
         PredictiveModel<AttributesMap, PredictionMap> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 

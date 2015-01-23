@@ -5,13 +5,14 @@ import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 8/15/14.
  */
-public class RidgeLinearModelBuilderFactory implements PredictiveModelBuilderFactory<double [], RidgeLinearModel, RidgeLinearModelBuilder> {
+public class RidgeLinearModelBuilderFactory implements PredictiveModelBuilderFactory<double [], Serializable, RidgeLinearModel, RidgeLinearModelBuilder> {
     private static final String REGULARIZATION_CONSTANT = "regularizationConstant";
     private static final String INCLUDE_BIAS_TERM = "includeBiasTerm";
     private String [] header;

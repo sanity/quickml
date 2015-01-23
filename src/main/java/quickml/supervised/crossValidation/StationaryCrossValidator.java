@@ -24,13 +24,13 @@ import java.util.*;
 /**
  * Created by ian on 2/28/14.
  */
-public class StationaryCrossValidator<R, P> extends CrossValidator<R, P> {
-private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossValidator.class);
+public class StationaryCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
+    private static final Logger logger = LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     protected static final int DEFAULT_NUMBER_OF_FOLDS = 4;
     protected int folds;
     protected int foldsUsed;
-    protected CrossValLossFunction<P> lossFunction;
+    protected CrossValLossFunction<L, P> lossFunction;
 
 
     /*
@@ -38,16 +38,16 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
      * @param folds The number folds to be used in the cross validation procedure
      */
 
-    public StationaryCrossValidator(CrossValLossFunction<P> lossFunction) {
+    public StationaryCrossValidator(CrossValLossFunction<L,P> lossFunction) {
         this(DEFAULT_NUMBER_OF_FOLDS, lossFunction);
     }
 
-    public StationaryCrossValidator(final int folds, CrossValLossFunction<P> lossFunction) {
+    public StationaryCrossValidator(final int folds, CrossValLossFunction<L,P> lossFunction) {
         this(folds, folds, lossFunction);
 
     }
 
-    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction<P> lossFunction) {
+    public StationaryCrossValidator(final int folds, final int foldsUsed, CrossValLossFunction<L,P> lossFunction) {
         Preconditions.checkArgument(folds > 1, "Minimum number of folds is 2");
         this.folds = folds;
         this.foldsUsed = foldsUsed;
@@ -55,28 +55,28 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData) {
+    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> allTrainingData) {
         double runningLoss = 0;
         DataSplit dataSplit;
-        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++) {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
-            runningLoss+= lossFunction.getLoss(labelPredictionWeights);
-            logger.info("running loss: "+runningLoss);
+            List<LabelPredictionWeight<L,P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
+            runningLoss += lossFunction.getLoss(labelPredictionWeights);
+            logger.info("running loss: " + runningLoss);
 
         }
         final double averageLoss = runningLoss / foldsUsed;
-        logger.info("Average loss: "+averageLoss);
+        logger.info("Average loss: " + averageLoss);
         return averageLoss;
     }
 
-    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, PM> predictiveModelBuilder, Iterable<? extends Instance<R>> allTrainingData, MultiLossFunctionWithModelConfigurations<P> multiLossFunction) {
+    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> allTrainingData, MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction) {
         DataSplit dataSplit;
-        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++) {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
-            List<LabelPredictionWeight<P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
+            List<LabelPredictionWeight<L,P>> labelPredictionWeights = Utils.createLabelPredictionWeights(dataSplit.validation, predictiveModel);
             multiLossFunction.updateRunningLosses(labelPredictionWeights);
         }
         multiLossFunction.normalizeRunningAverages();
@@ -89,26 +89,26 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
     }
 
     @Override
-    public <PM extends PredictiveModel<R, P>,  PMB extends PredictiveModelBuilder<R, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config,  Iterable<? extends Instance<R>> allTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<P>> lossFunctions) {
+    public <PM extends PredictiveModel<R, P>, PMB extends PredictiveModelBuilder<R, L, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config, Iterable<? extends Instance<R,L>> allTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<L,P>> lossFunctions) {
         //list of attributes are provided
         //initialize the loss functions for each attribute
         PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
 
-        Map<String, MultiLossFunctionWithModelConfigurations<P>> attributeToLossMap = Maps.newHashMap();
+        Map<String, MultiLossFunctionWithModelConfigurations<L,P>> attributeToLossMap = Maps.newHashMap();
         for (String attribute : attributes) {
-            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<P>(lossFunctions, primaryLossFunction));
+            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<L,P>(lossFunctions, primaryLossFunction));
         }
         DataSplit dataSplit;
-        for (int currentFold = 0; currentFold < foldsUsed; currentFold++)  {
+        for (int currentFold = 0; currentFold < foldsUsed; currentFold++) {
             dataSplit = setTrainingAndValidationSets(currentFold, allTrainingData);
             PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(dataSplit.training);
 
-            List<LabelPredictionWeight<P>> labelPredictionWeights;
+            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
             Set<String> attributesToIgnore = Sets.newHashSet();
             for (String attribute : attributes) {
                 attributesToIgnore.add(attribute);
                 labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(dataSplit.validation, predictiveModel, attributesToIgnore);
-                MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+                MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
                 multiLossFunction.updateRunningLosses(labelPredictionWeights);
 
                 attributesToIgnore.remove(attribute);
@@ -116,26 +116,25 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         }
 
         for (String attribute : attributes) {
-            MultiLossFunctionWithModelConfigurations<P> multiLossFunction = attributeToLossMap.get(attribute);
+            MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
             multiLossFunction.normalizeRunningAverages();
         }
-        List<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> attributesWithLosses = Lists.newArrayList();
+        List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> attributesWithLosses = Lists.newArrayList();
         for (String attribute : attributeToLossMap.keySet()) {
-            attributesWithLosses.add(new Pair<String, MultiLossFunctionWithModelConfigurations<P>>(attribute, attributeToLossMap.get(attribute)));
+            attributesWithLosses.add(new Pair<>(attribute, attributeToLossMap.get(attribute)));
         }
         //sort in descending order.  The higher the primary loss, the more damage was done by removing the attribute
-        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<P>(primaryLossFunction));
+        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<L,P>(primaryLossFunction));
         return attributesWithLosses;
     }
 
 
-
-    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R>> data) {
+    private DataSplit setTrainingAndValidationSets(int foldNumber, Iterable<? extends Instance<R,L>> data) {
         DataSplit dataSplit = new DataSplit();
         int count = 0;
-        for (Instance<R> instance : data) {
+        for (Instance<R, L> instance : data) {
 
-            if (count%folds == foldNumber) //(count > testSetLowerBound && count < testSetUpperBound)//
+            if (count % folds == foldNumber) //(count > testSetLowerBound && count < testSetUpperBound)//
                 dataSplit.validation.add(instance);
             else
                 dataSplit.training.add(instance);
@@ -144,13 +143,13 @@ private static final  Logger logger =  LoggerFactory.getLogger(StationaryCrossVa
         return dataSplit;
     }
 
-    class DataSplit  {
-        public List<Instance<R>> training;
-        public List<Instance<R>> validation;
+    class DataSplit {
+        public List<Instance<R, L>> training;
+        public List<Instance<R, L>> validation;
 
         public DataSplit() {
-            training = Lists.<Instance<R>>newArrayList();
-            validation = Lists.<Instance<R>>newArrayList();
+            training = Lists.newArrayList();
+            validation = Lists.newArrayList();
         }
     }
 }

@@ -15,6 +15,7 @@ import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.decisionTree.tree.Node;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +28,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final long startTime = System.currentTimeMillis();
         final Tree tree = tb.buildPredictiveModel(instances);
@@ -43,7 +44,7 @@ public class TreeBuilderTest {
 
     @Test
     public void multiScorerBmiTest() {
-        final Set<Instance<AttributesMap>> instances = Sets.newHashSet();
+        final Set<Instance<AttributesMap, Serializable>> instances = Sets.newHashSet();
 
         for (int x = 0; x < 10000; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
@@ -51,7 +52,7 @@ public class TreeBuilderTest {
             AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
-            final Instance<AttributesMap> instance = new InstanceImpl<>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
+            final Instance<AttributesMap, Serializable> instance = new InstanceImpl<AttributesMap, Serializable>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
             instances.add(instance);
         }
         {
@@ -63,20 +64,20 @@ public class TreeBuilderTest {
 
     @Test
     public void treeMadeExpectedSplits() {
-        final List<Instance<AttributesMap>> instances = Lists.newArrayList();
+        final List<Instance<AttributesMap, Serializable>> instances = Lists.newArrayList();
         //TODO: make code that generates test instances like these automatic
         AttributesMap attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", true);
-        instances.add(new InstanceImpl<>(attributesMap, 1.0));
+        instances.add(new InstanceImpl<AttributesMap, Serializable>(attributesMap, 1.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", true);
-        instances.add(new InstanceImpl<>(attributesMap, 0.0));
+        instances.add(new InstanceImpl<AttributesMap, Serializable>(attributesMap, 0.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", false);
-        instances.add(new InstanceImpl<>(attributesMap, 0.0));
+        instances.add(new InstanceImpl<AttributesMap, Serializable>(attributesMap, 0.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", false);
-        instances.add(new InstanceImpl<>(attributesMap, 0.0));
+        instances.add(new InstanceImpl<AttributesMap, Serializable>(attributesMap, 0.0));
 
         TreeBuilder treeBuilder = new TreeBuilder().minCategoricalAttributeValueOccurances(0).minLeafInstances(0);
         Tree tree = treeBuilder.buildPredictiveModel(instances);
@@ -92,7 +93,7 @@ public class TreeBuilderTest {
     @Ignore
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
@@ -105,7 +106,7 @@ public class TreeBuilderTest {
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final List<Instance<AttributesMap, Serializable>> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
         assertTrue("Expect same tree to be updated", tree == newTree);
         assertNotSame("Expected new nodes", nodeSize, newTree.node.size());
@@ -115,7 +116,7 @@ public class TreeBuilderTest {
     @Ignore("Test is currently failing, but is really testing updating of a predictive model, which 1. has been removed and 2. doesn't belong here")
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
@@ -128,7 +129,7 @@ public class TreeBuilderTest {
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
         assertEquals("Expected same nodes", nodeSize, newTree.node.size());
         assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.node.meanDepth());
@@ -137,7 +138,7 @@ public class TreeBuilderTest {
 
     @Test
     public void simpleBmiTestRebuild() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
@@ -150,7 +151,7 @@ public class TreeBuilderTest {
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
         Assert.assertFalse("Expect new tree to be built", tree == newTree);
     }
@@ -162,7 +163,7 @@ public class TreeBuilderTest {
     @Test
     public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
 
-        final List<Instance<AttributesMap>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         MapUtils.random.setSeed(1l);
         final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);
@@ -172,8 +173,8 @@ public class TreeBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(tree2.node);
         assertTrue("Deterministic Decision Trees must have same number of nodes", tree1.node.size() == tree2.node.size());
 
-        final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance<AttributesMap> instance : instancesTest) {
+        final List<Instance<AttributesMap, Serializable>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (Instance<AttributesMap, Serializable> instance : instancesTest) {
             PredictionMap map1 = tree1.predict(instance.getAttributes());
             PredictionMap map2 = tree2.predict(instance.getAttributes());
             assertTrue("Deterministic Decision Trees must have equal classifications", map1.equals(map2));

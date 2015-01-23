@@ -11,6 +11,7 @@ import quickml.data.Instance;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -21,9 +22,9 @@ import java.util.zip.GZIPInputStream;
 public class AdvertisingInstances {
     private static final Logger logger = LoggerFactory.getLogger(AdvertisingInstances.class);
 
-    public static List<Instance<AttributesMap>> getAdvertisingInstances(){
+    public static List<Instance<AttributesMap, Serializable>> getAdvertisingInstances(){
        CSVToInstanceReader csvToInstanceReader = new CSVToInstanceReaderBuilder().collumnNameForLabel("outcome").buildCsvReader();
-       ArrayList<Instance<AttributesMap>> advertisingInstances = Lists.newArrayList();
+       ArrayList<Instance<AttributesMap, Serializable>> advertisingInstances = Lists.newArrayList();
 
        try {
           final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(Benchmarks.class.getResourceAsStream("advertisingData.csv.gz")))));

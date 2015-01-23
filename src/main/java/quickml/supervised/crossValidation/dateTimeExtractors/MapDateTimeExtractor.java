@@ -11,9 +11,10 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public class MapDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
+// TODO[mk] shouldn't need to know about Instance Types
+public class MapDateTimeExtractor implements DateTimeExtractor<AttributesMap, Serializable> {
     @Override
-    public  DateTime extractDateTime(Instance<AttributesMap> instance){
+    public  DateTime extractDateTime(Instance<AttributesMap, Serializable> instance){
         AttributesMap attributes = instance.getAttributes();
         int year = Math.max(1, (Integer)attributes.get("timeOfArrival-year"));
         int month = Math.max(1, (Integer)attributes.get("timeOfArrival-monthOfYear"));

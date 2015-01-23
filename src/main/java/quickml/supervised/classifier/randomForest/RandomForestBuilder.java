@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap, RandomForest> {
+public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap, Serializable, RandomForest> {
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
     private final TreeBuilder treeBuilder;
     private int numTrees = 20;
@@ -51,7 +51,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
     }
 
     @Override
-    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
 
@@ -73,7 +73,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
     }
 
 
-    private Future<Tree> submitTreeBuild(final Iterable<? extends Instance<AttributesMap>> trainingData, final int treeIndex) {
+    private Future<Tree> submitTreeBuild(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, final int treeIndex) {
         return executorService.submit(new Callable<Tree>() {
             @Override
             public Tree call() throws Exception {
@@ -82,7 +82,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
         });
     }
 
-    private Tree buildModel(Iterable<? extends Instance<AttributesMap>> trainingData, int treeIndex) {
+    private Tree buildModel(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
         return treeBuilder.buildPredictiveModel(trainingData);
     }

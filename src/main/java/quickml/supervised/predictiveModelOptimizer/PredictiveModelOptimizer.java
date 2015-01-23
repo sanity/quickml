@@ -16,12 +16,12 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PMB extends PredictiveModelBuilder<R, PM>> {
+public class PredictiveModelOptimizer<R, L, P, PM extends PredictiveModel<R, P>, PMB extends PredictiveModelBuilder<R, L, PM>> {
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
-    private final PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory;
-    private final CrossValidator<R, P> crossValidator;
+    private final PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory;
+    private final CrossValidator<R, L, P> crossValidator;
     private final Map<String, FieldValueRecommender> valueRecommenders;
-    private final Iterable<? extends Instance<R>> trainingData;
+    private final Iterable<? extends Instance<R, L>> trainingData;
     private Map<Map<String, Object>, Double> configurationLosses = Maps.newHashMap();
     private volatile boolean hasRun = false;
     private static final int MAX_ITERATIONS = 10;
@@ -45,15 +45,15 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
     // Repeat until we have tried all parameters
 
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R, L>> trainingData, CrossValidator<R, L, P> crossValidator) {
         this(MAX_ITERATIONS, predictiveModelBuilderFactory, trainingData, crossValidator, predictiveModelBuilderFactory.createDefaultParametersToOptimize());
     }
 
-    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R, L>> trainingData, CrossValidator<R, L, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this(MAX_ITERATIONS, predictiveModelBuilderFactory, trainingData, crossValidator, valueRecommenders);
     }
 
-    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderFactory<R, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R>> trainingData, CrossValidator<R, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
+    public PredictiveModelOptimizer(int maxIterations, PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, final Iterable<? extends Instance<R, L>> trainingData, CrossValidator<R, L, P> crossValidator, Map<String, FieldValueRecommender> valueRecommenders) {
         this.predictiveModelBuilderFactory = predictiveModelBuilderFactory;
         this.trainingData = trainingData;
         this.crossValidator = crossValidator;
@@ -70,7 +70,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
 
         Map<String, Object> startingConfiguration = Maps.newHashMap();
         for (Map.Entry<String, FieldValueRecommender> stringFieldValueRecommenderEntry : valueRecommenders.entrySet()) {
-                final Optional<Object> firstValueOptional = stringFieldValueRecommenderEntry.getValue().recommendNextValue(Collections.<Object, Double>emptyMap());
+            final Optional<Object> firstValueOptional = stringFieldValueRecommenderEntry.getValue().recommendNextValue(Collections.<Object, Double>emptyMap());
             if (!firstValueOptional.isPresent()) {
                 throw new RuntimeException("Failed to retrieve initial value for field " + stringFieldValueRecommenderEntry.getKey());
             }
@@ -82,18 +82,18 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
     public Map<String, Object> determineOptimalConfiguration(Map<String, Object> startingConfiguration) {
         Map<String, Object> bestConfigurationSoFar = startingConfiguration;
         int iterations = 0;
-        while( iterations < maxIterations ) {
+        while (iterations < maxIterations) {
             final ObjectWithLoss<Map<String, Object>> newBestConfigurationWithLoss = iterateAndImproveConfiguration(bestConfigurationSoFar);
             if (newBestConfigurationWithLoss.get().equals(bestConfigurationSoFar)) {
                 logger.info("Best configuration unchanged after iteration, we're done here.  Configuration: " + newBestConfigurationWithLoss.get() + " with loss: " + newBestConfigurationWithLoss.getLoss());
                 break;
             } else {
                 bestConfigurationSoFar = newBestConfigurationWithLoss.get();
-                logger.info("Found new best configuration after iteration: "+bestConfigurationSoFar+" with loss "+newBestConfigurationWithLoss.getLoss());
+                logger.info("Found new best configuration after iteration: " + bestConfigurationSoFar + " with loss " + newBestConfigurationWithLoss.getLoss());
             }
             iterations++;
         }
-        if ( iterations==maxIterations )
+        if (iterations == maxIterations)
             logger.debug("optimizer did not converge");
         return bestConfigurationSoFar;
     }
@@ -116,7 +116,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
         return new ObjectWithLoss<>(currentConfiguration, currentConfigurationLoss);
     }
 
-    private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends Instance<R>> trainingData,
+    private Map<Object, Double> getScoresForFieldValues(final Iterable<? extends Instance<R,L>> trainingData,
                                                         final Map<String, Object> baselineConfiguration,
                                                         final String fieldName,
                                                         final FieldValueRecommender fieldValueRecommender) {
@@ -135,7 +135,7 @@ public class PredictiveModelOptimizer<R, P, PM extends PredictiveModel<R, P>, PM
                 continue; // No point in testing the same configuration twice
             }
             logger.info("Testing predictive model configuration: " + configurationToTest);
-            final PredictiveModelBuilder<R, PM> predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(configurationToTest);
+            final PredictiveModelBuilder<R,L, PM> predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(configurationToTest);
             final double crossValidatedLoss = crossValidator.getCrossValidatedLoss(predictiveModelBuilder, trainingData);
             logger.info("Loss for configuration " + configurationToTest + " is " + crossValidatedLoss);
             valueLoss.put(valueToTest, crossValidatedLoss);

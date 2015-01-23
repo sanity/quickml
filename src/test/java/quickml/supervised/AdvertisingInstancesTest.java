@@ -5,6 +5,7 @@ import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,9 +15,9 @@ public class AdvertisingInstancesTest {
 
     @Test
     public void getAdvertisingInstancesTest() {
-        List<Instance<AttributesMap>> instances = AdvertisingInstances.getAdvertisingInstances();
+        List<Instance<AttributesMap, Serializable>> instances = AdvertisingInstances.getAdvertisingInstances();
         Assert.assertEquals(instances.size(), 12000);
-        Instance<AttributesMap> lastInstance = instances.get(11999);
+        Instance<AttributesMap, Serializable> lastInstance = instances.get(11999);
         Assert.assertTrue(lastInstance.getLabel().equals(0.0));
         Assert.assertTrue(lastInstance.getAttributes().get("country").equals("US"));
     }

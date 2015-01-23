@@ -10,9 +10,9 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap> {
+public class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap, Serializable> {
     @Override
-    public DateTime extractDateTime(Instance<AttributesMap> instance){
+    public DateTime extractDateTime(Instance<AttributesMap, Serializable> instance){
 
         AttributesMap attributes = instance.getAttributes();
         int currentTimeMillis = (Integer)attributes.get("currentTimeMillis");

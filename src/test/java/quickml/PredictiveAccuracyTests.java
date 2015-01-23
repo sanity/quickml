@@ -12,6 +12,7 @@ import quickml.supervised.crossValidation.StationaryCrossValidator;
 import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierRMSECrossValLossFunction;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ public class PredictiveAccuracyTests {
     @Test
     public void irisTest() throws Exception {
         CrossValidator stationaryCrossValidator = new StationaryCrossValidatorBuilder().setLossFunction(new ClassifierRMSECrossValLossFunction()).createCrossValidator();
-        final List<Instance<AttributesMap>> irisDataset = Benchmarks.loadIrisDataset();
+        final List<Instance<AttributesMap, Serializable>> irisDataset = Benchmarks.loadIrisDataset();
         final double crossValidatedLoss = stationaryCrossValidator.getCrossValidatedLoss(new RandomForestBuilder(), irisDataset);
         double previousLoss = 0.673;
         logger.info("Cross Validated Lost: {}", crossValidatedLoss);

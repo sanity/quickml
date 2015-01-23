@@ -8,18 +8,19 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by ian on 4/24/14.
  */
 //TODO[mk] is this being used? bidder doesn't use it
-public class DownsamplingClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,DownsamplingClassifier, DownsamplingClassifierBuilder> {
+public class DownsamplingClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Serializable, DownsamplingClassifier, DownsamplingClassifierBuilder> {
 
     private static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
-    private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, Serializable, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, Serializable, ? extends Classifier>> wrappedBuilderBuilder;
 
-    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>> wrappedBuilderBuilder) {
+    public DownsamplingClassifierBuilderFactory(PredictiveModelBuilderFactory<AttributesMap, Serializable, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap,Serializable, ? extends Classifier>> wrappedBuilderBuilder) {
 
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
     }

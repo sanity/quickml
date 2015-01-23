@@ -12,6 +12,7 @@ import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         Set<String> whiteList = new HashSet<>();
         whiteList.add("weight");
         whiteList.add("height");
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<Instance<AttributesMap, Serializable>> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final SplitOnAttributeClassifierBuilder cpmb = new SplitOnAttributeClassifierBuilder("gender", rfb, 10, 0.1, whiteList, 1);

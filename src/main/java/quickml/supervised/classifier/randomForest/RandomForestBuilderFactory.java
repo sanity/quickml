@@ -8,12 +8,13 @@ import quickml.supervised.classifier.decisionTree.TreeBuilderFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/4/14.
  */
-public class RandomForestBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,RandomForest, RandomForestBuilder> {
+public class RandomForestBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Serializable, RandomForest, RandomForestBuilder> {
     private static final String NUM_TREES = "numTrees";
     private final TreeBuilderFactory treeBuilderBuilder;
 

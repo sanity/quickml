@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 
 import quickml.data.PredictionMap;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class ClassifierRMSECrossValLossFunction extends ClassifierMSECrossValLos
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
         return Math.sqrt(super.getLoss(labelPredictionWeights));
     }
 

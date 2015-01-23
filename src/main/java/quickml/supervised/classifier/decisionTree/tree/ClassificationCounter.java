@@ -46,13 +46,13 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue) {
+            final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final String attribute) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
-        for (final Instance<AttributesMap> instance : instances) {
+        for (final Instance<AttributesMap, Serializable> instance : instances) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc;
-            boolean acceptableMissingValue = attrVal == null && isAnAcceptableMissingValue(instance, splitAttribute, splitAttributeValue);
+            boolean acceptableMissingValue = attrVal == null;
 
             if (attrVal != null)
                 cc = result.get(attrVal);
@@ -74,9 +74,9 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<? extends Instance<AttributesMap>> instances, final String attribute, String splitAttribute, Serializable splitAttributeValue, final Serializable minorityClassification) {
+            final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final String attribute, final Serializable minorityClassification) {
 
-        Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances, attribute, splitAttribute, splitAttributeValue);
+        Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances, attribute);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
         final ClassificationCounter totals = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue0();
 
@@ -98,12 +98,6 @@ public class ClassificationCounter implements Serializable {
         return Pair.with(totals, attributesWithClassificationCounters);
     }
 
-    //TODO[mk] - what is the split attribute used for?
-    private static boolean isAnAcceptableMissingValue(Instance<AttributesMap> instance, String splitAttribute, Serializable splitAttributeValue) {
-        return splitAttribute == null
-                || splitAttributeValue == null
-                || instance.getAttributes().get(splitAttribute).equals(splitAttributeValue);
-    }
 
     public Map<Serializable, Double> getCounts() {
         Map<Serializable, Double> ret = Maps.newHashMap();
@@ -114,9 +108,9 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-    public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap>> instances) {
+    public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap, Serializable>> instances) {
         final ClassificationCounter result = new ClassificationCounter();
-        for (final Instance<AttributesMap> instance : instances) {
+        for (final Instance<AttributesMap, Serializable> instance : instances) {
             result.addClassification(instance.getLabel(), instance.getWeight());
         }
         return result;

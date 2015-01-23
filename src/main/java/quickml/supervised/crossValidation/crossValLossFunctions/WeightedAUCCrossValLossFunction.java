@@ -10,7 +10,7 @@ import java.util.*;
  *
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<PredictionMap> {
+public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Serializable, PredictionMap> {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -18,7 +18,7 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Pre
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
         if (labelPredictionWeights.isEmpty()) {
             throw new IllegalStateException("Tried to get loss from empty data set");
         }
@@ -32,10 +32,10 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Pre
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights) {
+    private List<AUCData> getAucDataList(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
         List<AUCData> aucDataList = new ArrayList<AUCData>();
         Set<Serializable> classifications = new HashSet<Serializable>();
-        for (LabelPredictionWeight<PredictionMap> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight : labelPredictionWeights) {
             classifications.add(labelPredictionWeight.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");

@@ -31,21 +31,21 @@ public abstract class Branch extends Node {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<Instance<AttributesMap>> getInPredicate() {
-		return new Predicate<Instance<AttributesMap>>() {
+	public Predicate<Instance<AttributesMap, Serializable>> getInPredicate() {
+		return new Predicate<Instance<AttributesMap, Serializable>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap> input) {
+			public boolean apply(final Instance<AttributesMap, Serializable> input) {
 				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance<AttributesMap>> getOutPredicate() {
-		return new Predicate<Instance<AttributesMap>>() {
+	public Predicate<Instance<AttributesMap, Serializable>> getOutPredicate() {
+		return new Predicate<Instance<AttributesMap, Serializable>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap> input) {
+			public boolean apply(final Instance<AttributesMap, Serializable> input) {
 				return !decide(input.getAttributes());
 			}
 		};

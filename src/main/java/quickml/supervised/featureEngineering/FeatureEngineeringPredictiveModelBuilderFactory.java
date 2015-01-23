@@ -14,15 +14,15 @@ import java.util.Map;
 /**
  * Created by ian on 5/21/14.
  */
-public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
+public class FeatureEngineeringPredictiveModelBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap, Serializable,FeatureEngineeredPredictiveModel, FeatureEngineeringPredictiveModelBuilder> {
 
 
-    private final PredictiveModelBuilderFactory<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder;
+    private final PredictiveModelBuilderFactory<AttributesMap, Serializable, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder;
 
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
     public FeatureEngineeringPredictiveModelBuilderFactory(
-            PredictiveModelBuilderFactory<AttributesMap, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder,
+            PredictiveModelBuilderFactory<AttributesMap, Serializable, ? extends PredictiveModel<AttributesMap, PredictionMap>, ?> wrappedBuilderBuilder,
             List<? extends AttributesEnrichStrategy> enrichStrategies) {
         this.wrappedBuilderBuilder = wrappedBuilderBuilder;
         this.enrichStrategies = enrichStrategies;

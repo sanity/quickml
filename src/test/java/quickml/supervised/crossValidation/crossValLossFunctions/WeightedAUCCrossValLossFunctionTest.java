@@ -22,16 +22,16 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
-        Instance<AttributesMap> instance = Mockito.mock(Instance.class);
+        Instance<AttributesMap, Serializable> instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getLabel()).thenReturn("instance1");
         Mockito.when(instance.getWeight()).thenReturn(1.0);
-        Instance<AttributesMap> instance2 = Mockito.mock(Instance.class);
+        Instance<AttributesMap, Serializable> instance2 = Mockito.mock(Instance.class);
         Mockito.when(instance2.getLabel()).thenReturn("instance2");
         Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Instance<AttributesMap> instance3 = Mockito.mock(Instance.class);
+        Instance<AttributesMap, Serializable> instance3 = Mockito.mock(Instance.class);
         Mockito.when(instance3.getLabel()).thenReturn("instance3");
         Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        List<Instance<AttributesMap>> instances = new LinkedList<>();
+        List<Instance<AttributesMap, Serializable>> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);
@@ -42,19 +42,19 @@ public class WeightedAUCCrossValLossFunctionTest {
     public void testGetTotalLoss() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
 
-        List<LabelPredictionWeight<PredictionMap>> labelPredictionWeights = new LinkedList<>();
+        List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights = new LinkedList<>();
         PredictionMap map = PredictionMap.newMap();
         map.put("test1", 0.5);
-        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test1", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<Serializable, PredictionMap>("test1", map, 1.0));
         map = PredictionMap.newMap();
         map.put("test1", 0.3);
-        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test1", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<Serializable, PredictionMap>("test1", map, 1.0));
         map = PredictionMap.newMap();
         map.put("test1", 0.4);
-        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test0", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<Serializable, PredictionMap>("test0", map, 1.0));
         map = PredictionMap.newMap();
         map.put("test1", 0.2);
-        labelPredictionWeights.add(new LabelPredictionWeight<PredictionMap>("test0", map, 1.0));
+        labelPredictionWeights.add(new LabelPredictionWeight<Serializable, PredictionMap>("test0", map, 1.0));
 
         //AUC Points at 0:0 0:.5 .5:.5 1:.5 1:1
         double expectedArea = .25;

@@ -13,8 +13,8 @@ import java.util.*;
  */
 public class TreeBuilderTestUtils {
 
-    public static List<Instance<AttributesMap>> getInstances(int numInstances) {
-        final List<Instance<AttributesMap>> instances = new ArrayList<>();
+    public static List<Instance<AttributesMap, Serializable>> getInstances(int numInstances) {
+        final List<Instance<AttributesMap, Serializable>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
@@ -22,13 +22,13 @@ public class TreeBuilderTestUtils {
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("gender", MapUtils.random.nextInt(2));
-            instances.add(new InstanceImpl<AttributesMap>(attributes, bmiHealthy(weight, height)));
+            instances.add(new InstanceImpl<AttributesMap, Serializable>(attributes, bmiHealthy(weight, height)));
         }
         return instances;
     }
 
-    public static List<Instance<AttributesMap>> getIntegerInstances(int numInstances) {
-        final List<Instance<AttributesMap>> instances = new ArrayList<>();
+    public static List<Instance<AttributesMap, Serializable>> getIntegerInstances(int numInstances) {
+        final List<Instance<AttributesMap, Serializable>> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);

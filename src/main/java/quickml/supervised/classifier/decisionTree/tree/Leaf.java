@@ -36,7 +36,7 @@ public class Leaf extends Node {
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
 
-    public Leaf(Node parent, final Iterable<? extends Instance<AttributesMap>> instances, final int depth) {
+    public Leaf(Node parent, final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
 	}
