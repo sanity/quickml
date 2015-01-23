@@ -9,14 +9,19 @@ public class PredictiveModelOptimizer2 {
 
     public static final int MAX_ITERATIONS = 10;
 
-    private Map<String, FixedOrderRecommender> fieldRecommenders;
+    private Map<String, FixedOrderRecommender> valuesToTest;
     private ModelTester modelTester;
     private HashMap<String, Object> bestConfig;
 
-    public PredictiveModelOptimizer2(Map<String, FixedOrderRecommender> config, ModelTester modelTester) {
-        this.fieldRecommenders = config;
+
+    /**
+     * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
+     * @param modelTester - Model tester takes a configuration and returns the loss
+     */
+    public PredictiveModelOptimizer2(Map<String, FixedOrderRecommender> valuesToTest, ModelTester modelTester) {
+        this.valuesToTest = valuesToTest;
         this.modelTester = modelTester;
-        this.bestConfig = setBestConfigToFirstValues(config);
+        this.bestConfig = setBestConfigToFirstValues(valuesToTest);
     }
 
     /**
@@ -35,7 +40,7 @@ public class PredictiveModelOptimizer2 {
     }
 
     private void updateBestConfig() {
-        for (String field : fieldRecommenders.keySet()) {
+        for (String field : valuesToTest.keySet()) {
             findBestValueForField(field);
         }
     }
@@ -43,7 +48,7 @@ public class PredictiveModelOptimizer2 {
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
 
-        for (Object value : fieldRecommenders.get(field).getValues()) {
+        for (Object value : valuesToTest.get(field).getValues()) {
             bestConfig.put(field, value);
             losses.add(new FieldLoss(value, modelTester.testModel(bestConfig)));
         }
