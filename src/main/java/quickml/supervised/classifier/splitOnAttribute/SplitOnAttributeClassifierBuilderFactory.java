@@ -9,6 +9,7 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilderFactory;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -17,12 +18,12 @@ import java.util.Map;
 public class SplitOnAttributeClassifierBuilderFactory implements PredictiveModelBuilderFactory<AttributesMap,SplitOnAttributeClassifier, SplitOnAttributeClassifierBuilder> {
     private final String attributeKey;
     private final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilderFactory;
-    private Map<Integer, SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroups;
+    private Collection<SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroups;
 
     private final Integer defaultGroup;
 
     //TODO:  this method should not have any parameters.
-    public SplitOnAttributeClassifierBuilderFactory(String attributeKey, Map<Integer, SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroups, Integer defaultGroup, final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilder) {
+    public SplitOnAttributeClassifierBuilderFactory(String attributeKey, Collection<SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroups, Integer defaultGroup, final PredictiveModelBuilderFactory<AttributesMap, ? extends Classifier,? extends PredictiveModelBuilder<AttributesMap, ? extends Classifier>>  wrappedBuilder) {
 
         this.attributeKey = attributeKey;
         this.defaultGroup = defaultGroup;

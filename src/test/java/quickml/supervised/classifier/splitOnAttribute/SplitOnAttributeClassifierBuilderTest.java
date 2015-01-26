@@ -72,13 +72,13 @@ public class SplitOnAttributeClassifierBuilderTest {
         SplitOnAttributeClassifierBuilder.SplitModelGroup group1 = new SplitOnAttributeClassifierBuilder.SplitModelGroup(groupId1, group1Campaigns, group2MinTotalSamples,
                 group2PercentageOfCrossData, group2RelativeImportancesFromOtherGroups);
 
-        Map<Integer, SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroupMap = new HashMap<>();
-        splitModelGroupMap.put(0, group0);
-        splitModelGroupMap.put(1, group1);
+        List<SplitOnAttributeClassifierBuilder.SplitModelGroup> splitModelGroupCollection = new ArrayList<>();
+        splitModelGroupCollection.add(group0);
+        splitModelGroupCollection.add(group1);
         int defaultGroup = 0;
 
 
-        SplitOnAttributeClassifierBuilderFactory splitOnAttributeClassifierBuilderFactory = new SplitOnAttributeClassifierBuilderFactory("campaignId", splitModelGroupMap, defaultGroup, predictiveModelWithDataBuilderFactory);
+        SplitOnAttributeClassifierBuilderFactory splitOnAttributeClassifierBuilderFactory = new SplitOnAttributeClassifierBuilderFactory("campaignId", splitModelGroupCollection, defaultGroup, predictiveModelWithDataBuilderFactory);
         SplitOnAttributeClassifierBuilder splitOnAttributeClassifierBuilder = splitOnAttributeClassifierBuilderFactory.buildBuilder(predictiveModelParameters);
 
 
@@ -112,7 +112,7 @@ public class SplitOnAttributeClassifierBuilderTest {
 
         multiLossFunctionWithModelConfigurationsSingle = cvSingle.getMultipleCrossValidatedLossesWithModelConfiguration(predictiveModelWithDataBuilder, advertisingInstances, multiLossFunctionWithModelConfigurationsSingle);
         Map<String, LossWithModelConfiguration> lossWithModelConfigurationMapSingle = multiLossFunctionWithModelConfigurationsSingle.getLossesWithModelConfigurations();
-        double tolerance = .05;
+        double tolerance = .1;
         for (String lossFunction: lossWithModelConfigurationMapSingle.keySet()) {
             double lossSingleModel = lossWithModelConfigurationMapSingle.get(lossFunction).getLoss();
             double lossSplitModel =  lossWithModelConfigurationMap.get(lossFunction).getLoss();
