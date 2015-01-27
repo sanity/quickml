@@ -30,6 +30,10 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
         this.defaultGroup = defaultGroup;
     }
 
+    public Map<? extends Serializable, Integer> getSplitValToGroupId() {
+        return splitValToGroupId;
+    }
+
     @Override
     public double getProbability(final AttributesMap attributes, final Serializable classification) {
         return getModelForAttributes(attributes).getProbability(attributes, classification);
