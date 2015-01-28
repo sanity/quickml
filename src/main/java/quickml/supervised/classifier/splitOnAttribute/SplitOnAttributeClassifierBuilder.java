@@ -21,25 +21,32 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
     private final String attributeKey;
     private final PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder;
-    private Map<Serializable, Integer> splitValToGroupIdMap;
+    private Map<? extends Serializable, Integer> splitValToGroupIdMap;
     private Map<Integer, SplitModelGroup> splitModelGroups;
     private final Integer defaultGroup;
 
     //TODO:  this method should not have any parameters.
-    public SplitOnAttributeClassifierBuilder(String attributeKey, Map<Integer, SplitModelGroup> splitModelGroups, Integer defaultGroup, PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder) {
 
         this.attributeKey = attributeKey;
         this.defaultGroup = defaultGroup;
-        this.splitModelGroups = splitModelGroups;
+        this.splitModelGroups = getSplitModelGroups(splitModelGroupsCollection);
         this.splitValToGroupIdMap = getSplitValToGroupIdMap(splitModelGroups);
         this.wrappedBuilder = wrappedBuilder;
+    }
 
+    private Map<Integer, SplitModelGroup> getSplitModelGroups(Collection<SplitModelGroup> splitModelGroupCollection) {
+        Map<Integer, SplitModelGroup> splitModelGroupMap = new HashMap<>();
+        for (SplitModelGroup splitModelGroup : splitModelGroupCollection) {
+            splitModelGroupMap.put(splitModelGroup.groupId, splitModelGroup);
+        }
+        return splitModelGroupMap;
     }
 
     private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
         HashMap<Serializable, Integer> splitValToGroupIdMap = new HashMap<>();
         for (Integer groupId : splitModelGroups.keySet()) {
-            Set<Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
+            Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
             for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {
                 splitValToGroupIdMap.put(splitVal, groupId);
             }
@@ -205,9 +212,9 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
         public final long minTotalSamples;
         public double percentageOfTrainingDataThatIsFromOtherGroups;
         public final Map<Integer, Double> groupIdToPercentageOfCrossDataProvidedMap;
-        public final Set<Serializable> valuesOfSplitVariableInTheGroup;
+        public final Set<? extends Serializable> valuesOfSplitVariableInTheGroup;
 
-        public SplitModelGroup(int groupId, Set<Serializable> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
+        public SplitModelGroup(int groupId, Set<? extends Serializable> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
             this.groupId = groupId;
             this.valuesOfSplitVariableInTheGroup = valuesOfSplitVariableInTheGroup;
             this.minTotalSamples = minTotalSamples;

@@ -18,16 +18,20 @@ import java.util.Set;
 public class SplitOnAttributeClassifier extends AbstractClassifier {
     private static final long serialVersionUID = 2642074639257374588L;
     private final String attributeKey;
-    private final Map<Serializable, Integer> splitValToGroupId;
+    private final Map<? extends Serializable, Integer> splitValToGroupId;
     private final Map<Integer, Classifier> splitModels;
     private final Integer defaultGroup;
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifier.class);
 
-    public SplitOnAttributeClassifier(String attributeKey, Map<Serializable, Integer> splitValToGroupId, Integer defaultGroup, final Map<Integer, Classifier> splitModels) {
+    public SplitOnAttributeClassifier(String attributeKey, Map<? extends Serializable, Integer> splitValToGroupId, Integer defaultGroup, final Map<Integer, Classifier> splitModels) {
         this.attributeKey = attributeKey;
         this.splitModels = splitModels;
         this.splitValToGroupId = splitValToGroupId;
         this.defaultGroup = defaultGroup;
+    }
+
+    public Map<? extends Serializable, Integer> getSplitValToGroupId() {
+        return splitValToGroupId;
     }
 
     @Override
