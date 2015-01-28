@@ -24,7 +24,7 @@ public abstract class Branch extends Node {
         this.attribute = attribute;
 	}
 
-	public abstract boolean decide(AttributesMap attributes);
+	public abstract boolean decide(Map<String, Serializable> attributes);
 
 	@Override
 	public int size() {

@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +30,7 @@ public class PredictiveModelOptimizer2Test {
         initMocks(this);
 
         // Use a tree map for deteminisic order
-        TreeMap<String, FixedOrderRecommender> fields = new TreeMap<>();
+        Map<String, FixedOrderRecommender> fields = new TreeMap<>();
         fields.put("treeDepth", new FixedOrderRecommender(1, 2, 3, 4, 5));
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
         fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));

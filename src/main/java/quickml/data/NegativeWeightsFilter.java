@@ -10,6 +10,7 @@ import java.util.HashSet;
  */
 public class NegativeWeightsFilter {
 
+    //TODO[mk] is this being used?
     //parametrize training data or subtype it to have right params
     public static <R,L> Iterable<? extends Instance<R, L>> filterNegativeWeights(Iterable<? extends Instance<R, L>> trainingData) {
         final HashSet<R> instanceLookUp = new HashSet<R>();

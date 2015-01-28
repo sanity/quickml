@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation;
 
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 
+//TODO[mk] fix this
 public class StationaryCrossValidatorBuilder<R,L, P>  implements  CrossValidatorBuilder<R, L, P>{
     private CrossValLossFunction<L, P> lossFunction;
     private int folds = StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS;
@@ -23,6 +24,7 @@ public class StationaryCrossValidatorBuilder<R,L, P>  implements  CrossValidator
     }
 
     public CrossValidator<R,L, P> createCrossValidator() {
-        return new StationaryCrossValidator(folds, foldsUsed, lossFunction);
+//        return new StationaryCrossValidator(folds, foldsUsed, lossFunction);
+        return null;
     }
 }

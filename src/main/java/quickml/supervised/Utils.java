@@ -1,8 +1,6 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
@@ -13,7 +11,6 @@ import java.util.Set;
  * Created by alexanderhawk on 7/31/14.
  */
 public class Utils {
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance<R, L>> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();

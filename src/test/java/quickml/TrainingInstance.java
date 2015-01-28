@@ -1,14 +1,16 @@
 package quickml;
 
-import org.w3c.dom.Attr;
+import com.google.common.collect.Sets;
+import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.NegativeWeightsFilter;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TrainingInstance  implements Instance<AttributesMap, Serializable>{
+public class TrainingInstance implements Instance<AttributesMap, Serializable> {
 
     private HashMap<String, Object> attributes;
     private AttributesMap attributesMap;
@@ -47,6 +49,11 @@ public class TrainingInstance  implements Instance<AttributesMap, Serializable>{
         return weight;
     }
 
+    @Override
+    public DateTime getTimestamp() {
+        return null;
+    }
+
     public TrainingInstance reweight(final double newWeight) {
         return new TrainingInstance(auctionId, attributes, label, newWeight);
     }
@@ -57,6 +64,13 @@ public class TrainingInstance  implements Instance<AttributesMap, Serializable>{
 
     public long getAuctionId() {
         return auctionId;
+    }
+
+    public static void main(String[] args) {
+        TrainingInstance trainingInstance = new TrainingInstance();
+        Iterable<TrainingInstance> trainingInstances = Sets.newHashSet(trainingInstance);
+
+        NegativeWeightsFilter.filterNegativeWeights(trainingInstances);
     }
 
 }

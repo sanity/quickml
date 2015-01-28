@@ -12,7 +12,6 @@ import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
@@ -33,7 +32,7 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
 
     List<Instance<R, L>> allTrainingData;
     List<Instance<R, L>> trainingDataToAddToPredictiveModel;
-    List<Instance<R, L>> validationSet = Lists.<Instance<R,L>>newArrayList();
+    List<Instance<R, L>> validationSet = Lists.newArrayList();
 
     final private CrossValLossFunction<L,P> crossValLossFunction;
     private double fractionOfDataForCrossValidation = 0.25;
@@ -55,104 +54,95 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
         this.durationOfValidationSet = new Period(validationTimeSliceHours, 0, 0, 0);
     }
 
-
-    @Override
-    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> rawTrainingData) {
-
-        initializeTrainingAndValidationSets(rawTrainingData);
-
-        double runningLoss = 0;
-        double runningWeightOfValidationSet = 0;
-        while (!validationSet.isEmpty()) {
-            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
-            List<Instance<R,L>> convertedValSet = validationSet;
-            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
-            int positiveInstances = 0;
-            for (LabelPredictionWeight<L, P> labelPredictionWeight : labelPredictionWeights) {
-                if (labelPredictionWeight.getLabel().equals(Double.valueOf(1.0)))
-                    positiveInstances++;
-            }
-
-            runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
-
-            runningWeightOfValidationSet += weightOfValidationSet;
-            logger.info("Running average Loss: " + runningLoss / runningWeightOfValidationSet + ", running weight: " + runningWeightOfValidationSet + ". pos instances: " + positiveInstances);
-
-            updateTrainingSet();
-            updateCrossValidationSet();
-        }
-        final double averageLoss = runningLoss / runningWeightOfValidationSet;
-        logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
-
-        return averageLoss;
-    }
+//
+//    @Override
+//    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> rawTrainingData) {
+//
+//        initializeTrainingAndValidationSets(rawTrainingData);
+//
+//        double runningLoss = 0;
+//        double runningWeightOfValidationSet = 0;
+//        while (!validationSet.isEmpty()) {
+//            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+//            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
+//            List<Instance<R,L>> convertedValSet = validationSet;
+//            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
+//            runningLoss += crossValLossFunction.getLoss(labelPredictionWeights) * weightOfValidationSet;
+//            runningWeightOfValidationSet += weightOfValidationSet;
+//            updateTrainingSet();
+//            updateCrossValidationSet();
+//        }
+//        final double averageLoss = runningLoss / runningWeightOfValidationSet;
+//        logger.info("Average loss: " + averageLoss + ", runningWeight: " + runningWeightOfValidationSet);
+//
+//        return averageLoss;
+//    }
 
 
 
-    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> rawTrainingData, MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction) {
+//    public <PM extends PredictiveModel<R, P>> MultiLossFunctionWithModelConfigurations getMultipleCrossValidatedLossesWithModelConfiguration(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> rawTrainingData, MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction) {
+//
+//        initializeTrainingAndValidationSets(rawTrainingData);
+//
+//        while (!validationSet.isEmpty()) {
+//            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+//
+//            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
+//            List<Instance<R,L>> convertedValSet = validationSet;
+//            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
+//
+//            multiLossFunction.updateRunningLosses(labelPredictionWeights);
+//            updateTrainingSet();
+//            updateCrossValidationSet();
+//        }
+//        multiLossFunction.normalizeRunningAverages();
+//        Map<String, LossWithModelConfiguration> lossMap = multiLossFunction.getLossesWithModelConfigurations();
+//        for (String lossFunctionName : lossMap.keySet()) {
+//            logger.info("Loss function: " + lossFunctionName + "loss: " + lossMap.get(lossFunctionName).getLoss() + ".  Weight of val set: " + multiLossFunction.getRunningWeight());
+//        }
+//        return multiLossFunction;
+//    }
 
-        initializeTrainingAndValidationSets(rawTrainingData);
-
-        while (!validationSet.isEmpty()) {
-            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-
-            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
-            List<Instance<R,L>> convertedValSet = validationSet;
-            labelPredictionWeights = Utils.createLabelPredictionWeights(convertedValSet, predictiveModel);
-
-            multiLossFunction.updateRunningLosses(labelPredictionWeights);
-            updateTrainingSet();
-            updateCrossValidationSet();
-        }
-        multiLossFunction.normalizeRunningAverages();
-        Map<String, LossWithModelConfiguration> lossMap = multiLossFunction.getLossesWithModelConfigurations();
-        for (String lossFunctionName : lossMap.keySet()) {
-            logger.info("Loss function: " + lossFunctionName + "loss: " + lossMap.get(lossFunctionName).getLoss() + ".  Weight of val set: " + multiLossFunction.getRunningWeight());
-        }
-        return multiLossFunction;
-    }
-
-    @Override
-    public <PM extends PredictiveModel<R, P>,  PMB extends PredictiveModelBuilder<R, L, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config,  Iterable<? extends Instance<R,L>> rawTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<L,P>> lossFunctions) {
-        //list of attributes are provided
-        //initialize the loss functions for each attribute
-        PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
-        Map<String, MultiLossFunctionWithModelConfigurations<L,P>> attributeToLossMap = Maps.newHashMap();
-
-        for (String attribute : attributes) {
-            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<>(lossFunctions, primaryLossFunction));
-        }
-        initializeTrainingAndValidationSets(rawTrainingData);
-        while (!validationSet.isEmpty()) {
-            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
-
-            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
-            Set<String> attributesToIgnore = Sets.newHashSet();
-            for (String attribute : attributes) {
-                attributesToIgnore.add(attribute);
-                labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(validationSet, predictiveModel, attributesToIgnore);
-                MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
-                multiLossFunction.updateRunningLosses(labelPredictionWeights);
-
-                attributesToIgnore.remove(attribute);
-            }
-            updateTrainingSet();
-            updateCrossValidationSet();
-        }
-
-        for (String attribute : attributes) {
-            MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
-            multiLossFunction.normalizeRunningAverages();
-        }
-        List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> attributesWithLosses = Lists.newArrayList();
-        for (String attribute : attributeToLossMap.keySet()) {
-            attributesWithLosses.add(new Pair<>(attribute, attributeToLossMap.get(attribute)));
-        }
-        //sort in descending order.  The higher the loss, the more damage was done by removing the attribute
-        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<L,P>(primaryLossFunction));
-        return attributesWithLosses;
-    }
+//    @Override
+//    public <PM extends PredictiveModel<R, P>,  PMB extends PredictiveModelBuilder<R, L, PM>> List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> getAttributeImportances(PredictiveModelBuilderFactory<R, L, PM, PMB> predictiveModelBuilderFactory, Map<String, Object> config,  Iterable<? extends Instance<R,L>> rawTrainingData, final String primaryLossFunction, Set<String> attributes, Map<String, CrossValLossFunction<L,P>> lossFunctions) {
+//        //list of attributes are provided
+//        //initialize the loss functions for each attribute
+//        PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
+//        Map<String, MultiLossFunctionWithModelConfigurations<L,P>> attributeToLossMap = Maps.newHashMap();
+//
+//        for (String attribute : attributes) {
+//            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<>(lossFunctions, primaryLossFunction));
+//        }
+//        initializeTrainingAndValidationSets(rawTrainingData);
+//        while (!validationSet.isEmpty()) {
+//            PM predictiveModel = predictiveModelBuilder.buildPredictiveModel(trainingDataToAddToPredictiveModel);
+//
+//            List<LabelPredictionWeight<L,P>> labelPredictionWeights;
+//            Set<String> attributesToIgnore = Sets.newHashSet();
+//            for (String attribute : attributes) {
+//                attributesToIgnore.add(attribute);
+//                labelPredictionWeights = Utils.createLabelPredictionWeightsWithoutAttributes(validationSet, predictiveModel, attributesToIgnore);
+//                MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
+//                multiLossFunction.updateRunningLosses(labelPredictionWeights);
+//
+//                attributesToIgnore.remove(attribute);
+//            }
+//            updateTrainingSet();
+//            updateCrossValidationSet();
+//        }
+//
+//        for (String attribute : attributes) {
+//            MultiLossFunctionWithModelConfigurations<L,P> multiLossFunction = attributeToLossMap.get(attribute);
+//            multiLossFunction.normalizeRunningAverages();
+//        }
+//        List<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> attributesWithLosses = Lists.newArrayList();
+//        for (String attribute : attributeToLossMap.keySet()) {
+//            attributesWithLosses.add(new Pair<>(attribute, attributeToLossMap.get(attribute)));
+//        }
+//        //sort in descending order.  The higher the loss, the more damage was done by removing the attribute
+//        Collections.sort(attributesWithLosses, new AttributeWithLossComparator<L,P>(primaryLossFunction));
+//        return attributesWithLosses;
+//    }
 
 
     private void initializeTrainingAndValidationSets(Iterable<? extends Instance<R,L>> rawTrainingData) {
@@ -216,16 +206,14 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
         logger.info("first val set instance: " + timeOfFirstInstanceInValidationSet.toString() + "\n time of last instance " + leastOuterBoundOfValidationSet.toString());
         logger.info("currentTrainingSetSize: " + currentTrainingSetSize + "\nallTrainingData.size" + allTrainingData.size());
         while (validationSet.isEmpty()) {
-            for (int i = currentTrainingSetSize; i < allTrainingData.size(); i++) {
-                Instance<R, L> instance = allTrainingData.get(i);
+            for (Instance<R, L> instance : allTrainingData) {
                 DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
                 if (timeOfInstance.isBefore(timeOfFirstInstanceInValidationSet))
                     throw new RuntimeException("val instance before earliest possible boundary: " + timeOfInstance.toString());
                 if (timeOfInstance.isBefore(leastOuterBoundOfValidationSet)) {
                     validationSet.add(instance);
                     weightOfValidationSet += instance.getWeight();
-                    if (instance.getLabel().equals(Double.valueOf(1.0)))
-                        clicksInValSet++;
+
                 } else
                     break;
             }
@@ -235,7 +223,7 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
                 logger.info("bumping boundaries: currentTrainingSetSize: " + currentTrainingSetSize + ", allTrainingData.size" + allTrainingData.size());
             }
         }
-        logger.info("clicks in val set: " + clicksInValSet);
+
     }
 
     private void clearValidationSet() {
@@ -290,15 +278,15 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
     //TODO[mk] maybe move this
     public static class TestDateTimeExtractor implements DateTimeExtractor<AttributesMap, Serializable> {
         @Override
-        public DateTime extractDateTime(Instance<AttributesMap, Serializable> instance) {
-            AttributesMap attributes = instance.getAttributes();
-            int year = ((Double) attributes.get("timeOfArrival-year")).intValue();
-            int month = ((Double) attributes.get("timeOfArrival-monthOfYear")).intValue();
-            int day = ((Double) attributes.get("timeOfArrival-dayOfMonth")).intValue();
-            int hour = ((Double) attributes.get("timeOfArrival-hourOfDay")).intValue();
-            int minute = ((Double) attributes.get("timeOfArrival-minuteOfHour")).intValue();
-            return new DateTime(year, month, day, hour, minute, 0, 0);
-        }
+                public DateTime extractDateTime(Instance<AttributesMap, Serializable> instance) {
+                    AttributesMap attributes = instance.getAttributes();
+                    int year = ((Double) attributes.get("timeOfArrival-year")).intValue();
+                    int month = ((Double) attributes.get("timeOfArrival-monthOfYear")).intValue();
+                    int day = ((Double) attributes.get("timeOfArrival-dayOfMonth")).intValue();
+                    int hour = ((Double) attributes.get("timeOfArrival-hourOfDay")).intValue();
+                    int minute = ((Double) attributes.get("timeOfArrival-minuteOfHour")).intValue();
+                    return new DateTime(year, month, day, hour, minute, 0, 0);
+                }
     }
 
 }

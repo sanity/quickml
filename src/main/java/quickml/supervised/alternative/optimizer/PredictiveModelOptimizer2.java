@@ -1,7 +1,7 @@
 package quickml.supervised.alternative.optimizer;
 
 import com.google.common.collect.Maps;
-import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
+import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 
 import java.util.*;
 
@@ -9,7 +9,7 @@ public class PredictiveModelOptimizer2 {
 
     public static final int MAX_ITERATIONS = 10;
 
-    private Map<String, FixedOrderRecommender> valuesToTest;
+    private Map<String, ? extends FieldValueRecommender> valuesToTest;
     private ModelTester modelTester;
     private HashMap<String, Object> bestConfig;
 
@@ -18,7 +18,7 @@ public class PredictiveModelOptimizer2 {
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param modelTester - Model tester takes a configuration and returns the loss
      */
-    public PredictiveModelOptimizer2(Map<String, FixedOrderRecommender> valuesToTest, ModelTester modelTester) {
+    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, ModelTester modelTester) {
         this.valuesToTest = valuesToTest;
         this.modelTester = modelTester;
         this.bestConfig = setBestConfigToFirstValues(valuesToTest);
@@ -56,9 +56,9 @@ public class PredictiveModelOptimizer2 {
         bestConfig.put(field, losses.valueWithLowestLoss());
     }
 
-    private HashMap<String, Object> setBestConfigToFirstValues(Map<String, FixedOrderRecommender> config) {
+    private HashMap<String, Object> setBestConfigToFirstValues(Map<String, ? extends FieldValueRecommender> config) {
         HashMap<String, Object> map = new HashMap<>();
-        for (Map.Entry<String, FixedOrderRecommender> entry : config.entrySet()) {
+        for (Map.Entry<String, ? extends FieldValueRecommender> entry : config.entrySet()) {
             map.put(entry.getKey(), entry.getValue().first());
         }
         return map;

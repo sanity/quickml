@@ -3,7 +3,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -36,7 +36,7 @@ public class Leaf extends Node {
     protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
 
-    public Leaf(Node parent, final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final int depth) {
+    public Leaf(Node parent, final Iterable<ClassifierInstance> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
 	}

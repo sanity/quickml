@@ -4,35 +4,33 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Sets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.data.*;
+import quickml.data.AttributesMap;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
-        List<Instance<AttributesMap, Serializable>> trainingData = Lists.newLinkedList();
+        List<ClassifierInstance> trainingData = Lists.newLinkedList();
         AttributesMap  attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",2);
         attributes.put("k2",1);
-        trainingData.add(new InstanceImpl(attributes, "true"));
+        trainingData.add(new ClassifierInstance(attributes, "true"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",1);
         attributes.put("k2",2);
-        trainingData.add(new InstanceImpl(attributes, "true"));
+        trainingData.add(new ClassifierInstance(attributes, "true"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",2);
         attributes.put("k2",2);
-        trainingData.add(new InstanceImpl(attributes, "false"));
+        trainingData.add(new ClassifierInstance(attributes, "false"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",1);
         attributes.put("k2",2);
-        trainingData.add(new InstanceImpl(attributes, "false"));
+        trainingData.add(new ClassifierInstance(attributes, "false"));
         ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(Sets.newHashSet("k1", "k2"), "true");
         final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {

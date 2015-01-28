@@ -1,42 +1,44 @@
 package quickml.supervised.classifier;
 
+import org.joda.time.DateTime;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by Chris on 5/14/2014.
  */
 public class TreeBuilderTestUtils {
 
-    public static List<Instance<AttributesMap, Serializable>> getInstances(int numInstances) {
-        final List<Instance<AttributesMap, Serializable>> instances = new ArrayList<>();
+    public static List<ClassifierInstance> getInstances(int numInstances) {
+        final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
-            AttributesMap  attributes = AttributesMap.newHashMap() ;
+            AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("gender", MapUtils.random.nextInt(2));
-            instances.add(new InstanceImpl<AttributesMap, Serializable>(attributes, bmiHealthy(weight, height)));
+            instances.add(new ClassifierInstance(attributes, bmiHealthy(weight, height)));
         }
         return instances;
     }
 
-    public static List<Instance<AttributesMap, Serializable>> getIntegerInstances(int numInstances) {
-        final List<Instance<AttributesMap, Serializable>> instances = new ArrayList<>();
+    public static List<ClassifierInstance> getIntegerInstances(int numInstances) {
+        final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
             final double weight = 120 + MapUtils.random.nextInt(110);
-            Calendar calendar = Calendar.getInstance();
-            final int year = calendar.get(Calendar.YEAR);
-            final int month = calendar.get(Calendar.MONTH);
-            final int day = MapUtils.random.nextInt(28)+1;
-            final int hour = MapUtils.random.nextInt(24);
+            DateTime dateTime = new DateTime();
+            final double year = dateTime.getYear();
+            final double month = dateTime.getMonthOfYear();
+            final double day = MapUtils.random.nextInt(28) + 1;
+            final double hour = MapUtils.random.nextInt(24);
             final AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
@@ -44,7 +46,7 @@ public class TreeBuilderTestUtils {
             attributes.put("timeOfArrival-monthOfYear", month);
             attributes.put("timeOfArrival-dayOfMonth", day);
             attributes.put("timeOfArrival-hourOfDay", hour);
-            instances.add(new InstanceImpl(attributes, bmiHealthyInteger(weight, height)));
+            instances.add(new ClassifierInstance(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;
     }

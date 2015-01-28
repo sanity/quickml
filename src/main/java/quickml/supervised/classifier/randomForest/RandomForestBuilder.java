@@ -3,15 +3,16 @@ package quickml.supervised.classifier.randomForest;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +26,10 @@ import java.util.concurrent.Future;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap, Serializable, RandomForest> {
+public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, ClassifierInstance> {
+
+    public static final String NUM_TREES = "numTrees";
+
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
     private final TreeBuilder treeBuilder;
     private int numTrees = 20;
@@ -40,6 +44,12 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
         this.treeBuilder = treeBuilder;
     }
 
+    @Override
+    public void updateBuilderConfig(Map<String, Object> config) {
+        treeBuilder.updateBuilderConfig(config);
+        this.numTrees((Integer) config.get(NUM_TREES));
+    }
+
     public RandomForestBuilder numTrees(int numTrees) {
         this.numTrees = numTrees;
         return this;
@@ -51,7 +61,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
     }
 
     @Override
-    public synchronized RandomForest buildPredictiveModel(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
+    public synchronized RandomForest buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
 
@@ -72,8 +82,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
         return new RandomForest(trees, classifications);
     }
 
-
-    private Future<Tree> submitTreeBuild(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, final int treeIndex) {
+    private Future<Tree> submitTreeBuild(final Iterable<ClassifierInstance> trainingData, final int treeIndex) {
         return executorService.submit(new Callable<Tree>() {
             @Override
             public Tree call() throws Exception {
@@ -82,7 +91,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<AttributesMap
         });
     }
 
-    private Tree buildModel(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, int treeIndex) {
+    private Tree buildModel(Iterable<ClassifierInstance> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
         return treeBuilder.buildPredictiveModel(trainingData);
     }

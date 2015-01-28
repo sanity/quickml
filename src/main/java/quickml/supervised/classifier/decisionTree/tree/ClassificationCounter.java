@@ -5,14 +5,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-
-import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+
+import static quickml.supervised.classifier.decisionTree.TreeBuilder.MISSING_VALUE;
 
 
 public class ClassificationCounter implements Serializable {
@@ -46,10 +45,10 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final String attribute) {
+            final Iterable<ClassifierInstance> instances, final String attribute) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
-        for (final Instance<AttributesMap, Serializable> instance : instances) {
+        for (ClassifierInstance instance : instances) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc;
             boolean acceptableMissingValue = attrVal == null;
@@ -74,7 +73,7 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<? extends Instance<AttributesMap, Serializable>> instances, final String attribute, final Serializable minorityClassification) {
+            final Iterable<ClassifierInstance> instances, final String attribute, final Serializable minorityClassification) {
 
         Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances, attribute);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
@@ -108,9 +107,9 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-    public static ClassificationCounter countAll(final Iterable<? extends Instance<AttributesMap, Serializable>> instances) {
+    public static ClassificationCounter countAll(final Iterable<ClassifierInstance> instances) {
         final ClassificationCounter result = new ClassificationCounter();
-        for (final Instance<AttributesMap, Serializable> instance : instances) {
+        for (ClassifierInstance instance : instances) {
             result.addClassification(instance.getLabel(), instance.getWeight());
         }
         return result;

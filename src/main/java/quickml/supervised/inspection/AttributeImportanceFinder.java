@@ -5,7 +5,6 @@ import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModel;
-import quickml.supervised.PredictiveModelBuilderFactory;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.CrossValidatorBuilder;
 import quickml.supervised.crossValidation.crossValLossFunctions.*;
@@ -16,6 +15,7 @@ import com.google.common.base.Optional;
 import java.io.Serializable;
 import java.util.*;
 
+//TODO[mk] Can this be removed/updated??
 public class AttributeImportanceFinder {
     private static final Logger logger = LoggerFactory.getLogger(AttributeImportanceFinder.class);
     private Set<String> attributesToNotRemove = Sets.newHashSet();
@@ -45,47 +45,47 @@ public class AttributeImportanceFinder {
         this.maxAttributesInOptimalSet = minAttributesInOptimalSet;
     }
 
-    public <PM extends PredictiveModel<AttributesMap, PredictionMap>, PMB extends PredictiveModelBuilder<AttributesMap, Serializable, PM>>
-    AttributeImportanceFinderSummary determineAttributeImportance
-            (CrossValidatorBuilder<AttributesMap, Serializable, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap, Serializable, PM, PMB> predictiveModelBuilderFactory,
-             Map<String, Object> config, Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
-             String primaryLossFunction, Map<String, CrossValLossFunction<Serializable, PredictionMap>> crossValLossFunctionMap) {
-
-        Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
-        String noAttributesRemoved = "noAttributesRemoved";
-        attributes.add(noAttributesRemoved);
-
-        //do recursive feature elimination
-        double bestPrimaryLossSeenSoFar = Double.MAX_VALUE;
-        List<Pair<String, MultiLossFunctionWithModelConfigurations<Serializable, PredictionMap>>> attributesWithLosses = Lists.newArrayList();
-        boolean startedTrackingBestAttributes = false;
-        for (int i = 0; i < iterations; i++) {
-            CrossValidator<AttributesMap, Serializable, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
-         /*   crossValLossFunctionMap = Maps.newHashMap();
-            crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
-            crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
-            crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
-*/
-            attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
-            double currentPrimaryLoss = getModelLoss(attributesWithLosses).get(primaryLossFunction);
-            if (attributesWithLosses.size() <= maxAttributesInOptimalSet && !startedTrackingBestAttributes) {
-                startedTrackingBestAttributes = true;
-                bestPrimaryLossSeenSoFar = currentPrimaryLoss;
-            }
-            bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
-            updateBestNAttributesWithLosseIfNeccessary(attributesWithLosses);
-            logger.info("model losses: " + getModelLoss(attributesWithLosses).toString() + ", at iteration: " + i + "out of iterations: " + iterations);
-
-      /*      for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
-                logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
-            }
-      */      trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
-        }
-        overallBestAttributesWithLosses.remove(noAttributesRemoved);
-
-        AttributeImportanceFinderSummary attributeImportanceFinderSummary = getAttributeImportanceFinderSummary();
-        return attributeImportanceFinderSummary;
-    }
+//    public <PM extends PredictiveModel<AttributesMap, PredictionMap>, PMB extends PredictiveModelBuilder<AttributesMap, Serializable, PM>>
+//    AttributeImportanceFinderSummary determineAttributeImportance
+//            (CrossValidatorBuilder<AttributesMap, Serializable, PredictionMap> crossValidatorBuilder, PredictiveModelBuilderFactory<AttributesMap, Serializable, PM, PMB> predictiveModelBuilderFactory,
+//             Map<String, Object> config, Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, int iterations, double percentageOfFeaturesToRemovePerIteration,
+//             String primaryLossFunction, Map<String, CrossValLossFunction<Serializable, PredictionMap>> crossValLossFunctionMap) {
+//
+//        Set<String> attributes = getAllAttributesInTrainingSet(trainingData);
+//        String noAttributesRemoved = "noAttributesRemoved";
+//        attributes.add(noAttributesRemoved);
+//
+//        //do recursive feature elimination
+//        double bestPrimaryLossSeenSoFar = Double.MAX_VALUE;
+//        List<Pair<String, MultiLossFunctionWithModelConfigurations<Serializable, PredictionMap>>> attributesWithLosses = Lists.newArrayList();
+//        boolean startedTrackingBestAttributes = false;
+//        for (int i = 0; i < iterations; i++) {
+//            CrossValidator<AttributesMap, Serializable, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
+//         /*   crossValLossFunctionMap = Maps.newHashMap();
+//            crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
+//            crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
+//            crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
+//*/
+////            attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
+//            double currentPrimaryLoss = getModelLoss(attributesWithLosses).get(primaryLossFunction);
+//            if (attributesWithLosses.size() <= maxAttributesInOptimalSet && !startedTrackingBestAttributes) {
+//                startedTrackingBestAttributes = true;
+//                bestPrimaryLossSeenSoFar = currentPrimaryLoss;
+//            }
+//            bestPrimaryLossSeenSoFar = updateBestAttributesWithLosseIfNeccessary(primaryLossFunction, currentPrimaryLoss, bestPrimaryLossSeenSoFar, attributesWithLosses);
+//            updateBestNAttributesWithLosseIfNeccessary(attributesWithLosses);
+//            logger.info("model losses: " + getModelLoss(attributesWithLosses).toString() + ", at iteration: " + i + "out of iterations: " + iterations);
+//
+//      /*      for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
+//                logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
+//            }
+//      */      trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+//        }
+//        overallBestAttributesWithLosses.remove(noAttributesRemoved);
+//
+//        AttributeImportanceFinderSummary attributeImportanceFinderSummary = getAttributeImportanceFinderSummary();
+//        return attributeImportanceFinderSummary;
+//    }
 
     private AttributeImportanceFinderSummary getAttributeImportanceFinderSummary() {
         AttributeImportanceFinderSummary attributeImportanceFinderSummary;

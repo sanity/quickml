@@ -1,5 +1,7 @@
 package quickml.data;
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 
 public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
@@ -32,6 +34,11 @@ public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
 
     public double getWeight() {
         return weight;
+    }
+
+    @Override
+    public DateTime getTimestamp() {
+        throw new RuntimeException("Not Supported");
     }
 
     private R attributes;

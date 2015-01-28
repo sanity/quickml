@@ -1,6 +1,8 @@
 package quickml.data;
 
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 
 /**
@@ -11,10 +13,13 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public interface Instance<R, L> {
+
     public R getAttributes();
 
     public L getLabel();
 
     public double getWeight();
+
+    public DateTime getTimestamp();
 
 }

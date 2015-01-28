@@ -6,6 +6,7 @@ import quickml.data.*;
 
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -20,8 +21,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     @Test
     public void simpleTest() {
-        List<Instance<AttributesMap, Serializable>> trainingData = Lists.newArrayList();
-        trainingData.add(new InstanceImpl(AttributesMap.newHashMap(), 1));
+        List<ClassifierInstance> trainingData = Lists.newArrayList();
+        trainingData.add(new ClassifierInstance(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
@@ -31,7 +32,7 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
+        public AttributesEnricher build(final Iterable<ClassifierInstance> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -45,15 +46,20 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
     }
 
-    public static class TestPMBuilder implements PredictiveModelBuilder<AttributesMap, Serializable, TestPM> {
+    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, ClassifierInstance> {
         @Override
-        public TestPM buildPredictiveModel(Iterable<? extends Instance<AttributesMap, Serializable>> trainingData) {
-            for (Instance<AttributesMap, Serializable> instance : trainingData) {
+        public TestPM buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
+            for (ClassifierInstance instance : trainingData) {
                 if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
             }
             return new TestPM();
+        }
+
+        @Override
+        public void updateBuilderConfig(Map<String, Object> config) {
+
         }
     }
 
