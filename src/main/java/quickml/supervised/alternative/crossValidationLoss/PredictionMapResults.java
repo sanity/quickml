@@ -1,77 +1,36 @@
 package quickml.supervised.alternative.crossValidationLoss;
 
-import quickml.data.PredictionMap;
-
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.Double.isInfinite;
-import static java.lang.Double.isNaN;
 
-public class PredictionMapResults {
+public class PredictionMapResults implements Iterable<PredictionMapResult>{
 
-    private final ArrayList<PredictionMapResult> results;
+    private final List<PredictionMapResult> results;
+    private final double totalWeight;
 
-    public PredictionMapResults() {
-        results = new ArrayList<>();
+    public PredictionMapResults(List<PredictionMapResult> results) {
+        checkArgument(!results.isEmpty(), "Prediction results must not be empty");
+
+        this.results = results;
+        this.totalWeight = calcTotalWeight();
     }
 
-    public void addResult(PredictionMap predictionMap, Serializable label, double weight) {
-        results.add(new PredictionMapResult(predictionMap, label, weight));
-    }
-
-    public double mseLoss() {
-        int totalLoss = 0;
-        for (PredictionMapResult result : results) {
-            final double error = (1.0 - result.getPredictionForLabel());
-            final double errorSquared = error * error * result.weight;
-            totalLoss += errorSquared;
-        }
-        return totalWeight() > 0 ? totalLoss / totalWeight() : 0;
-    }
-
-    public double rmseLoss() {
-        return Math.sqrt(mseLoss());
-    }
-
-
-
-    public double totalWeight() {
+    private double calcTotalWeight() {
         double totalWeight = 0;
         for (PredictionMapResult result : results) {
-            totalWeight += result.weight;
+            totalWeight += result.getWeight();
         }
         return totalWeight;
     }
 
-    public ArrayList<PredictionMapResult> getResults() {
-        return results;
+    public double totalWeight() {
+        return totalWeight;
     }
 
-    public class PredictionMapResult {
-        private PredictionMap prediction;
-        private Serializable label;
-        private double weight;
-
-        public PredictionMapResult(PredictionMap prediction, Serializable label, double weight) {
-            this.prediction = prediction;
-            this.label = label;
-            this.weight = weight;
-        }
-
-        public double getPredictionForLabel() {
-            Double probability = prediction.get(label);
-            checkArgument(!isNaN(probability), "Probability must be a natural number, not NaN");
-            checkArgument(!isInfinite(probability), "Probability must be a natural number, not infinite");
-
-            return probability;
-        }
-
-        public double getWeight() {
-            return weight;
-        }
+    @Override
+    public Iterator<PredictionMapResult> iterator() {
+        return results.iterator();
     }
-
-
 }

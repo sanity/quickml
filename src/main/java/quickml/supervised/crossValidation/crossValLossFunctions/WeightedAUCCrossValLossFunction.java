@@ -1,16 +1,18 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 
-import quickml.data.PredictionMap;
+import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
 
 import java.io.Serializable;
 import java.util.*;
 
 /**
  * AUCCrossValLoss calculates the ROC area over the curve to determine loss.
- *
+ * <p/>
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Serializable, PredictionMap> {
+public class WeightedAUCCrossValLossFunction implements ClassifierLossFunction {
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -18,32 +20,35 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
-        if (labelPredictionWeights.isEmpty()) {
-            throw new IllegalStateException("Tried to get loss from empty data set");
-        }
+    public double getLoss(PredictionMapResults results) {
+        List<AUCData> aucDataList = getAucDataList(results);
 
-        List<AUCData> aucDataList = getAucDataList(labelPredictionWeights);
-
-        sortDataByProbability(aucDataList);
+        //order by probability ascending
+        Collections.sort(aucDataList);
 
         ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
 
         return getAUCLoss(aucPoints);
     }
 
-    private List<AUCData> getAucDataList(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
-        List<AUCData> aucDataList = new ArrayList<AUCData>();
-        Set<Serializable> classifications = new HashSet<Serializable>();
-        for (LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight : labelPredictionWeights) {
-            classifications.add(labelPredictionWeight.getLabel());
+    private List<AUCData> getAucDataList(PredictionMapResults results) {
+        ensureBinaryClassifications(results);
+        List<AUCData> aucDataList = new ArrayList<>();
+        for (PredictionMapResult result : results) {
+            double probabilityOfPositiveClassification = result.getPrediction().get(positiveClassification);
+            aucDataList.add(new AUCData(result.getLabel(), result.getWeight(), probabilityOfPositiveClassification));
+        }
+        return aucDataList;
+    }
+
+    private void ensureBinaryClassifications(PredictionMapResults results) {
+        Set<Serializable> classifications = new HashSet<>();
+        for (PredictionMapResult result : results) {
+            classifications.add(result.getLabel());
             if (classifications.size() > 2) {
                 throw new RuntimeException("AUCCrossValLoss only supports binary classifications");
             }
-            double probabilityOfPositiveClassification = labelPredictionWeight.getPrediction().get(positiveClassification);
-            aucDataList.add(new AUCData(labelPredictionWeight.getLabel(), labelPredictionWeight.getWeight(), probabilityOfPositiveClassification));
         }
-        return aucDataList;
     }
 
     protected ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {
@@ -52,10 +57,10 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
         double falsePositives = 0;
         double falseNegatives = 0;
 
-        ArrayList<AUCPoint> aucPoints = new ArrayList<AUCPoint>();
+        ArrayList<AUCPoint> aucPoints = new ArrayList<>();
         double threshold = 0.0;
-        for(AUCData aucData : aucDataList) {
-            if(aucData.getClassification().equals(positiveClassification)) {
+        for (AUCData aucData : aucDataList) {
+            if (aucData.getClassification().equals(positiveClassification)) {
                 truePositives += aucData.getWeight();
             } else {
                 falsePositives += aucData.getWeight();
@@ -63,7 +68,7 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
         }
 
         //iterate through each data point updating all points that are changed by the threshold
-        for(AUCData aucData : aucDataList) {
+        for (AUCData aucData : aucDataList) {
             if (threshold != aucData.getProbability()) {
                 aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
                 threshold = aucData.getProbability();
@@ -87,22 +92,6 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
         return aucPoints;
     }
 
-    protected void sortDataByProbability(List<AUCData> aucDataList) {
-        //order by probability ascending
-        Collections.sort(aucDataList, new Comparator<AUCData>() {
-            @Override
-            public int compare(AUCData o1, AUCData o2) {
-                if (o1.getProbability() > o2.getProbability()) {
-                    return 1;
-                } else if (o2.getProbability() > o1.getProbability()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        });
-    }
-
     protected AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
         double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : (truePositives / (truePositives + falseNegatives));
         double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : (falsePositives / (falsePositives + trueNegatives));
@@ -110,31 +99,19 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
     }
 
     protected double getAUCLoss(ArrayList<AUCPoint> aucPoints) {
-        //order by false positive rate ascending, true positive rate ascending
-        Collections.sort(aucPoints, new Comparator<AUCPoint>() {
-            @Override
-            public int compare(AUCPoint o1, AUCPoint o2) {
-                if (o1.getFalsePositiveRate() > o2.getFalsePositiveRate()) {
-                    return 1;
-                } else if (o1.getFalsePositiveRate() < o2.getFalsePositiveRate()) {
-                    return -1;
-                } else {
-                    return o1.getTruePositiveRate() >= o2.getTruePositiveRate() ? 1 : -1;
-                }
-            }
-        });
+        Collections.sort(aucPoints);
 
         double sumXY = 0.0;
         //Area over curve OR AUCLoss = (2 - sum((x1-x0)(y1+y0)))/2
-        for(int i = 1; i < aucPoints.size(); i++) {
+        for (int i = 1; i < aucPoints.size(); i++) {
             AUCPoint aucPoint1 = aucPoints.get(i);
-            AUCPoint aucPoint0 = aucPoints.get(i-1);
-            sumXY += ((aucPoint1.getFalsePositiveRate() - aucPoint0.getFalsePositiveRate())*(aucPoint1.getTruePositiveRate()+aucPoint0.getTruePositiveRate()));
+            AUCPoint aucPoint0 = aucPoints.get(i - 1);
+            sumXY += ((aucPoint1.getFalsePositiveRate() - aucPoint0.getFalsePositiveRate()) * (aucPoint1.getTruePositiveRate() + aucPoint0.getTruePositiveRate()));
         }
         return (2.0 - sumXY) / 2.0;
     }
 
-    protected static class AUCPoint {
+    protected static class AUCPoint implements Comparable<AUCPoint> {
         private final double truePositiveRate;
         private final double falsePositiveRate;
 
@@ -150,9 +127,21 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
         public double getTruePositiveRate() {
             return truePositiveRate;
         }
+
+        @Override
+        public int compareTo(AUCPoint o) {
+            //order by false positive rate ascending, true positive rate ascending
+            if (falsePositiveRate > o.falsePositiveRate) {
+                return 1;
+            } else if (falsePositiveRate < o.falsePositiveRate) {
+                return -1;
+            } else {
+                return Double.compare(truePositiveRate, o.truePositiveRate);
+            }
+        }
     }
 
-    protected static class AUCData {
+    protected static class AUCData implements Comparable<AUCData> {
         private final Serializable classification;
         private final double weight;
         private final double probability;
@@ -173,6 +162,11 @@ public class WeightedAUCCrossValLossFunction implements CrossValLossFunction<Ser
 
         public double getProbability() {
             return probability;
+        }
+
+        @Override
+        public int compareTo(AUCData o) {
+            return Double.compare(probability, o.probability);
         }
     }
 }

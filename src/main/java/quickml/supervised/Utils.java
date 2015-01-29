@@ -2,8 +2,13 @@ package quickml.supervised;
 
 import com.google.common.collect.Lists;
 import quickml.data.Instance;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +43,14 @@ public class Utils {
             weight += instance.getWeight();
         }
         return weight;
+    }
+
+    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<ClassifierInstance> validationSet) {
+        ArrayList<PredictionMapResult> results = new ArrayList<>();
+        for (ClassifierInstance instance : validationSet) {
+            results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
+        }
+        return new PredictionMapResults(results);
     }
 
 

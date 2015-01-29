@@ -3,7 +3,8 @@ package quickml.supervised.alternative.optimizer;
 import com.beust.jcommander.internal.Maps;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossChecker;
+import quickml.supervised.alternative.crossValidationLoss.ClassifierLossChecker;
+import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossFunction;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
@@ -29,9 +30,9 @@ public class PredictiveModelOptimizer2IntegrationTest {
     @Before
     public void setUp() throws Exception {
         List<ClassifierInstance> trainingInstances = TreeBuilderTestUtils.getInstancesOneEveryHour(1000);
-
         TrainingDataCycler<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(trainingInstances, 0.5, 72);
-        ClassifierRMSELossChecker lossChecker = new ClassifierRMSELossChecker();
+        ClassifierLossChecker lossChecker = new ClassifierLossChecker(new ClassifierRMSELossFunction());
+
         ModelTester<Classifier, ClassifierInstance> modelTester = new ModelTester<>(new TreeBuilder(), lossChecker, outOfTimeData);
 
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
