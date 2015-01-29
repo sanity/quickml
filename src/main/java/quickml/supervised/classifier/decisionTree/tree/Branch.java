@@ -62,6 +62,7 @@ public abstract class Branch extends Node {
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        //TODO[mk] - check with Alex
         if (attributesToIgnore.contains(this.attribute)) {
             return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
                     (1 - probabilityOfTrueChild) * falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);

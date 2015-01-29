@@ -14,12 +14,12 @@ import java.io.Serializable;
  */
 public interface Instance<R, L> {
 
-    public R getAttributes();
+    public R getAttributes(); // TODO rename to getInput
 
-    public L getLabel();
+    public L getLabel(); // TODO rename to getOuput
 
     public double getWeight();
 
-    public DateTime getTimestamp();
+    public DateTime getTimestamp(); // Timestamped instance
 
 }

@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public class Utils {
 
-    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance<R, L>> instances, PredictiveModel<R, P> predictiveModel) {
+    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
         for (Instance<R, L> instance : instances) {
             LabelPredictionWeight<L, P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight());
@@ -29,6 +29,15 @@ public class Utils {
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
+    }
+
+
+    public static double getInstanceWeights(List<? extends Instance> instances) {
+        double weight = 0;
+        for (Instance instance : instances) {
+            weight += instance.getWeight();
+        }
+        return weight;
     }
 
 

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 8/29/14.
  */
-public class SingleVariableRealValuedFunctionMSECVLossFunction implements CrossValLossFunction<Serializable, Double> { // <CP extends ClassifierPrediction> implements CrossValLossFunction<CP> {
+public class SingleVariableRealValuedFunctionMSECVLossFunction implements CrossValLossFunction<Serializable, Double> {
     protected double totalLoss = 0;
     double weightOfAllInstances = 0;
 

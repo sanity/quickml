@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by ian on 2/28/14.
  */
-public abstract class OnlineClassifierCVLossFunction implements CrossValLossFunction<Serializable, PredictionMap> { // <CP extends ClassifierPrediction> implements CrossValLossFunction<CP> {
+public abstract class OnlineClassifierCVLossFunction implements CrossValLossFunction<Serializable, PredictionMap> {
     protected double totalLoss = 0;
     double weightOfAllInstances = 0;
 

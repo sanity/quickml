@@ -1,11 +1,16 @@
 package quickml.supervised.alternative.optimizer;
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 
 import java.util.*;
 
 public class PredictiveModelOptimizer2 {
+
+    private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer2.class);
+
 
     public static final int MAX_ITERATIONS = 10;
 
@@ -50,7 +55,7 @@ public class PredictiveModelOptimizer2 {
 
         for (Object value : valuesToTest.get(field).getValues()) {
             bestConfig.put(field, value);
-            losses.add(new FieldLoss(value, modelTester.testModel(bestConfig)));
+            losses.add(new FieldLoss(value, modelTester.getLossForModel(bestConfig)));
         }
 
         bestConfig.put(field, losses.valueWithLowestLoss());
@@ -61,6 +66,7 @@ public class PredictiveModelOptimizer2 {
         for (Map.Entry<String, ? extends FieldValueRecommender> entry : config.entrySet()) {
             map.put(entry.getKey(), entry.getValue().first());
         }
+        logger.info("Initial Configuration - {}", map);
         return map;
     }
 
@@ -70,7 +76,7 @@ public class PredictiveModelOptimizer2 {
 
 
     /**
-     * Convience class to sort and return the value with the lowest loss
+     * Convience classes to sort and return the value with the lowest loss
      */
     private static class FieldLosses {
         private List<FieldLoss> losses = new ArrayList<>();

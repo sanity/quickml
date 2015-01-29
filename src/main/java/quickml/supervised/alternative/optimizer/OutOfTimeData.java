@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class OutOfTimeData<T extends Instance> {
+public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> {
 
     private final List<T> allData;
     private final double crossValidationFraction;
@@ -23,25 +23,34 @@ public class OutOfTimeData<T extends Instance> {
         this.crossValidationFraction = crossValidationFraction;
         this.timeSliceHours = timeSliceHours;
         sortData();
+        reset();
+    }
+
+    @Override
+    public void reset() {
         setTrainingSetBasedOnFraction();
         updateValidationSet();
     }
 
+    @Override
     public List<T> getTrainingSet() {
         return trainingSet;
     }
 
+    @Override
     public List<T> getValidationSet() {
         return validationSet;
     }
 
-    public void nextValidationSet() {
+    @Override
+    public void nextCycle() {
         if (hasMore()) {
             trainingSet.addAll(validationSet);
             updateValidationSet();
         }
     }
 
+    @Override
     public boolean hasMore() {
         return trainingSet.size() + validationSet.size() < allData.size();
     }
@@ -63,7 +72,7 @@ public class OutOfTimeData<T extends Instance> {
         }
     }
 
-    public void sortData() {
+    private void sortData() {
         Collections.sort(allData, new Comparator<T>() {
             @Override
             public int compare(T o1, T o2) {
@@ -84,13 +93,7 @@ public class OutOfTimeData<T extends Instance> {
         }
     }
 
-    public static double getInstanceWeights(List<? extends Instance> instances) {
-        double weight = 0;
-        for (Instance instance : instances) {
-            weight += instance.getWeight();
-        }
-        return weight;
-    }
+
 
 
 }

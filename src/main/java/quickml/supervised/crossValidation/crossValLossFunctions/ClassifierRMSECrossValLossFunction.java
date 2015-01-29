@@ -10,11 +10,9 @@ import java.util.List;
  */
 public class ClassifierRMSECrossValLossFunction extends ClassifierMSECrossValLossFunction {
 
-    private ClassifierMSECrossValLossFunction mseCrossValLoss = new ClassifierMSECrossValLossFunction();
-
     @Override
     public double getLossFromInstance(final double probabilityOfCorrectInstance, double weight) {
-        return mseCrossValLoss.getLossFromInstance(probabilityOfCorrectInstance, weight);
+        return super.getLossFromInstance(probabilityOfCorrectInstance, weight);
     }
 
     @Override

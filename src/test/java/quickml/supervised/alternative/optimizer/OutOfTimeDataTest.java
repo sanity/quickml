@@ -2,37 +2,37 @@ package quickml.supervised.alternative.optimizer;
 
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.AttributesMap;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static quickml.TestUtils.createClassifierInstance;
 
 public class OutOfTimeDataTest {
 
+    private OutOfTimeData<ClassifierInstance> outOfTimeData;
+
     @Before
     public void setUp() throws Exception {
+        List<ClassifierInstance> instances = new ArrayList<>();
 
+        // Create an instance for 6 consecutive days
+        instances.add(createClassifierInstance(1));
+        instances.add(createClassifierInstance(2));
+        instances.add(createClassifierInstance(3));
+        instances.add(createClassifierInstance(4));
+        instances.add(createClassifierInstance(5));
+        instances.add(createClassifierInstance(6));
+
+        outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24);
     }
 
 
     @Test
     public void testOutOfTimeData() throws Exception {
-        ArrayList<ClassifierInstance> instances = new ArrayList<>();
 
-        // Create an instance for 6 consecutive days
-        instances.add(createInstance(1));
-        instances.add(createInstance(2));
-        instances.add(createInstance(3));
-        instances.add(createInstance(4));
-        instances.add(createInstance(5));
-        instances.add(createInstance(6));
-
-        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24);
         List<ClassifierInstance> trainingSet = outOfTimeData.getTrainingSet();
 
 
@@ -47,21 +47,21 @@ public class OutOfTimeDataTest {
         assertDayOfMonthMatches(validationSet.get(0), 4);
 
         // Verify that we have increased the training set size and moved on to the next validation set
-        outOfTimeData.nextValidationSet();
+        outOfTimeData.nextCycle();
         assertEquals(4, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 5);
 
         // Verify that we have increased the training set size and moved on to the next validation set
-        outOfTimeData.nextValidationSet();
+        outOfTimeData.nextCycle();
         assertEquals(5, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 6);
 
         // Verify that there are no more iterations
-        outOfTimeData.nextValidationSet();
+        outOfTimeData.nextCycle();
         assertFalse(outOfTimeData.hasMore());
     }
 
@@ -71,9 +71,9 @@ public class OutOfTimeDataTest {
         List<ClassifierInstance> instances = new ArrayList<>();
 
         // Create an instance for 3 days, with a gap after the first two
-        instances.add(createInstance(1));
-        instances.add(createInstance(2));
-        instances.add(createInstance(4));
+        instances.add(createClassifierInstance(1));
+        instances.add(createClassifierInstance(2));
+        instances.add(createClassifierInstance(4));
 
         OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24);
 
@@ -87,7 +87,7 @@ public class OutOfTimeDataTest {
         assertDayOfMonthMatches(validationSet.get(0), 2);
 
         // Verify that we skipped past the missing day and the validation set includes the next day
-        outOfTimeData.nextValidationSet();
+        outOfTimeData.nextCycle();
         assertEquals(2, outOfTimeData.getTrainingSet().size());
         assertDayOfMonthMatches(outOfTimeData.getValidationSet().get(0), 4);
 
@@ -97,19 +97,7 @@ public class OutOfTimeDataTest {
         assertEquals(expected, instance.getTimestamp().dayOfMonth().get());
     }
 
-    private ClassifierInstance createInstance(final int day) {
-        return new ClassifierInstance(createAttributes(day), 1.0D, 0.5);
-    }
 
-    private AttributesMap createAttributes(final double day) {
-        AttributesMap attrs = AttributesMap.newHashMap();
-        attrs.put("timeOfArrival-year", 2015d);
-        attrs.put("timeOfArrival-monthOfYear", 1d);
-        attrs.put("timeOfArrival-dayOfMonth", day);
-        attrs.put("timeOfArrival-hourOfDay", 1d);
-        attrs.put("timeOfArrival-minuteOfHour", 1d);
-        return attrs;
-    }
 
 
 }

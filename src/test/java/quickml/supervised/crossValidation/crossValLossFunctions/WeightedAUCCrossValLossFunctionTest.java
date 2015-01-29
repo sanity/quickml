@@ -9,9 +9,13 @@ import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 import org.apache.mahout.classifier.evaluation.Auc;
 import quickml.supervised.Utils;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Chris on 5/5/2014.
@@ -21,17 +25,17 @@ public class WeightedAUCCrossValLossFunctionTest {
     @Test(expected = RuntimeException.class)
     public void testOnlySupportBinaryClassifications() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        PredictiveModel predictiveModel = Mockito.mock(PredictiveModel.class);
-        Instance<AttributesMap, Serializable> instance = Mockito.mock(Instance.class);
-        Mockito.when(instance.getLabel()).thenReturn("instance1");
-        Mockito.when(instance.getWeight()).thenReturn(1.0);
-        Instance<AttributesMap, Serializable> instance2 = Mockito.mock(Instance.class);
-        Mockito.when(instance2.getLabel()).thenReturn("instance2");
-        Mockito.when(instance2.getWeight()).thenReturn(1.0);
-        Instance<AttributesMap, Serializable> instance3 = Mockito.mock(Instance.class);
-        Mockito.when(instance3.getLabel()).thenReturn("instance3");
-        Mockito.when(instance3.getWeight()).thenReturn(1.0);
-        List<Instance<AttributesMap, Serializable>> instances = new LinkedList<>();
+        PredictiveModel predictiveModel = mock(PredictiveModel.class);
+        ClassifierInstance instance = mock(ClassifierInstance.class);
+        when(instance.getLabel()).thenReturn("instance1");
+        when(instance.getWeight()).thenReturn(1.0);
+        ClassifierInstance instance2 = mock(ClassifierInstance.class);
+        when(instance2.getLabel()).thenReturn("instance2");
+        when(instance2.getWeight()).thenReturn(1.0);
+        ClassifierInstance instance3 = mock(ClassifierInstance.class);
+        when(instance3.getLabel()).thenReturn("instance3");
+        when(instance3.getWeight()).thenReturn(1.0);
+        List<ClassifierInstance> instances = new LinkedList<>();
         instances.add(instance);
         instances.add(instance2);
         instances.add(instance3);

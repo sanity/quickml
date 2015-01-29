@@ -18,7 +18,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PredictiveModelOptimizer2Test {
 
-    @Mock ModelTester mockModelTester;
+    @Mock
+    ModelTester mockModelTester;
 
     private PredictiveModelOptimizer2 modelOptimizer;
     private HashMap<String, Object> bestConfig = Maps.newHashMap();
@@ -46,10 +47,10 @@ public class PredictiveModelOptimizer2Test {
         bestConfig = createMap(5, false, "C");
 
 
-        when(mockModelTester.testModel(anyMap())).thenReturn(0.5);
-        when(mockModelTester.testModel(eq(thirdBestConfig))).thenReturn(0.4);
-        when(mockModelTester.testModel(eq(secondBestConfig))).thenReturn(0.2);
-        when(mockModelTester.testModel(eq(bestConfig))).thenReturn(0.1);
+        when(mockModelTester.getLossForModel(anyMap())).thenReturn(0.5);
+        when(mockModelTester.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
+        when(mockModelTester.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
+        when(mockModelTester.getLossForModel(eq(bestConfig))).thenReturn(0.1);
 
         assertEquals(bestConfig, modelOptimizer.determineOptimalConfig());
     }

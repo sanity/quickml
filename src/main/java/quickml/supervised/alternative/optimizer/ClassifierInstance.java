@@ -46,6 +46,7 @@ public class ClassifierInstance implements Instance<Map<String, Serializable>, S
     }
 
     private void setTimeStamp() {
+        //Onespot Specific
         int year = attrVal("timeOfArrival-year");
         int month = attrVal("timeOfArrival-monthOfYear");
         int day = attrVal("timeOfArrival-dayOfMonth");

@@ -1,14 +1,14 @@
 package quickml.supervised.classifier;
 
 import org.joda.time.DateTime;
-import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+
+import static quickml.collections.MapUtils.random;
 
 /**
  * Created by Chris on 5/14/2014.
@@ -18,12 +18,12 @@ public class TreeBuilderTestUtils {
     public static List<ClassifierInstance> getInstances(int numInstances) {
         final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
-            final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
-            final double weight = 120 + MapUtils.random.nextInt(110);
+            final double height = (4 * 12) + random.nextInt(3 * 12);
+            final double weight = 120 + random.nextInt(110);
             AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
-            attributes.put("gender", MapUtils.random.nextInt(2));
+            attributes.put("gender", random.nextInt(2));
             instances.add(new ClassifierInstance(attributes, bmiHealthy(weight, height)));
         }
         return instances;
@@ -32,24 +32,44 @@ public class TreeBuilderTestUtils {
     public static List<ClassifierInstance> getIntegerInstances(int numInstances) {
         final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
-            final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
-            final double weight = 120 + MapUtils.random.nextInt(110);
-            DateTime dateTime = new DateTime();
-            final double year = dateTime.getYear();
-            final double month = dateTime.getMonthOfYear();
-            final double day = MapUtils.random.nextInt(28) + 1;
-            final double hour = MapUtils.random.nextInt(24);
+            final double height = (4 * 12) + random.nextInt(3 * 12);
+            final double weight = 120 + random.nextInt(110);
             final AttributesMap attributes = AttributesMap.newHashMap();
+            DateTime date = new DateTime();
+            addDateAttributes(attributes, date.getYear(), date.getMonthOfYear(), (random.nextInt(28) + 1), random.nextInt(24));
             attributes.put("weight", weight);
             attributes.put("height", height);
-            attributes.put("timeOfArrival-year", year);
-            attributes.put("timeOfArrival-monthOfYear", month);
-            attributes.put("timeOfArrival-dayOfMonth", day);
-            attributes.put("timeOfArrival-hourOfDay", hour);
             instances.add(new ClassifierInstance(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;
     }
+
+    public static List<ClassifierInstance> getInstancesOneEveryHour(int numInstances) {
+        DateTime date = new DateTime().minusHours(numInstances + 10);
+        final List<ClassifierInstance> instances = new ArrayList<>();
+        for (int x = 0; x < numInstances; x++) {
+            final double height = (4 * 12) + random.nextInt(3 * 12);
+            final double weight = 120 + random.nextInt(110);
+            final AttributesMap attributes = AttributesMap.newHashMap();
+
+            addDateAttributes(attributes, date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), date.getHourOfDay());
+            date = date.plusHours(1);
+
+            attributes.put("weight", weight);
+            attributes.put("height", height);
+            instances.add(new ClassifierInstance(attributes, bmiHealthyInteger(weight, height)));
+        }
+        return instances;
+    }
+
+    private static void addDateAttributes(AttributesMap attributes, int year, int month, int day, int hour) {
+
+        attributes.put("timeOfArrival-year", (double) year);
+        attributes.put("timeOfArrival-monthOfYear", (double) month);
+        attributes.put("timeOfArrival-dayOfMonth", (double) day);
+        attributes.put("timeOfArrival-hourOfDay", (double) hour);
+    }
+
 
     public static void serializeDeserialize(final Serializable object) throws IOException, ClassNotFoundException {
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1000);

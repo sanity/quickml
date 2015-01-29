@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer.tree;
+package quickml.supervised.alternative.optimizer;
 
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
@@ -19,11 +19,11 @@ import static quickml.supervised.classifier.splitOnAttribute.SplitOnAttributeCla
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_POSITIVE;
 
-public class OptomizerConfig {
+public class OptimizerConfig {
 
     private static final String NUM_TREES = "numTrees";
 
-    public Map<String, FieldValueRecommender> treeBuilderConfig() {
+    public static Map<String, FieldValueRecommender> treeBuilderConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(IGNORE_ATTR_PROB, new FixedOrderRecommender(0.5, 0.0, 0.1, 0.2, 0.4, 0.7, 0.8, 0.9, 0.95, 0.98, 0.99));
         config.put(MAX_DEPTH, new FixedOrderRecommender(Integer.MAX_VALUE, 2, 3, 4, 5, 6, 7, 9));
@@ -35,13 +35,13 @@ public class OptomizerConfig {
         return config;
     }
 
-    public Map<String, FieldValueRecommender> randomForestConfig() {
+    public static Map<String, FieldValueRecommender> randomForestConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(NUM_TREES, new FixedOrderRecommender(5, 10, 20, 40));
         return config;
     }
 
-    public Map<String, FieldValueRecommender> splitOnAttributeClassifierConfig() {
+    public static Map<String, FieldValueRecommender> splitOnAttributeClassifierConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(MIN_AMOUNT_TOTAL_CROSS_DATA, new FixedOrderRecommender(0, 100, 1000));
         config.put(PERCENT_CROSS_DATA, new FixedOrderRecommender(0.1, 0.2, 0.5));
@@ -49,21 +49,21 @@ public class OptomizerConfig {
         return config;
     }
 
-    public Map<String, FieldValueRecommender> ridgeLinearConfig() {
+    public static Map<String, FieldValueRecommender> ridgeLinearConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
 
         config.put(RidgeLinearModelBuilder.REGULARIZATION_CONSTANT, new FixedOrderRecommender(0.001, 0.003, .01, 0.03, 0.1, 0.3));
         return config;
     }
 
-    public Map<String, FieldValueRecommender> temporallyReweightedClassifierConfig() {
+    public static Map<String, FieldValueRecommender> temporallyReweightedClassifierConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(HALF_LIFE_OF_NEGATIVE, new FixedOrderRecommender(1.0, 7.0, 30.0));
         config.put(HALF_LIFE_OF_POSITIVE, new FixedOrderRecommender(1.0, 7.0, 30.0));
         return config;
     }
 
-    public Map<String, FieldValueRecommender> downsamplingClassifiedConfig() {
+    public static Map<String, FieldValueRecommender> downsamplingClassifiedConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(0.1, 0.2, 0.3, 0.4, 0.5));
         return config;

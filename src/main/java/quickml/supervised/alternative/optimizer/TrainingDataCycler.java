@@ -1,0 +1,19 @@
+package quickml.supervised.alternative.optimizer;
+
+import quickml.data.Instance;
+
+import java.util.List;
+
+public interface TrainingDataCycler<T extends Instance> {
+
+    void reset();
+
+    List<T> getTrainingSet();
+
+    List<T> getValidationSet();
+
+    void nextCycle();
+
+    boolean hasMore();
+
+}

@@ -13,6 +13,7 @@ import org.javatuples.Pair;
 import quickml.collections.MapUtils;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 
@@ -21,7 +22,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements PredictiveModelBuilder<Tree, ClassifierInstance> {
+public final class TreeBuilder implements PredictiveModelBuilder<Classifier, ClassifierInstance> {
 
     public static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     public static final String MAX_DEPTH = "maxDepth";
