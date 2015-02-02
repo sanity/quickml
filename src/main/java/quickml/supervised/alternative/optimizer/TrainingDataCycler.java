@@ -4,7 +4,7 @@ import quickml.data.Instance;
 
 import java.util.List;
 
-public interface TrainingDataCycler<T extends Instance> {
+public interface TrainingDataCycler<T> {
 
     void reset();
 

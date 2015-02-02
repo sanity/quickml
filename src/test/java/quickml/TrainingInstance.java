@@ -49,11 +49,6 @@ public class TrainingInstance implements Instance<AttributesMap, Serializable> {
         return weight;
     }
 
-    @Override
-    public DateTime getTimestamp() {
-        return null;
-    }
-
     public TrainingInstance reweight(final double newWeight) {
         return new TrainingInstance(auctionId, attributes, label, newWeight);
     }

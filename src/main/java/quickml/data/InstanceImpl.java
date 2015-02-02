@@ -36,11 +36,6 @@ public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
         return weight;
     }
 
-    @Override
-    public DateTime getTimestamp() {
-        throw new RuntimeException("Not Supported");
-    }
-
     private R attributes;
     private L label;
     private double weight;

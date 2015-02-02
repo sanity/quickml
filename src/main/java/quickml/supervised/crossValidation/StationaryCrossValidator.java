@@ -2,6 +2,8 @@ package quickml.supervised.crossValidation;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
@@ -15,6 +17,7 @@ import quickml.supervised.crossValidation.crossValLossFunctions.MultiLossFunctio
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -26,8 +29,8 @@ public class StationaryCrossValidator<R, L, P>  {
     private static final Logger logger = LoggerFactory.getLogger(StationaryCrossValidator.class);
 
     protected static final int DEFAULT_NUMBER_OF_FOLDS = 4;
-    protected int folds;
-    protected int foldsUsed;
+    protected final int folds;
+    protected final int foldsUsed;
     protected CrossValLossFunction<L, P> lossFunction;
 
 
@@ -52,7 +55,7 @@ public class StationaryCrossValidator<R, L, P>  {
         this.lossFunction = lossFunction;
     }
 
-//    @Override
+////    @Override
 //    public <PM extends PredictiveModel<R, P>> double getCrossValidatedLoss(PredictiveModelBuilder<R, L, PM> predictiveModelBuilder, Iterable<? extends Instance<R, L>> allTrainingData) {
 //        double runningLoss = 0;
 //        DataSplit dataSplit;

@@ -30,8 +30,4 @@ public class RidgeInstance implements Instance<double[], Serializable>{
         return 1.0;
     }
 
-    @Override
-    public DateTime getTimestamp() {
-        throw new RuntimeException("RidgeInstance does not support timestamp");
-    }
 }

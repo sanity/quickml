@@ -20,6 +20,4 @@ public interface Instance<R, L> {
 
     public double getWeight();
 
-    public DateTime getTimestamp(); // Timestamped instance
-
 }

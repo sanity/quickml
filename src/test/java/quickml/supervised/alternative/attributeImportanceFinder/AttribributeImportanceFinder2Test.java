@@ -13,7 +13,7 @@ import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction
 import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossFunction;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.OutOfTimeData;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -45,7 +45,8 @@ public class AttribributeImportanceFinder2Test {
         Map<String, ClassifierLossFunction> lossFunctionMap = Maps.newHashMap();
         lossFunctionMap.put("RMSE", new ClassifierRMSELossFunction());
 
-        AttribributeImportanceFinder2 importanceFinder = new AttribributeImportanceFinder2(new TreeBuilder(), outOfTimeData, .2, 10, attributesToKeep(), lossFunctionMap, "RMSE");
+        RandomForestBuilder randomForestBuilder = new RandomForestBuilder().numTrees(5);
+        AttribributeImportanceFinder2 importanceFinder = new AttribributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctionMap, "RMSE");
         List<AttributeLossTracker> attributeLossTrackers = importanceFinder.determineAttributeImportance();
 
         System.out.println(attributeLossTrackers);

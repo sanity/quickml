@@ -108,8 +108,8 @@ public class OutOfTimeCrossValidator<R, L, P> extends CrossValidator<R, L, P> {
 //        //list of attributes are provided
 //        //initialize the loss functions for each attribute
 //        PMB predictiveModelBuilder = predictiveModelBuilderFactory.buildBuilder(config);
-//        Map<String, MultiLossFunctionWithModelConfigurations<L,P>> attributeToLossMap = Maps.newHashMap();
 //
+//        Map<String, MultiLossFunctionWithModelConfigurations<L,P>> attributeToLossMap = Maps.newHashMap();
 //        for (String attribute : attributes) {
 //            attributeToLossMap.put(attribute, new MultiLossFunctionWithModelConfigurations<>(lossFunctions, primaryLossFunction));
 //        }
