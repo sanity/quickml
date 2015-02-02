@@ -43,6 +43,11 @@ public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> 
     }
 
     @Override
+    public List<T> getAllData() {
+        return allData;
+    }
+
+    @Override
     public void nextCycle() {
         if (hasMore()) {
             trainingSet.addAll(validationSet);

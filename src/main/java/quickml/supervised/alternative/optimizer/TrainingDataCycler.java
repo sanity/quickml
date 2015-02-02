@@ -12,6 +12,8 @@ public interface TrainingDataCycler<T extends Instance> {
 
     List<T> getValidationSet();
 
+    List<T> getAllData();
+
     void nextCycle();
 
     boolean hasMore();

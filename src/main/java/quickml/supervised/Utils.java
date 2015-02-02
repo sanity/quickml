@@ -2,6 +2,7 @@ package quickml.supervised;
 
 import com.google.common.collect.Lists;
 import quickml.data.Instance;
+import quickml.data.PredictionMap;
 import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
 import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
@@ -49,6 +50,15 @@ public class Utils {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
         for (ClassifierInstance instance : validationSet) {
             results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
+        }
+        return new PredictionMapResults(results);
+    }
+
+    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<ClassifierInstance> validationSet, Set<String> attributesToIgnore) {
+        ArrayList<PredictionMapResult> results = new ArrayList<>();
+        for (ClassifierInstance instance : validationSet) {
+            PredictionMap prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);
+            results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
     }

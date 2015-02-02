@@ -14,6 +14,10 @@ public class ClassifierInstance implements Instance<Map<String, Serializable>, S
     private double weight;
     private DateTime timestamp;
 
+    private ClassifierInstance() {
+
+    }
+
     public ClassifierInstance(AttributesMap attributes, Serializable label) {
         this(attributes, label, 1.0);
     }
@@ -42,6 +46,9 @@ public class ClassifierInstance implements Instance<Map<String, Serializable>, S
 
     @Override
     public DateTime getTimestamp() {
+        if (timestamp == null) {
+            setTimeStamp();
+        }
         return timestamp;
     }
 
@@ -56,6 +63,6 @@ public class ClassifierInstance implements Instance<Map<String, Serializable>, S
     }
 
     private int attrVal(String attrName) {
-        return attributes.containsKey(attrName) ? ((Double) attributes.get(attrName)).intValue() : 1 ;
+        return attributes.containsKey(attrName) ? ((Number) attributes.get(attrName)).intValue() : 1 ;
     }
 }

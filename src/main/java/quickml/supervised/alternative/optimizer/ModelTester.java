@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.Utils;
 import quickml.supervised.alternative.crossValidationLoss.LossChecker;
 
 import java.util.List;
@@ -19,17 +18,17 @@ public class ModelTester<PM extends PredictiveModel, T extends Instance> {
 
 
     private LossChecker<PM, T> lossChecker;
-    private TrainingDataCycler<T> trainingData;
+    private TrainingDataCycler<T> dataCycler;
     private final PredictiveModelBuilder<PM, T> modelBuilder;
 
-    public ModelTester(PredictiveModelBuilder<PM, T> modelBuilder, LossChecker<PM, T> lossChecker, TrainingDataCycler<T> trainingData) {
+    public ModelTester(PredictiveModelBuilder<PM, T> modelBuilder, LossChecker<PM, T> lossChecker, TrainingDataCycler<T> dataCycler) {
         this.lossChecker = lossChecker;
-        this.trainingData = trainingData;
+        this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
     }
 
     public double getLossForModel(Map<String, Object> config) {
-        trainingData.reset();
+        dataCycler.reset();
         modelBuilder.updateBuilderConfig(config);
         double loss = testModel();
         logger.info("Loss {} for config {}", loss, config.toString());
@@ -44,13 +43,13 @@ public class ModelTester<PM extends PredictiveModel, T extends Instance> {
         double runningWeightOfValidationSet = 0;
 
         do {
-            List<T> validationSet = trainingData.getValidationSet();
+            List<T> validationSet = dataCycler.getValidationSet();
             double validationSetWeight = getInstanceWeights(validationSet);
-            PM predictiveModel = modelBuilder.buildPredictiveModel(trainingData.getTrainingSet());
+            PM predictiveModel = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
             runningLoss += lossChecker.calculateLoss(predictiveModel, validationSet) * validationSetWeight;
             runningWeightOfValidationSet += validationSetWeight;
-            trainingData.nextCycle();
-        } while (trainingData.hasMore());
+            dataCycler.nextCycle();
+        } while (dataCycler.hasMore());
 
         return runningLoss / runningWeightOfValidationSet;
     }

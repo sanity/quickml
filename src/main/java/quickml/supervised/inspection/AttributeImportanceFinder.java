@@ -59,15 +59,14 @@ public class AttributeImportanceFinder {
 //        double bestPrimaryLossSeenSoFar = Double.MAX_VALUE;
 //        List<Pair<String, MultiLossFunctionWithModelConfigurations<Serializable, PredictionMap>>> attributesWithLosses = Lists.newArrayList();
 //        boolean startedTrackingBestAttributes = false;
+//
+//
 //        for (int i = 0; i < iterations; i++) {
 //            CrossValidator<AttributesMap, Serializable, PredictionMap> crossValidator = crossValidatorBuilder.createCrossValidator();
-//         /*   crossValLossFunctionMap = Maps.newHashMap();
-//            crossValLossFunctionMap.put("log", new ClassifierLogCVLossFunction(.000001));
-//            crossValLossFunctionMap.put("AUC", new WeightedAUCCrossValLossFunction(1.0));
-//            crossValLossFunctionMap.put("logLossCorrectedForDownSampling", new LossFunctionCorrectedForDownsampling(new ClassifierLogCVLossFunction(0.000001), 0.99, Double.valueOf(0.0)));
-//*/
-////            attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
+//
+//            attributesWithLosses = crossValidator.getAttributeImportances(predictiveModelBuilderFactory, config, trainingData, primaryLossFunction, attributes, crossValLossFunctionMap);
 //            double currentPrimaryLoss = getModelLoss(attributesWithLosses).get(primaryLossFunction);
+//
 //            if (attributesWithLosses.size() <= maxAttributesInOptimalSet && !startedTrackingBestAttributes) {
 //                startedTrackingBestAttributes = true;
 //                bestPrimaryLossSeenSoFar = currentPrimaryLoss;
@@ -76,10 +75,7 @@ public class AttributeImportanceFinder {
 //            updateBestNAttributesWithLosseIfNeccessary(attributesWithLosses);
 //            logger.info("model losses: " + getModelLoss(attributesWithLosses).toString() + ", at iteration: " + i + "out of iterations: " + iterations);
 //
-//      /*      for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
-//                logger.info("attribute: " + pair.getValue0() + ".  losses: " + pair.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
-//            }
-//      */      trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
+//            trainingData = updateAttributesUsedInTrainingAndBestAttributes(trainingData, attributesWithLosses, attributes, percentageOfFeaturesToRemovePerIteration);
 //        }
 //        overallBestAttributesWithLosses.remove(noAttributesRemoved);
 //
@@ -137,7 +133,7 @@ public class AttributeImportanceFinder {
     }
 
     private List<Instance<AttributesMap, Serializable>> updateAttributesUsedInTrainingAndBestAttributes(final Iterable<? extends Instance<AttributesMap, Serializable>> trainingData, List<Pair<String, MultiLossFunctionWithModelConfigurations<Serializable, PredictionMap>>> attributesWithLosses,
-                                                                                          Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
+                                                                                                        Set<String> allAttributes, double percentageOfAttributesToRemoveAtEachIteration) {
         int numberOfAttributesToRemove = (int) (percentageOfAttributesToRemoveAtEachIteration * allAttributes.size());
         Set<String> attributesToRemove = Sets.newHashSet();
         for (int i = attributesWithLosses.size() - 1; i >= Math.max(0, attributesWithLosses.size() - 1 - numberOfAttributesToRemove); i--) {
