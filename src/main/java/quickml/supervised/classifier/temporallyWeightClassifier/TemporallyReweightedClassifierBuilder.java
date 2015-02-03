@@ -72,8 +72,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             double hoursBack = Hours.hoursBetween(mostRecentInstance, instance.getTimestamp()).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
-            //TODO[mk] Reweight needs to be moved / removed
-//            trainingDataList.add(instance.reweight(newWeight));
+            trainingDataList.add(new ClassifierInstance(instance.getAttributes(), instance.getLabel(), newWeight));
         }
         return trainingDataList;
     }

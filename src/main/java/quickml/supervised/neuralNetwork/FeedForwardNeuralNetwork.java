@@ -44,7 +44,7 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
             List<Neuron> upperLayer = layers.get(layerNo+1);
             for (Neuron lower : lowerLayer) {
                 for (Neuron upper : upperLayer) {
-                    Synapse.CONNECT(lower, upper).updateWeight(random.nextDouble()*0.1);
+                    Synapse.CONNECT(lower, upper).updateWeight(random.nextDouble()*0.1+0.01);
                 }
             }
         }
