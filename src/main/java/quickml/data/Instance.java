@@ -1,6 +1,8 @@
 package quickml.data;
 
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 
 /**
@@ -10,12 +12,12 @@ import java.io.Serializable;
  * Time: 1:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Instance<INPUT, OUTPUT> {
-    public abstract INPUT getAttributes();
+public interface Instance<R, L> {
 
-    public abstract OUTPUT getOutput();
+    public R getAttributes(); // TODO rename to getInput
 
-    public abstract double getWeight();
+    public L getLabel(); // TODO rename to getOuput
 
-    public abstract Instance<INPUT, OUTPUT>reweight(double newWeight);
+    public double getWeight();
+
 }

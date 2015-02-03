@@ -6,16 +6,16 @@ import java.io.Serializable;
 /**
  * Created by alexanderhawk on 7/30/14.
  */
-public class LabelPredictionWeight<P> {
+public class LabelPredictionWeight<L, P> {
     double weight;
-    Serializable label;
+    L label;
     P prediction;
 
     public double getWeight() {
         return weight;
     }
 
-    public Serializable getLabel() {
+    public L getLabel() {
         return label;
     }
 
@@ -23,7 +23,7 @@ public class LabelPredictionWeight<P> {
         return prediction;
     }
 
-    public LabelPredictionWeight(Serializable label, P prediction, double weight) {
+    public LabelPredictionWeight(L label, P prediction, double weight) {
         this.label = label;
         this.prediction = prediction;
         this.weight = weight;

@@ -21,7 +21,7 @@ public class CategoricalDistributionSamplerTest {
     private static final Logger logger = LoggerFactory.getLogger(CategoricalDistributionSamplerTest.class);
     @Test
     public void testStoresCountsCorrectly() {
-        List<Instance<AttributesMap>> instances = getInstances();
+        List<Instance<AttributesMap, Serializable>> instances = getInstances();
         CategoricalDistributionSampler categoricalDistributionSampler = new CategoricalDistributionSampler(instances, 1.0, "v1");
         Map<Serializable, Long> distribution =  categoricalDistributionSampler.getHistogramOfCountsForValues();
         Assert.assertTrue(distribution.get("cat1").equals(1L));
@@ -30,7 +30,7 @@ public class CategoricalDistributionSamplerTest {
     }
     @Test
     public void samplesDistCorrectly() {
-        List<Instance<AttributesMap>> instances = getInstances();
+        List<Instance<AttributesMap, Serializable>> instances = getInstances();
         //add same instances multiple times since we'll be randomly (nearly randomly) removing instances
         for (int i = 0; i<10; i++) {
             instances.addAll(getInstances());
@@ -67,7 +67,7 @@ public class CategoricalDistributionSamplerTest {
 
     @Test
     public void updatesCorrectly() {
-        List<Instance<AttributesMap>> instances = getInstances();
+        List<Instance<AttributesMap, Serializable>> instances = getInstances();
         CategoricalDistributionSampler categoricalDistributionSampler = new CategoricalDistributionSampler(instances, 1.0, "v1");
         categoricalDistributionSampler.updateDistributionSampler(getNewInstances(), 1.0, "v1");
         Map<Serializable, Long> actualHistogram =  categoricalDistributionSampler.getHistogramOfCountsForValues();
@@ -100,60 +100,60 @@ public class CategoricalDistributionSamplerTest {
     }
 
 
-    private List<Instance<AttributesMap>> getInstances(){
-        List<Instance<AttributesMap>> instances = Lists.newArrayList();
+    private List<Instance<AttributesMap, Serializable>> getInstances(){
+        List<Instance<AttributesMap, Serializable>> instances = Lists.newArrayList();
         //instance 1
         AttributesMap attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat1");
-        Instance<AttributesMap> instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        Instance<AttributesMap, Serializable> instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 2
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat2");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 3
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat2");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 4
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat2");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         return instances;
 
     }
 
-    private List<Instance<AttributesMap>> getNewInstances(){
-        List<Instance<AttributesMap>> instances = Lists.newArrayList();
+    private List<Instance<AttributesMap, Serializable>> getNewInstances(){
+        List<Instance<AttributesMap, Serializable>> instances = Lists.newArrayList();
         //instance 1
         AttributesMap attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat2");
-        Instance<AttributesMap> instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        Instance<AttributesMap, Serializable> instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 2
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat1");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 3
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat1");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         //instance 4
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("v1", "cat1");
-        instance = new InstanceImpl<AttributesMap>(attributesMap,1.0);
+        instance = new InstanceImpl<AttributesMap, Serializable>(attributesMap,1.0);
         instances.add(instance);
 
         return instances;

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 8/22/14.
  */
-public class InstanceWithAttributesMap extends InstanceImpl<AttributesMap> {
+public class InstanceWithAttributesMap extends InstanceImpl<AttributesMap, Serializable> {
     public InstanceWithAttributesMap(final AttributesMap attributes, final Serializable label) {
         super(attributes, label, DEFAULT_WEIGHT);
     }

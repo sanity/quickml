@@ -1,12 +1,15 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import quickml.data.PredictionMap;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.data.Instance;
+import quickml.data.PredictionMap;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.supervised.classifier.Classifier;
+import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,27 +17,52 @@ import java.util.Set;
  * Created by alexanderhawk on 7/31/14.
  */
 public class Utils {
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeights(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel) {
-        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        for (Instance<R> instance : instances) {
-            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    predictiveModel.predict(instance.getAttributes()), instance.getWeight());
+    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance> instances, PredictiveModel<R, P> predictiveModel) {
+        List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
+        for (Instance<R, L> instance : instances) {
+            LabelPredictionWeight<L, P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
     }
 
-    public static <R, P> List<LabelPredictionWeight<P>> createLabelPredictionWeightsWithoutAttributes(List<? extends Instance<R>> instances, PredictiveModel<R, P> predictiveModel, Set<String> attributesToIgnore) {
-        List<LabelPredictionWeight<P>> labelPredictionWeights = Lists.newArrayList();
-        for (Instance<R> instance : instances) {
-            LabelPredictionWeight<P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
-                    predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore),  instance.getWeight());
+    public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeightsWithoutAttributes(List<? extends Instance<R, L>> instances, PredictiveModel<R, P> predictiveModel, Set<String> attributesToIgnore) {
+        List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
+        for (Instance<R, L> instance : instances) {
+            LabelPredictionWeight<L, P> labelPredictionWeight = new LabelPredictionWeight<>(instance.getLabel(),
+                    predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore), instance.getWeight());
             labelPredictionWeights.add(labelPredictionWeight);
         }
         return labelPredictionWeights;
     }
+
+
+    public static double getInstanceWeights(List<? extends Instance> instances) {
+        double weight = 0;
+        for (Instance instance : instances) {
+            weight += instance.getWeight();
+        }
+        return weight;
+    }
+
+    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<ClassifierInstance> validationSet) {
+        ArrayList<PredictionMapResult> results = new ArrayList<>();
+        for (ClassifierInstance instance : validationSet) {
+            results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
+        }
+        return new PredictionMapResults(results);
+    }
+
+    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<ClassifierInstance> validationSet, Set<String> attributesToIgnore) {
+        ArrayList<PredictionMapResult> results = new ArrayList<>();
+        for (ClassifierInstance instance : validationSet) {
+            PredictionMap prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);
+            results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
+        }
+        return new PredictionMapResults(results);
+    }
+
 
 }
 

@@ -58,22 +58,22 @@ public class CSVToInstanceReader {
         this.numericSelector = numericSelector;
     }
 
-    public ArrayList<Instance<AttributesMap>> readCsv(String fileName) throws Exception {
+    public ArrayList<Instance<AttributesMap, Serializable>> readCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
         return getInstancesFromReader(reader);
     }
 
-    public ArrayList<Instance<AttributesMap>> readCsvFromReader(Reader reader) throws Exception {
+    public ArrayList<Instance<AttributesMap, Serializable>> readCsvFromReader(Reader reader) throws Exception {
 
         CSVReader csvReader = new CSVReader(reader, delimiter, '"');
         return getInstancesFromReader(csvReader);
     }
 
-    private ArrayList<Instance<AttributesMap>> getInstancesFromReader(CSVReader reader) throws IOException {
+    private ArrayList<Instance<AttributesMap, Serializable>> getInstancesFromReader(CSVReader reader) throws IOException {
         List<String[]> csvLines = reader.readAll();
 
-        ArrayList<Instance<AttributesMap>> instances = Lists.newArrayList();
+        ArrayList<Instance<AttributesMap, Serializable>> instances = Lists.newArrayList();
         try {
             header = new ArrayList<String>();
             Collections.addAll(header, csvLines.get(0));
@@ -86,7 +86,7 @@ public class CSVToInstanceReader {
         return instances;
     }
 
-    private Instance<AttributesMap> instanceConverter(String[] instanceArray) {
+    private InstanceImpl instanceConverter(String[] instanceArray) {
 
         AttributesMap attributesMap = AttributesMap.newHashMap();
         Serializable label = null;
@@ -120,13 +120,13 @@ public class CSVToInstanceReader {
             containsUnLabeledInstances = true;
         }
 
-        return new InstanceImpl<AttributesMap>(attributesMap, label, weight);
+        return new InstanceImpl<>(attributesMap, label, weight);
     }
 
     private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
         boolean categoricalOrNumericSelectorProvided = categoricalSelector.isPresent() || numericSelector.isPresent();
         if (!categoricalOrNumericSelectorProvided) {
-                return tryToConvertToNumeric(varValue);
+            return tryToConvertToNumeric(varValue);
         } else {
             //note: quoted values will be treated as categorical unless a selector indicates otherwise
             if (categoricalSelector.isPresent() && categoricalSelector.get().isCategorical(varName)) {
@@ -145,8 +145,8 @@ public class CSVToInstanceReader {
 
 
     private Serializable tryToConvertToNumeric(String varValue) {
-        if ((varValue.startsWith("\"") && varValue.endsWith("\""))  || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
-            varValue = varValue.substring(1, varValue.length() -1);
+        if ((varValue.startsWith("\"") && varValue.endsWith("\"")) || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
+            varValue = varValue.substring(1, varValue.length() - 1);
         }
         try {
             return Long.valueOf(varValue);
@@ -167,13 +167,12 @@ public class CSVToInstanceReader {
         CSVToInstanceReaderBuilder csvReaderBuilder = new CSVToInstanceReaderBuilder().collumnNameForLabel("campaignId").categoricalSelector(new ExplicitCategoricalSelector(catVariables));
         CSVToInstanceReader csvReader = csvReaderBuilder.buildCsvReader();
         try {
-            List<Instance<AttributesMap>> instances = csvReader.readCsv("test3");
-            for (Instance<AttributesMap> instance : instances)
+            List<Instance<AttributesMap, Serializable>> instances = csvReader.readCsv("test3");
+            for (Instance<AttributesMap, Serializable> instance : instances)
                 System.out.println("label: " + instance.getLabel() + "attributes: " + instance.getAttributes().toString());
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException();
         }
-      }
+    }
 }

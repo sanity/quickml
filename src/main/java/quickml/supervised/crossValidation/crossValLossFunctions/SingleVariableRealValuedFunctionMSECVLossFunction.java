@@ -2,19 +2,20 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 
 import quickml.data.PredictionMap;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by alexanderhawk on 8/29/14.
  */
-public class SingleVariableRealValuedFunctionMSECVLossFunction implements CrossValLossFunction<Double> { // <CP extends ClassifierPrediction> implements CrossValLossFunction<CP> {
+public class SingleVariableRealValuedFunctionMSECVLossFunction implements CrossValLossFunction<Serializable, Double> {
     protected double totalLoss = 0;
     double weightOfAllInstances = 0;
 
-    public double getLoss(List<LabelPredictionWeight<Double>> labelPredictionWeights) {
+    public double getLoss(List<LabelPredictionWeight<Serializable, Double>> labelPredictionWeights) {
         totalLoss = 0;
         weightOfAllInstances = 0;
-        for (LabelPredictionWeight<Double> labelPredictionWeight : labelPredictionWeights) {
+        for (LabelPredictionWeight<Serializable, Double> labelPredictionWeight : labelPredictionWeights) {
             double prediction = labelPredictionWeight.getPrediction();
             double trueValue = (Double) labelPredictionWeight.getLabel();
             totalLoss += (prediction - trueValue) * (prediction - trueValue) * labelPredictionWeight.getWeight();

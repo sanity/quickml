@@ -7,8 +7,8 @@ import com.google.common.base.Preconditions;
  */
 public class ClassifierLogCVLossFunction extends OnlineClassifierCVLossFunction {
     private static final double DEFAULT_MIN_PROBABILITY = 10E-7;
-    public  double minProbability;
-    public  double maxError;
+    public double minProbability;
+    public double maxError;
 
     public ClassifierLogCVLossFunction() {
         this(DEFAULT_MIN_PROBABILITY);
@@ -24,13 +24,11 @@ public class ClassifierLogCVLossFunction extends OnlineClassifierCVLossFunction 
         Preconditions.checkArgument(!Double.isNaN(probabilityOfCorrectInstance), "Probability must be a natural number, not NaN");
         Preconditions.checkArgument(!Double.isInfinite(probabilityOfCorrectInstance), "Probability must be a natural number, not infinite");
 
-        final double error =  (probabilityOfCorrectInstance > minProbability) ? -weight*Math.log(probabilityOfCorrectInstance) : weight*maxError;
-        return error;
-
+        return (probabilityOfCorrectInstance > minProbability) ? -weight * Math.log(probabilityOfCorrectInstance) : weight * maxError;
     }
 
     @Override
     public String toString() {
-        return "total LogLoss: "+ super.totalLoss;
+        return "total LogLoss: " + super.totalLoss;
     }
 }

@@ -1,17 +1,18 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.beust.jcommander.internal.Lists;
-import junit.framework.Assert;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
-import quickml.data.*;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.data.AttributesMap;
+import quickml.data.Instance;
+import quickml.data.PredictionMap;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.PredictiveModelWithDataBuilder;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
@@ -26,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -34,13 +38,13 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        final UpdatablePredictiveModelBuilder<AttributesMap, Classifier> updatablePredictiveModelBuilder = Mockito.mock(UpdatablePredictiveModelBuilder.class);
-        when(updatablePredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
+        PredictiveModelBuilder mockPredictiveModelBuilder = mock(PredictiveModelBuilder.class);
+        when(mockPredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Iterable<Instance<AttributesMap>> instances = (Iterable<Instance<AttributesMap>>) invocationOnMock.getArguments()[0];
+                Iterable<Instance<AttributesMap, Serializable>> instances = (Iterable<Instance<AttributesMap, Serializable>>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
-                for (Instance<AttributesMap> instance : instances) {
+                for (Instance<AttributesMap, Serializable> instance : instances) {
                     total++;
                     if (instance.getLabel().equals(true)) {
                         sum++;
@@ -50,17 +54,17 @@ public class DownsamplingClassifierBuilderTest {
                 return dumbPM;
             }
         });
-        DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(updatablePredictiveModelBuilder, 0.2);
-        List<Instance<AttributesMap>> data = Lists.newArrayList();
+        DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(mockPredictiveModelBuilder, 0.2);
+        List<ClassifierInstance> data = Lists.newArrayList();
         for (int x = 0; x < 10000; x++) {
-            data.add(new InstanceImpl(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
+            data.add(new ClassifierInstance(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
         AttributesMap map = AttributesMap.newHashMap();
         map.put("true", Boolean.TRUE);
         final double correctedMinorityInstanceOccurance = predictiveModel.getProbability(map, Boolean.TRUE);
         double error = Math.abs(0.05 - correctedMinorityInstanceOccurance);
-        Assert.assertTrue(String.format("Error should be < 0.1 but was %s (prob=%s, desired=0.05)", error, correctedMinorityInstanceOccurance), error < 0.01);
+        assertTrue(String.format("Error should be < 0.1 but was %s (prob=%s, desired=0.05)", error, correctedMinorityInstanceOccurance), error < 0.01);
     }
 
     @Test
@@ -69,10 +73,9 @@ public class DownsamplingClassifierBuilderTest {
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final PredictiveModelWithDataBuilder<AttributesMap, DownsamplingClassifier> wb = new PredictiveModelWithDataBuilder<>(dpmb);
+        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final long startTime = System.currentTimeMillis();
-        final DownsamplingClassifier downsamplingClassifier = wb.buildPredictiveModel(instances);
+        final DownsamplingClassifier downsamplingClassifier = dpmb.buildPredictiveModel(instances);
 
         TreeBuilderTestUtils.serializeDeserialize(downsamplingClassifier);
 
@@ -82,13 +85,6 @@ public class DownsamplingClassifierBuilderTest {
         final int firstTreeNodeSize = trees.get(0).node.size();
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
-
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getIntegerInstances(1000);
-        final DownsamplingClassifier downsamplingClassifier1 = wb.buildPredictiveModel(newInstances);
-        final RandomForest newRandomForest = (RandomForest) downsamplingClassifier1.wrappedClassifier;
-        org.testng.Assert.assertTrue(downsamplingClassifier == downsamplingClassifier1, "Expect same tree to be updated");
-        org.testng.Assert.assertEquals(treeSize, newRandomForest.trees.size(), "Expected same number of trees");
-        org.testng.Assert.assertEquals(firstTreeNodeSize, newRandomForest.trees.get(0).node.size(), "Expected same nodes");
     }
 
     private static class SamePredictionPredictiveModel extends AbstractClassifier {

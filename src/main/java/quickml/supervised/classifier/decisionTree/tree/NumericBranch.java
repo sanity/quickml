@@ -21,7 +21,7 @@ public final class NumericBranch extends Branch {
 	}
 
 	@Override
-	public boolean decide(final AttributesMap attributes) {
+	public boolean decide(final Map<String, Serializable> attributes) {
         Serializable value = attributes.get(attribute);
         if (value == null) value = Double.valueOf(0);
         else if (!(value instanceof Number)) {

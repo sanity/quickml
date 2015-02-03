@@ -2,12 +2,13 @@ package quickml.supervised.crossValidation;
 
 import quickml.supervised.crossValidation.crossValLossFunctions.CrossValLossFunction;
 
-public class StationaryCrossValidatorBuilder<R, P>  implements  CrossValidatorBuilder<R, P>{
-    private CrossValLossFunction<P> lossFunction;
+//TODO[mk] fix this
+public class StationaryCrossValidatorBuilder<R,L, P>  implements  CrossValidatorBuilder<R, L, P>{
+    private CrossValLossFunction<L, P> lossFunction;
     private int folds = StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS;
     private int foldsUsed =  StationaryCrossValidator.DEFAULT_NUMBER_OF_FOLDS;
 
-    public StationaryCrossValidatorBuilder setLossFunction(CrossValLossFunction<P> lossFunction) {
+    public StationaryCrossValidatorBuilder setLossFunction(CrossValLossFunction<L, P> lossFunction) {
         this.lossFunction = lossFunction;
         return this;
     }
@@ -22,7 +23,8 @@ public class StationaryCrossValidatorBuilder<R, P>  implements  CrossValidatorBu
         return this;
     }
 
-    public CrossValidator<R, P> createCrossValidator() {
-        return new StationaryCrossValidator(folds, foldsUsed, lossFunction);
+    public CrossValidator<R,L, P> createCrossValidator() {
+//        return new StationaryCrossValidator(folds, foldsUsed, lossFunction);
+        return null;
     }
 }

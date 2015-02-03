@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 10/15/14.
  */
-public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLossFunction<P>{
+public class MultiLossFunctionWithModelConfigurations<L, P> implements CrossValLossFunction<L,P>{
    private static final Logger logger = LoggerFactory.getLogger(MultiLossFunctionWithModelConfigurations.class);
     /*
     This class stores a map of loss functions to LossForModelConfigurations (which stores a model's calculated loss and the model's configuration parameters).   */
@@ -27,12 +27,12 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
     private String primaryLossFunctionName;
     private double runningWeight;
     private Map<String, Double> runningLosses = Maps.newHashMap();
-    private Map<String, CrossValLossFunction<P>> lossFunctions;
+    private Map<String, CrossValLossFunction<L,P>> lossFunctions;
     private boolean normalizedAverages = false;
     public boolean scrambleAttributes = false;
 
 
-    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName) {
+    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<L,P>> lossFunctions, String primaryLossFunctionName) {
         this.lossFunctions = lossFunctions;
         this.primaryLossFunctionName = primaryLossFunctionName;
         for (String lossFunctionName : lossFunctions.keySet()) {
@@ -41,14 +41,14 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
         }
     }
 
-    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations, boolean scrambleAttributes) {
+    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<L,P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations, boolean scrambleAttributes) {
 
         this(lossFunctions, primaryLossFunctionName);
         this.lossesWithModelConfigurations = lossesWithModelConfigurations;
         this.scrambleAttributes = scrambleAttributes;
     }
 
-    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations) {
+    public MultiLossFunctionWithModelConfigurations(Map<String, CrossValLossFunction<L,P>> lossFunctions, String primaryLossFunctionName, Map<String, LossWithModelConfiguration> lossesWithModelConfigurations) {
         this(lossFunctions,primaryLossFunctionName);
         this.lossesWithModelConfigurations = lossesWithModelConfigurations;
     }
@@ -57,8 +57,8 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
         return runningWeight;
     }
 
-    public double getLoss(List<LabelPredictionWeight<P>> labelPredictionWeights) {
-        CrossValLossFunction<P> primaryLossFunction = lossFunctions.get(primaryLossFunctionName);
+    public double getLoss(List<LabelPredictionWeight<L,P>> labelPredictionWeights) {
+        CrossValLossFunction<L,P> primaryLossFunction = lossFunctions.get(primaryLossFunctionName);
         return primaryLossFunction.getLoss(labelPredictionWeights);
     }
 
@@ -69,7 +69,7 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
       return lossMap;
    }
 
-   public MultiLossFunctionWithModelConfigurations<P> mergeByBestLosses(MultiLossFunctionWithModelConfigurations<P> other) {
+   public MultiLossFunctionWithModelConfigurations<L,P> mergeByBestLosses(MultiLossFunctionWithModelConfigurations<L,P> other) {
        Map<String, LossWithModelConfiguration> mergedLossesWithModelConfigurations = Maps.newHashMap();
        Map<String, LossWithModelConfiguration> lossesWithModelConfigurationsOther = other.getLossesWithModelConfigurations();
        for (String lossFunctionName : lossesWithModelConfigurations.keySet()) {
@@ -89,21 +89,21 @@ public class MultiLossFunctionWithModelConfigurations<P> implements CrossValLoss
                mergedLossesWithModelConfigurations.put(lossFunctionName, lossesWithModelConfigurations.get(lossFunctionName));
            }
        }
-       return new MultiLossFunctionWithModelConfigurations<P>(lossFunctions, primaryLossFunctionName, mergedLossesWithModelConfigurations);
+       return new MultiLossFunctionWithModelConfigurations<>(lossFunctions, primaryLossFunctionName, mergedLossesWithModelConfigurations);
    }
 
-    public void updateRunningLosses(List<LabelPredictionWeight<P>> labelPredictionWeights){
+    public void updateRunningLosses(List<LabelPredictionWeight<L, P>> labelPredictionWeights){
         if (normalizedAverages) {
             throw new RuntimeException("should not be updating after the running average has been normalized");
         }
         double weightOfNewValidationSet = 0;
-        for (LabelPredictionWeight<P> labelPredictionWeight : labelPredictionWeights)  {
+        for (LabelPredictionWeight<L,P> labelPredictionWeight : labelPredictionWeights)  {
             weightOfNewValidationSet+=labelPredictionWeight.getWeight();
         }
         this.runningWeight += weightOfNewValidationSet; //make sure to 0 this at start of a new cross validation
         for (String lossFunctionName :lossFunctions.keySet()) {
             double previousWeightedLoss = runningLosses.get(lossFunctionName);
-            CrossValLossFunction<P> lossFunction = lossFunctions.get(lossFunctionName);
+            CrossValLossFunction<L,P> lossFunction = lossFunctions.get(lossFunctionName);
             double weightedLossFromValidationRun = lossFunction.getLoss(labelPredictionWeights) * weightOfNewValidationSet;
             runningLosses.put(lossFunctionName, weightedLossFromValidationRun + previousWeightedLoss);
         }

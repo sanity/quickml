@@ -7,6 +7,6 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/10/14.
  */
-public interface LabelConverter<R> {
-    List<Instance<R>> convertLabels(List<Instance<R>> initialInstances);
+public interface LabelConverter<R, L> {
+    List<Instance<R, L>> convertLabels(List<Instance<R, L>> initialInstances);
 }

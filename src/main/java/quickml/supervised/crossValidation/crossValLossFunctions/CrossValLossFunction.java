@@ -7,6 +7,6 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/24/14.
  */
-public interface CrossValLossFunction<P>  {
-    double getLoss(List<LabelPredictionWeight<P>> labelPredictionWeights);
+public interface CrossValLossFunction<L, P>  {
+    double getLoss(List<LabelPredictionWeight<L, P>> labelPredictionWeights);
 }

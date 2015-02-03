@@ -8,7 +8,7 @@ import java.util.Comparator;
 /**
  * Created by alexanderhawk on 11/24/14.
  */
-public class AttributeWithLossComparator<P> implements Comparator<Pair<String, MultiLossFunctionWithModelConfigurations<P>>> {
+public class AttributeWithLossComparator<L,P> implements Comparator<Pair<String, MultiLossFunctionWithModelConfigurations<L,P>>> {
     public final String primaryLossFunction;
 
     public AttributeWithLossComparator(final String primaryLossFunction) {
@@ -16,7 +16,7 @@ public class AttributeWithLossComparator<P> implements Comparator<Pair<String, M
     }
 
     @Override
-    public int compare(Pair<String, MultiLossFunctionWithModelConfigurations<P>> o1, Pair<String, MultiLossFunctionWithModelConfigurations<P>> o2) {
+    public int compare(Pair<String, MultiLossFunctionWithModelConfigurations<L,P>> o1, Pair<String, MultiLossFunctionWithModelConfigurations<L,P>> o2) {
         return -Double.compare(o1.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss(),
                 o2.getValue1().getLossesWithModelConfigurations().get(primaryLossFunction).getLoss());
     }

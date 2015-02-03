@@ -1,32 +1,28 @@
 package quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 
-import java.util.Map;
+import java.util.List;
 
-/**
- * Created by ian on 4/12/14.
- */
+//TODO[mk] maybe just replace with a list or array?
 public class FixedOrderRecommender implements FieldValueRecommender {
-    private final Iterable<Object> values;
+    private final List<Object> values;
 
-    public FixedOrderRecommender(Object ... values) {
-        this(Lists.newArrayList(values));
-    }
-
-    public FixedOrderRecommender(Iterable<Object> values) {
-        this.values = values;
+    public FixedOrderRecommender(Object... values) {
+        if (values.length <= 0)
+            throw new RuntimeException("Must include at least one value");
+        this.values = Lists.newArrayList(values);
     }
 
     @Override
-    public Optional<Object> recommendNextValue(final Map<Object, Double> valuesPreviouslyAttemptedWithLoss) {
-        for (Object value : values) {
-            if (!valuesPreviouslyAttemptedWithLoss.containsKey(value)) {
-                return Optional.of(value);
-            }
-        }
-        return Optional.absent();
+    public List<Object> getValues() {
+        return values;
     }
+
+    @Override
+    public Object first() {
+        return values.get(0);
+    }
+
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 /**
 * Created by ian on 2/28/14.
 */
-public class AttributesHashSplitter implements Predicate<Instance<AttributesMap>> {
+public class AttributesHashSplitter implements Predicate<Instance<AttributesMap, Serializable>> {
 
     private static final HashFunction hashFunction = Hashing.murmur3_32();
 
@@ -23,7 +23,7 @@ public class AttributesHashSplitter implements Predicate<Instance<AttributesMap>
     }
 
     @Override
-    public boolean apply(final Instance<AttributesMap> instance) {
+    public boolean apply(final Instance<AttributesMap, Serializable> instance) {
         int hc = hashFunction.hashInt(instance.getAttributes().hashCode()).asInt();
         return Math.abs(hc) % every == 0;
     }

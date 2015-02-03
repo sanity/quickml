@@ -6,6 +6,7 @@ import quickml.data.*;
 
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -20,9 +21,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
 
     @Test
     public void simpleTest() {
-        TestAEBS testFEPMB = new TestAEBS();
-        List<Instance<AttributesMap>> trainingData = Lists.newArrayList();
-        trainingData.add(new InstanceImpl(AttributesMap.newHashMap(), 1));
+        List<ClassifierInstance> trainingData = Lists.newArrayList();
+        trainingData.add(new ClassifierInstance(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
@@ -32,12 +32,12 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+        public AttributesEnricher build(final Iterable<ClassifierInstance> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
                 public AttributesMap apply(@Nullable final AttributesMap attributes) {
-                    AttributesMap er = AttributesMap.newHashMap() ;
+                    AttributesMap er = AttributesMap.newHashMap();
                     er.putAll(attributes);
                     er.put("enriched", 1);
                     return er;
@@ -46,57 +46,47 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         }
     }
 
-    public static class TestPMBuilder implements PredictiveModelBuilder<AttributesMap, TestPM> {
-
+    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, ClassifierInstance> {
         @Override
-        public TestPM buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
-            for (Instance<AttributesMap> instance : trainingData) {
+        public TestPM buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
+            for (ClassifierInstance instance : trainingData) {
                 if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
             }
-
             return new TestPM();
         }
 
         @Override
-        public TestPMBuilder updatable(boolean updatable) {
-            return this;
-        }
-
-        @Override
-        public void setID(Serializable id) {
+        public void updateBuilderConfig(Map<String, Object> config) {
 
         }
-
     }
 
 
     public static class TestPM implements PredictiveModel<AttributesMap, PredictionMap> {
+        private static final long serialVersionUID = -3449746370937561259L;
 
-
-            private static final long serialVersionUID = -3449746370937561259L;
-
-            @Override
-            public PredictionMap predict(AttributesMap attributes) {
-                if (!attributes.containsKey("enriched")) {
-                    throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
-                }
-                Map<Serializable, Double> map = new HashMap<>();
-                map.put(valueToTest, 0.0);
-                return new PredictionMap(map);
+        @Override
+        public PredictionMap predict(AttributesMap attributes) {
+            if (!attributes.containsKey("enriched")) {
+                throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
             }
+            Map<Serializable, Double> map = new HashMap<>();
+            map.put(valueToTest, 0.0);
+            return new PredictionMap(map);
+        }
 
         @Override
         public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
             return predict(attributes);
         }
 
-            @Override
-            public void dump(Appendable appendable) {
+        @Override
+        public void dump(Appendable appendable) {
 
-            }
         }
     }
+}
 
 

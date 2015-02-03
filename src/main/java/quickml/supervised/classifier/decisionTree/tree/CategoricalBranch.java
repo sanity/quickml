@@ -20,7 +20,7 @@ public final class CategoricalBranch extends Branch {
 	}
 
     @Override
-    public boolean decide(final AttributesMap attributes) {
+    public boolean decide(final Map<String, Serializable> attributes) {
         Serializable attributeVal = attributes.get(attribute);
         //missing values always go the way of the outset...which strangely seems to be most accurate
         return inSet.contains(attributeVal);
