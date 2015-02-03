@@ -24,13 +24,16 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
     }
 
     private void createLayers(List<Integer> layerSizes) {
+        Random random = new Random();
         int neuronIdCounter = 0;
         layers = new ArrayList<>(layerSizes.size());
         for (int numNodes : layerSizes) {
             ArrayList<Neuron> layer = Lists.newArrayListWithCapacity(numNodes);
             for (int x = 0; x < numNodes; x++) {
                 boolean isInputLayer = layers.isEmpty();
-                layer.add(new Neuron(neuronIdCounter++, isInputLayer));
+                Neuron neuron = new Neuron(neuronIdCounter++, isInputLayer);
+                neuron.setBias(random.nextDouble()*2.0-1.0);
+                layer.add(neuron);
             }
             layers.add(layer);
         }
