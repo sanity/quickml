@@ -106,7 +106,7 @@ public class FeedForwardNeuralNetworkTest {
     }
 
     public int testNetWithTrainingData(FeedForwardNeuralNetwork feedForwardNeuralNetwork, List<SimpleTrainingPair> trainingData) {
-        int trainingCycles = 100000;
+        int trainingCycles = 200000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
                 feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.06);
