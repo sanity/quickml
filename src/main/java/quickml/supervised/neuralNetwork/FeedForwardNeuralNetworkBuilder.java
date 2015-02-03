@@ -1,7 +1,5 @@
 package quickml.supervised.neuralNetwork;
 
-import javafx.scene.paint.Stop;
-import org.apache.mahout.classifier.mlp.NeuralNetwork;
 import quickml.supervised.PredictiveModelBuilder;
 
 import java.util.List;
