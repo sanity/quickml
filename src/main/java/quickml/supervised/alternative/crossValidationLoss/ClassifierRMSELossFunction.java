@@ -8,4 +8,9 @@ public class ClassifierRMSELossFunction implements ClassifierLossFunction {
     public double getLoss(PredictionMapResults results) {
         return rmseLoss(results);
     }
+
+    @Override
+    public String getName() {
+        return "RMSE";
+    }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import quickml.supervised.alternative.crossValidationLoss.ClassifierLossChecker;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;
@@ -21,10 +22,14 @@ public class PredictiveModelOptimizer2Test {
     @Mock
     ModelTester mockModelTester;
 
+    @Mock
+    ClassifierLossChecker mockLossChecker;
+
     private PredictiveModelOptimizer2 modelOptimizer;
     private HashMap<String, Object> bestConfig = Maps.newHashMap();
     private HashMap<String, Object> secondBestConfig = Maps.newHashMap();
     private HashMap<String, Object> thirdBestConfig = Maps.newHashMap();
+
 
     @Before
     public void setUp() throws Exception {

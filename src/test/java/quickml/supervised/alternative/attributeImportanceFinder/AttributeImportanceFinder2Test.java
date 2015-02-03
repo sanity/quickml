@@ -1,6 +1,6 @@
 package quickml.supervised.alternative.attributeImportanceFinder;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Resources;
@@ -21,12 +21,11 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static java.nio.charset.Charset.defaultCharset;
 
-public class AttribributeImportanceFinder2Test {
+public class AttributeImportanceFinder2Test {
 
 
     private List<ClassifierInstance> instances;
@@ -42,11 +41,12 @@ public class AttribributeImportanceFinder2Test {
     public void testAttributeImportanceFinder() throws Exception {
         OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, .2, 5);
 
-        Map<String, ClassifierLossFunction> lossFunctionMap = Maps.newHashMap();
-        lossFunctionMap.put("RMSE", new ClassifierRMSELossFunction());
+
+        List<ClassifierLossFunction> lossFunctions = Lists.newArrayList();
+        lossFunctions.add(new ClassifierRMSELossFunction());
 
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder().numTrees(5);
-        AttribributeImportanceFinder2 importanceFinder = new AttribributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctionMap, "RMSE");
+        AttributeImportanceFinder2 importanceFinder = new AttributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctions, "RMSE");
         List<AttributeLossTracker> attributeLossTrackers = importanceFinder.determineAttributeImportance();
 
         System.out.println(attributeLossTrackers);

@@ -13,6 +13,7 @@ import java.util.*;
  * Created by Chris on 5/5/2014.
  */
 public class WeightedAUCCrossValLossFunction implements ClassifierLossFunction {
+
     private final Serializable positiveClassification;
 
     public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
@@ -29,6 +30,11 @@ public class WeightedAUCCrossValLossFunction implements ClassifierLossFunction {
         ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
 
         return getAUCLoss(aucPoints);
+    }
+
+    @Override
+    public String getName() {
+        return "WEIGHTED_AUC";
     }
 
     private List<AUCData> getAucDataList(PredictionMapResults results) {

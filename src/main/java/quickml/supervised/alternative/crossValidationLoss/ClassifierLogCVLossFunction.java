@@ -25,4 +25,9 @@ public class ClassifierLogCVLossFunction implements ClassifierLossFunction {
         }
         return weight > 0 ? totalLoss / weight : 0;
     }
+
+    @Override
+    public String getName() {
+        return "LOG_CV";
+    }
 }

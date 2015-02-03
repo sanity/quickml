@@ -18,20 +18,20 @@ import static java.lang.Math.max;
 import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
-public class AttribributeImportanceFinder2 {
+public class AttributeImportanceFinder2 {
     public static final String NO_MISSING_ATTRIBUTE = "NO_MISSING_ATTRIBUTE";
     private final PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder;
     private final TrainingDataCycler<ClassifierInstance> dataCycler;
     private final int dataToRemovePerIteration;
     private final int numberOfIterations;
     private Set<String> attributesToNotRemove;
-    private final Map<String, ClassifierLossFunction> lossFunctions;
+    private final List<ClassifierLossFunction> lossFunctions;
     private final String primaryLossFunction;
 
-    public AttribributeImportanceFinder2(PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder,
-                                         TrainingDataCycler<ClassifierInstance> dataCycler, double percentToRemovePerIteration,
-                                         int numberOfIterations, Set<String> attributesToNotRemove,
-                                         Map<String, ClassifierLossFunction> lossFunctions, String primaryLossFunction) {
+    public AttributeImportanceFinder2(PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder,
+                                      TrainingDataCycler<ClassifierInstance> dataCycler, double percentToRemovePerIteration,
+                                      int numberOfIterations, Set<String> attributesToNotRemove,
+                                      List<ClassifierLossFunction> lossFunctions, String primaryLossFunction) {
         this.modelBuilder = modelBuilder;
         this.dataCycler = dataCycler;
         this.numberOfIterations = numberOfIterations;

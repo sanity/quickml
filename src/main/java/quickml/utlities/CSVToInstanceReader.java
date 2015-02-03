@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.utlities.selectors.*;
 
 /**
@@ -58,24 +59,24 @@ public class CSVToInstanceReader {
         this.numericSelector = numericSelector;
     }
 
-    public ArrayList<Instance<AttributesMap, Serializable>> readCsv(String fileName) throws Exception {
+    public List<ClassifierInstance> readCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
         return getInstancesFromReader(reader);
     }
 
-    public ArrayList<Instance<AttributesMap, Serializable>> readCsvFromReader(Reader reader) throws Exception {
+    public List<ClassifierInstance> readCsvFromReader(Reader reader) throws Exception {
 
         CSVReader csvReader = new CSVReader(reader, delimiter, '"');
         return getInstancesFromReader(csvReader);
     }
 
-    private ArrayList<Instance<AttributesMap, Serializable>> getInstancesFromReader(CSVReader reader) throws IOException {
+    private List<ClassifierInstance> getInstancesFromReader(CSVReader reader) throws IOException {
         List<String[]> csvLines = reader.readAll();
 
-        ArrayList<Instance<AttributesMap, Serializable>> instances = Lists.newArrayList();
+        List<ClassifierInstance> instances = Lists.newArrayList();
         try {
-            header = new ArrayList<String>();
+            header = new ArrayList<>();
             Collections.addAll(header, csvLines.get(0));
             for (int i = 1; i < csvLines.size(); i++) {
                 instances.add(instanceConverter(csvLines.get(i)));
@@ -86,7 +87,7 @@ public class CSVToInstanceReader {
         return instances;
     }
 
-    private InstanceImpl instanceConverter(String[] instanceArray) {
+    private ClassifierInstance instanceConverter(String[] instanceArray) {
 
         AttributesMap attributesMap = AttributesMap.newHashMap();
         Serializable label = null;
@@ -120,7 +121,7 @@ public class CSVToInstanceReader {
             containsUnLabeledInstances = true;
         }
 
-        return new InstanceImpl<>(attributesMap, label, weight);
+        return new ClassifierInstance(attributesMap, label, weight);
     }
 
     private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
@@ -167,8 +168,8 @@ public class CSVToInstanceReader {
         CSVToInstanceReaderBuilder csvReaderBuilder = new CSVToInstanceReaderBuilder().collumnNameForLabel("campaignId").categoricalSelector(new ExplicitCategoricalSelector(catVariables));
         CSVToInstanceReader csvReader = csvReaderBuilder.buildCsvReader();
         try {
-            List<Instance<AttributesMap, Serializable>> instances = csvReader.readCsv("test3");
-            for (Instance<AttributesMap, Serializable> instance : instances)
+            List<ClassifierInstance> instances = csvReader.readCsv("test3");
+            for (ClassifierInstance instance : instances)
                 System.out.println("label: " + instance.getLabel() + "attributes: " + instance.getAttributes().toString());
 
         } catch (Exception e) {

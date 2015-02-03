@@ -365,8 +365,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         ClassificationCounter inCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
         final List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters = valueOutcomeCountsPairs.getValue1(); //map of value _> classificationCounter
-
-
         double numTrainingExamples = valueOutcomeCountsPairs.getValue0().getTotal();
 
         Serializable lastValOfInset = valuesWithClassificationCounters.get(0).attributeValue;

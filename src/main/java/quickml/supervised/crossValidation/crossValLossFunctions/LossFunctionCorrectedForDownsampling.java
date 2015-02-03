@@ -2,6 +2,9 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 
 import com.google.common.collect.Lists;
 import quickml.data.PredictionMap;
+import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
+import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
 import quickml.supervised.classifier.downsampling.Utils;
 
 import java.io.Serializable;
@@ -10,36 +13,42 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/23/14.
  */
-public class LossFunctionCorrectedForDownsampling implements CrossValLossFunction<Serializable, PredictionMap>{
-    CrossValLossFunction<Serializable, PredictionMap> wrappedLossFunction;
+public class LossFunctionCorrectedForDownsampling implements ClassifierLossFunction {
+    ClassifierLossFunction wrappedLossFunction;
     CorrectionFunction correctionFunction;
 
-    public LossFunctionCorrectedForDownsampling(CrossValLossFunction<Serializable, PredictionMap> wrappedLossFunction, CorrectionFunction correctionFunction) {
+    public LossFunctionCorrectedForDownsampling(ClassifierLossFunction wrappedLossFunction, CorrectionFunction correctionFunction) {
         this.correctionFunction = correctionFunction;
         this.wrappedLossFunction = wrappedLossFunction;
     }
 
-    public LossFunctionCorrectedForDownsampling(CrossValLossFunction<Serializable, PredictionMap> wrappedLossFunction, double dropProbability, Serializable negativeLabel) {
+    public LossFunctionCorrectedForDownsampling(ClassifierLossFunction wrappedLossFunction, double dropProbability, Serializable negativeLabel) {
         this.correctionFunction = new NegativeInstanceCorrectionFunction(negativeLabel, dropProbability);
         this.wrappedLossFunction = wrappedLossFunction;
     }
 
     @Override
-    public double getLoss(List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights) {
-        List<LabelPredictionWeight<Serializable, PredictionMap>> correctedLabelPredictionWeights = correctLabelPredictionWeights(labelPredictionWeights);
+    public double getLoss(PredictionMapResults results) {
+        PredictionMapResults correctedLabelPredictionWeights = correctLabelPredictionWeights(results);
         return wrappedLossFunction.getLoss(correctedLabelPredictionWeights);
     }
 
-    public List<LabelPredictionWeight<Serializable, PredictionMap>> correctLabelPredictionWeights(List<LabelPredictionWeight<Serializable, PredictionMap>> uncorrectedLabelPredictionsWeights) {
-        List<LabelPredictionWeight<Serializable, PredictionMap>> labelPredictionWeights = Lists.newArrayList();
-        for (LabelPredictionWeight<Serializable, PredictionMap> uncorrectedLabelPredictionWeight : uncorrectedLabelPredictionsWeights) {
-            labelPredictionWeights.add(correctionFunction.getCorrectedLabelPredictionWeight(uncorrectedLabelPredictionWeight));
-        }
-        return labelPredictionWeights;
+    @Override
+    public String getName() {
+        return "DOWNSAMPLED_" + wrappedLossFunction.getName();
     }
 
+    public PredictionMapResults correctLabelPredictionWeights(PredictionMapResults uncorrectedPredictionMapResults) {
+        List<PredictionMapResult> results = Lists.newArrayList();
+        for (PredictionMapResult result : uncorrectedPredictionMapResults) {
+            results.add(correctionFunction.getCorrectedLabelPredictionWeight(result));
+        }
+        return new PredictionMapResults(results);
+    }
+
+    // TODO[mk] - internal class, doesn't need to be an interface
     public interface CorrectionFunction {
-        LabelPredictionWeight<Serializable, PredictionMap> getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight);
+        PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight);
     }
 
     public class NegativeInstanceCorrectionFunction implements CorrectionFunction {
@@ -58,7 +67,7 @@ public class LossFunctionCorrectedForDownsampling implements CrossValLossFunctio
         }
 
         @Override
-        public LabelPredictionWeight<Serializable, PredictionMap> getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight) {
+        public PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight) {
             PredictionMap correctedPredictionMap = PredictionMap.newMap();
             PredictionMap uncorrectedPrediction = labelPredictionWeight.getPrediction();
             double correctedProbability;
@@ -74,7 +83,7 @@ public class LossFunctionCorrectedForDownsampling implements CrossValLossFunctio
             double correctedWeight = labelPredictionWeight.getWeight();
             if (labelPredictionWeight.getLabel().equals(negativeLabel))
                 correctedWeight/=(1.0 - dropProbability);
-            return new LabelPredictionWeight<>(labelPredictionWeight.label, correctedPredictionMap, correctedWeight);
+            return new PredictionMapResult(correctedPredictionMap, labelPredictionWeight.label, correctedWeight);
         }
 
     }

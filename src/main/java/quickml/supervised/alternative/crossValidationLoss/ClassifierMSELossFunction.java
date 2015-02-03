@@ -8,4 +8,9 @@ public class ClassifierMSELossFunction implements ClassifierLossFunction {
     public double getLoss(PredictionMapResults results) {
         return mseLoss(results);
     }
+
+    @Override
+    public String getName() {
+        return "MSE";
+    }
 }

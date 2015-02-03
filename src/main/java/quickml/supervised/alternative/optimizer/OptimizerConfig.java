@@ -4,8 +4,6 @@ import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilder;
@@ -15,7 +13,6 @@ import java.util.Map;
 
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 import static quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION;
-import static quickml.supervised.classifier.splitOnAttribute.SplitOnAttributeClassifierBuilder.*;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_POSITIVE;
 
@@ -38,14 +35,6 @@ public class OptimizerConfig {
     public static Map<String, FieldValueRecommender> randomForestConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();
         config.put(NUM_TREES, new FixedOrderRecommender(5, 10, 20, 40));
-        return config;
-    }
-
-    public static Map<String, FieldValueRecommender> splitOnAttributeClassifierConfig() {
-        HashMap<String, FieldValueRecommender> config = new HashMap<>();
-        config.put(MIN_AMOUNT_TOTAL_CROSS_DATA, new FixedOrderRecommender(0, 100, 1000));
-        config.put(PERCENT_CROSS_DATA, new FixedOrderRecommender(0.1, 0.2, 0.5));
-        config.put(MIN_AMOUNT_CROSS_DATA_CLASSIFICATION, new FixedOrderRecommender(0, 10, 100));
         return config;
     }
 
