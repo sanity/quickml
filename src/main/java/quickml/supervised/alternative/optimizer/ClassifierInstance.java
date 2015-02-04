@@ -7,7 +7,7 @@ import quickml.data.Instance;
 import java.io.Serializable;
 import java.util.Map;
 
-public class ClassifierInstance implements Instance<Map<String, Serializable>, Serializable>, Timestamped {
+public class ClassifierInstance implements Instance<AttributesMap, Serializable>, Timestamped {
 
     private AttributesMap attributes;
     private Serializable label;

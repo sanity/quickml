@@ -15,17 +15,17 @@ public class PredictiveModelOptimizer2 {
     public static final int MAX_ITERATIONS = 10;
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
-    private ModelTester modelTester;
+    private CrossValidator crossValidator;
     private HashMap<String, Object> bestConfig;
 
 
     /**
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
-     * @param modelTester - Model tester takes a configuration and returns the loss
+     * @param crossValidator - Model tester takes a configuration and returns the loss
      */
-    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, ModelTester modelTester) {
+    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator) {
         this.valuesToTest = valuesToTest;
-        this.modelTester = modelTester;
+        this.crossValidator = crossValidator;
         this.bestConfig = setBestConfigToFirstValues(valuesToTest);
     }
 
@@ -55,7 +55,7 @@ public class PredictiveModelOptimizer2 {
 
         for (Object value : valuesToTest.get(field).getValues()) {
             bestConfig.put(field, value);
-            losses.add(new FieldLoss(value, modelTester.getLossForModel(bestConfig)));
+            losses.add(new FieldLoss(value, crossValidator.getLossForModel(bestConfig)));
         }
 
         bestConfig.put(field, losses.valueWithLowestLoss());

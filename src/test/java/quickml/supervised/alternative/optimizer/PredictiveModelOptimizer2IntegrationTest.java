@@ -33,8 +33,8 @@ public class PredictiveModelOptimizer2IntegrationTest {
         TrainingDataCycler<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(trainingInstances, 0.5, 72);
         ClassifierLossChecker lossChecker = new ClassifierLossChecker(new ClassifierRMSELossFunction());
 
-        ModelTester<Classifier, ClassifierInstance> modelTester = new ModelTester<>(new TreeBuilder(), lossChecker, outOfTimeData);
-        optimizer = new PredictiveModelOptimizer2(createConfig(), modelTester);
+        CrossValidator<Classifier, ClassifierInstance> crossValidator = new CrossValidator<>(new TreeBuilder(), lossChecker, outOfTimeData);
+        optimizer = new PredictiveModelOptimizer2(createConfig(), crossValidator);
     }
 
     @Test

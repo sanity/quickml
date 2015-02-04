@@ -20,7 +20,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PredictiveModelOptimizer2Test {
 
     @Mock
-    ModelTester mockModelTester;
+    CrossValidator mockCrossValidator;
 
     @Mock
     ClassifierLossChecker mockLossChecker;
@@ -41,7 +41,7 @@ public class PredictiveModelOptimizer2Test {
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
         fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
 
-        modelOptimizer = new PredictiveModelOptimizer2(fields, mockModelTester);
+        modelOptimizer = new PredictiveModelOptimizer2(fields, mockCrossValidator);
     }
 
     @Test
@@ -52,10 +52,10 @@ public class PredictiveModelOptimizer2Test {
         bestConfig = createMap(5, false, "C");
 
 
-        when(mockModelTester.getLossForModel(anyMap())).thenReturn(0.5);
-        when(mockModelTester.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
-        when(mockModelTester.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
-        when(mockModelTester.getLossForModel(eq(bestConfig))).thenReturn(0.1);
+        when(mockCrossValidator.getLossForModel(anyMap())).thenReturn(0.5);
+        when(mockCrossValidator.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
+        when(mockCrossValidator.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
+        when(mockCrossValidator.getLossForModel(eq(bestConfig))).thenReturn(0.1);
 
         assertEquals(bestConfig, modelOptimizer.determineOptimalConfig());
     }

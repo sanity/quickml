@@ -12,16 +12,16 @@ import java.util.Map;
 
 import static quickml.supervised.Utils.getInstanceWeights;
 
-public class ModelTester<PM extends PredictiveModel, T extends Instance> {
+public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ModelTester.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrossValidator.class);
 
 
     private LossChecker<PM, T> lossChecker;
     private TrainingDataCycler<T> dataCycler;
     private final PredictiveModelBuilder<PM, T> modelBuilder;
 
-    public ModelTester(PredictiveModelBuilder<PM, T> modelBuilder, LossChecker<PM, T> lossChecker, TrainingDataCycler<T> dataCycler) {
+    public CrossValidator(PredictiveModelBuilder<PM, T> modelBuilder, LossChecker<PM, T> lossChecker, TrainingDataCycler<T> dataCycler) {
         this.lossChecker = lossChecker;
         this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
