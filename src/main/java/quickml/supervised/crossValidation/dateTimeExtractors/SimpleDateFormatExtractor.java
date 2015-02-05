@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 6/22/14.
  */
-public class SimpleDateFormatExtractor implements DateTimeExtractor<AttributesMap, Serializable> {
+public class SimpleDateFormatExtractor implements DateTimeExtractor<Instance<AttributesMap, Serializable>> {
     private static final Logger logger = LoggerFactory.getLogger(SimpleDateFormatExtractor.class);
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String dateAttribute = "created_at";

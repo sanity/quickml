@@ -30,7 +30,7 @@ public class PredictiveModelOptimizer2IntegrationTest {
     @Before
     public void setUp() throws Exception {
         List<ClassifierInstance> trainingInstances = TreeBuilderTestUtils.getInstancesOneEveryHour(1000);
-        TrainingDataCycler<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(trainingInstances, 0.5, 72);
+        TrainingDataCycler<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(trainingInstances, 0.5, 72, new OnespotDateTimeExtractor());
         ClassifierLossChecker lossChecker = new ClassifierLossChecker(new ClassifierRMSELossFunction());
 
         CrossValidator<Classifier, ClassifierInstance> crossValidator = new CrossValidator<>(new TreeBuilder(), lossChecker, outOfTimeData);

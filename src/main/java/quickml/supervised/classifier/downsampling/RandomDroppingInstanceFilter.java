@@ -2,14 +2,15 @@ package quickml.supervised.classifier.downsampling;
 
 import com.google.common.base.Predicate;
 import quickml.collections.MapUtils;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.AttributesMap;
+import quickml.data.Instance;
 
 import java.io.Serializable;
 
 /**
  * Created by ian on 4/23/14.
  */
-class RandomDroppingInstanceFilter implements Predicate<ClassifierInstance> {
+class RandomDroppingInstanceFilter implements Predicate<Instance<AttributesMap, Serializable>> {
     private final Serializable classificationToDrop;
     private final double dropProbability;
 
@@ -19,7 +20,7 @@ class RandomDroppingInstanceFilter implements Predicate<ClassifierInstance> {
     }
 
     @Override
-    public boolean apply(final ClassifierInstance Instance) {
+    public boolean apply(final Instance<AttributesMap, Serializable> Instance) {
         if (Instance.getLabel().equals(classificationToDrop)) {
             final double rand = MapUtils.random.nextDouble();
 

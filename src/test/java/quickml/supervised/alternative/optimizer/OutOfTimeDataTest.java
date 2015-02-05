@@ -13,9 +13,11 @@ import static quickml.TestUtils.createClassifierInstance;
 public class OutOfTimeDataTest {
 
     private OutOfTimeData<ClassifierInstance> outOfTimeData;
+    private OnespotDateTimeExtractor dateTimeExtractor;
 
     @Before
     public void setUp() throws Exception {
+        dateTimeExtractor = new OnespotDateTimeExtractor();
         List<ClassifierInstance> instances = new ArrayList<>();
 
         // Create an instance for 6 consecutive days
@@ -26,7 +28,7 @@ public class OutOfTimeDataTest {
         instances.add(createClassifierInstance(5));
         instances.add(createClassifierInstance(6));
 
-        outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24);
+        outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
     }
 
 
@@ -75,7 +77,7 @@ public class OutOfTimeDataTest {
         instances.add(createClassifierInstance(2));
         instances.add(createClassifierInstance(4));
 
-        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24);
+        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
 
 
         // Verifiy the inital data is split up - half for the training set, and one entry in the validation set
@@ -94,7 +96,7 @@ public class OutOfTimeDataTest {
     }
 
     private void assertDayOfMonthMatches(final ClassifierInstance instance, final int expected) {
-        assertEquals(expected, instance.getTimestamp().dayOfMonth().get());
+        assertEquals(expected, dateTimeExtractor.extractDateTime(instance).dayOfMonth().get());
     }
 
 

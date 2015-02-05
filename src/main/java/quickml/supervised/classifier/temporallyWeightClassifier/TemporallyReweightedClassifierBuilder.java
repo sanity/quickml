@@ -9,6 +9,7 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,10 +29,12 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
     private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
+    private DateTimeExtractor dateTimeExtractor;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
         this.positiveClassification = positiveClassification;
+        this.dateTimeExtractor = dateTimeExtractor;
     }
 
     @Override
@@ -70,7 +73,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
         ArrayList<ClassifierInstance> trainingDataList = Lists.newArrayList();
         for (ClassifierInstance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
-            double hoursBack = Hours.hoursBetween(mostRecentInstance, instance.getTimestamp()).getHours();
+            double hoursBack = Hours.hoursBetween(mostRecentInstance, dateTimeExtractor.extractDateTime(instance)).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             //TODO[mk] Reweight needs to be moved / removed
 //            trainingDataList.add(instance.reweight(newWeight));
@@ -86,8 +89,8 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private DateTime getMostRecentInstance(Iterable<ClassifierInstance> newData) {
         DateTime mostRecent = null;
         for (ClassifierInstance instance : newData) {
-            if (mostRecent == null || instance.getTimestamp().isAfter(mostRecent)) {
-                mostRecent = instance.getTimestamp();
+            if (mostRecent == null || dateTimeExtractor.extractDateTime(instance).isAfter(mostRecent)) {
+                mostRecent = dateTimeExtractor.extractDateTime(instance);
             }
         }
         return mostRecent;

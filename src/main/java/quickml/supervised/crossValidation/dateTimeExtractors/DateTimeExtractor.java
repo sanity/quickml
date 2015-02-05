@@ -5,6 +5,6 @@ import quickml.data.Instance;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public interface DateTimeExtractor <R, L> {
-    DateTime extractDateTime(Instance<R, L> instance);
+public interface DateTimeExtractor <T> {
+    DateTime extractDateTime(T instance);
 }

@@ -11,6 +11,7 @@ import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction
 import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossFunction;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.MultiLossModelTester;
+import quickml.supervised.alternative.optimizer.OnespotDateTimeExtractor;
 import quickml.supervised.alternative.optimizer.OutOfTimeData;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
@@ -56,11 +57,11 @@ public class SplitOnAttributeClassifierBuilderTest {
 
 
         // Get the losses for a split model
-        MultiLossModelTester splitModelTester = new MultiLossModelTester(splitOnAttributeClassifierBuilder, new OutOfTimeData<>(instances, 0.15, 24));
+        MultiLossModelTester splitModelTester = new MultiLossModelTester(splitOnAttributeClassifierBuilder, new OutOfTimeData<>(instances, 0.15, 24, new OnespotDateTimeExtractor()));
         LossFunctionTracker splitLosses = splitModelTester.getMultilossForModel(lossFunctions);
 
         // Get the losses for a non split model
-        MultiLossModelTester singleModelTester = new MultiLossModelTester(downsamplingBuilder, new OutOfTimeData<>(instances, 0.15, 24));
+        MultiLossModelTester singleModelTester = new MultiLossModelTester(downsamplingBuilder, new OutOfTimeData<>(instances, 0.15, 24, new OnespotDateTimeExtractor()));
         LossFunctionTracker singleLosses = singleModelTester.getMultilossForModel(lossFunctions);
 
         // Log losses

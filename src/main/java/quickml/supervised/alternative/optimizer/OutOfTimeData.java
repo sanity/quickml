@@ -2,6 +2,7 @@ package quickml.supervised.alternative.optimizer;
 
 import org.joda.time.DateTime;
 import quickml.data.Instance;
+import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,18 +11,20 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class OutOfTimeData<T extends Timestamped> implements TrainingDataCycler<T> {
+public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> {
 
     private final List<T> allData;
     private final double crossValidationFraction;
     private final int timeSliceHours;
+    private DateTimeExtractor dateTimeExtractor;
     private List<T> trainingSet;
     private List<T> validationSet;
 
-    public OutOfTimeData(List<T> allData, double crossValidationFraction, int timeSliceHours) {
+    public OutOfTimeData(List<T> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.allData = allData;
         this.crossValidationFraction = crossValidationFraction;
         this.timeSliceHours = timeSliceHours;
+        this.dateTimeExtractor = dateTimeExtractor;
         sortData();
         reset();
     }
@@ -63,11 +66,11 @@ public class OutOfTimeData<T extends Timestamped> implements TrainingDataCycler<
 
     private void updateValidationSet() {
         List<T> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
-        DateTime endValidationPeriod = potentialValidationSet.get(0).getTimestamp().plusHours(timeSliceHours);
+        DateTime endValidationPeriod = dateTimeExtractor.extractDateTime(potentialValidationSet.get(0)).plusHours(timeSliceHours);
 
         validationSet = newArrayList();
         for (T instance : potentialValidationSet) {
-            if (instance.getTimestamp().isBefore(endValidationPeriod))
+            if (dateTimeExtractor.extractDateTime(instance).isBefore(endValidationPeriod))
                 validationSet.add(instance);
             else if (validationSet.isEmpty()) {
                 // If the set is empty and we are at the end of the validation period
@@ -81,7 +84,7 @@ public class OutOfTimeData<T extends Timestamped> implements TrainingDataCycler<
         Collections.sort(allData, new Comparator<T>() {
             @Override
             public int compare(T o1, T o2) {
-                return o1.getTimestamp().compareTo(o2.getTimestamp());
+                return dateTimeExtractor.extractDateTime(o1).compareTo(dateTimeExtractor.extractDateTime(o2));
             }
         });
     }

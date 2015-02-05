@@ -12,6 +12,7 @@ import org.junit.Test;
 import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
 import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossFunction;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.supervised.alternative.optimizer.OnespotDateTimeExtractor;
 import quickml.supervised.alternative.optimizer.OutOfTimeData;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
@@ -39,8 +40,7 @@ public class AttributeImportanceFinder2Test {
     @Ignore("WIP")
     @Test
     public void testAttributeImportanceFinder() throws Exception {
-        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, .2, 5);
-
+        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, .2, 5, new OnespotDateTimeExtractor());
 
         List<ClassifierLossFunction> lossFunctions = Lists.newArrayList();
         lossFunctions.add(new ClassifierRMSELossFunction());
