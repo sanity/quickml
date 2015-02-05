@@ -5,13 +5,13 @@ import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 
 import java.util.List;
 
-//TODO[mk] maybe just replace with a list or array?
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class FixedOrderRecommender implements FieldValueRecommender {
     private final List<Object> values;
 
     public FixedOrderRecommender(Object... values) {
-        if (values.length <= 0)
-            throw new RuntimeException("Must include at least one value");
+        checkArgument(values.length > 0, "Must include at least one value");
         this.values = Lists.newArrayList(values);
     }
 
@@ -25,4 +25,13 @@ public class FixedOrderRecommender implements FieldValueRecommender {
         return values.get(0);
     }
 
+    @Override
+    public boolean shouldContinue(List<Double> losses) {
+        return false;
+    }
+
+
+
 }
+
+

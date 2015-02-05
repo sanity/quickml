@@ -1,5 +1,7 @@
 package quickml.supervised.alternative.optimizer;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +55,14 @@ public class PredictiveModelOptimizer2 {
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
 
-        for (Object value : valuesToTest.get(field).getValues()) {
+
+        FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
+
+        for (Object value : fieldValueRecommender.getValues()) {
             bestConfig.put(field, value);
-            losses.add(new FieldLoss(value, crossValidator.getLossForModel(bestConfig)));
+            losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
+            if (fieldValueRecommender.shouldContinue(losses.getLosses()))
+                break;
         }
 
         bestConfig.put(field, losses.valueWithLowestLoss());
@@ -78,7 +85,7 @@ public class PredictiveModelOptimizer2 {
     /**
      * Convience classes to sort and return the value with the lowest loss
      */
-    private static class FieldLosses {
+    public static class FieldLosses {
         private List<FieldLoss> losses = new ArrayList<>();
 
         public void add(FieldLoss fieldLoss) {
@@ -88,6 +95,18 @@ public class PredictiveModelOptimizer2 {
         public Object valueWithLowestLoss() {
             Collections.sort(losses);
             return losses.get(0).fieldValue;
+        }
+
+        public void addFieldLoss(Object fieldValue, double loss) {
+            add(new FieldLoss(fieldValue, loss));
+        }
+
+        public List<Double> getLosses() {
+            List<Double> rawLosses = Lists.newArrayList();
+            for (FieldLoss loss : losses) {
+                rawLosses.add(loss.loss);
+            }
+            return rawLosses;
         }
     }
 
