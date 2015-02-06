@@ -14,20 +14,22 @@ public class PredictiveModelOptimizer2 {
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer2.class);
 
 
-    public static final int MAX_ITERATIONS = 10;
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
     private CrossValidator crossValidator;
     private HashMap<String, Object> bestConfig;
+    private final int iterations;
+
 
 
     /**
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
-    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator) {
+    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
+        this.iterations = iterations;
         this.bestConfig = setBestConfigToFirstValues(valuesToTest);
     }
 
@@ -37,7 +39,8 @@ public class PredictiveModelOptimizer2 {
      * Keep going until we are no longer improving or we have reached max_iterations
      */
     public Map<String, Object> determineOptimalConfig() {
-        for (int i = 0; i < MAX_ITERATIONS; i++) {
+        for (int i = 0; i < iterations; i++) {
+            logger.info("Starting iteration - {}", i);
             HashMap<String, Object> previousConfig = copyOf(bestConfig);
             updateBestConfig();
             if (bestConfig.equals(previousConfig))

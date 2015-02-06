@@ -1,2 +1,0 @@
-{penalizeCategoricalSplitsBySplitAttributeInformationValue=true, maxDepth=2147483647, minLeafInstances=0, minScore=1.0E-14, minCatAttrOcc=5, scorer=MSEScorer{cvic=0.0}, ignoreAttrProb=0.5}
-{penalizeCategoricalSplitsBySplitAttributeInformationValue=true, maxDepth=2147483647, minLeafInstances=0, minScore=1.0E-14, minCatAttrOcc=64, scorer=MSEScorer{cvic=0.0}, ignoreAttrProb=0.5}

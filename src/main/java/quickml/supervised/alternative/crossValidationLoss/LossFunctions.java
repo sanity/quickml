@@ -3,7 +3,7 @@ package quickml.supervised.alternative.crossValidationLoss;
 public class LossFunctions {
 
     public static double mseLoss(PredictionMapResults results) {
-        int totalLoss = 0;
+        double totalLoss = 0;
         for (PredictionMapResult result : results) {
             final double error = (1.0 - result.getPredictionForLabel());
             final double errorSquared = error * error * result.getWeight();

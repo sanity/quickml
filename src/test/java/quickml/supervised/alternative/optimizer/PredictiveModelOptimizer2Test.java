@@ -41,7 +41,7 @@ public class PredictiveModelOptimizer2Test {
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
         fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
 
-        modelOptimizer = new PredictiveModelOptimizer2(fields, mockCrossValidator);
+        modelOptimizer = new PredictiveModelOptimizer2(fields, mockCrossValidator, 10);
     }
 
     @Test

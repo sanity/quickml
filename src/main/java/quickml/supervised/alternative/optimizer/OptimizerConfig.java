@@ -13,12 +13,13 @@ import java.util.Map;
 
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 import static quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION;
+import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_POSITIVE;
 
 public class OptimizerConfig {
 
-    private static final String NUM_TREES = "numTrees";
+
 
     public static Map<String, FieldValueRecommender> treeBuilderConfig() {
         HashMap<String, FieldValueRecommender> config = new HashMap<>();

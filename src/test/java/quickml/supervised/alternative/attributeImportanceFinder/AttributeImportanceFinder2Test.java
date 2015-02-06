@@ -9,6 +9,7 @@ import com.google.gson.stream.JsonReader;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import quickml.supervised.InstanceLoader;
 import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
 import quickml.supervised.alternative.crossValidationLoss.ClassifierRMSELossFunction;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
@@ -33,7 +34,7 @@ public class AttributeImportanceFinder2Test {
 
     @Before
     public void setUp() throws Exception {
-        instances = loadOnespotData();
+        instances = InstanceLoader.getAdvertisingInstances();
     }
 
 
