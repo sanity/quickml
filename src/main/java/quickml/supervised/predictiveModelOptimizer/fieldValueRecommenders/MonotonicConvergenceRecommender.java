@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Created by ian on 4/12/14.
  */
 public class MonotonicConvergenceRecommender implements FieldValueRecommender {
-    private static final int MIN_VALUES_TO_TEST = 2;
+    private static final int MIN_VALUES_TO_TEST = 2; // Must be at least 2
     private static final double DEFAULT_TOLERANCE = 0.02;
 
     private final List<? extends Number> values;
@@ -37,17 +37,19 @@ public class MonotonicConvergenceRecommender implements FieldValueRecommender {
         return values.get(0);
     }
 
+    //TODO[mk] - this could do with a rework
     @Override
     public boolean shouldContinue(List<Double> losses) {
-        int valuesTried = losses.size();
+        if (losses.size() < MIN_VALUES_TO_TEST)
+            return true;
         double mostRecentLoss = losses.get(losses.size() - 1);
-        double secondMostRecentLoss = losses.size() > 1 ? losses.get(losses.size() - 2) : 1;
+        double secondMostRecentLoss = losses.get(losses.size() - 2);
 
         //if we have tried at least min values and we aren't within tolerance give up
-        return !(withinTolerence(mostRecentLoss, secondMostRecentLoss) && valuesTried >= MIN_VALUES_TO_TEST);
+        return notWithinTolerance(mostRecentLoss, secondMostRecentLoss);
     }
 
-    private boolean withinTolerence(double mostRecentLoss, double secondMostRecentLoss) {
+    private boolean notWithinTolerance(double mostRecentLoss, double secondMostRecentLoss) {
         return Math.abs(mostRecentLoss - secondMostRecentLoss) / secondMostRecentLoss > tolerance;
     }
 
