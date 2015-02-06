@@ -2,6 +2,7 @@ package quickml.supervised.alternative.optimizer;
 
 import com.beust.jcommander.internal.Maps;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import quickml.supervised.InstanceLoader;
 import quickml.supervised.alternative.crossValidationLoss.ClassifierLossChecker;
@@ -39,8 +40,11 @@ public class PredictiveModelOptimizer2IntegrationTest {
         optimizer = new PredictiveModelOptimizer2(createConfig(), crossValidator, 3);
     }
 
+
+    @Ignore("WIP")
     @Test
     public void testOptimizer() throws Exception {
+
         Map<String, Object> optimalConfig = optimizer.determineOptimalConfig();
         System.out.println("optimalConfig = " + optimalConfig);
     }

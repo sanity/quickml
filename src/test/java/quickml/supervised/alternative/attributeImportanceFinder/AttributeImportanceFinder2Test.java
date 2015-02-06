@@ -53,50 +53,6 @@ public class AttributeImportanceFinder2Test {
         System.out.println(attributeLossTrackers);
     }
 
-    private List<ClassifierInstance> loadOnespotData() throws IOException {
-        URL resource = Resources.getResource("onespot_training_instances_large.json");
-        CharSource charSource = Resources.asCharSource(resource, defaultCharset());
-
-        Gson gson = createGson();
-
-        JsonReader reader = new JsonReader(charSource.openStream());
-        List<ClassifierInstance> instances = new ArrayList<>();
-        reader.beginArray();
-        while (reader.hasNext()) {
-            ClassifierInstance instance = gson.fromJson(reader, ClassifierInstance.class);
-            instances.add(instance);
-        }
-        reader.endArray();
-        reader.close();
-        return instances;
-
-    }
-
-    private Gson createGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Serializable.class, new SerializableDeserializer());
-        return gsonBuilder.create();
-    }
-
-
-    private class SerializableDeserializer implements JsonDeserializer<Serializable> {
-        public Serializable deserialize(JsonElement json, Type Serializable, JsonDeserializationContext context) {
-            JsonPrimitive primitive = json.getAsJsonPrimitive();
-            if (primitive.isBoolean())
-                return primitive.getAsBoolean();
-            else if (primitive.isNumber()) {
-                double value = primitive.getAsDouble();
-                if ((value == Math.floor(value)) && !Double.isInfinite(value)) {
-                    return (int) value;
-                } else {
-                    return value;
-                }
-            } else if (primitive.isString())
-                return primitive.getAsString();
-            throw new RuntimeException("Unexpected type when parsing Instance json " + json.toString());
-        }
-    }
-
     private Set<String> attributesToKeep() {
         Set<String> attributesToKeepRegardessOfQuality = Sets.newHashSet();
         attributesToKeepRegardessOfQuality.add("timeOfArrival-year");
