@@ -100,7 +100,11 @@ public class AttributeImportanceFinder {
 
     private double updateBestAttributesWithLossesIfNeccessary(String primaryLossFunction, double currentPrimaryLoss, double bestPrimaryLossSeenSoFar,
                                                               List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
-        if (currentPrimaryLoss <= bestPrimaryLossSeenSoFar && attributesWithLosses.size() <= maxAttributesInOptimalSet) {
+
+        int numActualAttributes = attributesWithLosses.size()-1;
+        logger.info("numActualAttributse: " + numActualAttributes + "\n" + "maxAttributesInOptimalSet: " + maxAttributesInOptimalSet);
+        logger.info("currentPrimaryLoss " + currentPrimaryLoss + "\n" +"bestPrimaryLoss" + bestPrimaryLossSeenSoFar);
+        if (currentPrimaryLoss <= bestPrimaryLossSeenSoFar && numActualAttributes <= maxAttributesInOptimalSet) {
             bestPrimaryLossSeenSoFar = currentPrimaryLoss;
             updateBestAttributesWithLosses(primaryLossFunction, attributesWithLosses);
         }
@@ -130,7 +134,7 @@ public class AttributeImportanceFinder {
     }
 
     private void updateMapOfAttributeValsToLoss(Map<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> attributesToLossesMap, List<Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>>> attributesWithLosses) {
-        attributesToLossesMap = Maps.newHashMap();
+        attributesToLossesMap.clear();
         for (Pair<String, MultiLossFunctionWithModelConfigurations<PredictionMap>> pair : attributesWithLosses) {
             attributesToLossesMap.put(pair.getValue0(), pair.getValue1());
         }
