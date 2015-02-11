@@ -3,6 +3,7 @@ package quickml.supervised.alternative.crossValidationLoss;
 public class ClassifierLogCVLossFunction implements ClassifierLossFunction {
 
     private static final double DEFAULT_MIN_PROBABILITY = 10E-7;
+    public static final String NAME = "LOG_CV";
     public double minProbability;
     public double maxError;
 
@@ -12,22 +13,21 @@ public class ClassifierLogCVLossFunction implements ClassifierLossFunction {
         this.maxError = -Math.log(minProbability);
     }
 
-    private double doThis(double correctProbability, double weight) {
+    private double lossForInstance(double correctProbability, double weight) {
         return (correctProbability > minProbability) ? -weight * Math.log(correctProbability) : weight * maxError;
     }
 
     @Override
     public double getLoss(PredictionMapResults results) {
         double totalLoss = 0;
-        double weight = results.totalWeight();
-        for (PredictionMapResult predictionMapResult : results) {
-            totalLoss += doThis(predictionMapResult.getPredictionForLabel(), weight);
+        for (PredictionMapResult result : results) {
+            totalLoss += lossForInstance(result.getPredictionForLabel(), result.getWeight());
         }
-        return weight > 0 ? totalLoss / weight : 0;
+        return results.totalWeight() > 0 ? totalLoss / results.totalWeight() : 0;
     }
 
     @Override
     public String getName() {
-        return "LOG_CV";
+        return NAME;
     }
 }
