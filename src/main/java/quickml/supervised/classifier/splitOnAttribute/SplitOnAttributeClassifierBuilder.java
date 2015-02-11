@@ -44,7 +44,7 @@ public class SplitOnAttributeClassifierBuilder implements UpdatablePredictiveMod
     }
 
     private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
-        HashMap<Serializable, Integer> splitValToGroupIdMap = new HashMap<>();
+        SplitValTGroupIdMap splitValToGroupIdMap = new SplitValTGroupIdMap(defaultGroup);
         for (Integer groupId : splitModelGroups.keySet()) {
             Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
             for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {
