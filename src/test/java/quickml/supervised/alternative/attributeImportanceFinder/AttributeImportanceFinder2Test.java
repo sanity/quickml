@@ -16,6 +16,7 @@ import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.OnespotDateTimeExtractor;
 import quickml.supervised.alternative.optimizer.OutOfTimeData;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,16 +39,15 @@ public class AttributeImportanceFinder2Test {
     }
 
 
-    @Ignore("WIP")
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, .2, 5, new OnespotDateTimeExtractor());
 
         List<ClassifierLossFunction> lossFunctions = Lists.newArrayList();
-        lossFunctions.add(new ClassifierRMSELossFunction());
+        lossFunctions.add(new WeightedAUCCrossValLossFunction(1.0));
 
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder().numTrees(5);
-        AttributeImportanceFinder2 importanceFinder = new AttributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctions, "RMSE");
+        AttributeImportanceFinder2 importanceFinder = new AttributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 3, attributesToKeep(), lossFunctions, "RMSE");
         List<AttributeLossTracker> attributeLossTrackers = importanceFinder.determineAttributeImportance();
 
         System.out.println(attributeLossTrackers);
