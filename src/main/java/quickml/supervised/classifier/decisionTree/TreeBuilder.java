@@ -55,12 +55,18 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
     }
 
     public void updateBuilderConfig(final Map<String, Object> cfg) {
-        scorer((Scorer) cfg.get(SCORER));
-        ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
-        maxDepth((Integer) cfg.get(MAX_DEPTH));
-        minimumScore((Double) cfg.get(MIN_SCORE));
-        minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_CAT_ATTR_OCC));
-        minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
+        if (cfg.containsKey(SCORER))
+            scorer((Scorer) cfg.get(SCORER));
+        if (cfg.containsKey(IGNORE_ATTR_PROB))
+            ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
+        if (cfg.containsKey(MAX_DEPTH))
+            maxDepth((Integer) cfg.get(MAX_DEPTH));
+        if (cfg.containsKey(MIN_SCORE))
+            minimumScore((Double) cfg.get(MIN_SCORE));
+        if (cfg.containsKey(MIN_CAT_ATTR_OCC))
+            minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_CAT_ATTR_OCC));
+        if (cfg.containsKey(MIN_LEAF_INSTANCES))
+            minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
         penalizeCategoricalSplitsBySplitAttributeInformationValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
@@ -472,7 +478,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
 
         ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
-        //TODO[mk] added counter here, should they be there
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
                 .countAllByAttributeValues(instances, attribute);
         ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same

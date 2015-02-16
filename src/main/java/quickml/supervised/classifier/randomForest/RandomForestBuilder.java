@@ -47,7 +47,8 @@ public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, C
     @Override
     public void updateBuilderConfig(Map<String, Object> config) {
         treeBuilder.updateBuilderConfig(config);
-        this.numTrees((Integer) config.get(NUM_TREES));
+        if (config.containsKey(NUM_TREES))
+            this.numTrees((Integer) config.get(NUM_TREES));
     }
 
     public RandomForestBuilder numTrees(int numTrees) {

@@ -40,8 +40,10 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     @Override
     public void updateBuilderConfig(Map<String, Object> config) {
         wrappedBuilder.updateBuilderConfig(config);
-        halfLifeOfPositive((Double) config.get(HALF_LIFE_OF_POSITIVE));
-        halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));
+        if (config.containsKey(HALF_LIFE_OF_NEGATIVE))
+            halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));
+        if (config.containsKey(HALF_LIFE_OF_POSITIVE))
+            halfLifeOfPositive((Double) config.get(HALF_LIFE_OF_POSITIVE));
     }
 
     public TemporallyReweightedClassifierBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {

@@ -7,6 +7,7 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,14 @@ public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
         this.lossChecker = lossChecker;
         this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
+    }
+
+
+    /**
+     * Get the loss for a model without updating the model config
+     */
+    public double getLossForModel() {
+        return getLossForModel(new HashMap<String, Object>());
     }
 
     public double getLossForModel(Map<String, Object> config) {

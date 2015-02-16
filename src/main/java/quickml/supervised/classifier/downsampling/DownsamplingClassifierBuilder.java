@@ -34,9 +34,10 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Dow
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
-        predictiveModelBuilder.updateBuilderConfig(config);
-        targetMinorityProportion((Double) config.get(MINORITY_INSTANCE_PROPORTION));
+    public void updateBuilderConfig(Map<String, Object> cfg) {
+        predictiveModelBuilder.updateBuilderConfig(cfg);
+        if (cfg.containsKey(MINORITY_INSTANCE_PROPORTION))
+            targetMinorityProportion((Double) cfg.get(MINORITY_INSTANCE_PROPORTION));
     }
 
     public DownsamplingClassifierBuilder targetMinorityProportion(double targetMinorityProportion) {
@@ -61,7 +62,7 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Dow
             return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), 0);
         }
 
-        final double dropProbability = (naturalMinorityProportion > targetMinorityProportion)?  0 : 1.0 - ((naturalMinorityProportion - targetMinorityProportion*naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion *naturalMinorityProportion));
+        final double dropProbability = (naturalMinorityProportion > targetMinorityProportion) ? 0 : 1.0 - ((naturalMinorityProportion - targetMinorityProportion * naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion * naturalMinorityProportion));
 
         Iterable<ClassifierInstance> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
@@ -100,7 +101,7 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Dow
         }
         Map<Serializable, Double> classificationProportions = Maps.newHashMap();
         for (Map.Entry<Serializable, Long> classCount : classificationCounts.entrySet()) {
-            classificationProportions.put(classCount.getKey(),  classCount.getValue().doubleValue() / (double) total);
+            classificationProportions.put(classCount.getKey(), classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;
     }
