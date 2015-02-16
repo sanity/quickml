@@ -57,10 +57,6 @@ public class BenchmarkTest {
         testWithInstances("mobo", loadMoboDataset());
     }
 
-    @Test
-    public void testIrisInstances() throws Exception {
-
-    }
 
     private void testWithInstances(String dsName, final List<ClassifierInstance> instances) {
         FoldedData<ClassifierInstance> data = new FoldedData<>(instances, 4, 4);
