@@ -13,9 +13,9 @@ import java.util.Set;
  */
 public interface Classifier extends PredictiveModel<AttributesMap, PredictionMap> {
 
-    public double getProbability(AttributesMap attributes, Serializable classification);
-    public abstract double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore);
-    public abstract PredictionMap predict(AttributesMap attributes);
-    public abstract PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore);
-    public Serializable getClassificationByMaxProb(AttributesMap attributes);
+    double getProbability(AttributesMap attributes, Serializable classification);
+    double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore);
+    PredictionMap predict(AttributesMap attributes);
+    PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore);
+    Serializable getClassificationByMaxProb(AttributesMap attributes);
 }

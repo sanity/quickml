@@ -1,8 +1,8 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 
-import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
 
 import java.io.Serializable;
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.*;
  * <p/>
  * Created by Chris on 5/5/2014.
  */
-public class WeightedAUCCrossValLossFunction implements ClassifierLossFunction {
+public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
 
     private final Serializable positiveClassification;
 
@@ -21,7 +21,7 @@ public class WeightedAUCCrossValLossFunction implements ClassifierLossFunction {
     }
 
     @Override
-    public double getLoss(PredictionMapResults results) {
+    public Double getLoss(PredictionMapResults results) {
         List<AUCData> aucDataList = getAucDataList(results);
 
         //order by probability ascending

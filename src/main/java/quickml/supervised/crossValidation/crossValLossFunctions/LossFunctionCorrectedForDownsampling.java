@@ -2,9 +2,9 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 
 import com.google.common.collect.Lists;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
 import quickml.supervised.classifier.downsampling.Utils;
 
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/23/14.
  */
-public class LossFunctionCorrectedForDownsampling implements ClassifierLossFunction {
+public class LossFunctionCorrectedForDownsampling extends ClassifierLossFunction {
     ClassifierLossFunction wrappedLossFunction;
     CorrectionFunction correctionFunction;
 
@@ -28,7 +28,7 @@ public class LossFunctionCorrectedForDownsampling implements ClassifierLossFunct
     }
 
     @Override
-    public double getLoss(PredictionMapResults results) {
+    public Double getLoss(PredictionMapResults results) {
         PredictionMapResults correctedLabelPredictionWeights = correctLabelPredictionWeights(results);
         return wrappedLossFunction.getLoss(correctedLabelPredictionWeights);
     }

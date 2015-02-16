@@ -1,6 +1,6 @@
-package quickml.supervised.alternative.crossValidationLoss;
+package quickml.supervised.alternative.crossvalidation;
 
-public class ClassifierLogCVLossFunction implements ClassifierLossFunction {
+public class ClassifierLogCVLossFunction extends ClassifierLossFunction {
 
     private static final double DEFAULT_MIN_PROBABILITY = 10E-7;
     public static final String NAME = "LOG_CV";
@@ -18,7 +18,7 @@ public class ClassifierLogCVLossFunction implements ClassifierLossFunction {
     }
 
     @Override
-    public double getLoss(PredictionMapResults results) {
+    public Double getLoss(PredictionMapResults results) {
         double totalLoss = 0;
         for (PredictionMapResult result : results) {
             totalLoss += lossForInstance(result.getPredictionForLabel(), result.getWeight());

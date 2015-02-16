@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import quickml.supervised.alternative.crossValidationLoss.ClassifierLossChecker;
+import quickml.supervised.alternative.crossvalidation.ClassifierLossChecker;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;

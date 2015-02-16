@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.crossValidationLoss;
+package quickml.supervised.alternative.crossvalidation;
 
 public class LossFunctions {
 

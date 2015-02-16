@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.crossValidationLoss;
+package quickml.supervised.alternative.crossvalidation;
 
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Double.isInfinite;
 import static java.lang.Double.isNaN;
 
-public class PredictionMapResult extends LabelPredictionWeight {
+public class PredictionMapResult extends LabelPredictionWeight<Serializable, PredictionMap> {
     private PredictionMap prediction;
     private Serializable label;
     private double weight;

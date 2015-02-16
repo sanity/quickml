@@ -2,15 +2,14 @@ package quickml.supervised.alternative.attributeImportanceFinder;
 
 import com.google.common.collect.Lists;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.crossValidationLoss.ClassifierLossFunction;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.TrainingDataCycler;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;

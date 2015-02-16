@@ -1,8 +1,6 @@
 package quickml.supervised.crossValidation.crossValLossFunctions;
 
 
-import java.io.Serializable;
-
 /**
  * Created by alexanderhawk on 7/30/14.
  */

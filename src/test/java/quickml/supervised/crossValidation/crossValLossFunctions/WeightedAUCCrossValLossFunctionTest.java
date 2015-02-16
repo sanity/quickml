@@ -3,8 +3,8 @@ package quickml.supervised.crossValidation.crossValLossFunctions;
 import org.apache.mahout.classifier.evaluation.Auc;
 import org.junit.Test;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResult;
-import quickml.supervised.alternative.crossValidationLoss.PredictionMapResults;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
+import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
 
 import java.util.ArrayList;
 import java.util.Collections;
