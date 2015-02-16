@@ -4,8 +4,13 @@ import com.beust.jcommander.internal.Maps;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import quickml.data.ClassifierInstance;
+import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.data.OutOfTimeData;
+import quickml.supervised.crossValidation.data.TrainingDataCycler;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
@@ -14,6 +19,7 @@ import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.List;
@@ -24,10 +30,10 @@ import static quickml.supervised.classifier.decisionTree.scorers.MSEScorer.Cross
 import static quickml.supervised.classifier.decisionTree.scorers.MSEScorer.CrossValidationCorrection.TRUE;
 import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 
-public class PredictiveModelOptimizer2IntegrationTest {
+public class PredictiveModelOptimizerIntegrationTest {
 
 
-    private PredictiveModelOptimizer2 optimizer;
+    private PredictiveModelOptimizer optimizer;
 
     @Before
     public void setUp() throws Exception {
@@ -37,7 +43,7 @@ public class PredictiveModelOptimizer2IntegrationTest {
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder();
 
         CrossValidator<Classifier, ClassifierInstance> crossValidator = new CrossValidator<>(randomForestBuilder, lossChecker, outOfTimeData);
-        optimizer = new PredictiveModelOptimizer2(createConfig(), crossValidator, 3);
+        optimizer = new PredictiveModelOptimizer(createConfig(), crossValidator, 3);
     }
 
 

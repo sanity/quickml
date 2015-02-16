@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering.enrichStrategies.probabilityInject
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 

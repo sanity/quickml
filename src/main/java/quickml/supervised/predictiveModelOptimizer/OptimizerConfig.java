@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.predictiveModelOptimizer;
 
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;

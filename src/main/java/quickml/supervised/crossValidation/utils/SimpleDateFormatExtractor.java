@@ -1,4 +1,4 @@
-package quickml.supervised.crossValidation.dateTimeExtractors;
+package quickml.supervised.crossValidation.utils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -10,7 +10,6 @@ import quickml.data.Instance;
 import java.io.Serializable;
 import java.text.*;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by alexanderhawk on 6/22/14.

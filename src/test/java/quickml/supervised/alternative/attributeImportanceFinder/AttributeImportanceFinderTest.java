@@ -6,17 +6,19 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import quickml.supervised.InstanceLoader;
+import quickml.supervised.crossValidation.attributeImportance.AttributeImportanceFinder;
+import quickml.supervised.crossValidation.attributeImportance.AttributeLossTracker;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
-import quickml.supervised.alternative.optimizer.OnespotDateTimeExtractor;
-import quickml.supervised.alternative.optimizer.OutOfTimeData;
+import quickml.data.ClassifierInstance;
+import quickml.data.OnespotDateTimeExtractor;
+import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 import java.util.List;
 import java.util.Set;
 
-public class AttributeImportanceFinder2Test {
+public class AttributeImportanceFinderTest {
 
 
     private List<ClassifierInstance> instances;
@@ -36,7 +38,7 @@ public class AttributeImportanceFinder2Test {
         lossFunctions.add(new ClassifierLogCVLossFunction(0.000001));
 
         RandomForestBuilder randomForestBuilder = new RandomForestBuilder().numTrees(5);
-        AttributeImportanceFinder2 importanceFinder = new AttributeImportanceFinder2(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctions, ClassifierLogCVLossFunction.NAME);
+        AttributeImportanceFinder importanceFinder = new AttributeImportanceFinder(randomForestBuilder, outOfTimeData, .2, 10, attributesToKeep(), lossFunctions, ClassifierLogCVLossFunction.NAME);
         List<AttributeLossTracker> attributeLossTrackers = importanceFinder.determineAttributeImportance();
 
         System.out.println(attributeLossTrackers);

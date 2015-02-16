@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering;
 
 import com.google.common.base.Function;
 import quickml.data.AttributesMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import javax.annotation.Nullable;
 import java.util.List;

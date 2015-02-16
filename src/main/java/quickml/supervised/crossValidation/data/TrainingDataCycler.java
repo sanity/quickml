@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.crossValidation.data;
 
 import java.util.List;
 

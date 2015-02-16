@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.data;
 
 import quickml.data.AttributesMap;
 import quickml.data.Instance;

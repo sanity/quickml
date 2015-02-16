@@ -1,17 +1,16 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.predictiveModelOptimizer;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
+import quickml.supervised.crossValidation.CrossValidator;
 
 import java.util.*;
 
-public class PredictiveModelOptimizer2 {
+public class PredictiveModelOptimizer {
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer2.class);
+    private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
 
 
@@ -26,7 +25,7 @@ public class PredictiveModelOptimizer2 {
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
-    public PredictiveModelOptimizer2(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
+    public PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
         this.iterations = iterations;

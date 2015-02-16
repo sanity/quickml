@@ -6,10 +6,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
-import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
+import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,6 +1,5 @@
-package quickml.supervised.crossValidation.dateTimeExtractors;
+package quickml.supervised.crossValidation.utils;
 import org.joda.time.DateTime;
-import quickml.data.Instance;
 
 /**
  * Created by alexanderhawk on 5/6/14.

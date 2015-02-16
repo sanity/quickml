@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.*;

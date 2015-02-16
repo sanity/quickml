@@ -1,4 +1,4 @@
-package quickml.supervised.crossValidation;
+package quickml.supervised.crossValidation.utils;
 
 import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;

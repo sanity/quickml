@@ -3,7 +3,7 @@ package quickml.supervised.classifier.decisionTree.tree;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.attributeImportanceFinder;
+package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

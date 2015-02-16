@@ -1,10 +1,8 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.data;
 
 
 import org.joda.time.DateTime;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
+import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
 

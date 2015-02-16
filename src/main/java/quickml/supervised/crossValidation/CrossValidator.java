@@ -1,11 +1,11 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.crossValidation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.crossValidation.LossChecker;
+import quickml.supervised.crossValidation.data.TrainingDataCycler;
 
 import java.util.List;
 import java.util.Map;

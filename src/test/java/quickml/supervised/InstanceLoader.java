@@ -3,7 +3,7 @@ package quickml.supervised;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.Benchmarks;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 

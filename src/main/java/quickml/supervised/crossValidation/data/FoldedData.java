@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.crossValidation.data;
 
 import com.google.common.collect.Lists;
 

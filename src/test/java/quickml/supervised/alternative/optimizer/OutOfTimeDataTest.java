@@ -2,6 +2,9 @@ package quickml.supervised.alternative.optimizer;
 
 import org.junit.Before;
 import org.junit.Test;
+import quickml.data.ClassifierInstance;
+import quickml.data.OnespotDateTimeExtractor;
+import quickml.supervised.crossValidation.data.OutOfTimeData;
 
 import java.util.ArrayList;
 import java.util.List;

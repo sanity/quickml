@@ -1,11 +1,11 @@
-package quickml.supervised.alternative.attributeImportanceFinder;
+package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
-import quickml.supervised.alternative.optimizer.TrainingDataCycler;
+import quickml.data.ClassifierInstance;
+import quickml.supervised.crossValidation.data.TrainingDataCycler;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import static java.lang.Math.max;
 import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
-public class AttributeImportanceFinder2 {
+public class AttributeImportanceFinder {
     public static final String NO_MISSING_ATTRIBUTE = "NO_MISSING_ATTRIBUTE";
     private final PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder;
     private final TrainingDataCycler<ClassifierInstance> dataCycler;
@@ -27,10 +27,10 @@ public class AttributeImportanceFinder2 {
     private final List<ClassifierLossFunction> lossFunctions;
     private final String primaryLossFunction;
 
-    public AttributeImportanceFinder2(PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder,
-                                      TrainingDataCycler<ClassifierInstance> dataCycler, double percentToRemovePerIteration,
-                                      int numberOfIterations, Set<String> attributesToNotRemove,
-                                      List<ClassifierLossFunction> lossFunctions, String primaryLossFunction) {
+    public AttributeImportanceFinder(PredictiveModelBuilder<Classifier, ClassifierInstance> modelBuilder,
+                                     TrainingDataCycler<ClassifierInstance> dataCycler, double percentToRemovePerIteration,
+                                     int numberOfIterations, Set<String> attributesToNotRemove,
+                                     List<ClassifierLossFunction> lossFunctions, String primaryLossFunction) {
         this.modelBuilder = modelBuilder;
         this.dataCycler = dataCycler;
         this.numberOfIterations = numberOfIterations;

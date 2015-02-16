@@ -3,6 +3,7 @@ package quickml.supervised.alternative.optimizer;
 import com.beust.jcommander.internal.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import quickml.supervised.crossValidation.data.FoldedData;
 
 import java.util.Arrays;
 import java.util.List;

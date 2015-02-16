@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;
@@ -17,7 +19,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class PredictiveModelOptimizer2Test {
+public class PredictiveModelOptimizerTest {
 
     @Mock
     CrossValidator mockCrossValidator;
@@ -25,7 +27,7 @@ public class PredictiveModelOptimizer2Test {
     @Mock
     ClassifierLossChecker mockLossChecker;
 
-    private PredictiveModelOptimizer2 modelOptimizer;
+    private PredictiveModelOptimizer modelOptimizer;
     private HashMap<String, Object> bestConfig = Maps.newHashMap();
     private HashMap<String, Object> secondBestConfig = Maps.newHashMap();
     private HashMap<String, Object> thirdBestConfig = Maps.newHashMap();
@@ -41,7 +43,7 @@ public class PredictiveModelOptimizer2Test {
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
         fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
 
-        modelOptimizer = new PredictiveModelOptimizer2(fields, mockCrossValidator, 10);
+        modelOptimizer = new PredictiveModelOptimizer(fields, mockCrossValidator, 10);
     }
 
     @Test

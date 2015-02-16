@@ -8,7 +8,7 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.javatuples.Pair;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.RidgeInstance;
+import quickml.data.RidgeInstance;
 
 import java.io.Serializable;
 import java.util.Map;

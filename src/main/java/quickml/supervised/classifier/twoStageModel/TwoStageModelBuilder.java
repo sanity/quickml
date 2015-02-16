@@ -2,7 +2,7 @@ package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.List;

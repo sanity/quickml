@@ -1,4 +1,4 @@
-package quickml.supervised.alternative;
+package quickml.data;
 
 import org.joda.time.DateTime;
 import quickml.data.Instance;
