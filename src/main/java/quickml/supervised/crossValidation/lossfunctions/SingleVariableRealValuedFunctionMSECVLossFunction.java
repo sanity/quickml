@@ -1,6 +1,4 @@
-package quickml.supervised.crossValidation.crossValLossFunctions;
-
-import quickml.supervised.alternative.crossvalidation.LossFunction;
+package quickml.supervised.crossValidation.lossfunctions;
 
 import java.io.Serializable;
 import java.util.List;

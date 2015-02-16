@@ -3,11 +3,11 @@ package quickml.supervised;
 import com.google.common.collect.Lists;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.PredictionMapResult;
+import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
+import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 
 import java.util.ArrayList;
 import java.util.List;

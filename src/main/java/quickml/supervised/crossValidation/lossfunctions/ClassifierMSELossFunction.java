@@ -1,6 +1,8 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation.lossfunctions;
 
-import static quickml.supervised.alternative.crossvalidation.LossFunctions.mseLoss;
+import quickml.supervised.crossValidation.PredictionMapResults;
+
+import static quickml.supervised.crossValidation.lossfunctions.LossFunctions.mseLoss;
 
 public class ClassifierMSELossFunction extends ClassifierLossFunction {
 

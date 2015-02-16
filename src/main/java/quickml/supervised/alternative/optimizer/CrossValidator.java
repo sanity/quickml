@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.crossvalidation.LossChecker;
+import quickml.supervised.crossValidation.LossChecker;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation.lossfunctions;
 
 public interface LossFunction <L, R> {
 

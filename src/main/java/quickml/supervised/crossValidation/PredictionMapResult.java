@@ -1,7 +1,7 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation;
 
 import quickml.data.PredictionMap;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
+import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 
 import java.io.Serializable;
 

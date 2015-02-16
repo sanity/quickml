@@ -1,4 +1,7 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation.lossfunctions;
+
+import quickml.supervised.crossValidation.PredictionMapResult;
+import quickml.supervised.crossValidation.PredictionMapResults;
 
 public class ClassifierLogCVLossFunction extends ClassifierLossFunction {
 

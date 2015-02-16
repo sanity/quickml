@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.PredictionMapResults;
 
 import java.util.*;
 

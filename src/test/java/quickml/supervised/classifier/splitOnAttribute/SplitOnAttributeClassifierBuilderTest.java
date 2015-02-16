@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.supervised.InstanceLoader;
 import quickml.supervised.alternative.attributeImportanceFinder.LossFunctionTracker;
-import quickml.supervised.alternative.crossvalidation.ClassifierLogCVLossFunction;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
-import quickml.supervised.alternative.crossvalidation.ClassifierRMSELossFunction;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.MultiLossModelTester;
 import quickml.supervised.alternative.optimizer.OnespotDateTimeExtractor;
@@ -16,8 +16,8 @@ import quickml.supervised.alternative.optimizer.OutOfTimeData;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
-import quickml.supervised.crossValidation.crossValLossFunctions.LossFunctionCorrectedForDownsampling;
-import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedForDownsampling;
+import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
 import java.util.*;
 

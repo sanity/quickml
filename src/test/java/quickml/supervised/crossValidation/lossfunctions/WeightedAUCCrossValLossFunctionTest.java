@@ -1,10 +1,10 @@
-package quickml.supervised.crossValidation.crossValLossFunctions;
+package quickml.supervised.crossValidation.lossfunctions;
 
 import org.apache.mahout.classifier.evaluation.Auc;
 import org.junit.Test;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.PredictionMapResult;
+import quickml.supervised.crossValidation.PredictionMapResults;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,9 +1,8 @@
-package quickml.supervised.crossValidation.crossValLossFunctions;
+package quickml.supervised.crossValidation.lossfunctions;
 import org.apache.mahout.classifier.evaluation.Auc;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.PredictionMapResult;
+import quickml.supervised.crossValidation.PredictionMapResults;
 
 //TODO[mk] add Test
 public class NonWeightedAUCCrossValLossFunction extends ClassifierLossFunction {

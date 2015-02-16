@@ -1,8 +1,9 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation;
 
 import quickml.supervised.Utils;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 
 import java.util.List;
 

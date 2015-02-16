@@ -1,10 +1,9 @@
-package quickml.supervised.crossValidation.crossValLossFunctions;
+package quickml.supervised.crossValidation.lossfunctions;
 
 import com.google.common.collect.Lists;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResult;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.PredictionMapResult;
+import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.classifier.downsampling.Utils;
 
 import java.io.Serializable;

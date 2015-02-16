@@ -2,7 +2,7 @@ package quickml.supervised.alternative.optimizer;
 
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.alternative.attributeImportanceFinder.LossFunctionTracker;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.List;

@@ -2,8 +2,8 @@ package quickml.supervised.alternative.attributeImportanceFinder;
 
 import com.google.common.collect.Lists;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.crossvalidation.ClassifierLossFunction;
-import quickml.supervised.alternative.crossvalidation.PredictionMapResults;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.alternative.optimizer.ClassifierInstance;
 import quickml.supervised.alternative.optimizer.TrainingDataCycler;
 import quickml.supervised.classifier.Classifier;

@@ -1,4 +1,4 @@
-package quickml.supervised.crossValidation.crossValLossFunctions;
+package quickml.supervised.crossValidation.lossfunctions;
 
 import org.junit.Test;
 
