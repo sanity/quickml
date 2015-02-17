@@ -11,6 +11,8 @@ import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class AttributeImportanceFinderBuilder<T extends ClassifierInstance> {
 
 
@@ -60,6 +62,10 @@ public class AttributeImportanceFinderBuilder<T extends ClassifierInstance> {
     }
 
     public AttributeImportanceFinder<T> build() {
+        checkArgument(primaryLossFunction != null, "A primary loss function must be set");
+        checkArgument(modelBuilder != null, "Must supply a model builder");
+        checkArgument(dataCycler != null, "Must supply a data cycler");
+
         return new AttributeImportanceFinder<>(modelBuilder, dataCycler, percentAttributesToRemovePerIteration,
                 numberOfIterations, attributesToKeep, lossFunctions, primaryLossFunction.getName());
     }
