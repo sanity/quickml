@@ -18,8 +18,8 @@ public class AttributeImportanceFinderBuilder<T extends ClassifierInstance> {
 
     private PredictiveModelBuilder<Classifier, T> modelBuilder;
     private TrainingDataCycler<T> dataCycler;
-    private double percentAttributesToRemovePerIteration;
-    private int numberOfIterations;
+    private double percentAttributesToRemovePerIteration = 0.2;
+    private int numberOfIterations = 5;
     private Set<String> attributesToKeep = Sets.newHashSet();
     private List<ClassifierLossFunction> lossFunctions = Lists.newArrayList();
     private ClassifierLossFunction primaryLossFunction;
