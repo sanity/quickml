@@ -30,6 +30,9 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
         this.splitValToGroupId = splitValToGroupId;
         this.defaultGroup = defaultGroup;
     }
+    public Integer getDefaultGroup() {
+        return defaultGroup;
+    }
 
     public Map<? extends Serializable, Integer> getSplitValToGroupId() {
         return splitValToGroupId;
