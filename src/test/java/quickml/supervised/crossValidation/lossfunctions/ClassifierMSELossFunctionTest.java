@@ -1,11 +1,10 @@
-package quickml.supervised.alternative.crossvalidation;
+package quickml.supervised.crossValidation.lossfunctions;
 
 import org.junit.Assert;
 import org.junit.Test;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierMSELossFunction;
 
 import static com.google.common.collect.Lists.newArrayList;
 

@@ -26,21 +26,21 @@ import java.util.concurrent.Future;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, ClassifierInstance> {
+public class RandomForestBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Classifier, T> {
 
     public static final String NUM_TREES = "numTrees";
 
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
-    private final TreeBuilder treeBuilder;
+    private final TreeBuilder<T> treeBuilder;
     private int numTrees = 20;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5));
+        this(new TreeBuilder<T>().ignoreAttributeAtNodeProbability(0.5));
     }
 
-    public RandomForestBuilder(TreeBuilder treeBuilder) {
+    public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
         this.treeBuilder = treeBuilder;
     }
 
@@ -51,18 +51,18 @@ public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, C
             this.numTrees((Integer) config.get(NUM_TREES));
     }
 
-    public RandomForestBuilder numTrees(int numTrees) {
+    public RandomForestBuilder<T> numTrees(int numTrees) {
         this.numTrees = numTrees;
         return this;
     }
 
-    public RandomForestBuilder executorThreadCount(int threadCount) {
+    public RandomForestBuilder<T> executorThreadCount(int threadCount) {
         this.executorThreadCount = threadCount;
         return this;
     }
 
     @Override
-    public synchronized RandomForest buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
+    public RandomForest buildPredictiveModel(Iterable<T> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
 
@@ -83,7 +83,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, C
         return new RandomForest(trees, classifications);
     }
 
-    private Future<Tree> submitTreeBuild(final Iterable<ClassifierInstance> trainingData, final int treeIndex) {
+    private Future<Tree> submitTreeBuild(final Iterable<T> trainingData, final int treeIndex) {
         return executorService.submit(new Callable<Tree>() {
             @Override
             public Tree call() throws Exception {
@@ -92,7 +92,7 @@ public class RandomForestBuilder implements PredictiveModelBuilder<Classifier, C
         });
     }
 
-    private Tree buildModel(Iterable<ClassifierInstance> trainingData, int treeIndex) {
+    private Tree buildModel(Iterable<T> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
         return treeBuilder.buildPredictiveModel(trainingData);
     }

@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.predictiveModelOptimizer;
 
 import com.google.common.collect.Maps;
 import org.junit.Before;
@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;

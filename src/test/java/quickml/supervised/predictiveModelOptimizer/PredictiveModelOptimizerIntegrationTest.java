@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.predictiveModelOptimizer;
 
 import com.beust.jcommander.internal.Maps;
 import org.junit.Before;
@@ -7,19 +7,17 @@ import org.junit.Test;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
-import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.crossValidation.data.TrainingDataCycler;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
-import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
-import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
+import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.data.OutOfTimeData;
+import quickml.supervised.crossValidation.data.TrainingDataCycler;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.List;

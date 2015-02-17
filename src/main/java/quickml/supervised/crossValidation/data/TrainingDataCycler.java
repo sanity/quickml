@@ -2,6 +2,10 @@ package quickml.supervised.crossValidation.data;
 
 import java.util.List;
 
+/**
+ *
+ * @param <T>
+ */
 public interface TrainingDataCycler<T> {
 
     List<T> getTrainingSet();

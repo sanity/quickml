@@ -1,8 +1,5 @@
 package quickml.data;
 
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-
 import java.io.Serializable;
 
 public class ClassifierInstance implements Instance<AttributesMap, Serializable> {

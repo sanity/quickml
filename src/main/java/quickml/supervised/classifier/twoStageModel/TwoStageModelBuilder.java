@@ -1,8 +1,8 @@
 package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
-import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder implements PredictiveModelBuilder<TwoStageModel, ClassifierInstance> {
+public class TwoStageModelBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<TwoStageModel, T> {
     PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1;
     PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2;
 
@@ -22,26 +22,12 @@ public class TwoStageModelBuilder implements PredictiveModelBuilder<TwoStageMode
     }
 
     @Override
-    public TwoStageModel buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
+    public TwoStageModel buildPredictiveModel(Iterable<T> trainingData) {
         List<ClassifierInstance> stage1Data = Lists.newArrayList();
         List<ClassifierInstance> stage2Data = Lists.newArrayList();
         List<ClassifierInstance> validationData = Lists.newArrayList();
-        createTrainingAndValidationData(trainingData, stage1Data, stage2Data, validationData);
-        Classifier c1 = wrappedModelBuilder1.buildPredictiveModel(stage1Data);
-        Classifier c2 = wrappedModelBuilder2.buildPredictiveModel(stage2Data);
-        return new TwoStageModel(c1, c2);
-    }
 
-    @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
-        wrappedModelBuilder1.updateBuilderConfig(config);
-        wrappedModelBuilder2.updateBuilderConfig(config);
-    }
-
-    private void createTrainingAndValidationData(Iterable<ClassifierInstance> trainingData, List<ClassifierInstance> stage1Data,
-                                                 List<ClassifierInstance> stage2Data, List<ClassifierInstance> validationData) {
-
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             if (instance.getLabel().equals("positive-both")) {
                 stage1Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
                 stage2Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
@@ -57,6 +43,16 @@ public class TwoStageModelBuilder implements PredictiveModelBuilder<TwoStageMode
                 throw new RuntimeException("missing valid label");
             }
         }
+
+
+        Classifier c1 = wrappedModelBuilder1.buildPredictiveModel(stage1Data);
+        Classifier c2 = wrappedModelBuilder2.buildPredictiveModel(stage2Data);
+        return new TwoStageModel(c1, c2);
     }
 
+    @Override
+    public void updateBuilderConfig(Map<String, Object> config) {
+        wrappedModelBuilder1.updateBuilderConfig(config);
+        wrappedModelBuilder2.updateBuilderConfig(config);
+    }
 }

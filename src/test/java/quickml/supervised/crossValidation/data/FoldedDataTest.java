@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.crossValidation.data;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.Before;

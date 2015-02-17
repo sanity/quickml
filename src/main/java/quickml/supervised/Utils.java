@@ -46,7 +46,7 @@ public class Utils {
         return weight;
     }
 
-    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<ClassifierInstance> validationSet) {
+    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends ClassifierInstance> validationSet) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
         for (ClassifierInstance instance : validationSet) {
             results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
@@ -54,7 +54,7 @@ public class Utils {
         return new PredictionMapResults(results);
     }
 
-    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<ClassifierInstance> validationSet, Set<String> attributesToIgnore) {
+    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<? extends ClassifierInstance> validationSet, Set<String> attributesToIgnore) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
         for (ClassifierInstance instance : validationSet) {
             PredictionMap prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);

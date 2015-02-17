@@ -18,35 +18,23 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<DownsamplingClassifier, ClassifierInstance> {
+public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Classifier, T> {
 
     public static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
 
 
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private double targetMinorityProportion;
-    private final PredictiveModelBuilder<Classifier, ClassifierInstance> predictiveModelBuilder;
+    private final PredictiveModelBuilder<Classifier, T> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
         checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.predictiveModelBuilder = predictiveModelBuilder;
         this.targetMinorityProportion = targetMinorityProportion;
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> cfg) {
-        predictiveModelBuilder.updateBuilderConfig(cfg);
-        if (cfg.containsKey(MINORITY_INSTANCE_PROPORTION))
-            targetMinorityProportion((Double) cfg.get(MINORITY_INSTANCE_PROPORTION));
-    }
-
-    public DownsamplingClassifierBuilder targetMinorityProportion(double targetMinorityProportion) {
-        this.targetMinorityProportion = targetMinorityProportion;
-        return this;
-    }
-
-    @Override
-    public DownsamplingClassifier buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
+    public DownsamplingClassifier buildPredictiveModel(Iterable<T> trainingData) {
         final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         if (classificationProportions.size() != 2) {
             printSampleInstancesForInspection(trainingData);
@@ -64,14 +52,27 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Dow
 
         final double dropProbability = (naturalMinorityProportion > targetMinorityProportion) ? 0 : 1.0 - ((naturalMinorityProportion - targetMinorityProportion * naturalMinorityProportion) / (targetMinorityProportion - targetMinorityProportion * naturalMinorityProportion));
 
-        Iterable<ClassifierInstance> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
+        Iterable<T> downsampledTrainingData = Iterables.filter(trainingData, new RandomDroppingInstanceFilter(majorityClassification, dropProbability));
 
         final Classifier wrappedPredictiveModel = predictiveModelBuilder.buildPredictiveModel(downsampledTrainingData);
 
         return new DownsamplingClassifier(wrappedPredictiveModel, majorityClassification, minorityEntry.getKey(), dropProbability);
     }
 
-    private void printSampleInstancesForInspection(Iterable<ClassifierInstance> trainingData) {
+
+    @Override
+    public void updateBuilderConfig(Map<String, Object> cfg) {
+        predictiveModelBuilder.updateBuilderConfig(cfg);
+        if (cfg.containsKey(MINORITY_INSTANCE_PROPORTION))
+            targetMinorityProportion((Double) cfg.get(MINORITY_INSTANCE_PROPORTION));
+    }
+
+    public DownsamplingClassifierBuilder targetMinorityProportion(double targetMinorityProportion) {
+        this.targetMinorityProportion = targetMinorityProportion;
+        return this;
+    }
+
+    private void printSampleInstancesForInspection(Iterable<? extends ClassifierInstance> trainingData) {
         logger.info("length of training data" + Iterables.size(trainingData));
         int counter = 0;
         for (ClassifierInstance instance : trainingData) {
@@ -87,7 +88,7 @@ public class DownsamplingClassifierBuilder implements PredictiveModelBuilder<Dow
         }
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<ClassifierInstance> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends ClassifierInstance> trainingData) {
         Map<Serializable, Long> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (ClassifierInstance instance : trainingData) {

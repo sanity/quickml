@@ -1,7 +1,6 @@
 package quickml;
 
 import com.google.common.collect.Lists;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +30,9 @@ public class PredictiveAccuracyTests {
     @Test
     public void irisTest() throws Exception {
 
-        FoldedData<ClassifierInstance> data = new FoldedData<>(loadIrisDataset(), 4, 4);
+        final FoldedData<ClassifierInstance> data = new FoldedData<>(loadIrisDataset(), 4, 4);
 
-        CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(new RandomForestBuilder(), new ClassifierLossChecker(new ClassifierRMSELossFunction()), data);
+        final CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker(new ClassifierRMSELossFunction()), data);
 
         final double crossValidatedLoss = validator.getLossForModel();
         double previousLoss = 0.673;

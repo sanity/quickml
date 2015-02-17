@@ -9,6 +9,9 @@ import quickml.supervised.crossValidation.PredictionMapResults;
 
 import java.util.*;
 
+/**
+ * Take a list of loss functions and keep a running total of the loss for each loss function per attribute
+ */
 public class AttributeLossTracker {
 
     private static final Logger logger = LoggerFactory.getLogger(AttributeLossTracker.class);

@@ -1,4 +1,4 @@
-package quickml.supervised.alternative.optimizer;
+package quickml.supervised.crossValidation.data;
 
 import org.junit.Before;
 import org.junit.Test;
