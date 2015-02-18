@@ -93,7 +93,7 @@ public class FeedForwardNeuralNetworkTest {
         System.out.println("AND: RMSE < 0.1 after " + testNetWithTrainingData(feedForwardNeuralNetwork, trainingData) + " training cycles");
     }
 
-    @Test
+    @Test()
     public void xorTrainTest() {
         FeedForwardNeuralNetwork feedForwardNeuralNetwork = new FeedForwardNeuralNetwork(Lists.newArrayList(2, 2, 1));
         List<SimpleTrainingPair> trainingData = Lists.newArrayList();
@@ -109,7 +109,7 @@ public class FeedForwardNeuralNetworkTest {
         int trainingCycles = 200000;
         for (int x=0; x< trainingCycles; x++) {
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
-                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 0.06);
+                feedForwardNeuralNetwork.updateWeightsAndBiases(simpleTrainingPair.inputs, simpleTrainingPair.outputs, 1e-1f);
             }
             double mse = 0;
             for (SimpleTrainingPair simpleTrainingPair : trainingData) {
