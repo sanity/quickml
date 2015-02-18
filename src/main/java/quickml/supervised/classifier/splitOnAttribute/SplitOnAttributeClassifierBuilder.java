@@ -4,11 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 
@@ -20,70 +17,86 @@ import java.util.*;
  */
 public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder<SplitOnAttributeClassifier, ClassifierInstance> {
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
-
-
-    public static final String MIN_AMOUNT_TOTAL_CROSS_DATA = "minAmountTotalCrossData";
-    public static final String MIN_AMOUNT_CROSS_DATA_CLASSIFICATION = "minAmountCrossDataClassification";
-    public static final String PERCENT_CROSS_DATA = "percentCrossData";
-    public static final Double NO_VALUE_PLACEHOLDER = Double.MIN_VALUE;
-
     private final String attributeKey;
-    private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
+    private final PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedBuilder;
+    private Map<? extends Serializable, Integer> splitValToGroupIdMap;
+    private Map<Integer, SplitModelGroup> splitModelGroups;
+    private final Integer defaultGroup;
 
-    private final int minimumAmountTotalCrossData;
-    private final double percentCrossData;
-    private final Set<String> attributeWhiteList;
-    private final int minimumAmountCrossDataPerClassification;
-
-    public SplitOnAttributeClassifierBuilder(String attributeKey, PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, int minimumAmountCrossData, double percentCrossData, Set<String> attributeWhiteList, int minimumAmountCrossDataPerClassification) {
+    //TODO:  this method should not have any parameters.
+    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedBuilder) {
 
         this.attributeKey = attributeKey;
+        this.defaultGroup = defaultGroup;
+        this.splitModelGroups = getSplitModelGroups(splitModelGroupsCollection);
+        this.splitValToGroupIdMap = getSplitValToGroupIdMap(splitModelGroups);
         this.wrappedBuilder = wrappedBuilder;
-        this.minimumAmountTotalCrossData = minimumAmountCrossData;
-        this.percentCrossData = percentCrossData;
-        this.attributeWhiteList = attributeWhiteList;
-        this.minimumAmountCrossDataPerClassification = minimumAmountCrossDataPerClassification;
-    }
-
-    @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
-
     }
 
     @Override
     public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
-        Map<Serializable, List<ClassifierInstance>> splitTrainingData = splitTrainingData(trainingData);
 
-        Map<Serializable, Classifier> splitModels = Maps.newHashMap();
-        for (Map.Entry<Serializable, List<ClassifierInstance>> trainingDataEntry : splitTrainingData.entrySet()) {
-            logger.info("Building predictive model for " + attributeKey + "=" + trainingDataEntry.getKey());
+        //split by groupId
+        Map<Integer, List<ClassifierInstance>> splitTrainingData = splitTrainingData(trainingData);
+        Map<Integer, Classifier> splitModels = Maps.newHashMap();
+        for (Map.Entry<Integer, List<ClassifierInstance>> trainingDataEntry : splitTrainingData.entrySet()) {
+            logger.info("Building predictive model for group" + attributeKey + "=" + trainingDataEntry.getKey());
             splitModels.put(trainingDataEntry.getKey(), wrappedBuilder.buildPredictiveModel(trainingDataEntry.getValue()));
         }
 
         logger.info("Building default predictive model");
-        final Classifier defaultPM = wrappedBuilder.buildPredictiveModel(trainingData);
-        return new SplitOnAttributeClassifier(attributeKey, splitModels, defaultPM);
+
+        return new SplitOnAttributeClassifier(attributeKey, splitValToGroupIdMap, defaultGroup, splitModels);
+    }
+
+    @Override
+    public void updateBuilderConfig(Map<String, Object> config) {
+        wrappedBuilder.updateBuilderConfig(config);
+    }
+
+    private Map<Integer, SplitModelGroup> getSplitModelGroups(Collection<SplitModelGroup> splitModelGroupCollection) {
+        Map<Integer, SplitModelGroup> splitModelGroupMap = new HashMap<>();
+        for (SplitModelGroup splitModelGroup : splitModelGroupCollection) {
+            splitModelGroupMap.put(splitModelGroup.groupId, splitModelGroup);
+        }
+        return splitModelGroupMap;
+    }
+
+    private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
+        SplitValTGroupIdMap splitValToGroupIdMap = new SplitValTGroupIdMap(defaultGroup);
+        for (Integer groupId : splitModelGroups.keySet()) {
+            Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
+            for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {
+                splitValToGroupIdMap.put(splitVal, groupId);
+            }
+        }
+        return splitValToGroupIdMap;
     }
 
 
-    private Map<Serializable, List<ClassifierInstance>> splitTrainingData(Iterable<ClassifierInstance> trainingData) {
+    private Map<Integer, List<ClassifierInstance>> splitTrainingData(Iterable<ClassifierInstance> trainingData) {
 
         //create lists of data for each split attribute val
-        Map<Serializable, List<ClassifierInstance>> splitTrainingData = Maps.newHashMap();
-        List<ClassifierInstance> allData = new ArrayList<>();
+        Map<Integer, List<ClassifierInstance>> splitTrainingData = Maps.newHashMap();
         for (ClassifierInstance instance : trainingData) {
             Serializable value = instance.getAttributes().get(attributeKey);
-            if (value == null) value = NO_VALUE_PLACEHOLDER;
-            List<ClassifierInstance> splitData = splitTrainingData.get(value);
-            if (splitData == null) {
-                splitData = Lists.newArrayList();
-                splitTrainingData.put(value, splitData);
+            Integer groupId;
+            if (value != null) {
+                groupId = splitValToGroupIdMap.get(value);
+            } else {
+                continue;
             }
-            splitData.add(instance);
-            allData.add(instance);
+
+            List<ClassifierInstance> trainingDataForGroup = splitTrainingData.get(groupId);
+            if (trainingDataForGroup == null) {
+                trainingDataForGroup = Lists.newArrayList();
+                splitTrainingData.put(groupId, trainingDataForGroup);
+            }
+            trainingDataForGroup.add(instance);
         }
+        //test by walking up to this point with debugger and make sure everything is ok
         //do cross polination
-        crossPollinateData(splitTrainingData, allData);
+        crossPollinateData(splitTrainingData);
         return splitTrainingData;
     }
 
@@ -91,33 +104,53 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
     * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that are in the white list
     * */
-    private void crossPollinateData(Map<Serializable, List<ClassifierInstance>> splitTrainingData, List<ClassifierInstance> allData) {
-        for (Map.Entry<Serializable, List<ClassifierInstance>> entry : splitTrainingData.entrySet()) {
-            ClassificationCounter splitClassificationCounter = ClassificationCounter.countAll(entry.getValue()); //counts training instances associated with each split value (by classification and total)
-            long amountCrossData = (long) Math.max(splitClassificationCounter.getTotal() * percentCrossData, minimumAmountTotalCrossData);  //gets number of cross training instances to add
-            Set<ClassifierInstance> crossData = new HashSet<>();
-            ClassificationCounter crossDataCount = new ClassificationCounter();
-            for (int i = allData.size() - 1; i >= 0; i--) {
-                ClassifierInstance instance = allData.get(i);
-                double classificationRatio = splitClassificationCounter.getCount(instance.getLabel()) / splitClassificationCounter.getTotal(); //fraction of data by classification type in the un cross polinated data set
-                double targetCountByClassification = Math.max(classificationRatio * amountCrossData, minimumAmountCrossDataPerClassification); //number of instances to add of a particular classification
-                if (shouldAddInstance(entry.getKey(), instance)) {
-                    crossData.add(cleanSupportingData(instance));
-                    crossDataCount.addClassification(instance.getLabel(), instance.getWeight());  //updates the amount of instances we have added by classification
-                }
-                if (crossDataCount.getTotal() >= amountCrossData) {
-                    break;
-                }
+    private void crossPollinateData(Map<Integer, List<ClassifierInstance>> splitTrainingData) {
+
+        Map<Integer, Long> groupIdToSamplesInTheGroup = new HashMap<>();
+
+        for (Integer groupId : splitTrainingData.keySet()) {
+            groupIdToSamplesInTheGroup.put(groupId, (long) splitTrainingData.get(groupId).size());
+        }
+
+        for (Integer presentGroup : splitModelGroups.keySet()) {
+
+            List<ClassifierInstance> dataForPresentGroup = splitTrainingData.get(presentGroup);
+            SplitModelGroup splitModelGroup = splitModelGroups.get(presentGroup);
+            Map<Integer, Long> numSamplesFromOtherGroupsMap = splitModelGroup.computeIdealNumberOfSamplesToCollectFromOtherGroups(groupIdToSamplesInTheGroup);
+            //for each
+            for (Integer crossGroupId : numSamplesFromOtherGroupsMap.keySet()) {
+                List<ClassifierInstance> instancesFromCrossGroup = splitTrainingData.get(crossGroupId);
+                long requestedNumInstances = numSamplesFromOtherGroupsMap.get(crossGroupId);
+                List<ClassifierInstance> listWithRequestedNumberOfInstancesFromThisCrossGroup = filterToRequestedNumber(instancesFromCrossGroup, requestedNumInstances);
+                dataForPresentGroup.addAll(listWithRequestedNumberOfInstancesFromThisCrossGroup);
             }
-            //cross pollinate data
-            entry.getValue().addAll(crossData);
         }
     }
 
-    /*
-     * Add instances such that the ratio of classifications is unchanged
-    * */
-    private boolean shouldAddInstance(Serializable attributeValue, ClassifierInstance instance) {
+    private List<ClassifierInstance> filterToRequestedNumber(List<ClassifierInstance> input, long requestedNumInstances) {
+        //TODO: consider allowing it to get the most recently dated instances.
+
+        /**
+         * this method obtains a random sublist of approximately m elements from a list of n elements in order m time.
+         */
+
+        List<ClassifierInstance> output = new ArrayList<>((int) requestedNumInstances);
+        double currentSizeToReducedSizeRatio = (1.0 * input.size()) / requestedNumInstances;
+        int baseIncrement = (int) Math.floor(currentSizeToReducedSizeRatio);
+        double randomIncrementProbability = currentSizeToReducedSizeRatio - baseIncrement;
+        int currentIndex = 0;
+        Random random = new Random();
+        for (int i = 0; i < requestedNumInstances && currentIndex < input.size(); i++) {
+            output.add(input.get(currentIndex));
+            currentIndex += baseIncrement;
+            if (random.nextDouble() < randomIncrementProbability) {
+                currentIndex++;
+            }
+        }
+        return output;
+    }
+
+    private boolean shouldAddInstance(Serializable attributeValue, ClassifierInstance instance, ClassificationCounter crossDataCount, double targetCount) {
         //if the model's split valaue is not the same as the instance's split value (avoids redundancy)
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             //if we still need instances of a particular classification
@@ -128,14 +161,42 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         return false;
     }
 
-    private ClassifierInstance cleanSupportingData(ClassifierInstance instance) {
-        AttributesMap attributes = AttributesMap.newHashMap();
-        for (String key : instance.getAttributes().keySet()) {
-            if (attributeWhiteList.isEmpty() || attributeWhiteList.contains(key)) {
-                attributes.put(key, instance.getAttributes().get(key));
-            }
-        }
-        return new ClassifierInstance(attributes, instance.getLabel(), instance.getWeight());
-    }
+    public static class SplitModelGroup {
+        public final int groupId;
+        public final long minTotalSamples;
+        public double percentageOfTrainingDataThatIsFromOtherGroups;
+        public final Map<Integer, Double> groupIdToPercentageOfCrossDataProvidedMap;
+        public final Set<? extends Serializable> valuesOfSplitVariableInTheGroup;
 
+        public SplitModelGroup(int groupId, Set<? extends Serializable> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
+            this.groupId = groupId;
+            this.valuesOfSplitVariableInTheGroup = valuesOfSplitVariableInTheGroup;
+            this.minTotalSamples = minTotalSamples;
+            this.percentageOfTrainingDataThatIsFromOtherGroups = percentageOfTrainingDataThatIsFromOtherGroups;
+            this.groupIdToPercentageOfCrossDataProvidedMap = relativeImportanceOfEachGroupThatContributesCrossGroupData;
+        }
+
+        public Map<Integer, Long> computeIdealNumberOfSamplesToCollectFromOtherGroups(Map<Integer, Long> groupIdToSamplesInTheGroup) {
+            Map<Integer, Long> numberOfSamplesToCollectFromGroups = new HashMap<>();
+
+            long numNonCrossTrainingDataSamples = groupIdToSamplesInTheGroup.get(groupId);
+            double percentageOfNonCrossTrainingData = 1 - percentageOfTrainingDataThatIsFromOtherGroups;
+
+            boolean cannotAchieveSpecifiedPercentageOfTrainingDataThatIsFromOtherGroups = minTotalSamples > numNonCrossTrainingDataSamples / percentageOfNonCrossTrainingData;
+            long numCrossPolinatedInstancesNeeded;
+            if (cannotAchieveSpecifiedPercentageOfTrainingDataThatIsFromOtherGroups) {
+                numCrossPolinatedInstancesNeeded = minTotalSamples - numNonCrossTrainingDataSamples;
+            } else {
+                numCrossPolinatedInstancesNeeded = (long) Math.ceil(numNonCrossTrainingDataSamples * (1 - percentageOfNonCrossTrainingData) / percentageOfNonCrossTrainingData);
+            }
+
+            for (Integer groupId : groupIdToPercentageOfCrossDataProvidedMap.keySet()) {
+                numberOfSamplesToCollectFromGroups.put(groupId, (long) (groupIdToPercentageOfCrossDataProvidedMap.get(groupId) * numCrossPolinatedInstancesNeeded));
+            }
+            //TODO: compare lengths in numberOfSamplesToCollectFromGroups to the actual numberOfTraining examples of the other groups, and intelligently rebalance the requsted numbers based on what is actually possible.
+            // For the time being, if one group  has fewer actual instances than it is requested to provide, just provide all of it's training instances.
+
+            return numberOfSamplesToCollectFromGroups;
+        }
+    }
 }

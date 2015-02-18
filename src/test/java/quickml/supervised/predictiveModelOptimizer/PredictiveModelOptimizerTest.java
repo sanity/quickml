@@ -1,85 +1,71 @@
 package quickml.supervised.predictiveModelOptimizer;
 
-import com.google.common.io.CharSource;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import quickml.TrainingInstance;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import com.google.common.collect.Maps;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
-import quickml.supervised.crossValidation.ClassifierOutOfTimeCrossValidator;
-import quickml.supervised.crossValidation.OutOfTimeCrossValidator;
-import quickml.supervised.crossValidation.crossValLossFunctions.WeightedAUCCrossValLossFunction;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-import static com.google.common.io.Resources.asCharSource;
-import static com.google.common.io.Resources.getResource;
-import static java.nio.charset.Charset.defaultCharset;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-/**
- * Created by ian on 3/1/14.
- */
 public class PredictiveModelOptimizerTest {
-    private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
 
-//    @Test
-//    public void irisTest() throws IOException {
-//        final List<Instance<AttributesMap>> instances = Benchmarks.loadIrisDataset();
-//        testWithTrainingSet(instances);
-//    }
-//
-//
-//    @Test(enabled = false)
-//    public void diabetesTest() throws IOException {
-//        final List<Instance<AttributesMap>> instances = Benchmarks.loadDiabetesDataset();
-//        testWithTrainingSet(instances);
-//    }
+    @Mock
+    CrossValidator mockCrossValidator;
 
-    @Test(enabled = false)
-    public void testOnespotTest() throws Exception {
-        List<TrainingInstance> trainingInstances = loadOnespotInstances();
-        testWithTrainingSet(trainingInstances);
+    @Mock
+    ClassifierLossChecker mockLossChecker;
 
+    private PredictiveModelOptimizer modelOptimizer;
+    private HashMap<String, Object> bestConfig = Maps.newHashMap();
+    private HashMap<String, Object> secondBestConfig = Maps.newHashMap();
+    private HashMap<String, Object> thirdBestConfig = Maps.newHashMap();
+
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+
+        // Use a tree map for deteminisic order
+        Map<String, FixedOrderRecommender> fields = new TreeMap<>();
+        fields.put("treeDepth", new FixedOrderRecommender(1, 2, 3, 4, 5));
+        fields.put("penalize_splits", new FixedOrderRecommender(true, false));
+        fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
+
+        modelOptimizer = new PredictiveModelOptimizer(fields, mockCrossValidator, 10);
     }
 
-    //TODO[mk] this test will need to be updated
-    private void testWithTrainingSet(final List<TrainingInstance> instances) {
-//        RandomForestBuilderFactory randomForestBuilderFactory = new RandomForestBuilderFactory();
-//        ClassifierOutOfTimeCrossValidator crossVal = new ClassifierOutOfTimeCrossValidator(new WeightedAUCCrossValLossFunction(1.0), 0.25, 1, new OutOfTimeCrossValidator.TestDateTimeExtractor());
-//        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(randomForestBuilderFactory, instances, crossVal);
-//        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
-//        logger.info("Optimal parameters: " + optimalParameters);
-//        RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
-//        RandomForestBuilder optimalRFBuilder = randomForestBuilderFactory.buildBuilder(optimalParameters);
-//        double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
-//        double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
-//        logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
-//        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss (" + optimizedLoss + ")");
+    @Test
+    public void testFindSimpleBestConfig() throws Exception {
+        // Fields are checked in the following order - penalize_splits, scorer, treeDepth
+        thirdBestConfig = createMap(1, false, "A");
+        secondBestConfig = createMap(1, false, "C");
+        bestConfig = createMap(5, false, "C");
+
+
+        when(mockCrossValidator.getLossForModel(anyMap())).thenReturn(0.5);
+        when(mockCrossValidator.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
+        when(mockCrossValidator.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
+        when(mockCrossValidator.getLossForModel(eq(bestConfig))).thenReturn(0.1);
+
+        assertEquals(bestConfig, modelOptimizer.determineOptimalConfig());
     }
 
-    private List<TrainingInstance> loadOnespotInstances() throws IOException {
-        CharSource charSource = asCharSource(getResource("small_training_instances.json"), defaultCharset());
-        BufferedReader br = new BufferedReader(charSource.openBufferedStream());
-        Gson gson = new GsonBuilder().create();
-        ArrayList<TrainingInstance> list = gson.fromJson(br, new TypeToken<List<TrainingInstance>>() {}.getType());
-        for (TrainingInstance trainingInstance : list) {
-            trainingInstance.convertAttributes();
-        }
-
-        return list;
+    private HashMap<String, Object> createMap(int treeDepth, boolean penalizeSplits, String scorer) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("treeDepth", treeDepth);
+        map.put("penalize_splits", penalizeSplits);
+        map.put("scorer", scorer);
+        return map;
     }
-
-
-
-
-
 }

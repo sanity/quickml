@@ -28,10 +28,6 @@ public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
         return label;
     }
 
-    public InstanceImpl reweight(double newWeight){
-        return new InstanceImpl(getAttributes(), getLabel(), newWeight);
-    }
-
     public double getWeight() {
         return weight;
     }

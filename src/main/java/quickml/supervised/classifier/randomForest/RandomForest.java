@@ -40,7 +40,6 @@ public class RandomForest extends AbstractClassifier {
         }
     }
 
-
     public void dump(Appendable appendable, int numTrees) {
         double meanDepth = 0;
         for (int i = 0; i < numTrees; i++) {

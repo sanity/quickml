@@ -6,9 +6,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,17 +29,21 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
     private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
+    private DateTimeExtractor dateTimeExtractor;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
         this.positiveClassification = positiveClassification;
+        this.dateTimeExtractor = dateTimeExtractor;
     }
 
     @Override
     public void updateBuilderConfig(Map<String, Object> config) {
         wrappedBuilder.updateBuilderConfig(config);
-        halfLifeOfPositive((Double) config.get(HALF_LIFE_OF_POSITIVE));
-        halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));
+        if (config.containsKey(HALF_LIFE_OF_NEGATIVE))
+            halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));
+        if (config.containsKey(HALF_LIFE_OF_POSITIVE))
+            halfLifeOfPositive((Double) config.get(HALF_LIFE_OF_POSITIVE));
     }
 
     public TemporallyReweightedClassifierBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
@@ -70,7 +75,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
         ArrayList<ClassifierInstance> trainingDataList = Lists.newArrayList();
         for (ClassifierInstance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
-            double hoursBack = Hours.hoursBetween(mostRecentInstance, instance.getTimestamp()).getHours();
+            double hoursBack = Hours.hoursBetween(mostRecentInstance, dateTimeExtractor.extractDateTime(instance)).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             trainingDataList.add(new ClassifierInstance(instance.getAttributes(), instance.getLabel(), newWeight));
         }
@@ -85,8 +90,8 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private DateTime getMostRecentInstance(Iterable<ClassifierInstance> newData) {
         DateTime mostRecent = null;
         for (ClassifierInstance instance : newData) {
-            if (mostRecent == null || instance.getTimestamp().isAfter(mostRecent)) {
-                mostRecent = instance.getTimestamp();
+            if (mostRecent == null || dateTimeExtractor.extractDateTime(instance).isAfter(mostRecent)) {
+                mostRecent = dateTimeExtractor.extractDateTime(instance);
             }
         }
         return mostRecent;

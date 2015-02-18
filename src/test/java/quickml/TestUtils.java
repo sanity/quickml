@@ -1,12 +1,7 @@
 package quickml;
 
-import org.hamcrest.Matcher;
 import quickml.data.AttributesMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import quickml.data.ClassifierInstance;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
