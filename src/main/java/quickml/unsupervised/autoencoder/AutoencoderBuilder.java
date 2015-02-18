@@ -7,6 +7,6 @@ import java.util.List;
  */
 public class AutoencoderBuilder {
     public Autoencoder build(Iterable<List<Double>> trainingData) {
-
+        return null;
     }
 }

@@ -17,6 +17,7 @@ public final class FeedForwardNeuralNetwork implements PredictiveModel<List<Doub
     private int neuronCount;
 
     public FeedForwardNeuralNetwork(List<Integer> layerSizes) {
+        Preconditions.checkArgument(layerSizes.size() > 1);
         createLayers(layerSizes);
 
         connectLayers();
