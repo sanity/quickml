@@ -22,10 +22,11 @@ public class PredictiveModelOptimizer {
 
 
     /**
+     * Do not call directly - Use PredictiveModelOptimizerBuilder to an instance
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
-    public PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
         this.iterations = iterations;

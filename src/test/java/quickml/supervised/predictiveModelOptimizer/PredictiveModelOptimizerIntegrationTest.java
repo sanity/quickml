@@ -17,12 +17,14 @@ import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.List;
 import java.util.Map;
 
+import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 import static quickml.supervised.classifier.decisionTree.scorers.MSEScorer.CrossValidationCorrection.FALSE;
 import static quickml.supervised.classifier.decisionTree.scorers.MSEScorer.CrossValidationCorrection.TRUE;
@@ -35,29 +37,28 @@ public class PredictiveModelOptimizerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        List<ClassifierInstance> trainingInstances = InstanceLoader.getAdvertisingInstances();
-        TrainingDataCycler<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(trainingInstances, 0.5, 12, new OnespotDateTimeExtractor());
-        ClassifierLossChecker lossChecker = new ClassifierLossChecker(new ClassifierRMSELossFunction());
-        RandomForestBuilder randomForestBuilder = new RandomForestBuilder();
-
-        CrossValidator<Classifier, ClassifierInstance> crossValidator = new CrossValidator<>(randomForestBuilder, lossChecker, outOfTimeData);
-        optimizer = new PredictiveModelOptimizer(createConfig(), crossValidator, 3);
+        List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
+        advertisingInstances = advertisingInstances.subList(0, 3000);
+        optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
+                .modelBuilder(new RandomForestBuilder<>())
+                .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.5, 12, new OnespotDateTimeExtractor()))
+                .lossChecker(new ClassifierLossChecker(new ClassifierLogCVLossFunction(0.000001)))
+                .valuesToTest(createConfig())
+                .iterations(1)
+                .build();
     }
 
 
-    @Ignore("WIP")
     @Test
     public void testOptimizer() throws Exception {
-
-        Map<String, Object> optimalConfig = optimizer.determineOptimalConfig();
-        System.out.println("optimalConfig = " + optimalConfig);
+        System.out.println("optimalConfig = " + optimizer.determineOptimalConfig());
     }
 
 
     private Map<String, FieldValueRecommender> createConfig() {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
         config.put(NUM_TREES, new FixedOrderRecommender(5, 10));
-        config.put(IGNORE_ATTR_PROB, new FixedOrderRecommender(0.5, 0.0, 0.1, 0.2, 0.4, 0.7, 0.8, 0.9, 0.95, 0.99));
+        config.put(IGNORE_ATTR_PROB, new FixedOrderRecommender(0.5, 0.0, 0.1, 0.4, 0.9, 0.95, 0.99));
         config.put(MAX_DEPTH, new FixedOrderRecommender(Integer.MAX_VALUE, 2, 3, 5, 6, 9));
         config.put(MIN_SCORE, new FixedOrderRecommender(0.00000000000001, Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         config.put(MIN_CAT_ATTR_OCC, new FixedOrderRecommender(5, 0, 1, 64, 1024, 4098));

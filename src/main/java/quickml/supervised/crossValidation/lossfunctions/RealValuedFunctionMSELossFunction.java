@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 7/30/14.
  */
-public class RealValuedFunctionMSELossFunction implements LossFunction<Double, List<LabelPredictionWeight<Serializable, Double>>> {
+public class RealValuedFunctionMSELossFunction implements LossFunction<List<LabelPredictionWeight<Serializable, Double>>> {
     double totalLoss = 0;
     double weightOfAllInstances = 0;
 

@@ -1,8 +1,8 @@
 package quickml.supervised.crossValidation.lossfunctions;
 
-public interface LossFunction <L, R> {
+public interface LossFunction <R> {
 
-    public L getLoss(R results);
+    public Double getLoss(R results);
 
     public String getName();
 
