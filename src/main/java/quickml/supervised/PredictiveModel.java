@@ -11,5 +11,4 @@ public interface PredictiveModel<A, P> extends Serializable {
 
     P predict(A attributes);
     P predictWithoutAttributes(A attributes, Set<String> attributesToIgnore);
-    void dump(Appendable appendable);
 }

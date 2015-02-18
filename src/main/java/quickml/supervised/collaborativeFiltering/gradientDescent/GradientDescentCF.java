@@ -24,9 +24,4 @@ public class GradientDescentCF extends CollaborativeFilter {
     }
 
 
-    @Override
-    public void dump(final Appendable appendable) {
-
-    }
-
 }

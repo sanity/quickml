@@ -42,11 +42,6 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public void dump(final Appendable appendable) {
-        wrappedClassifier.dump(appendable);
-    }
-
-    @Override
     public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
