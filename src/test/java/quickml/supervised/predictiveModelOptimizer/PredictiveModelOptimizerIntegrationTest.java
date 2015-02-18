@@ -42,7 +42,7 @@ public class PredictiveModelOptimizerIntegrationTest {
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
                 .modelBuilder(new RandomForestBuilder<>())
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.5, 12, new OnespotDateTimeExtractor()))
-                .lossChecker(new ClassifierLossChecker(new ClassifierLogCVLossFunction(0.000001)))
+                .lossChecker(new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001)))
                 .valuesToTest(createConfig())
                 .iterations(1)
                 .build();

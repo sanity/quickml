@@ -32,7 +32,7 @@ public class PredictiveAccuracyTests {
 
         final FoldedData<ClassifierInstance> data = new FoldedData<>(loadIrisDataset(), 4, 4);
 
-        final CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker(new ClassifierRMSELossFunction()), data);
+        final CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker<>(new ClassifierRMSELossFunction()), data);
 
         final double crossValidatedLoss = validator.getLossForModel();
         double previousLoss = 0.673;

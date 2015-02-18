@@ -31,14 +31,14 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {
 
-    private ClassifierLossChecker classifierLossChecker;
+    private ClassifierLossChecker<ClassifierInstance> classifierLossChecker;
     private ArrayList<Scorer> scorers;
     private TreeBuilder treeBuilder;
     private RandomForestBuilder randomForestBuilder;
 
     @Before
     public void setUp() throws Exception {
-        classifierLossChecker = new ClassifierLossChecker(new ClassifierLogCVLossFunction(0.000001));
+        classifierLossChecker = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
         scorers = newArrayList(
                 new SplitDiffScorer(),
                 new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE),

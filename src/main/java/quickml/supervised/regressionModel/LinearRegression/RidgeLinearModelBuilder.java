@@ -32,7 +32,8 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
     @Override
     public void
     updateBuilderConfig(Map<String, Object> cfg) {
-        regularizationConstant((Double) cfg.get(REGULARIZATION_CONSTANT));
+        if (cfg.containsKey(REGULARIZATION_CONSTANT))
+            regularizationConstant((Double) cfg.get(REGULARIZATION_CONSTANT));
         if (cfg.containsKey(INCLUDE_BIAS_TERM))
             includeBiasTerm((Boolean) cfg.get(INCLUDE_BIAS_TERM));
     }

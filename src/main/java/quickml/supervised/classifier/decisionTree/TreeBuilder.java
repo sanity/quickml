@@ -73,43 +73,43 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         this.scorer = scorer;
     }
 
-    public TreeBuilder scorer(final Scorer scorer) {
+    public TreeBuilder<T> scorer(final Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
 
-    public TreeBuilder maxDepth(int maxDepth) {
+    public TreeBuilder<T> maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
         return this;
     }
 
-    public TreeBuilder binaryClassification(boolean binaryClassification) {
+    public TreeBuilder<T> binaryClassification(boolean binaryClassification) {
         this.binaryClassifications = binaryClassification;
         return this;
     }
 
-    public TreeBuilder minLeafInstances(int minLeafInstances) {
+    public TreeBuilder<T> minLeafInstances(int minLeafInstances) {
         this.minLeafInstances = minLeafInstances;
         return this;
     }
 
-    public TreeBuilder penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
+    public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
         this.penalizeCategoricalSplitsBySplitAttributeInformationValue = useGainRatio;
         return this;
     }
 
-    public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {
+    public TreeBuilder<T> ignoreAttributeAtNodeProbability(double probability) {
         this.ignoreAttributeAtNodeProbability = probability;
         return this;
     }
 
-    public TreeBuilder minCategoricalAttributeValueOccurances(int occurances) {
+    public TreeBuilder<T> minCategoricalAttributeValueOccurances(int occurances) {
         this.minCategoricalAttributeValueOccurances = occurances;
         return this;
     }
 
-    public TreeBuilder minimumScore(double minimumScore) {
+    public TreeBuilder<T> minimumScore(double minimumScore) {
         this.minimumScore = minimumScore;
         return this;
     }
