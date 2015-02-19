@@ -1,6 +1,6 @@
 package quickml.supervised.classifier.decisionTree;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Ignore;

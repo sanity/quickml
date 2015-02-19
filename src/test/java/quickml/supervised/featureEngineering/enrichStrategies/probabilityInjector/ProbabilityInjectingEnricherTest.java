@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.probabilityInjector;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import junit.framework.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;

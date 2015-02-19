@@ -15,35 +15,34 @@ import java.util.*;
 public class AttributeLossTracker {
 
     private static final Logger logger = LoggerFactory.getLogger(AttributeLossTracker.class);
+    private final LossFunctionTracker allAttributeLossTracker;
 
     private Map<String, LossFunctionTracker> attributeLossMap = Maps.newHashMap();
-    private final List<ClassifierLossFunction> lossFunctions;
-    private String primaryLossFunction;
 
-    public AttributeLossTracker(Set<String> attributes, List<ClassifierLossFunction> lossFunctions, String primaryLossFunction) {
-        this.lossFunctions = lossFunctions;
-        this.primaryLossFunction = primaryLossFunction;
+    public AttributeLossTracker(Set<String> attributes, List<ClassifierLossFunction> lossFunctions, ClassifierLossFunction primaryLossFunction) {
         for (String attribute : attributes) {
-            attributeLossMap.put(attribute, new LossFunctionTracker(lossFunctions));
+            attributeLossMap.put(attribute, new LossFunctionTracker(lossFunctions, primaryLossFunction));
         }
+        allAttributeLossTracker = new LossFunctionTracker(lossFunctions, primaryLossFunction);
     }
 
     public void updateAttribute(String attribute, PredictionMapResults results) {
-        if (!attributeLossMap.containsKey(attribute))
-            attributeLossMap.put(attribute, new LossFunctionTracker(lossFunctions));
         attributeLossMap.get(attribute).updateLosses(results);
+    }
+
+    public void noMissingAttributeLoss(PredictionMapResults predictionMapResults) {
+        allAttributeLossTracker.updateLosses(predictionMapResults);
+    }
+
+    public double getOverallLoss() {
+        return allAttributeLossTracker.getPrimaryLoss();
     }
 
     public void logResults() {
         logger.info("----- Attribute Loss Tracker  - Number of attributes {} ----", attributeLossMap.keySet().size());
-
         for (String attribute : getOrderedAttributes()) {
-            LossFunctionTracker lossFunctionTracker = attributeLossMap.get(attribute);
-
-            for (String lossFunction : lossFunctionTracker.lossFunctionNames()) {
-                double loss = lossFunctionTracker.getLossForFunction(lossFunction);
-                logger.info("Attribute: {}, Lossfunction: {}, Loss: {}", attribute, lossFunction, loss);
-            }
+            logger.info("Attribute {}",  attribute);
+            attributeLossMap.get(attribute).logLosses();
         }
     }
 
@@ -51,7 +50,7 @@ public class AttributeLossTracker {
         ArrayList<AttributeWithLoss> list = Lists.newArrayList();
 
         for (String attribute : attributeLossMap.keySet()) {
-            list.add(new AttributeWithLoss(attribute, attributeLossMap.get(attribute).getLossForFunction(primaryLossFunction)));
+            list.add(new AttributeWithLoss(attribute, attributeLossMap.get(attribute).getPrimaryLoss()));
         }
 
         Collections.sort(list);
@@ -81,6 +80,7 @@ public class AttributeLossTracker {
             return Double.compare(o.loss, loss);
         }
     }
+
 
 
 }
