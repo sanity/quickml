@@ -2,7 +2,7 @@ package quickml.supervised.classifier;
 
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import java.io.*;
 import java.util.ArrayList;

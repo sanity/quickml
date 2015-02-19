@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import java.util.List;

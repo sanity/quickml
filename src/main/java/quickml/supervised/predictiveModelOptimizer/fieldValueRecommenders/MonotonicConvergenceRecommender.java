@@ -37,7 +37,7 @@ public class MonotonicConvergenceRecommender implements FieldValueRecommender {
         return values.get(0);
     }
 
-    //TODO[mk] - this could do with a rework
+    //TODO[mk] - this could do with a rethink
     @Override
     public boolean shouldContinue(List<Double> losses) {
         if (losses.size() < MIN_VALUES_TO_TEST)

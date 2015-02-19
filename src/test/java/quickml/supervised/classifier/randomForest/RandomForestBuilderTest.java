@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;

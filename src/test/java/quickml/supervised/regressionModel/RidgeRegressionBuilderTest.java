@@ -6,10 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
-import quickml.supervised.alternative.RidgeInstance;
-import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.crossValidation.StationaryCrossValidatorBuilder;
-import quickml.supervised.crossValidation.crossValLossFunctions.SingleVariableRealValuedFunctionMSECVLossFunction;
+import quickml.data.RidgeInstance;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModel;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilder;
 
@@ -70,7 +67,7 @@ public class RidgeRegressionBuilderTest {
     @Test
     //TODO[mk] update this test
     public void ridgePMOTest() {
-        CrossValidator<double[] , Serializable, Double> crossValidator = new StationaryCrossValidatorBuilder().setFolds(4).setLossFunction(new SingleVariableRealValuedFunctionMSECVLossFunction()).createCrossValidator();
+//        CrossValidator<double[] , Serializable, Double> crossValidator = new StationaryCrossValidatorBuilder().setFolds(4).setLossFunction(new SingleVariableRealValuedFunctionMSECVLossFunction()).createCrossValidator();
 //        RidgeLinearModelBuilderFactory ridgeLinearModelBuilderFactory = new RidgeLinearModelBuilderFactory().header(header).includeBiasTerm(true).regularizationConstants(new FixedOrderRecommender(0.001, 0.01, 0.1));
 //        PredictiveModelOptimizer<double[], Serializable, Double, RidgeLinearModel, RidgeLinearModelBuilder> predictiveModelOptimizer = new PredictiveModelOptimizer<>(ridgeLinearModelBuilderFactory, trainingData, crossValidator);
 //        Map<String, Object> optimalParams = predictiveModelOptimizer.determineOptimalConfiguration();

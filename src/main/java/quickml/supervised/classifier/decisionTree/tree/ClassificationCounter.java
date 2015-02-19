@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.*;
@@ -45,7 +45,7 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> countAllByAttributeValues(
-            final Iterable<ClassifierInstance> instances, final String attribute) {
+            final Iterable<? extends ClassifierInstance> instances, final String attribute) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
         for (ClassifierInstance instance : instances) {
@@ -73,7 +73,7 @@ public class ClassificationCounter implements Serializable {
     }
 
     public static Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> getSortedListOfAttributeValuesWithClassificationCounters(
-            final Iterable<ClassifierInstance> instances, final String attribute, final Serializable minorityClassification) {
+            final Iterable<? extends ClassifierInstance> instances, final String attribute, final Serializable minorityClassification) {
 
         Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> totalsClassificationCounterPairedWithMapofClassificationCounters = countAllByAttributeValues(instances, attribute);
         final Map<Serializable, ClassificationCounter> result = totalsClassificationCounterPairedWithMapofClassificationCounters.getValue1();
@@ -107,7 +107,7 @@ public class ClassificationCounter implements Serializable {
     }
 
 
-    public static ClassificationCounter countAll(final Iterable<ClassifierInstance> instances) {
+    public static ClassificationCounter countAll(final Iterable<? extends ClassifierInstance> instances) {
         final ClassificationCounter result = new ClassificationCounter();
         for (ClassifierInstance instance : instances) {
             result.addClassification(instance.getLabel(), instance.getWeight());

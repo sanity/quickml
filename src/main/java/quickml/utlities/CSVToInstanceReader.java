@@ -5,8 +5,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.utlities.selectors.*;
 
 /**

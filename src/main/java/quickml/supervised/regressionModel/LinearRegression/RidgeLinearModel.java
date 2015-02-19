@@ -1,14 +1,9 @@
 package quickml.supervised.regressionModel.LinearRegression;
 
-import quickml.data.Instance;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 import quickml.supervised.regressionModel.MultiVariableRealValuedFunction;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Created by alexanderhawk on 8/12/14.

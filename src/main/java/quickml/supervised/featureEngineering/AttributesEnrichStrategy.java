@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering;
 
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 /**
  * Created by ian on 5/21/14.

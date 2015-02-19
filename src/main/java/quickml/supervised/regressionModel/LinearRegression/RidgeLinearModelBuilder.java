@@ -8,7 +8,7 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.javatuples.Pair;
 import quickml.data.Instance;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.RidgeInstance;
+import quickml.data.RidgeInstance;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -26,13 +26,16 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
     private Iterable<? extends Instance<double[], Serializable>> trainingData;
     private boolean includeBiasTerm = false;
     private int collumnsInDataMatrix = 0;
-    private String []header;
+    private String[] header;
 
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
-        regularizationConstant((Double) config.get(REGULARIZATION_CONSTANT));
-        includeBiasTerm((Boolean) config.get(INCLUDE_BIAS_TERM));
+    public void
+    updateBuilderConfig(Map<String, Object> cfg) {
+        if (cfg.containsKey(REGULARIZATION_CONSTANT))
+            regularizationConstant((Double) cfg.get(REGULARIZATION_CONSTANT));
+        if (cfg.containsKey(INCLUDE_BIAS_TERM))
+            includeBiasTerm((Boolean) cfg.get(INCLUDE_BIAS_TERM));
     }
 
     public RidgeLinearModelBuilder() {
@@ -48,7 +51,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
         return this;
     }
 
-    public RidgeLinearModelBuilder header(String []header) {
+    public RidgeLinearModelBuilder header(String[] header) {
         this.header = header;
         return this;
     }
@@ -79,7 +82,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
     private void printMatrix(RealMatrix matrix) {
         for (int i = 0; i < matrix.getRowDimension(); i++) {
             for (int j = 0; j < matrix.getColumnDimension(); j++) {
-                System.out.print(matrix.getEntry(i, j)+ " ");
+                System.out.print(matrix.getEntry(i, j) + " ");
             }
             System.out.print("\n");
         }
@@ -87,7 +90,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
 
 
     private RealMatrix getIdentiytMatrixTimesRegularizationConstant() {
-         RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
+        RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
         for (int i = 0; i < collumnsInDataMatrix; i++) {
             identityMatrixTimesRegularizationConstant.setEntry(i, i, regularizationConstant);
         }
@@ -107,8 +110,8 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLine
                 dataMatrix.setEntry(row, 0, 1.0);
                 oneIfUsingBiasTerm = 1;
             }
-            for (int i=0; i < attributes.length; i++) {
-                dataMatrix.setEntry(row, i+oneIfUsingBiasTerm, attributes[i]);
+            for (int i = 0; i < attributes.length; i++) {
+                dataMatrix.setEntry(row, i + oneIfUsingBiasTerm, attributes[i]);
             }
             row++;
         }

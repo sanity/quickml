@@ -11,9 +11,8 @@ import com.twitter.common.util.Random;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.javatuples.Pair;
 import quickml.collections.MapUtils;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 
@@ -22,7 +21,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class TreeBuilder implements PredictiveModelBuilder<Classifier, ClassifierInstance> {
+public final class TreeBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Tree, T> {
 
     public static final String IGNORE_ATTR_PROB = "ignoreAttrProb";
     public static final String MAX_DEPTH = "maxDepth";
@@ -55,12 +54,18 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
     }
 
     public void updateBuilderConfig(final Map<String, Object> cfg) {
-        scorer((Scorer) cfg.get(SCORER));
-        ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
-        maxDepth((Integer) cfg.get(MAX_DEPTH));
-        minimumScore((Double) cfg.get(MIN_SCORE));
-        minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_CAT_ATTR_OCC));
-        minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
+        if (cfg.containsKey(SCORER))
+            scorer((Scorer) cfg.get(SCORER));
+        if (cfg.containsKey(IGNORE_ATTR_PROB))
+            ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
+        if (cfg.containsKey(MAX_DEPTH))
+            maxDepth((Integer) cfg.get(MAX_DEPTH));
+        if (cfg.containsKey(MIN_SCORE))
+            minimumScore((Double) cfg.get(MIN_SCORE));
+        if (cfg.containsKey(MIN_CAT_ATTR_OCC))
+            minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_CAT_ATTR_OCC));
+        if (cfg.containsKey(MIN_LEAF_INSTANCES))
+            minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
         penalizeCategoricalSplitsBySplitAttributeInformationValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
@@ -68,56 +73,56 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         this.scorer = scorer;
     }
 
-
-    public TreeBuilder scorer(final Scorer scorer) {
+    public TreeBuilder<T> scorer(final Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
-    public TreeBuilder maxDepth(int maxDepth) {
+
+    public TreeBuilder<T> maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
         return this;
     }
 
-    public TreeBuilder binaryClassification(boolean binaryClassification) {
+    public TreeBuilder<T> binaryClassification(boolean binaryClassification) {
         this.binaryClassifications = binaryClassification;
         return this;
     }
 
-    public TreeBuilder minLeafInstances(int minLeafInstances) {
+    public TreeBuilder<T> minLeafInstances(int minLeafInstances) {
         this.minLeafInstances = minLeafInstances;
         return this;
     }
 
-    public TreeBuilder penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
+    public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
         this.penalizeCategoricalSplitsBySplitAttributeInformationValue = useGainRatio;
         return this;
     }
 
-    public TreeBuilder ignoreAttributeAtNodeProbability(double probability) {
+    public TreeBuilder<T> ignoreAttributeAtNodeProbability(double probability) {
         this.ignoreAttributeAtNodeProbability = probability;
         return this;
     }
 
-    public TreeBuilder minCategoricalAttributeValueOccurances(int occurances) {
+    public TreeBuilder<T> minCategoricalAttributeValueOccurances(int occurances) {
         this.minCategoricalAttributeValueOccurances = occurances;
         return this;
     }
 
-    public TreeBuilder minimumScore(double minimumScore) {
+    public TreeBuilder<T> minimumScore(double minimumScore) {
         this.minimumScore = minimumScore;
         return this;
     }
 
     @Override
-    public Tree buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
+    public Tree buildPredictiveModel(Iterable<T> trainingData) {
         Set<Serializable> classifications = getClassificationProperties(trainingData);
         return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)), classifications);
     }
 
-    private Set<Serializable> getClassificationProperties(Iterable<ClassifierInstance> trainingData) {
+    private Set<Serializable> getClassificationProperties(Iterable<T> trainingData) {
         HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             Serializable classification = instance.getLabel();
             if (classifications.containsKey(classification)) {
                 classifications.get(classification).increment();
@@ -140,9 +145,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return new HashSet<>(classifications.keySet());
     }
 
-    private double[] createNumericSplit(final Iterable<ClassifierInstance> trainingData, final String attribute) {
+    private double[] createNumericSplit(final Iterable<T> trainingData, final String attribute) {
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
-        for (final ClassifierInstance instance : trainingData) {
+        for (final T instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = 0;
             reservoirSampler.sample(((Number) value).doubleValue());
@@ -151,14 +156,14 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return getSplit(reservoirSampler);
     }
 
-    private Map<String, double[]> createNumericSplits(final Iterable<ClassifierInstance> trainingData) {
+    private Map<String, double[]> createNumericSplits(final Iterable<T> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        for (final ClassifierInstance instance : trainingData) {
+        for (final T instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
+                        reservoirSampler = new ReservoirSampler<>(RESERVOIR_SIZE, rand);
                         rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
                     reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
@@ -193,7 +198,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<ClassifierInstance> trainingData, final int depth,
+    private Node buildTree(Node parent, final Iterable<T> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
@@ -214,8 +219,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
             return thisLeaf;
         }
 
-        ArrayList<ClassifierInstance> trueTrainingSet = Lists.newArrayList();
-        ArrayList<ClassifierInstance> falseTrainingSet = Lists.newArrayList();
+        ArrayList<T> trueTrainingSet = Lists.newArrayList();
+        ArrayList<T> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestNode, trueTrainingSet, falseTrainingSet);
 
 
@@ -262,9 +267,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return bestNode;
     }
 
-    private void setTrueAndFalseTrainingSets(Iterable<ClassifierInstance> trainingData, Branch bestNode, List<ClassifierInstance> trueTrainingSet, List<ClassifierInstance> falseTrainingSet) {
+    private void setTrueAndFalseTrainingSets(Iterable<T> trainingData, Branch bestNode, List<T> trueTrainingSet, List<T> falseTrainingSet) {
         //put instances with attribute values into appropriate training sets
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             if (bestNode.decide(instance.getAttributes())) {
                 trueTrainingSet.add(instance);
             } else {
@@ -273,7 +278,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         }
     }
 
-    private Pair<? extends Branch, Double> getBestNodePair(Node parent, Iterable<ClassifierInstance> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, Iterable<T> trainingData, final Map<String, double[]> splits) {
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -307,18 +312,18 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return bestPair;
     }
 
-    private double getTotalWeight(List<ClassifierInstance> trainingSet) {
+    private double getTotalWeight(List<T> trainingSet) {
         double trueWeight = 0;
-        for (ClassifierInstance instance : trainingSet) {
+        for (T instance : trainingSet) {
             trueWeight += instance.getWeight();
         }
         return trueWeight;
     }
 
-    private boolean isSmallTrainingSet(Iterable<ClassifierInstance> trainingData) {
+    private boolean isSmallTrainingSet(Iterable<T> trainingData) {
         boolean smallTrainingSet = true;
         int tsCount = 0;
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             tsCount++;
             if (tsCount > SMALL_TRAINING_SET_LIMIT) {
                 smallTrainingSet = false;
@@ -328,11 +333,11 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return smallTrainingSet;
     }
 
-    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<ClassifierInstance> trainingData) {
+    private Map<String, AttributeCharacteristics> surveyTrainingData(final Iterable<T> trainingData) {
         //tells us if each attribute is numeric or not.
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             for (Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
@@ -347,7 +352,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return attributeCharacteristics;
     }
 
-    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, String attribute, Iterable<ClassifierInstance> instances) {
+    private Pair<? extends Branch, Double> createCategoricalNode(Node parent, String attribute, Iterable<T> instances) {
         if (binaryClassifications) {
             return createTwoClassCategoricalNode(parent, attribute, instances);
         } else {
@@ -355,7 +360,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         }
     }
 
-    private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute, final Iterable<ClassifierInstance> instances) {
+    private Pair<? extends Branch, Double> createTwoClassCategoricalNode(Node parent, final String attribute, final Iterable<T> instances) {
 
         double bestScore = 0;
         final Pair<ClassificationCounter, List<AttributeValueWithClassificationCounter>> valueOutcomeCountsPairs =
@@ -462,7 +467,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
-                                                                       final Iterable<ClassifierInstance> instances) {
+                                                                       final Iterable<T> instances) {
 
         final Set<Serializable> values = getAttrinbuteValues(instances, attribute);
 
@@ -472,7 +477,6 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
 
         ClassificationCounter inSetClassificationCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
 
-        //TODO[mk] added counter here, should they be there
         final Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> valueOutcomeCountsPair = ClassificationCounter
                 .countAllByAttributeValues(instances, attribute);
         ClassificationCounter outSetClassificationCounts = valueOutcomeCountsPair.getValue0(); //classification counter treating all values the same
@@ -522,7 +526,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return Pair.with(new CategoricalBranch(parent, attribute, inValueSet, probabilityOfBeingInInset), insetScore);
     }
 
-    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<ClassifierInstance> trainingData, final Set<Serializable> values) {
+    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<T> trainingData, final Set<Serializable> values) {
         final int averageInstancesPerValue = Iterables.size(trainingData) / values.size();
         final boolean notEnoughTrainingDataGivenNumberOfValues = averageInstancesPerValue < Math.max(this.minCategoricalAttributeValueOccurances,
                 HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE);
@@ -532,9 +536,9 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         return false;
     }
 
-    private Set<Serializable> getAttrinbuteValues(final Iterable<ClassifierInstance> trainingData, final String attribute) {
+    private Set<Serializable> getAttrinbuteValues(final Iterable<T> trainingData, final String attribute) {
         final Set<Serializable> values = Sets.newHashSet();
-        for (ClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             Serializable value = instance.getAttributes().get(attribute);
             if (value == null) value = MISSING_VALUE;
             values.add(value);
@@ -555,7 +559,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
-                                                             Iterable<ClassifierInstance> instances,
+                                                             Iterable<T> instances,
                                                              final double[] splits) {
         double bestScore = 0;
         double bestThreshold = 0;
@@ -570,8 +574,8 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
             }
             lastThreshold = threshold;
 
-            Iterable<ClassifierInstance> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
-            Iterable<ClassifierInstance> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
+            Iterable<T> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
+            Iterable<T> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
@@ -599,7 +603,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         public boolean isNumber = true;
     }
 
-    private class GreaterThanThresholdPredicate implements Predicate<ClassifierInstance> {
+    private class GreaterThanThresholdPredicate implements Predicate<T> {
 
         private final String attribute;
         private final double threshold;
@@ -610,7 +614,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         }
 
         @Override
-        public boolean apply(@Nullable ClassifierInstance input) {
+        public boolean apply(@Nullable T input) {
             try {
                 if (input == null) {//consider deleting
                     return false;
@@ -627,7 +631,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         }
     }
 
-    private class LessThanEqualThresholdPredicate implements Predicate<ClassifierInstance> {
+    private class LessThanEqualThresholdPredicate implements Predicate<T> {
 
         private final String attribute;
         private final double threshold;
@@ -638,7 +642,7 @@ public final class TreeBuilder implements PredictiveModelBuilder<Classifier, Cla
         }
 
         @Override
-        public boolean apply(@Nullable ClassifierInstance input) {
+        public boolean apply(@Nullable T input) {
             try {
                 if (input == null) {
                     return false;

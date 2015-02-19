@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 
@@ -63,7 +63,7 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
     }
 
     private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
-        HashMap<Serializable, Integer> splitValToGroupIdMap = new HashMap<>();
+        SplitValTGroupIdMap splitValToGroupIdMap = new SplitValTGroupIdMap(defaultGroup);
         for (Integer groupId : splitModelGroups.keySet()) {
             Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
             for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {

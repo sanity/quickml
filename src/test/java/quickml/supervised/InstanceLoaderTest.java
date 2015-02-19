@@ -2,7 +2,7 @@ package quickml.supervised;
 
 import org.junit.Assert;
 import org.junit.Test;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import java.util.List;
 

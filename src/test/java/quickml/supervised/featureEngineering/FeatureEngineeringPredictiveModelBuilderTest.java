@@ -6,7 +6,7 @@ import quickml.data.*;
 
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.alternative.optimizer.ClassifierInstance;
+import quickml.data.ClassifierInstance;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
