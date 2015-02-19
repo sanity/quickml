@@ -10,6 +10,7 @@ import quickml.supervised.InstanceLoader;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.NonWeightedAUCCrossValLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
 import java.util.List;
@@ -30,11 +31,11 @@ public class AttributeImportanceFinderTest {
     public void testAttributeImportanceFinder() throws Exception {
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
                 .modelBuilder(new RandomForestBuilder<>().numTrees(5))
-                .dataCycler(new OutOfTimeData<>(instances, .25, 5, new OnespotDateTimeExtractor()))
+                .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())
-                .primaryLossFunction(new WeightedAUCCrossValLossFunction(1.0))//ClassifierLogCVLossFunction(0.000001))
+                .primaryLossFunction(new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());
