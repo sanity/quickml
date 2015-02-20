@@ -17,13 +17,13 @@ import java.util.Map;
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModelBuilder<FeatureEngineeredPredictiveModel, ClassifierInstance> {
-    private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringPredictiveModelBuilder.class);
+public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuilder<FeatureEngineeredClassifier, ClassifierInstance> {
+    private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringClassifierBuilder.class);
 
     private final PredictiveModelBuilder<Classifier, ClassifierInstance>  wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringPredictiveModelBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance>  wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
@@ -37,7 +37,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
     }
 
     @Override
-    public FeatureEngineeredPredictiveModel buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
+    public FeatureEngineeredClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {
@@ -48,7 +48,7 @@ public class FeatureEngineeringPredictiveModelBuilder implements PredictiveModel
 
         PredictiveModel<AttributesMap, PredictionMap> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 
-        return new FeatureEngineeredPredictiveModel(predictiveModel, enrichers);
+        return new FeatureEngineeredClassifier(predictiveModel, enrichers);
     }
 
 }
