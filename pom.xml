@@ -8,6 +8,13 @@
         Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
         with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
         
+        MAJOR: A breaking (ie. backwards-incompatible) change to the public API of the library
+        MINOR: A backwards-compatible change to the public API
+        PATCH: An improvement that doesn't affect the public API
+        
+        We won't go to 1.x.x until we have a high degree of confidence that
+        future backwards-compatible changes to the API will be rare.
+        
         Please read http://semver.org/ if you haven't already.
     -->
     <version>0.5.0</version>
