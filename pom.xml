@@ -9,8 +9,11 @@
         with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
         
         MAJOR: A breaking (ie. backwards-incompatible) change to the public API of the library
+               eg. Removing or modifying a public or protected method in a class
         MINOR: A backwards-compatible change to the public API
+               eg. Adding a new method to a class, or adding a new class
         PATCH: An improvement that doesn't affect the public API
+               eg. A refactor, performance improvement, or bugfix
         
         We won't go to 1.x.x until we have a high degree of confidence that
         future backwards-compatible changes to the API will be rare.
