@@ -4,7 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
+
     <!-- 
+        IMPORTANT NOTE ON VERSIONING
+        ----------------------------
+    
         Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
         with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
         
@@ -21,6 +25,7 @@
         Please read http://semver.org/ if you haven't already.
     -->
     <version>0.5.0</version>
+
     <repositories>
         <repository>
             <id>sanity-maven-repo</id>
