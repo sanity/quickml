@@ -32,7 +32,7 @@ public class AttributeImportanceFinderTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
-                .modelBuilder(new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(7).ignoreAttributeAtNodeProbability(.7)).numTrees(5))
+                .modelBuilder(new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).ignoreAttributeAtNodeProbability(.7)).numTrees(5))
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
