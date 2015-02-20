@@ -9,7 +9,7 @@
         IMPORTANT NOTE ON VERSIONING
         ----------------------------
     
-        Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
+    1)  Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
         with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
         
         MAJOR: A breaking (ie. backwards-incompatible) change to the public API of the library
@@ -23,6 +23,10 @@
         future backwards-compatible changes to the API will be rare.
         
         Please read http://semver.org/ if you haven't already.
+        
+    2)  When you increase the version you must create a new Github release for this
+        version, and should also modify the relevant part of the index.html page
+        in the gh-pages branch to update the installation instructions.
     -->
     <version>0.5.0</version>
 
