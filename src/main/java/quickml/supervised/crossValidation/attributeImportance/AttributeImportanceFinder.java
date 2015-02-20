@@ -21,11 +21,12 @@ public class AttributeImportanceFinder <T extends ClassifierInstance> {
     public static final String NO_MISSING_ATTRIBUTE = "NO_MISSING_ATTRIBUTE";
     private final PredictiveModelBuilder<Classifier, T> modelBuilder;
     private final TrainingDataCycler<T> dataCycler;
-    private final int numAttributesToRemovePerIteration;
+    private int numAttributesToRemoveInPresentIteration;
     private final int numberOfIterations;
     private Set<String> attributesToNotRemove;
     private final List<ClassifierLossFunction> lossFunctions;
     private final String primaryLossFunction;
+    private final double percentToRemovePerIteration;
 
 
     /**
@@ -41,7 +42,8 @@ public class AttributeImportanceFinder <T extends ClassifierInstance> {
         this.attributesToNotRemove = attributesToNotRemove;
         this.lossFunctions = lossFunctions;
         this.primaryLossFunction = primaryLossFunction;
-        this.numAttributesToRemovePerIteration = (int) (getAllAttributes(dataCycler).size() * percentToRemovePerIteration);
+        this.percentToRemovePerIteration = percentToRemovePerIteration;
+        this.numAttributesToRemoveInPresentIteration = (int) (getAllAttributes(dataCycler).size() * percentToRemovePerIteration);
     }
 
     public List<AttributeLossTracker> determineAttributeImportance() {
@@ -58,13 +60,14 @@ public class AttributeImportanceFinder <T extends ClassifierInstance> {
     }
 
     private void removeLowestPerformingAttributes(List<String> orderedAttributes) {
-        for (int i = orderedAttributes.size() - 1; i >= max(0, orderedAttributes.size() - 1 - numAttributesToRemovePerIteration); i--) {
+        for (int i = orderedAttributes.size() - 1; i >= max(0, orderedAttributes.size() - 1 - numAttributesToRemoveInPresentIteration); i--) {
             if (!attributesToNotRemove.contains(orderedAttributes.get(i))) {
                 for (ClassifierInstance instance : dataCycler.getAllData()) {
                     instance.getAttributes().remove(orderedAttributes.get(i));
                 }
             }
         }
+        numAttributesToRemoveInPresentIteration = (int)((orderedAttributes.size()-numAttributesToRemoveInPresentIteration)*percentToRemovePerIteration);
         dataCycler.reset();
     }
 
