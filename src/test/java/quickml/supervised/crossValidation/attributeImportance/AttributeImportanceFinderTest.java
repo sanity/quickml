@@ -12,8 +12,6 @@ import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.NonWeightedAUCCrossValLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
 import java.util.List;
 import java.util.Set;

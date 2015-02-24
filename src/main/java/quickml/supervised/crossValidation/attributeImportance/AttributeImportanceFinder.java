@@ -1,12 +1,11 @@
 package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
-import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.crossValidation.data.TrainingDataCycler;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
+import quickml.supervised.crossValidation.data.TrainingDataCycler;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 
 import java.util.ArrayList;
 import java.util.List;
