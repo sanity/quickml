@@ -65,12 +65,12 @@ public class PredictiveModelOptimizerIntegrationTest {
         List<Integer> trialNumTrees = Arrays.asList(5, 10, 20);
         config.put(NUM_TREES, new MonotonicConvergenceRecommender(trialNumTrees));
         config.put(IGNORE_ATTR_PROB, new FixedOrderRecommender(0.2, 0.4, 0.7));
-       config.put(MAX_DEPTH, new FixedOrderRecommender(1, 2, 4, 8, 16));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
+        config.put(MAX_DEPTH, new FixedOrderRecommender(1, 2, 4, 8, 16));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
         config.put(MIN_SCORE, new FixedOrderRecommender(0.00000000000001));//, Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         config.put(MIN_CAT_ATTR_OCC, new FixedOrderRecommender(2, 11, 16, 30 ));
         config.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 20, 40));
         config.put(SCORER, new FixedOrderRecommender(new InformationGainScorer(), new GiniImpurityScorer()));
-        config.put(PENALIZE_CATEGORICAL_SPLITS, new FixedOrderRecommender(true, false));
+        config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75, .5 ));
         return config;
     }
 

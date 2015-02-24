@@ -454,8 +454,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
-                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);
-            }
+                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
