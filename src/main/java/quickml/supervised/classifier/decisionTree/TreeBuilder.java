@@ -31,8 +31,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String SCORER = "scorer";
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeInformationValue";
     public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
-    public static final String ATTRIBUTES_TO_REMOVE_FROM_ALL_INSTANCES = "attributesToRemoveFromAllTrainingInstances";
-    public static final String FRACTION_OF_DATA_FOR_TEST_SET_DURING_NODE_CONSTRUCTION = "fractionOfDataForTestSetDuringNodeConstruction";
 
 
     public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
@@ -52,7 +50,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private boolean penalizeCategoricalSplitsBySplitAttributeInformationValue = true;
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
-    private double fractionOfDataForTestSetDuringNodeConstruction = 0;
     private boolean applyCrossValidationToNodeConstruction = false;
 
     //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
@@ -86,10 +83,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             ordinalTestSplits((Integer) cfg.get(ORDINAL_TEST_SPLITS));
         if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
             degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
-        if (cfg.containsKey(ATTRIBUTES_TO_REMOVE_FROM_ALL_INSTANCES))
-            attributesToRemoveFromAllTrainingInstancesWithRemovalProbability((AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability) cfg.get(ATTRIBUTES_TO_REMOVE_FROM_ALL_INSTANCES));
-        if (cfg.containsKey(FRACTION_OF_DATA_FOR_TEST_SET_DURING_NODE_CONSTRUCTION))
-            applyCrossValidationAtNodeSplits((Double) cfg.get(FRACTION_OF_DATA_FOR_TEST_SET_DURING_NODE_CONSTRUCTION));
+
         penalizeCategoricalSplitsBySplitAttributeInformationValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
@@ -103,29 +97,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return this;
     }
 
-    public TreeBuilder applyCrossValidationAtNodeSplits(double fractionOfDataForTestSetDuringNodeConstruction) {
-        this.applyCrossValidationToNodeConstruction = true;
-        this.fractionOfDataForTestSetDuringNodeConstruction  = fractionOfDataForTestSetDuringNodeConstruction;
-        return this;
-    }
-
-    public TreeBuilder attributesToRemoveFromAllTrainingInstancesWithRemovalProbability(AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability attributesToRemoveFromAllTrainingInstanceWithRemovalProbability) {
-      //solve this in a thread safe manner.
-      /*
-        Set<String> attributesToRemoveForThisTree = new HashSet<>();
-        Set<String> candidateAttributes = attributesToRemoveFromAllTrainingInstanceWithRemovalProbability.attributesToRemove;
-        double removalProbability = attributesToRemoveFromAllTrainingInstanceWithRemovalProbability.removalprobability;
-        for (String attribute : candidateAttributes) {
-            if (MapUtils.random.nextDouble() > removalProbability) { // > means that the attribute will not be removed because we sampled value not within the prob range for excluding the attribute
-                continue;
-            }
-            attributesToRemoveForThisTree.add(attribute);
-        }
-        this.attributesToRemoveFromAllTrainingInstances = attributesToRemoveForThisTree;
-        return this;
-        */
-        return this;
-    }
 
     public TreeBuilder<T> scorer(final Scorer scorer) {
         this.scorer = scorer;
@@ -682,24 +653,17 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         double probabilityOfBeingInInset = 0;
 
         for (final double threshold : splits) {
-            // Sometimes we can get a few thresholds the same, avoid wasted
-            // effort when we do
+
             if (threshold == lastThreshold) {
                 continue;
             }
             lastThreshold = threshold;
-            //get training and test insets from NumericNodeDataCycler.  Make everything happen within if(applYcrossVal...) to make backwards compatible
-            if (applyCrossValidationToNodeConstruction) {
-           //     ((MSEScorerWithCrossValidationCorrection)scorer).updateTrainingSetClassificationCounters();
-            }
 
             Iterable<T> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
             Iterable<T> outSet = Iterables.filter(instances, new LessThanEqualThresholdPredicate(attribute, threshold));
             ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
-            //here, we treat bins as categorical attributes, and therefore require a minimum number of samples be had for both the inset and outset.  this minimum number is
-            //somewhat arbitrarily sets to 4*minCategoricalAttributeValueOccurances
             if (binaryClassifications) {
                 if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts) ||
                         attributeValueOrIntervalOfValuesHasInsufficientStatistics(outClassificationCounts)) {
@@ -728,15 +692,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         public boolean isNumber = true;
     }
 
-    public static class AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability {
-        public double removalprobability;
-        public Set<String> attributesToRemove = new HashSet<>();
-
-        public AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability(double removalprobability, Set<String> attributesToRemove) {
-            this.removalprobability = removalprobability;
-            this.attributesToRemove = attributesToRemove;
-        }
-    }
 
     private class GreaterThanThresholdPredicate implements Predicate<T> {
 
