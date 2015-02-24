@@ -65,11 +65,6 @@ public class Tree extends AbstractClassifier {
     }
 
     @Override
-    public void dump(Appendable appendable) {
-        node.dump(appendable);
-    }
-
-    @Override
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Leaf leaf = node.getLeaf(attributes);
         return leaf.getBestClassification();
@@ -95,7 +90,7 @@ public class Tree extends AbstractClassifier {
     @Override
     public String toString() {
         StringBuilder dump = new StringBuilder();
-        dump(dump);
+        node.dump(dump);
         return dump.toString();
     }
 }

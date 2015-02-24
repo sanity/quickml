@@ -51,18 +51,6 @@ public class RidgeLinearModel implements MultiVariableRealValuedFunction {
         return Double.valueOf(0.0);
     }
 
-    @Override
-    public void dump(Appendable appendable) {
-        for (int i = 0; i < modelCoeficients.length; i++) {
-            try {
-                appendable.append(modelHeader[i] + ":" + modelCoeficients[i] + "\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException();
-            }
-        }
-    }
-
     public double[] getModelCoefficients(){
         return modelCoeficients;
     }

@@ -18,7 +18,6 @@ import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
 public class AttributeImportanceFinder <T extends ClassifierInstance> {
-    public static final String NO_MISSING_ATTRIBUTE = "NO_MISSING_ATTRIBUTE";
     private final PredictiveModelBuilder<Classifier, T> modelBuilder;
     private final TrainingDataCycler<T> dataCycler;
     private final int numAttributesToRemovePerIteration;

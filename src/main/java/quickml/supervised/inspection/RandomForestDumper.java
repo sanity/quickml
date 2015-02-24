@@ -13,11 +13,6 @@ import java.util.*;
 
 public class RandomForestDumper {
 
-    public void dumpModel(final String dumpFile, RandomForest randomForest) throws IOException {
-        PrintStream out = new PrintStream(dumpFile);
-        randomForest.dump(out, randomForest.trees.size());
-    }
-
     public void summarizeForest(PrintStream out, RandomForest randomForest) {
         summarizeModel(out, randomForest);
     }

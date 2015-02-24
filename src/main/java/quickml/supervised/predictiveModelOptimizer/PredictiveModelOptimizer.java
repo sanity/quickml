@@ -12,20 +12,17 @@ public class PredictiveModelOptimizer {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
-
-
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
     private CrossValidator crossValidator;
     private HashMap<String, Object> bestConfig;
     private final int iterations;
-
-
 
     /**
      * Do not call directly - Use PredictiveModelOptimizerBuilder to an instance
      * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
+
     protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
@@ -57,10 +54,8 @@ public class PredictiveModelOptimizer {
 
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
-
-
         FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
-
+        //bestConfig is not actually bestConfig inth for loop
         for (Object value : fieldValueRecommender.getValues()) {
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));

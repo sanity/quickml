@@ -50,7 +50,7 @@ public class DownsamplingClassifierBuilderTest {
                         sum++;
                     }
                 }
-                Classifier dumbPM = new SamePredictionPredictiveModel((double) sum / (double) total);
+                Classifier dumbPM = new SamePredictionClassifier((double) sum / (double) total);
                 return dumbPM;
             }
         });
@@ -87,19 +87,14 @@ public class DownsamplingClassifierBuilderTest {
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
     }
 
-    private static class SamePredictionPredictiveModel extends AbstractClassifier {
+    private static class SamePredictionClassifier extends AbstractClassifier {
 
         private static final long serialVersionUID = 8241616760952568181L;
         private final double prediction;
 
-        public SamePredictionPredictiveModel(double prediction) {
+        public SamePredictionClassifier(double prediction) {
 
             this.prediction = prediction;
-        }
-
-        @Override
-        public void dump(final Appendable appendable) {
-            throw new UnsupportedOperationException();
         }
 
 

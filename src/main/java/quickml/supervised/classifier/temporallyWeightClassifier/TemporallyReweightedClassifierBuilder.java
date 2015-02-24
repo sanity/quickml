@@ -12,9 +12,7 @@ import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ian on 5/29/14.
@@ -29,7 +27,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
     private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
-    private DateTimeExtractor dateTimeExtractor;
+    private final DateTimeExtractor dateTimeExtractor;
 
     public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
@@ -65,20 +63,32 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     public TemporallyReweightedClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
-        List<ClassifierInstance> trainingDataList = reweightTrainingData(trainingData, mostRecent);
+        List<ClassifierInstance> trainingDataList = sortAndReweightTrainingData(trainingData, mostRecent);
         final Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedClassifier(predictiveModel);
     }
 
 
-    private List<ClassifierInstance> reweightTrainingData(Iterable<ClassifierInstance> sortedData, DateTime mostRecentInstance) {
+    private List<ClassifierInstance> sortAndReweightTrainingData(Iterable<ClassifierInstance> trainingData, DateTime mostRecentInstance) {
+        ArrayList<ClassifierInstance> sortedData = Lists.newArrayList();
+        for (ClassifierInstance inst : trainingData) {
+            sortedData.add(inst);
+        }
+        Collections.sort(sortedData, new Comparator<ClassifierInstance>() {
+            @Override
+            public int compare(ClassifierInstance o1, ClassifierInstance o2) {
+                DateTime d1 = dateTimeExtractor.extractDateTime(o1);
+                DateTime d2 = dateTimeExtractor.extractDateTime(o2);
+                return -d1.compareTo(d2); //later times shoudl be sorted ahead of earlier times
+            }
+        });
         ArrayList<ClassifierInstance> trainingDataList = Lists.newArrayList();
         for (ClassifierInstance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             double hoursBack = Hours.hoursBetween(mostRecentInstance, dateTimeExtractor.extractDateTime(instance)).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             //TODO[mk] Reweight needs to be moved / removed
-//            trainingDataList.add(instance.reweight(newWeight));
+            trainingDataList.add(new ClassifierInstance(instance.getAttributes(), instance.getLabel(), newWeight));
         }
         return trainingDataList;
     }

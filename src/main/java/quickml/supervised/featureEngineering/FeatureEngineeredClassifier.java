@@ -5,22 +5,20 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.PredictiveModel;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * A predictive model that wraps another predictive model but modifies the input
  * Attributes based on one or more "enrichers".  This objected is created by a
- * {@link FeatureEngineeringPredictiveModelBuilder}.
+ * {@link FeatureEngineeringClassifierBuilder}.
  */
-public class FeatureEngineeredPredictiveModel extends AbstractClassifier {
+public class FeatureEngineeredClassifier extends AbstractClassifier {
     private static final long serialVersionUID = 7279329500376419142L;
     private final PredictiveModel<AttributesMap, PredictionMap> wrappedPredictiveModel;
     private final List<AttributesEnricher> attributesEnrichers;
 
-    public FeatureEngineeredPredictiveModel(PredictiveModel<AttributesMap, PredictionMap> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
+    public FeatureEngineeredClassifier(PredictiveModel<AttributesMap, PredictionMap> wrappedPredictiveModel, List<AttributesEnricher> attributesEnrichers) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.attributesEnrichers = attributesEnrichers;
     }
@@ -45,8 +43,4 @@ public class FeatureEngineeredPredictiveModel extends AbstractClassifier {
         return enrichedAttributes;
     }
 
-    @Override
-    public void dump(final Appendable appendable) {
-        wrappedPredictiveModel.dump(appendable);
-    }
 }

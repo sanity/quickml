@@ -33,19 +33,18 @@ public class MonotonicConvergenceRecommenderTest {
     }
 
 
-    @Ignore("Need to test a scenario where we break")
     @Test
     public void testWeContinueIfWeHaventGoneOverTheTolerance() throws Exception {
         List<Double> losses = Lists.newArrayList();
-
-        for (int i = 1; i <= recommender.getValues().size(); i++) {
-            losses.add(i * 0.001d);
+        double[] lossValue = new double[]{0.001, 0.002, 0.002001, 0.004, 0.005};
+        for (int i = 0; i < recommender.getValues().size(); i++) {
+            losses.add(lossValue[i]);
             if (!recommender.shouldContinue(losses))
                 break;
         }
 
         System.out.println("losses = " + losses);
-        assertEquals(2, losses.size());
+        assertEquals(3, losses.size());
 
     }
 }

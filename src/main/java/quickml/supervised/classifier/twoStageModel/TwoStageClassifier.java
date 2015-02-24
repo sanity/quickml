@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModel extends AbstractClassifier {
+public class TwoStageClassifier extends AbstractClassifier {
 /*
     This class wraps 2 binary classifiers, in composite model (which is also a binary classifier) that predicts the probability
     of an instance having positive labels in both situations the wrapped classifiers respectively make predictions for.
@@ -19,7 +19,7 @@ public class TwoStageModel extends AbstractClassifier {
     Classifier wrappedOne;
     Classifier wrappedTwo;
 
-    public TwoStageModel(Classifier wrappedOne, Classifier wrappedTwo) {
+    public TwoStageClassifier(Classifier wrappedOne, Classifier wrappedTwo) {
         this.wrappedOne = wrappedOne;
         this.wrappedTwo = wrappedTwo;
     }
@@ -54,9 +54,4 @@ public class TwoStageModel extends AbstractClassifier {
         return wrappedOne.getProbabilityWithoutAttributes(attributesMap, label, attributesToIgnore)*wrappedTwo.getProbabilityWithoutAttributes(attributesMap, label, attributesToIgnore);
     }
 
-    @Override
-    public  void dump(Appendable appendable) {
-        wrappedOne.dump(appendable);
-        wrappedTwo.dump(appendable);
-    }
 }

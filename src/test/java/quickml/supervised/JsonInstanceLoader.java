@@ -16,6 +16,11 @@ import static java.nio.charset.Charset.defaultCharset;
 
 public class JsonInstanceLoader {
 
+
+
+
+
+
     private static List<ClassifierInstance> loadInstanceData(final String resourceName) throws IOException {
         Gson gson = createGson();
         JsonReader reader = new JsonReader(asCharSource(getResource(resourceName), defaultCharset()).openStream());
