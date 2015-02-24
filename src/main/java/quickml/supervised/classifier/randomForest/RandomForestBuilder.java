@@ -110,6 +110,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
         try {
             trees.add(treeFuture.get());
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

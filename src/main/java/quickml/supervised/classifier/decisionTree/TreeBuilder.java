@@ -14,7 +14,6 @@ import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
-import quickml.supervised.classifier.decisionTree.scorers.MSEScorerWithCrossValidationCorrection;
 import quickml.supervised.classifier.decisionTree.tree.*;
 
 import javax.annotation.Nullable;
@@ -42,24 +41,25 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     Set<String> attributesToRemoveFromAllTrainingInstances = new HashSet<>();
-    HashMap<Serializable, MutableInt> classificationsAndCounts;
     private Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
-    private boolean binaryClassifications = true;
-    private Serializable minorityClassification;
-    private Serializable majorityClassification;
+
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
     private boolean penalizeCategoricalSplitsBySplitAttributeInformationValue = true;
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
     private double fractionOfDataForTestSetDuringNodeConstruction = 0;
     private boolean applyCrossValidationToNodeConstruction = false;
-    private double majorityToMinorityRatio = 1;
 
+    //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
+    private  Serializable minorityClassification;
+    private  Serializable majorityClassification;
+    private  double majorityToMinorityRatio = 1;
+    private boolean binaryClassifications = true;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
@@ -110,6 +110,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     public TreeBuilder attributesToRemoveFromAllTrainingInstancesWithRemovalProbability(AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability attributesToRemoveFromAllTrainingInstanceWithRemovalProbability) {
+      //solve this in a thread safe manner.
+      /*
         Set<String> attributesToRemoveForThisTree = new HashSet<>();
         Set<String> candidateAttributes = attributesToRemoveFromAllTrainingInstanceWithRemovalProbability.attributesToRemove;
         double removalProbability = attributesToRemoveFromAllTrainingInstanceWithRemovalProbability.removalprobability;
@@ -120,6 +122,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             attributesToRemoveForThisTree.add(attribute);
         }
         this.attributesToRemoveFromAllTrainingInstances = attributesToRemoveForThisTree;
+        return this;
+        */
         return this;
     }
 
@@ -171,19 +175,26 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private Set<Serializable> getClassificationProperties(Iterable<T> trainingData) {
-        classificationsAndCounts = Maps.newHashMap();
-        binaryClassifications = true;
+        HashMap<Serializable, MutableInt> classificationsAndCounts = Maps.newHashMap();
+        Serializable minorityClassification = null;
+        Serializable majorityClassification = null;
+        boolean binaryClassifications = true;
+        double majorityToMinorityRatio = 1;
+
         for (T instance : trainingData) {
             Serializable classification = instance.getLabel();
-            if (classificationsAndCounts.containsKey(classification)) {
-                classificationsAndCounts.get(classification).increment();
-            } else
-                classificationsAndCounts.put(classification, new MutableInt(1));
 
-            if (classificationsAndCounts.size() > 2) {
-                binaryClassifications = false;
-                return new HashSet<>(classificationsAndCounts.keySet());
-            }
+                if (classificationsAndCounts.containsKey(classification)) {
+                   classificationsAndCounts.get(classification).increment();
+
+                } else
+                    classificationsAndCounts.put(classification, new MutableInt(1));
+
+                if (classificationsAndCounts.size() > 2) {
+                    setBinaryClassifications(false);
+                    return new HashSet<>(classificationsAndCounts.keySet());
+                }
+
         }
 
         minorityClassification = null;
@@ -204,7 +215,19 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         majorityToMinorityRatio = classificationsAndCounts.get(majorityClassification).doubleValue()
                 / classificationsAndCounts.get(minorityClassification).doubleValue();
 
+        writeClassificationPropertiesOfDataSet(minorityClassification, majorityClassification, binaryClassifications, majorityToMinorityRatio);
         return new HashSet<>(classificationsAndCounts.keySet());
+    }
+
+    private synchronized  void setBinaryClassifications(boolean binaryClassifications) {
+        this.binaryClassifications = binaryClassifications;
+    }
+
+    private synchronized void writeClassificationPropertiesOfDataSet(Serializable minorityClassification, Serializable majorityClassification, boolean binaryClassifications, double majorityToMinorityRatio) {
+        this.minorityClassification = minorityClassification;
+        this.majorityClassification = majorityClassification;
+        this.binaryClassifications = binaryClassifications;
+        this.majorityToMinorityRatio = majorityToMinorityRatio;
     }
 
     private double[] createNumericSplit(final Iterable<T> trainingData, final String attribute) {
@@ -440,7 +463,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         int attributesWithSufficientValues = labelAttributeValuesWithInsufficientData(valuesWithClassificationCounters);
         if (attributesWithSufficientValues <= 1)
             return null; //there is just 1 value available.
-        double informationValue = getInformationValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
+        double intrinsicValueOfAttribute = getIntrinsicValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
@@ -460,7 +483,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
-                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / informationValue);
+                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);
             }
 
             if (thisScore > bestScore) {
@@ -498,7 +521,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             if (this.minCategoricalAttributeValueOccurances > 0) {
                 ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-                if (attributeValueOrIntervalOfValuesHasSufficientStatistics(testValCounts)) {
+                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(testValCounts)) {
                     testValCounts.setHasSufficientData(false);
                 } else {
                     attributesWithSuffValues++;
@@ -511,7 +534,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return attributesWithSuffValues;
     }
 
-    private double getInformationValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
+    private double getIntrinsicValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
         double informationValue = 0;
         double attributeValProb = 0;
 
@@ -608,7 +631,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return values;
     }
 
-    private boolean attributeValueOrIntervalOfValuesHasSufficientStatistics(final ClassificationCounter testValCounts) {
+    private boolean attributeValueOrIntervalOfValuesHasInsufficientStatistics(final ClassificationCounter testValCounts) {
+        Preconditions.checkArgument(majorityClassification!=null && minorityClassification !=null);
         Map<Serializable, Double> counts = testValCounts.getCounts();
         if (counts.containsKey(minorityClassification) &&
                 counts.get(minorityClassification) > minCategoricalAttributeValueOccurances) {
@@ -666,7 +690,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             lastThreshold = threshold;
             //get training and test insets from NumericNodeDataCycler.  Make everything happen within if(applYcrossVal...) to make backwards compatible
             if (applyCrossValidationToNodeConstruction) {
-                ((MSEScorerWithCrossValidationCorrection)scorer).updateTrainingSetClassificationCounters();
+           //     ((MSEScorerWithCrossValidationCorrection)scorer).updateTrainingSetClassificationCounters();
             }
 
             Iterable<T> inSet = Iterables.filter(instances, new GreaterThanThresholdPredicate(attribute, threshold));
@@ -676,8 +700,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
             //here, we treat bins as categorical attributes, and therefore require a minimum number of samples be had for both the inset and outset.  this minimum number is
             //somewhat arbitrarily sets to 4*minCategoricalAttributeValueOccurances
-            if ( attributeValueOrIntervalOfValuesHasSufficientStatistics(inClassificationCounts) ||
-                    attributeValueOrIntervalOfValuesHasSufficientStatistics(outClassificationCounts)) {
+            if (binaryClassifications) {
+                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts) ||
+                        attributeValueOrIntervalOfValuesHasInsufficientStatistics(outClassificationCounts)) {
+                    continue;
+                }
+            } else if (shouldWeIgnoreThisValue(inClassificationCounts) || shouldWeIgnoreThisValue(outClassificationCounts)) {
                 continue;
             }
 
@@ -702,7 +730,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public static class AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability {
         public double removalprobability;
-        public Set<String> attributesToRemove;
+        public Set<String> attributesToRemove = new HashSet<>();
 
         public AttributesToRemoveFromAllTrainingInstanceWithRemovalProbability(double removalprobability, Set<String> attributesToRemove) {
             this.removalprobability = removalprobability;
