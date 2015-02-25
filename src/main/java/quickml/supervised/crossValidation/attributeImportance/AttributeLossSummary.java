@@ -25,7 +25,7 @@ public class AttributeLossSummary {
      * @param n
      * @return
      */
-    public List<String> getMaximalSet(int n) {
+    public List<AttributeWithLoss> getMaximalSet(int n) {
         AttributeLossTracker optimalSet = lossTrackers.get(0);
         for (AttributeLossTracker lossTracker : lossTrackers) {
             if (isCloserToOptimalSize(n, optimalSet, lossTracker)
@@ -33,7 +33,7 @@ public class AttributeLossSummary {
                 optimalSet = lossTracker;
             }
         }
-        return optimalSet.getOrderedAttributes();
+        return optimalSet.getOrderedLosses();
     }
 
     private boolean lossIsBetter(AttributeLossTracker optimalSet, AttributeLossTracker lossTracker) {
