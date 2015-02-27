@@ -11,6 +11,7 @@ import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -89,19 +90,19 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
     }
 
     private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends ClassifierInstance> trainingData) {
-        Map<Serializable, Long> classificationCounts = Maps.newHashMap();
+        Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (ClassifierInstance instance : trainingData) {
-            Long count = classificationCounts.get(instance.getLabel());
+            AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
-                count = 0L;
+                count = new AtomicLong(0);
                 classificationCounts.put(instance.getLabel(), count);
             }
-            count++;
+            count.getAndIncrement();
             total++;
         }
         Map<Serializable, Double> classificationProportions = Maps.newHashMap();
-        for (Map.Entry<Serializable, Long> classCount : classificationCounts.entrySet()) {
+        for (Map.Entry<Serializable, AtomicLong> classCount : classificationCounts.entrySet()) {
             classificationProportions.put(classCount.getKey(), classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;

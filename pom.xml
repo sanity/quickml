@@ -5,7 +5,7 @@
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
     <!-- Use Semantic Versioning - MAJOR.MINOR.PATCH, see http://semver.org/ -->
-    <version>SNAPSHOT</version>
+    <version>0.5.3</version>
     <repositories>
         <repository>
             <id>sanity-maven-repo</id>
