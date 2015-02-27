@@ -38,7 +38,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
-    Set<String> attributesToRemoveFromAllTrainingInstances = new HashSet<>();
     private Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
@@ -161,11 +160,10 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
                 } else
                     classificationsAndCounts.put(classification, new MutableInt(1));
 
-                if (classificationsAndCounts.size() > 2) {
-                    setBinaryClassifications(false);
-                    return new HashSet<>(classificationsAndCounts.keySet());
-                }
-
+        }
+        if (classificationsAndCounts.size() > 2) {
+            setBinaryClassifications(false);
+            return new HashSet<>(classificationsAndCounts.keySet());
         }
 
         minorityClassification = null;
