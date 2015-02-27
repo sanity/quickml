@@ -67,6 +67,7 @@ public class RandomForest extends AbstractClassifier {
 
     @Override
     public PredictionMap predict(final AttributesMap attributes) {
+        System.out.println("making a prediction");
         if (binaryClassification)  {
             return getPredictionForTwoClasses(attributes);
         }
@@ -77,6 +78,8 @@ public class RandomForest extends AbstractClassifier {
 
     private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
         PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        System.out.println("making n class prediction");
+
         for (Tree tree : trees) {
             final PredictionMap treeProbs = tree.predict(attributes);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
@@ -121,9 +124,11 @@ public class RandomForest extends AbstractClassifier {
         Serializable firstClassification = classIterator.next();
         double firstProbability = getProbability(attributes, firstClassification);
         probsByClassification.put(firstClassification, firstProbability);
+        System.out.println("looking for second class");
         if (classIterator.hasNext()) {
             Serializable secondClassification = classIterator.next();
             probsByClassification.put(secondClassification, 1.0 - firstProbability);
+            System.out.println("second class: " + secondClassification + ". prob: "+ probsByClassification.get(secondClassification));
         }
         return probsByClassification;
     }

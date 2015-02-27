@@ -25,6 +25,7 @@ public class ClassifierLogCVLossFunction extends ClassifierLossFunction {
         double totalLoss = 0;
         for (PredictionMapResult result : results) {
             totalLoss += lossForInstance(result.getPredictionForLabel(), result.getWeight());
+            System.out.println("label: " + result.getLabel() + ". prediction: " + result.getPrediction());
         }
         return results.totalWeight() > 0 ? totalLoss / results.totalWeight() : 0;
     }
