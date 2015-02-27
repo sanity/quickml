@@ -342,7 +342,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         Pair<? extends Branch, Double> bestPair = null;
         //TODO: make this lazy in the sense that only numeric attributes that are not randomly rignored should have this done
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
-            if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// && !attributesToRemoveFromAllTrainingInstances.contains(attributeCharacteristicsEntry.getKey())) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
+            if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {
                 continue;
             }
 
