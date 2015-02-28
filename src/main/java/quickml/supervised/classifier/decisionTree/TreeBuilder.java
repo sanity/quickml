@@ -38,6 +38,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
+
     private Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
@@ -50,6 +51,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
     private boolean applyCrossValidationToNodeConstruction = false;
+    private double fractionOfDataToUseInHoldOutSet;
+    private HashSet<String> attributesToIgnore = Sets.newHashSet();
 
     //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
     private  Serializable minorityClassification;
@@ -57,8 +60,40 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private  double majorityToMinorityRatio = 1;
     private boolean binaryClassifications = true;
 
+    public TreeBuilder(TreeBuilder that) {
+        this.scorer = that.scorer;
+        this.maxDepth = that.maxDepth;
+        this.ignoreAttributeAtNodeProbability = that.ignoreAttributeAtNodeProbability;
+        this.minimumScore = that.minimumScore;
+        this.minCategoricalAttributeValueOccurances = that.minCategoricalAttributeValueOccurances;
+        this.minLeafInstances = that.minLeafInstances;
+        this.penalizeCategoricalSplitsBySplitAttributeInformationValue = that.penalizeCategoricalSplitsBySplitAttributeInformationValue;
+        this.degreeOfGainRatioPenalty = that.degreeOfGainRatioPenalty;
+        this.ordinalTestSpilts = that.ordinalTestSpilts;
+        this.applyCrossValidationToNodeConstruction = that.applyCrossValidationToNodeConstruction;
+        this.attributesToIgnore = Sets.newHashSet(that.attributesToIgnore);
+        this.fractionOfDataToUseInHoldOutSet = that.fractionOfDataToUseInHoldOutSet;
+
+    }
+
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
+    }
+
+    public TreeBuilder attattributesToIgnore(Set<String> attributesToIgnore) {
+        this.attributesToIgnore = Sets.newHashSet(attributesToIgnore);
+        return this;
+    }
+
+    public TreeBuilder applyCrossValidationToNodeConstruction(double fractionOfDataToUseInHoldOutSet) {
+        if (fractionOfDataToUseInHoldOutSet>0) {
+            applyCrossValidationToNodeConstruction = true;
+            this.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
+        }
+        else {
+            applyCrossValidationToNodeConstruction = false;
+        }
+        return this;
     }
 
     public TreeBuilder(final Scorer scorer) {
