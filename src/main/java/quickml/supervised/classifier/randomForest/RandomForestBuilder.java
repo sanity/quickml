@@ -8,6 +8,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -32,12 +33,12 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
 
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
     private final TreeBuilder<T> treeBuilder;
-    private int numTrees = 20;
+    private int numTrees = 8;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder<T>().ignoreAttributeAtNodeProbability(0.7).minCategoricalAttributeValueOccurances(11).maxDepth(16));
+        this(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(16));
     }
 
     public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
