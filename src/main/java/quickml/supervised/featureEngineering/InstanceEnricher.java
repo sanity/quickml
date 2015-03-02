@@ -1,17 +1,16 @@
 package quickml.supervised.featureEngineering;
 
 import com.google.common.base.Function;
-import quickml.data.*;
+import quickml.data.AttributesMap;
+import quickml.data.ClassifierInstance;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ian on 5/20/14.
  */
-public class InstanceEnricher implements Function<Instance<AttributesMap>, Instance<AttributesMap>> {
+public class InstanceEnricher implements Function<ClassifierInstance, ClassifierInstance> {
     private final List<AttributesEnricher> attributesEnrichers;
 
     public InstanceEnricher(List<AttributesEnricher> attributesEnrichers) {
@@ -20,11 +19,11 @@ public class InstanceEnricher implements Function<Instance<AttributesMap>, Insta
 
     @Nullable
     @Override
-    public Instance<AttributesMap> apply(@Nullable Instance<AttributesMap>instance) {
-        AttributesMap enrichedAttributes = (AttributesMap) instance.getAttributes();
+    public ClassifierInstance apply(@Nullable ClassifierInstance instance) {
+        AttributesMap attributes = instance.getAttributes();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
-            enrichedAttributes = attributesEnricher.apply(enrichedAttributes);
+            attributes = attributesEnricher.apply(attributes);
         }
-        return new InstanceImpl(enrichedAttributes, instance.getLabel(), instance.getWeight());
+        return new ClassifierInstance(attributes, instance.getLabel(), instance.getWeight());
     }
 }

@@ -5,13 +5,11 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
-import quickml.data.AttributesMap;
-import quickml.supervised.crossValidation.dateTimeExtractors.DateTimeExtractor;
-import quickml.data.Instance;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.supervised.UpdatablePredictiveModelBuilder;
+import quickml.data.ClassifierInstance;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
 import java.util.*;
@@ -19,22 +17,31 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiveModelBuilder<AttributesMap,TemporallyReweightedClassifier> {
+public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<TemporallyReweightedClassifier, ClassifierInstance> {
+
+    public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
+    public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
+
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder;
-    private final DateTimeExtractor dateTimeExtractor;
+    private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
+    private final DateTimeExtractor dateTimeExtractor;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor) {
-        this(wrappedBuilder, dateTimeExtractor, 1.0);
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
+        this.wrappedBuilder = wrappedBuilder;
+        this.positiveClassification = positiveClassification;
+        this.dateTimeExtractor = dateTimeExtractor;
     }
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier> wrappedBuilder, DateTimeExtractor dateTimeExtractor, Serializable positiveClassification) {
-        this.wrappedBuilder = wrappedBuilder;
-        this.dateTimeExtractor = dateTimeExtractor;
-        this.positiveClassification = positiveClassification;
+    @Override
+    public void updateBuilderConfig(Map<String, Object> config) {
+        wrappedBuilder.updateBuilderConfig(config);
+        if (config.containsKey(HALF_LIFE_OF_NEGATIVE))
+            halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));
+        if (config.containsKey(HALF_LIFE_OF_POSITIVE))
+            halfLifeOfPositive((Double) config.get(HALF_LIFE_OF_POSITIVE));
     }
 
     public TemporallyReweightedClassifierBuilder halfLifeOfPositive(double halfLifeOfPositiveInDays) {
@@ -47,79 +54,58 @@ public class TemporallyReweightedClassifierBuilder implements UpdatablePredictiv
         return this;
     }
 
-    @Override
-    public void setID(Serializable iD) {
-        wrappedBuilder.setID(iD);
+    public TemporallyReweightedClassifierBuilder DateTimeExtractor(double halfLifeOfNegativeInDays) {
+        this.decayConstantOfNegative = halfLifeOfNegativeInDays * DateTimeConstants.HOURS_PER_DAY / Math.log(2);
+        return this;
     }
 
     @Override
-    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
-        List<Instance<AttributesMap>> trainingDataList = reweightTrainingData(trainingData, mostRecent);
+        List<ClassifierInstance> trainingDataList = sortAndReweightTrainingData(trainingData, mostRecent);
         final Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedClassifier(predictiveModel);
     }
 
-    @Override
-    public PredictiveModelBuilder<AttributesMap, TemporallyReweightedClassifier> updatable(boolean updatable) {
-        wrappedBuilder.updatable(updatable);
-        return this;
-    }
 
-    private List<Instance<AttributesMap>> reweightTrainingData(Iterable<? extends Instance<AttributesMap>> sortedData, DateTime mostRecentInstance) {
-        ArrayList<Instance<AttributesMap>> trainingDataList = Lists.newArrayList();
-        for (Instance<AttributesMap> instance : sortedData) {
+    private List<ClassifierInstance> sortAndReweightTrainingData(Iterable<ClassifierInstance> trainingData, DateTime mostRecentInstance) {
+        ArrayList<ClassifierInstance> sortedData = Lists.newArrayList();
+        for (ClassifierInstance inst : trainingData) {
+            sortedData.add(inst);
+        }
+        Collections.sort(sortedData, new Comparator<ClassifierInstance>() {
+            @Override
+            public int compare(ClassifierInstance o1, ClassifierInstance o2) {
+                DateTime d1 = dateTimeExtractor.extractDateTime(o1);
+                DateTime d2 = dateTimeExtractor.extractDateTime(o2);
+                return -d1.compareTo(d2); //later times shoudl be sorted ahead of earlier times
+            }
+        });
+        ArrayList<ClassifierInstance> trainingDataList = Lists.newArrayList();
+        for (ClassifierInstance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
-            DateTime timeOfInstance = dateTimeExtractor.extractDateTime(instance);
-            double hoursBack = Hours.hoursBetween(mostRecentInstance, timeOfInstance).getHours();
+            double hoursBack = Hours.hoursBetween(mostRecentInstance, dateTimeExtractor.extractDateTime(instance)).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
-            trainingDataList.add(instance.reweight(newWeight));
+            //TODO[mk] Reweight needs to be moved / removed
+            trainingDataList.add(new ClassifierInstance(instance.getAttributes(), instance.getLabel(), newWeight));
         }
         return trainingDataList;
     }
 
-    private void validateData(Iterable<? extends Instance<AttributesMap>> trainingData) {
+    private void validateData(Iterable<ClassifierInstance> trainingData) {
         ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
 
-
-
-    @Override
-    public void updatePredictiveModel(TemporallyReweightedClassifier predictiveModel, Iterable<? extends Instance<AttributesMap>> newData, boolean splitNodes) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-            validateData(newData);
-            DateTime mostRecentInstance = getMostRecentInstance(newData);
-
-            List<Instance<AttributesMap>> newDataList = reweightTrainingData(newData, mostRecentInstance);
-
-            Classifier pm = predictiveModel.getWrappedClassifier();
-            ((UpdatablePredictiveModelBuilder) wrappedBuilder).updatePredictiveModel(pm, newDataList, splitNodes);
-        } else {
-            throw new RuntimeException("Cannot update predictive model without UpdatablePredictiveModelBuilder");
-        }
-    }
-
-    private DateTime getMostRecentInstance(Iterable<? extends Instance<AttributesMap>> newData) {
+    private DateTime getMostRecentInstance(Iterable<ClassifierInstance> newData) {
         DateTime mostRecent = null;
-        for(Instance<AttributesMap>instance : newData) {
-            DateTime instanceTime = dateTimeExtractor.extractDateTime(instance);
-            if (mostRecent == null || instanceTime.isAfter(mostRecent)) {
-                mostRecent = instanceTime;
+        for (ClassifierInstance instance : newData) {
+            if (mostRecent == null || dateTimeExtractor.extractDateTime(instance).isAfter(mostRecent)) {
+                mostRecent = dateTimeExtractor.extractDateTime(instance);
             }
         }
         return mostRecent;
-    }
-
-    @Override
-    public void stripData(TemporallyReweightedClassifier predictiveModel) {
-        if (wrappedBuilder instanceof UpdatablePredictiveModelBuilder) {
-                ((UpdatablePredictiveModelBuilder) wrappedBuilder).stripData(predictiveModel.getWrappedClassifier());
-        } else {
-            throw new RuntimeException("Cannot strip data without UpdatablePredictiveModelBuilder");
-        }
-
     }
 
 }

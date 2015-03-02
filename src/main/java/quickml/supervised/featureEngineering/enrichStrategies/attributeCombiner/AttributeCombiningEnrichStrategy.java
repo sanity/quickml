@@ -1,13 +1,10 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,7 +19,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<? extends Instance<AttributesMap>> trainingData) {
+    public AttributesEnricher build(final Iterable<ClassifierInstance> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

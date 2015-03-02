@@ -2,14 +2,14 @@ package quickml.supervised;
 
 import quickml.data.Instance;
 
-import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A supervised learning algorithm, which, given data, will generate a PredictiveModel.
  */
-public interface PredictiveModelBuilder<R, PM extends PredictiveModel<R, ?>> {
+public interface PredictiveModelBuilder<P extends PredictiveModel, T extends Instance> {
 
-    PM buildPredictiveModel(Iterable<? extends Instance<R>> trainingData);
-    PredictiveModelBuilder<R, PM> updatable(boolean updatable);
-    void setID(Serializable id);
+    public P buildPredictiveModel(Iterable<T> trainingData);
+
+    public void updateBuilderConfig(Map<String, Object> config);
 }

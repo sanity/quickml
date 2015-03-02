@@ -23,22 +23,22 @@ public class CategoricalDistributionSampler {
     public static Random rand = new Random();
     double actualSamples = 0;
 
-    public CategoricalDistributionSampler(List<Instance<AttributesMap>> instances, int samplesToDraw, String attribute) {
+    public CategoricalDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, int samplesToDraw, String attribute) {
         updateDistributionSampler(instances, samplesToDraw, attribute);
     }
 
-    public CategoricalDistributionSampler(List<Instance<AttributesMap>> instances, double percentageOfAllSamplesToUse, String attribute) {
+    public CategoricalDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, double percentageOfAllSamplesToUse, String attribute) {
         updateDistributionSampler(instances, percentageOfAllSamplesToUse, attribute);
     }
 
 
-    public void updateDistributionSampler(List<Instance<AttributesMap>> newInstances, double percentageOfAllSamplesToUse, String attribute) {
+    public void updateDistributionSampler(List<Instance<AttributesMap, Serializable>> newInstances, double percentageOfAllSamplesToUse, String attribute) {
         int samplesToDraw = (int)(percentageOfAllSamplesToUse * newInstances.size());
         updateHistogramOfCountsForValues(newInstances, samplesToDraw, attribute);
         createAttributeValueRangeMap();
     }
 
-    public void updateDistributionSampler(List<Instance<AttributesMap>> newInstances, int samplesToDraw, String attribute) {
+    public void updateDistributionSampler(List<Instance<AttributesMap, Serializable>> newInstances, int samplesToDraw, String attribute) {
         updateHistogramOfCountsForValues(newInstances, samplesToDraw, attribute);
         createAttributeValueRangeMap();
     }
@@ -58,7 +58,7 @@ public class CategoricalDistributionSampler {
         attributeValueRangeMap = valuesWithProbabilityRangeBuilder.build();
     }
 
-    private void updateHistogramOfCountsForValues(List<Instance<AttributesMap>> instances, int samplesToDraw, String attribute) {
+    private void updateHistogramOfCountsForValues(List<Instance<AttributesMap, Serializable>> instances, int samplesToDraw, String attribute) {
         Serializable val;
         //when the samples to draw are less than half the length of the list
         if (instances.size() < samplesToDraw / 2) {

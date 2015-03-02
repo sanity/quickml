@@ -1,31 +1,42 @@
 package quickml.supervised.regressionModel.LinearRegression;
 
 import com.google.common.collect.Iterables;
-import org.apache.commons.math3.linear.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import quickml.data.Instance;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.DiagonalMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.javatuples.Pair;
+import quickml.data.Instance;
 import quickml.supervised.PredictiveModelBuilder;
-
+import quickml.data.RidgeInstance;
 
 import java.io.Serializable;
+import java.util.Map;
 
 
 /**
  * Created by alexanderhawk on 8/14/14.
  */
-public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[], RidgeLinearModel> {
-    private static final Logger logger = LoggerFactory.getLogger(RidgeLinearModelBuilder.class);
+public class RidgeLinearModelBuilder implements PredictiveModelBuilder<RidgeLinearModel, RidgeInstance> {
 
-    double regularizationConstant = 0;
-    Iterable<? extends Instance<double[]>> trainingData;
-    boolean includeBiasTerm = false;
-    boolean updatable = false;
-    int collumnsInDataMatrix = 0;
-    String []header;
-    Serializable id;
+    public static final String REGULARIZATION_CONSTANT = "regularizationConstant";
+    public static final String INCLUDE_BIAS_TERM = "includeBiasTerm";
 
+    private double regularizationConstant = 0;
+    private Iterable<? extends Instance<double[], Serializable>> trainingData;
+    private boolean includeBiasTerm = false;
+    private int collumnsInDataMatrix = 0;
+    private String[] header;
+
+
+    @Override
+    public void
+    updateBuilderConfig(Map<String, Object> cfg) {
+        if (cfg.containsKey(REGULARIZATION_CONSTANT))
+            regularizationConstant((Double) cfg.get(REGULARIZATION_CONSTANT));
+        if (cfg.containsKey(INCLUDE_BIAS_TERM))
+            includeBiasTerm((Boolean) cfg.get(INCLUDE_BIAS_TERM));
+    }
 
     public RidgeLinearModelBuilder() {
     }
@@ -40,13 +51,13 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
         return this;
     }
 
-    public RidgeLinearModelBuilder header(String []header) {
+    public RidgeLinearModelBuilder header(String[] header) {
         this.header = header;
         return this;
     }
 
     @Override
-    public RidgeLinearModel buildPredictiveModel(Iterable<? extends Instance<double[]>> trainingData) {
+    public RidgeLinearModel buildPredictiveModel(Iterable<RidgeInstance> trainingData) {
 
         //compute modelCoefficients = (X^t * X + regularizationConstant*IdentityMatrix)^-1 * X^t * labels, where X is the data matrix
         this.trainingData = trainingData;
@@ -71,25 +82,15 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     private void printMatrix(RealMatrix matrix) {
         for (int i = 0; i < matrix.getRowDimension(); i++) {
             for (int j = 0; j < matrix.getColumnDimension(); j++) {
-                System.out.print(matrix.getEntry(i, j)+ " ");
+                System.out.print(matrix.getEntry(i, j) + " ");
             }
             System.out.print("\n");
         }
     }
 
-    @Override
-    public RidgeLinearModelBuilder updatable(boolean updatable) {
-        this.updatable = updatable;
-        return this;
-    }
-
-    @Override
-    public void setID(Serializable id) {
-        this.id = id;
-    }
 
     private RealMatrix getIdentiytMatrixTimesRegularizationConstant() {
-         RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
+        RealMatrix identityMatrixTimesRegularizationConstant = new DiagonalMatrix(collumnsInDataMatrix);
         for (int i = 0; i < collumnsInDataMatrix; i++) {
             identityMatrixTimesRegularizationConstant.setEntry(i, i, regularizationConstant);
         }
@@ -97,11 +98,11 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
     }
 
 
-    private Pair<RealMatrix, double[]> createDataMatrixLabelsPair(Iterable<? extends Instance<double[]>> trainingData) {
+    private Pair createDataMatrixLabelsPair(Iterable<? extends Instance<double[], Serializable>> trainingData) {
         RealMatrix dataMatrix = new Array2DRowRealMatrix(Iterables.size(trainingData), collumnsInDataMatrix);
         double[] labels = new double[Iterables.size(trainingData)];
         int row = 0;
-        for (Instance<double[]> instance : trainingData) {
+        for (Instance<double[], Serializable> instance : trainingData) {
             labels[row] = (Double) instance.getLabel();
             double[] attributes = instance.getAttributes();
             int oneIfUsingBiasTerm = 0;
@@ -109,11 +110,11 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
                 dataMatrix.setEntry(row, 0, 1.0);
                 oneIfUsingBiasTerm = 1;
             }
-            for (int i=0; i < attributes.length; i++) {
-                dataMatrix.setEntry(row, i+oneIfUsingBiasTerm, attributes[i]);
+            for (int i = 0; i < attributes.length; i++) {
+                dataMatrix.setEntry(row, i + oneIfUsingBiasTerm, attributes[i]);
             }
             row++;
         }
-        return new Pair<RealMatrix, double[]>(dataMatrix, labels);
+        return new Pair<>(dataMatrix, labels);
     }
 }

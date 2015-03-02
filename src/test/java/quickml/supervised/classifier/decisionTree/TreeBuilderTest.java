@@ -1,89 +1,87 @@
 package quickml.supervised.classifier.decisionTree;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.junit.Assert;
 import org.junit.Ignore;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.testng.internal.annotations.Sets;
+import org.junit.Test;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
 import quickml.data.PredictionMap;
-import quickml.supervised.PredictiveModelWithDataBuilder;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.decisionTree.tree.Node;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import static org.junit.Assert.*;
 
 
 public class TreeBuilderTest {
-	@Test
-	public void simpleBmiTest() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-		final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-		final long startTime = System.currentTimeMillis();
+
+    @Test
+    public void simpleBmiTest() throws Exception {
+        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final long startTime = System.currentTimeMillis();
         final Tree tree = tb.buildPredictiveModel(instances);
-		final Node node = tree.node;
+        final Node node = tree.node;
 
         TreeBuilderTestUtils.serializeDeserialize(node);
 
         final int nodeSize = node.size();
-		Assert.assertTrue(nodeSize < 400, "Tree size should be less than 400 nodes");
-		Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
-	}
+        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
+    }
 
 
+    @Test
+    public void multiScorerBmiTest() {
+        final Set<ClassifierInstance> instances = Sets.newHashSet();
 
-    @Test(enabled = false)
-	public void multiScorerBmiTest() {
-		final Set<Instance<AttributesMap>> instances = Sets.newHashSet();
-
-		for (int x = 0; x < 10000; x++) {
-			final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
-			final double weight = 120 + MapUtils.random.nextInt(110);
-            AttributesMap  attributes = AttributesMap.newHashMap() ;
+        for (int x = 0; x < 10000; x++) {
+            final double height = (4 * 12) + MapUtils.random.nextInt(3 * 12);
+            final double weight = 120 + MapUtils.random.nextInt(110);
+            AttributesMap attributes = AttributesMap.newHashMap();
             attributes.put("weight", weight);
             attributes.put("height", height);
-			final Instance<AttributesMap> instance = new InstanceImpl<>(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
-			instances.add(instance);
-		}
-		{
-			final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-			final Tree tree = tb.buildPredictiveModel(instances);
-			System.out.println("SplitDiffScorer node size: " + tree.node.size());
-		}
-	}
+            final ClassifierInstance instance = new ClassifierInstance(attributes, TreeBuilderTestUtils.bmiHealthy(weight, height));
+            instances.add(instance);
+        }
+        {
+            final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+            final Tree tree = tb.buildPredictiveModel(instances);
+            System.out.println("SplitDiffScorer node size: " + tree.node.size());
+        }
+    }
+
     @Test
     public void treeMadeExpectedSplits() {
-        final List<Instance<AttributesMap>> instances = Lists.newArrayList();
+        final List<ClassifierInstance> instances = Lists.newArrayList();
         //TODO: make code that generates test instances like these automatic
         AttributesMap attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", true);
-        instances.add(new InstanceImpl<AttributesMap>(attributesMap, 1.0));
+        instances.add(new ClassifierInstance(attributesMap, 1.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", true);
-        instances.add(new InstanceImpl<AttributesMap>(attributesMap, 0.0));
+        instances.add(new ClassifierInstance(attributesMap, 0.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", false);
-        instances.add(new InstanceImpl<AttributesMap>(attributesMap, 0.0));
+        instances.add(new ClassifierInstance(attributesMap, 0.0));
         attributesMap = AttributesMap.newHashMap();
         attributesMap.put("a", false);
-        instances.add(new InstanceImpl<AttributesMap>(attributesMap, 0.0));
+        instances.add(new ClassifierInstance(attributesMap, 0.0));
 
         TreeBuilder treeBuilder = new TreeBuilder().minCategoricalAttributeValueOccurances(0).minLeafInstances(0);
         Tree tree = treeBuilder.buildPredictiveModel(instances);
         AttributesMap attributes = new AttributesMap();
         attributes.put("a", true);
-        Assert.assertEquals(tree.getProbability(attributes, 1.0),.5);
+        assertEquals(tree.getProbability(attributes, 1.0), .5, 0.01);
         attributes.put("a", false);
-        Assert.assertEquals(tree.getProbability(attributes, 0.0), 1.0);
+        assertEquals(tree.getProbability(attributes, 0.0), 1.0, 0.01);
 
     }
 
@@ -91,91 +89,77 @@ public class TreeBuilderTest {
     @Ignore
     @Test
     public void simpleBmiTestSplit() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
-        wb.splitNodeThreshold(1);
+        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getInstances(10000);
+        TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
-        final Tree tree = wb.buildPredictiveModel(instances);
+        final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
         TreeBuilderTestUtils.serializeDeserialize(tree.node);
 
         int nodeSize = tree.node.size();
         double nodeMeanDepth = tree.node.meanDepth();
-        Assert.assertTrue(nodeSize < 400, "Tree size should be less than 400 nodes");
-        Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
-        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
+        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(1000);
-        final Tree newTree = wb.buildPredictiveModel(newInstances);
-        Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
-        Assert.assertNotEquals(nodeSize, newTree.node.size(), "Expected new nodes");
-        Assert.assertNotEquals(nodeMeanDepth, newTree.node.meanDepth(), "Expected new mean depth");
-
-        nodeSize = newTree.node.size();
-        nodeMeanDepth = newTree.node.meanDepth();
-        wb.stripData(newTree);
-        Assert.assertEquals(nodeSize, newTree.node.size(), "Expected same nodes");
-        Assert.assertEquals(nodeMeanDepth, newTree.node.meanDepth(), "Expected same mean depth");
+        final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(1000);
+        final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
+        assertTrue("Expect same tree to be updated", tree == newTree);
+        assertNotSame("Expected new nodes", nodeSize, newTree.node.size());
+        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.node.meanDepth());
     }
 
+    @Ignore("Test is currently failing, but is really testing updating of a predictive model, which 1. has been removed and 2. doesn't belong here")
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
+        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getInstances(10000);
+        TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
-        final Tree tree = wb.buildPredictiveModel(instances);
+        final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
         TreeBuilderTestUtils.serializeDeserialize(tree.node);
 
         int nodeSize = tree.node.size();
         double nodeMeanDepth = tree.node.meanDepth();
-        Assert.assertTrue(nodeSize < 400, "Tree size should be less than 400 nodes");
-        Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
-        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
+        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
-        final Tree newTree = wb.buildPredictiveModel(newInstances);
-        Assert.assertTrue(tree == newTree, "Expect same tree to be updated");
-        Assert.assertEquals(nodeSize, newTree.node.size(), "Expected same nodes");
-        Assert.assertNotEquals(nodeMeanDepth, newTree.node.meanDepth(), "Expected new mean depth");
+        final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
+        assertEquals("Expected same nodes", nodeSize, newTree.node.size());
+        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.node.meanDepth());
 
-        nodeSize = newTree.node.size();
-        nodeMeanDepth = newTree.node.meanDepth();
-        wb.stripData(newTree);
-        Assert.assertEquals(nodeSize, newTree.node.size(), "Expected same nodes");
-        Assert.assertEquals(nodeMeanDepth, newTree.node.meanDepth(), "Expected same mean depth");
     }
 
     @Test
     public void simpleBmiTestRebuild() throws Exception {
-        final List<Instance<AttributesMap>> instances = TreeBuilderTestUtils.getInstances(10000);
-        final PredictiveModelWithDataBuilder<AttributesMap ,Tree> wb = getWrappedUpdatablePredictiveModelBuilder();
-        wb.rebuildThreshold(1);
+        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getInstances(10000);
+        TreeBuilder treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
-        final Tree tree = wb.buildPredictiveModel(instances);
+        final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
         TreeBuilderTestUtils.serializeDeserialize(tree.node);
 
         int nodeSize = tree.node.size();
         double nodeMeanDepth = tree.node.meanDepth();
-        Assert.assertTrue(nodeSize < 400, "Tree size should be less than 400 nodes");
-        Assert.assertTrue(nodeMeanDepth < 6, "Mean depth should be less than 6");
-        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
+        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
+        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
-        final List<Instance<AttributesMap>> newInstances = TreeBuilderTestUtils.getInstances(10000);
-        final Tree newTree = wb.buildPredictiveModel(newInstances);
-        Assert.assertFalse(tree == newTree, "Expect new tree to be built");
+        final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(10000);
+        final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
+        Assert.assertFalse("Expect new tree to be built", tree == newTree);
     }
 
-    private PredictiveModelWithDataBuilder<AttributesMap ,Tree> getWrappedUpdatablePredictiveModelBuilder() {
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
-        return new PredictiveModelWithDataBuilder<>(tb);
+    private TreeBuilder createTreeBuilder() {
+        return new TreeBuilder(new SplitDiffScorer());
     }
 
     @Test
     public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
 
-        final List<Instance<AttributesMap>> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         MapUtils.random.setSeed(1l);
         final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);
@@ -183,13 +167,13 @@ public class TreeBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(tree1.node);
         TreeBuilderTestUtils.serializeDeserialize(tree2.node);
-        Assert.assertTrue(tree1.node.size() == tree2.node.size(), "Deterministic Decision Trees must have same number of nodes");
+        assertTrue("Deterministic Decision Trees must have same number of nodes", tree1.node.size() == tree2.node.size());
 
-        final List<Instance<AttributesMap>> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (Instance<AttributesMap> instance : instancesTest) {
-           PredictionMap map1 = tree1.predict(instance.getAttributes());
-           PredictionMap map2 = tree2.predict(instance.getAttributes());
-            Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
+        final List<ClassifierInstance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (ClassifierInstance instance : instancesTest) {
+            PredictionMap map1 = tree1.predict(instance.getAttributes());
+            PredictionMap map2 = tree2.predict(instance.getAttributes());
+            assertTrue("Deterministic Decision Trees must have equal classifications", map1.equals(map2));
         }
     }
 

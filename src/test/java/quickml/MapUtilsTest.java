@@ -1,6 +1,8 @@
 package quickml;
 
-import com.beust.jcommander.internal.Maps;
+
+import com.google.common.collect.Maps;
+
 import com.google.common.base.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;

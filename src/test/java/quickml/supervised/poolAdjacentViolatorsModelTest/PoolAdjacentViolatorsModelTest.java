@@ -1,6 +1,6 @@
 package quickml.supervised.poolAdjacentViolatorsModelTest;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import junit.framework.Assert;
 import org.junit.Test;
 import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;

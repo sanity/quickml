@@ -40,29 +40,6 @@ public class RandomForest extends AbstractClassifier {
         }
     }
 
-
-    public void dump(Appendable appendable, int numTrees) {
-        double meanDepth = 0;
-        for (int i = 0; i < numTrees; i++) {
-            meanDepth += trees.get(i).node.meanDepth();
-        }
-        try {
-            appendable.append("meanDepth " + meanDepth / numTrees + "\n");
-            for (Tree tree : trees) {
-                appendable.append("depth " + tree.node.meanDepth() + "\n");
-            }
-            for (int i = 0; i < numTrees; i++)
-                trees.get(i).dump(appendable);
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public void dump(Appendable appendable) {
-        trees.get(0).dump(appendable);
-    }
-
     @Override
     public double getProbability(AttributesMap attributes, Serializable classification) {
         double total = 0;

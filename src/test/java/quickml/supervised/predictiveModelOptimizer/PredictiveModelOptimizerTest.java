@@ -1,55 +1,71 @@
 package quickml.supervised.predictiveModelOptimizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import quickml.Benchmarks;
-import quickml.data.AttributesMap;
-import quickml.supervised.PredictiveModelWithDataBuilderFactory;
-import quickml.supervised.classifier.randomForest.RandomForestBuilderFactory;
-import quickml.supervised.crossValidation.ClassifierStationaryCrossValidator;
-import quickml.supervised.crossValidation.crossValLossFunctions.ClassifierLogCVLossFunction;
-import quickml.supervised.crossValidation.StationaryCrossValidator;
-import quickml.data.Instance;
-import quickml.supervised.PredictiveModelWithDataBuilder;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import com.google.common.collect.Maps;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * Created by ian on 3/1/14.
- */
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 public class PredictiveModelOptimizerTest {
-    private static final  Logger logger =  LoggerFactory.getLogger(PredictiveModelOptimizerTest.class);
+
+    @Mock
+    CrossValidator mockCrossValidator;
+
+    @Mock
+    ClassifierLossChecker mockLossChecker;
+
+    private PredictiveModelOptimizer modelOptimizer;
+    private HashMap<String, Object> bestConfig = Maps.newHashMap();
+    private HashMap<String, Object> secondBestConfig = Maps.newHashMap();
+    private HashMap<String, Object> thirdBestConfig = Maps.newHashMap();
+
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+
+        // Use a tree map for deteminisic order
+        Map<String, FixedOrderRecommender> fields = new TreeMap<>();
+        fields.put("treeDepth", new FixedOrderRecommender(1, 2, 3, 4, 5));
+        fields.put("penalize_splits", new FixedOrderRecommender(true, false));
+        fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
+
+        modelOptimizer = new PredictiveModelOptimizer(fields, mockCrossValidator, 10);
+    }
 
     @Test
-    public void irisTest() throws IOException {
-        final List<Instance<AttributesMap>> instances = Benchmarks.loadIrisDataset();
-        testWithTrainingSet(instances);
+    public void testFindSimpleBestConfig() throws Exception {
+        // Fields are checked in the following order - penalize_splits, scorer, treeDepth
+        thirdBestConfig = createMap(1, false, "A");
+        secondBestConfig = createMap(1, false, "C");
+        bestConfig = createMap(5, false, "C");
+
+
+        when(mockCrossValidator.getLossForModel(anyMap())).thenReturn(0.5);
+        when(mockCrossValidator.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
+        when(mockCrossValidator.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
+        when(mockCrossValidator.getLossForModel(eq(bestConfig))).thenReturn(0.1);
+
+        assertEquals(bestConfig, modelOptimizer.determineOptimalConfig());
     }
 
-    @Test(enabled = false)
-    public void diabetesTest() throws IOException {
-        final List<Instance<AttributesMap>> instances = Benchmarks.loadDiabetesDataset();
-        testWithTrainingSet(instances);
+    private HashMap<String, Object> createMap(int treeDepth, boolean penalizeSplits, String scorer) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("treeDepth", treeDepth);
+        map.put("penalize_splits", penalizeSplits);
+        map.put("scorer", scorer);
+        return map;
     }
-
-    private void testWithTrainingSet(final List<Instance<AttributesMap>> instances) {
-        final PredictiveModelWithDataBuilderFactory predictiveModelBuilderFactory = new PredictiveModelWithDataBuilderFactory(new RandomForestBuilderFactory());
-        final ClassifierStationaryCrossValidator crossVal = new ClassifierStationaryCrossValidator(4, 4, new ClassifierLogCVLossFunction());
-        PredictiveModelOptimizer predictiveModelOptimizer = new PredictiveModelOptimizer(predictiveModelBuilderFactory, instances, crossVal);
-        final Map<String, Object> optimalParameters = predictiveModelOptimizer.determineOptimalConfiguration();
-        logger.info("Optimal parameters: " + optimalParameters);
-        RandomForestBuilder defaultRFBuilder = new RandomForestBuilder();
-        final PredictiveModelWithDataBuilder optimalRFBuilder = predictiveModelBuilderFactory.buildBuilder(optimalParameters);
-        double defaultLoss = crossVal.getCrossValidatedLoss(defaultRFBuilder, instances);
-        double optimizedLoss = crossVal.getCrossValidatedLoss(optimalRFBuilder, instances);
-        logger.info("Default PM loss: "+defaultLoss+", optimized PM loss: "+optimizedLoss);
-        Assert.assertTrue(optimizedLoss <= defaultLoss, "Default PM loss (" + defaultLoss + ") should be higher or equal to optimized PM loss (" + optimizedLoss + ")");
-    }
-
 }

@@ -51,16 +51,6 @@ public class DownsamplingClassifier extends AbstractClassifier {
     }
 
     @Override
-    public void dump(final Appendable appendable) {
-        try {
-            appendable.append("Will predict for downsampling with drop probability "+dropProbability+" for minority classification "+minorityClassification+"\n");
-            wrappedClassifier.dump(appendable);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public PredictionMap predict(AttributesMap attributes) {
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));

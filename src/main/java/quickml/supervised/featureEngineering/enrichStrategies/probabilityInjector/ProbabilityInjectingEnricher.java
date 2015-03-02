@@ -4,7 +4,6 @@ import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

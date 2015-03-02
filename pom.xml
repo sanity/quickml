@@ -6,9 +6,6 @@
     <artifactId>quickml</artifactId>
 
     <!-- 
-        IMPORTANT NOTE ON VERSIONING
-        ----------------------------
-    
     1)  Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
         with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
         
@@ -35,7 +32,7 @@
     4)  *ANY* change to the master branch (ie. when a feature branch is merged) must
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
-    <version>0.5.0</version>
+    <version>0.5.1</version>
 
     <repositories>
         <repository>
@@ -124,6 +121,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>1.5.2</version>
@@ -132,6 +135,24 @@
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-core</artifactId>
             <version>0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

@@ -1,12 +1,14 @@
 package quickml.supervised.predictiveModelOptimizer;
 
-import com.google.common.base.Optional;
-
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by ian on 4/12/14.
  */
 public interface FieldValueRecommender {
-    public Optional<Object> recommendNextValue(Map<Object, Double> valuesPreviouslyAttemptedWithLoss);
+    List<? extends Object> getValues();
+
+    Object first();
+
+    boolean shouldContinue(List<Double> losses);
 }

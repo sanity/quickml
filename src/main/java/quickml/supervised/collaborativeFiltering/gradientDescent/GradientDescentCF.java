@@ -1,11 +1,8 @@
 package quickml.supervised.collaborativeFiltering.gradientDescent;
 
-import quickml.data.Instance;
 import quickml.supervised.collaborativeFiltering.CollaborativeFilter;
 import quickml.supervised.collaborativeFiltering.UserItem;
-import quickml.supervised.crossValidation.crossValLossFunctions.LabelPredictionWeight;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,10 +23,5 @@ public class GradientDescentCF extends CollaborativeFilter {
         return null;
     }
 
-
-    @Override
-    public void dump(final Appendable appendable) {
-
-    }
 
 }

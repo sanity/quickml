@@ -24,28 +24,28 @@ public abstract class Branch extends Node {
         this.attribute = attribute;
 	}
 
-	public abstract boolean decide(AttributesMap attributes);
+	public abstract boolean decide(Map<String, Serializable> attributes);
 
 	@Override
 	public int size() {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<Instance<AttributesMap>> getInPredicate() {
-		return new Predicate<Instance<AttributesMap>>() {
+	public Predicate<Instance<AttributesMap, Serializable>> getInPredicate() {
+		return new Predicate<Instance<AttributesMap, Serializable>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap> input) {
+			public boolean apply(final Instance<AttributesMap, Serializable> input) {
 				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance<AttributesMap>> getOutPredicate() {
-		return new Predicate<Instance<AttributesMap>>() {
+	public Predicate<Instance<AttributesMap, Serializable>> getOutPredicate() {
+		return new Predicate<Instance<AttributesMap, Serializable>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap> input) {
+			public boolean apply(final Instance<AttributesMap, Serializable> input) {
 				return !decide(input.getAttributes());
 			}
 		};
@@ -62,6 +62,7 @@ public abstract class Branch extends Node {
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+        //TODO[mk] - check with Alex
         if (attributesToIgnore.contains(this.attribute)) {
             return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
                     (1 - probabilityOfTrueChild) * falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);

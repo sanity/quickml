@@ -5,8 +5,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import quickml.data.ClassifierInstance;
 import quickml.utlities.selectors.*;
 
 /**
@@ -58,24 +57,24 @@ public class CSVToInstanceReader {
         this.numericSelector = numericSelector;
     }
 
-    public ArrayList<Instance<AttributesMap>> readCsv(String fileName) throws Exception {
+    public List<ClassifierInstance> readCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
         return getInstancesFromReader(reader);
     }
 
-    public ArrayList<Instance<AttributesMap>> readCsvFromReader(Reader reader) throws Exception {
+    public List<ClassifierInstance> readCsvFromReader(Reader reader) throws Exception {
 
         CSVReader csvReader = new CSVReader(reader, delimiter, '"');
         return getInstancesFromReader(csvReader);
     }
 
-    private ArrayList<Instance<AttributesMap>> getInstancesFromReader(CSVReader reader) throws IOException {
+    private List<ClassifierInstance> getInstancesFromReader(CSVReader reader) throws IOException {
         List<String[]> csvLines = reader.readAll();
 
-        ArrayList<Instance<AttributesMap>> instances = Lists.newArrayList();
+        List<ClassifierInstance> instances = Lists.newArrayList();
         try {
-            header = new ArrayList<String>();
+            header = new ArrayList<>();
             Collections.addAll(header, csvLines.get(0));
             for (int i = 1; i < csvLines.size(); i++) {
                 instances.add(instanceConverter(csvLines.get(i)));
@@ -86,7 +85,7 @@ public class CSVToInstanceReader {
         return instances;
     }
 
-    private Instance<AttributesMap> instanceConverter(String[] instanceArray) {
+    private ClassifierInstance instanceConverter(String[] instanceArray) {
 
         AttributesMap attributesMap = AttributesMap.newHashMap();
         Serializable label = null;
@@ -120,13 +119,13 @@ public class CSVToInstanceReader {
             containsUnLabeledInstances = true;
         }
 
-        return new InstanceImpl<AttributesMap>(attributesMap, label, weight);
+        return new ClassifierInstance(attributesMap, label, weight);
     }
 
     private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
         boolean categoricalOrNumericSelectorProvided = categoricalSelector.isPresent() || numericSelector.isPresent();
         if (!categoricalOrNumericSelectorProvided) {
-                return tryToConvertToNumeric(varValue);
+            return tryToConvertToNumeric(varValue);
         } else {
             //note: quoted values will be treated as categorical unless a selector indicates otherwise
             if (categoricalSelector.isPresent() && categoricalSelector.get().isCategorical(varName)) {
@@ -145,8 +144,8 @@ public class CSVToInstanceReader {
 
 
     private Serializable tryToConvertToNumeric(String varValue) {
-        if ((varValue.startsWith("\"") && varValue.endsWith("\""))  || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
-            varValue = varValue.substring(1, varValue.length() -1);
+        if ((varValue.startsWith("\"") && varValue.endsWith("\"")) || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
+            varValue = varValue.substring(1, varValue.length() - 1);
         }
         try {
             return Long.valueOf(varValue);
@@ -167,13 +166,12 @@ public class CSVToInstanceReader {
         CSVToInstanceReaderBuilder csvReaderBuilder = new CSVToInstanceReaderBuilder().collumnNameForLabel("campaignId").categoricalSelector(new ExplicitCategoricalSelector(catVariables));
         CSVToInstanceReader csvReader = csvReaderBuilder.buildCsvReader();
         try {
-            List<Instance<AttributesMap>> instances = csvReader.readCsv("test3");
-            for (Instance<AttributesMap> instance : instances)
+            List<ClassifierInstance> instances = csvReader.readCsv("test3");
+            for (ClassifierInstance instance : instances)
                 System.out.println("label: " + instance.getLabel() + "attributes: " + instance.getAttributes().toString());
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException();
         }
-      }
+    }
 }

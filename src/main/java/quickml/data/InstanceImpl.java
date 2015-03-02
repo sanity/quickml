@@ -1,18 +1,20 @@
 package quickml.data;
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 
-public class InstanceImpl<R> implements Instance<R>, Serializable {
+public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
 
     private static final long serialVersionUID = -932048363529904511L;
 
     protected static final double DEFAULT_WEIGHT = 1.0;
 
-    public InstanceImpl(final R attributes, final Serializable label) {
+    public InstanceImpl(final R attributes, final L label) {
         this(attributes, label, DEFAULT_WEIGHT);
     }
 
-    public InstanceImpl(final R attributes, final Serializable label, final double weight) {
+    public InstanceImpl(final R attributes, final L label, final double weight) {
         this.attributes = attributes;
         this.label = label;
         this.weight = weight;
@@ -22,12 +24,8 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
         return attributes;
     }
 
-    public Serializable getLabel() {
+    public L getLabel() {
         return label;
-    }
-
-    public InstanceImpl reweight(double newWeight){
-        return new InstanceImpl(getAttributes(), getLabel(), newWeight);
     }
 
     public double getWeight() {
@@ -35,7 +33,7 @@ public class InstanceImpl<R> implements Instance<R>, Serializable {
     }
 
     private R attributes;
-    private Serializable label;
+    private L label;
     private double weight;
 
     public boolean equals(final Object o) {

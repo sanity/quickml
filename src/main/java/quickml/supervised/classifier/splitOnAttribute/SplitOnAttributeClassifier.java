@@ -58,19 +58,6 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     }
 
     @Override
-    public void dump(final Appendable appendable) {
-        try {
-            for (Map.Entry<Integer, Classifier> splitModelEntry : splitModels.entrySet()) {
-                appendable.append("Predictive model for " + attributeKey + "=" + splitModelEntry.getKey());
-                splitModelEntry.getValue().dump(appendable);
-            }
-            appendable.append("Default");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return getModelForAttributes(attributes).getClassificationByMaxProb(attributes);
     }
