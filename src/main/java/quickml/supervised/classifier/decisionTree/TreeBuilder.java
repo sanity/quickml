@@ -515,10 +515,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return informationValue;
     }
 
-    private double getInformationValueOfNumericAttribute(int numberOfBins) {
-        return 1;//-Math.log(1/numberOfBins)/Math.log(2);
-    }
-
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
                                                                        final Iterable<T> instances) {
 
