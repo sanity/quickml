@@ -12,7 +12,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> {
-
+    private static final int MIN_INSTANCES_PER_VALIDATION_PERIOD = 5;
     private final List<T> allData;
     private final double crossValidationFraction;
     private final int timeSliceHours;
@@ -79,6 +79,7 @@ public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> 
             }
         }
     }
+
 
     private void sortData() {
         Collections.sort(allData, new Comparator<T>() {

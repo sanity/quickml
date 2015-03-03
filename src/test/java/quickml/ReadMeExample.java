@@ -1,5 +1,6 @@
 package quickml;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickml.data.*;
 import quickml.data.ClassifierInstance;
@@ -8,7 +9,11 @@ import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
+import javax.management.Attribute;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,7 +23,19 @@ import java.util.Set;
  */
 public class ReadMeExample {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        {
+            List<ClassifierInstance> irisDataset = PredictiveAccuracyTests.loadIrisDataset();
+            final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
+            AttributesMap attributes = new AttributesMap();
+            attributes.put("sepal-length", 5.84);
+            attributes.put("sepal-width", 3.05);
+            attributes.put("petal-length", 3.76);
+            attributes.put("petal-width", 1.2);
+            System.out.println("Prediction: " + randomForest.getProbability(attributes, "Iris-virginica"));
+        }
+
+
         final Set<ClassifierInstance> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
         AttributesMap  attributes = AttributesMap.newHashMap() ;

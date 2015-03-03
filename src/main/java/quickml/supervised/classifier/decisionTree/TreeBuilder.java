@@ -30,27 +30,39 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
     public static final String SCORER = "scorer";
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeInformationValue";
+    public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
 
 
-    public static final int ORDINAL_TEST_SPLITS = 5;
+    public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
-
     private Scorer scorer;
     private int maxDepth = Integer.MAX_VALUE;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 0;
     private int minLeafInstances = 0;
-    private boolean binaryClassifications = true;
-    private Serializable minorityClassification;
+
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
     private boolean penalizeCategoricalSplitsBySplitAttributeInformationValue = true;
+    private double degreeOfGainRatioPenalty = 1.0;
+    private int ordinalTestSpilts = 5;
+    private boolean applyCrossValidationToNodeConstruction = false;
+
+    //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
+    private  Serializable minorityClassification;
+    private  Serializable majorityClassification;
+    private  double majorityToMinorityRatio = 1;
+    private boolean binaryClassifications = true;
 
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
+    }
+
+    public TreeBuilder(final Scorer scorer) {
+        this.scorer = scorer;
     }
 
     public void updateBuilderConfig(final Map<String, Object> cfg) {
@@ -66,12 +78,24 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_CAT_ATTR_OCC));
         if (cfg.containsKey(MIN_LEAF_INSTANCES))
             minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
+        if (cfg.containsKey(ORDINAL_TEST_SPLITS))
+            ordinalTestSplits((Integer) cfg.get(ORDINAL_TEST_SPLITS));
+        if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
+            degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
+
         penalizeCategoricalSplitsBySplitAttributeInformationValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
-    public TreeBuilder(final Scorer scorer) {
-        this.scorer = scorer;
+    public TreeBuilder degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
+        this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
+        return this;
     }
+
+    public TreeBuilder ordinalTestSplits(int ordinalTestSpilts) {
+        this.ordinalTestSpilts = ordinalTestSpilts;
+        return this;
+    }
+
 
     public TreeBuilder<T> scorer(final Scorer scorer) {
         this.scorer = scorer;
@@ -121,28 +145,58 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private Set<Serializable> getClassificationProperties(Iterable<T> trainingData) {
-        HashMap<Serializable, MutableInt> classifications = Maps.newHashMap();
+        HashMap<Serializable, MutableInt> classificationsAndCounts = Maps.newHashMap();
+        Serializable minorityClassification = null;
+        Serializable majorityClassification = null;
+        boolean binaryClassifications = true;
+        double majorityToMinorityRatio = 1;
+
         for (T instance : trainingData) {
             Serializable classification = instance.getLabel();
-            if (classifications.containsKey(classification)) {
-                classifications.get(classification).increment();
-            } else
-                classifications.put(classification, new MutableInt(1));
 
-            if (classifications.size() > 2) {
-                binaryClassifications = false;
-                return new HashSet<>(classifications.keySet());
-            }
+                if (classificationsAndCounts.containsKey(classification)) {
+                   classificationsAndCounts.get(classification).increment();
+
+                } else
+                    classificationsAndCounts.put(classification, new MutableInt(1));
+
+        }
+        if (classificationsAndCounts.size() > 2) {
+            setBinaryClassifications(false);
+            return new HashSet<>(classificationsAndCounts.keySet());
         }
 
         minorityClassification = null;
         double minorityClassificationCount = 0;
-        for (Serializable val : classifications.keySet())
-            if (minorityClassification == null || classifications.get(val).doubleValue() < minorityClassificationCount) {
+
+        majorityClassification = null;
+        double majorityClassificationCount = 0;
+        for (Serializable val : classificationsAndCounts.keySet()) {
+            if (minorityClassification == null || classificationsAndCounts.get(val).doubleValue() < minorityClassificationCount) {
                 minorityClassification = val;
-                minorityClassificationCount = classifications.get(val).doubleValue();
+                minorityClassificationCount = classificationsAndCounts.get(val).doubleValue();
             }
-        return new HashSet<>(classifications.keySet());
+            if (majorityClassification == null || classificationsAndCounts.get(val).doubleValue() > majorityClassificationCount) {
+                majorityClassification = val;
+                majorityClassificationCount = classificationsAndCounts.get(val).doubleValue();
+            }
+        }
+        majorityToMinorityRatio = classificationsAndCounts.get(majorityClassification).doubleValue()
+                / classificationsAndCounts.get(minorityClassification).doubleValue();
+
+        writeClassificationPropertiesOfDataSet(minorityClassification, majorityClassification, binaryClassifications, majorityToMinorityRatio);
+        return new HashSet<>(classificationsAndCounts.keySet());
+    }
+
+    private synchronized  void setBinaryClassifications(boolean binaryClassifications) {
+        this.binaryClassifications = binaryClassifications;
+    }
+
+    private synchronized void writeClassificationPropertiesOfDataSet(Serializable minorityClassification, Serializable majorityClassification, boolean binaryClassifications, double majorityToMinorityRatio) {
+        this.minorityClassification = minorityClassification;
+        this.majorityClassification = majorityClassification;
+        this.binaryClassifications = binaryClassifications;
+        this.majorityToMinorityRatio = majorityToMinorityRatio;
     }
 
     private double[] createNumericSplit(final Iterable<T> trainingData, final String attribute) {
@@ -190,7 +244,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
         Collections.sort(splitList);
 
-        final double[] split = new double[ORDINAL_TEST_SPLITS - 1];
+        final double[] split = new double[ordinalTestSpilts - 1];
         final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
         for (int x = 0; x < split.length; x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);
@@ -286,7 +340,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         Pair<? extends Branch, Double> bestPair = null;
         //TODO: make this lazy in the sense that only numeric attributes that are not randomly rignored should have this done
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
-            if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {// || attributeCharacteristicsEntry.getKey().equals(splitAttribute)) {
+            if (this.ignoreAttributeAtNodeProbability > 0 && MapUtils.random.nextDouble() < this.ignoreAttributeAtNodeProbability) {
                 continue;
             }
 
@@ -378,7 +432,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         int attributesWithSufficientValues = labelAttributeValuesWithInsufficientData(valuesWithClassificationCounters);
         if (attributesWithSufficientValues <= 1)
             return null; //there is just 1 value available.
-        double informationValue = getInformationValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
+        double intrinsicValueOfAttribute = getIntrinsicValueOfAttribute(valuesWithClassificationCounters, numTrainingExamples);
 
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
@@ -398,8 +452,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
-                thisScore /= informationValue;
-            }
+                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }
 
             if (thisScore > bestScore) {
                 bestScore = thisScore;
@@ -436,7 +489,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         for (final AttributeValueWithClassificationCounter valueWithClassificationCounter : valuesWithClassificationCounters) {
             if (this.minCategoricalAttributeValueOccurances > 0) {
                 ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
-                if (shouldWeIgnoreThisValue(testValCounts)) {
+                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(testValCounts)) {
                     testValCounts.setHasSufficientData(false);
                 } else {
                     attributesWithSuffValues++;
@@ -449,7 +502,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return attributesWithSuffValues;
     }
 
-    private double getInformationValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
+    private double getIntrinsicValueOfAttribute(List<AttributeValueWithClassificationCounter> valuesWithCCs, double numTrainingExamples) {
         double informationValue = 0;
         double attributeValProb = 0;
 
@@ -460,10 +513,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
 
         return informationValue;
-    }
-
-    private double getInformationValueOfNumericAttribute(int numberOfBins) {
-        return 1;//-Math.log(1/numberOfBins)/Math.log(2);
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
@@ -546,16 +595,45 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return values;
     }
 
+    private boolean attributeValueOrIntervalOfValuesHasInsufficientStatistics(final ClassificationCounter testValCounts) {
+        Preconditions.checkArgument(majorityClassification!=null && minorityClassification !=null);
+        Map<Serializable, Double> counts = testValCounts.getCounts();
+        if (counts.containsKey(minorityClassification) &&
+                counts.get(minorityClassification) > minCategoricalAttributeValueOccurances) {
+            return false;
+        }
+
+        if (counts.containsKey(majorityClassification) &&
+                counts.get(majorityClassification) > majorityToMinorityRatio * minCategoricalAttributeValueOccurances) {
+            return false;
+        }
+
+        if (hasBothMinorityAndMajorityClassifications(counts)
+                && hasSufficientStatisticsForBothClassifications(counts)) {
+            return false;
+        }
+
+        return true;
+    }
     private boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         Map<Serializable, Double> counts = testValCounts.getCounts();
-        if (counts.size() == 1)
-            if (testValCounts.getTotal() < 2 * minCategoricalAttributeValueOccurances)
-                return true;
+
         for (Serializable key : counts.keySet()) {
-            if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances)
+            if (counts.get(key).doubleValue() < minCategoricalAttributeValueOccurances) {
                 return true;
+            }
         }
+
         return false;
+    }
+
+    private boolean hasSufficientStatisticsForBothClassifications(Map<Serializable, Double> counts) {
+        return counts.get(majorityClassification) > 0.6 * majorityToMinorityRatio * minCategoricalAttributeValueOccurances
+                && counts.get(minorityClassification) > 0.6 * minCategoricalAttributeValueOccurances;
+    }
+
+    private boolean hasBothMinorityAndMajorityClassifications(Map<Serializable, Double> counts) {
+        return counts.containsKey(majorityClassification) && counts.containsKey(minorityClassification);
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
@@ -566,9 +644,9 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
         double lastThreshold = Double.MIN_VALUE;
         double probabilityOfBeingInInset = 0;
+
         for (final double threshold : splits) {
-            // Sometimes we can get a few thresholds the same, avoid wasted
-            // effort when we do
+
             if (threshold == lastThreshold) {
                 continue;
             }
@@ -579,12 +657,16 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
-            //here, we treat bins as categorical attributes, and therefore require a minimum number of samples be had for both the inset and outset.  this minimum number is
-            //somewhat arbitrarily sets to 4*minCategoricalAttributeValueOccurances
-            if (inClassificationCounts.getTotal() < minLeafInstances || inClassificationCounts.getTotal() < 4 * minCategoricalAttributeValueOccurances
-                    || outClassificationCounts.getTotal() < minLeafInstances || outClassificationCounts.getTotal() < 4 * minCategoricalAttributeValueOccurances) {
+            if (binaryClassifications) {
+                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts) ||
+                        attributeValueOrIntervalOfValuesHasInsufficientStatistics(outClassificationCounts)) {
+                    continue;
+                }
+            } else if (shouldWeIgnoreThisValue(inClassificationCounts) || shouldWeIgnoreThisValue(outClassificationCounts)) {
                 continue;
             }
+
+
 
             double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
             if (thisScore > bestScore) {
@@ -602,6 +684,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static class AttributeCharacteristics {
         public boolean isNumber = true;
     }
+
 
     private class GreaterThanThresholdPredicate implements Predicate<T> {
 

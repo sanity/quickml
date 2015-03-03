@@ -67,7 +67,7 @@ public class AttributeImportanceFinderBuilder<T extends ClassifierInstance> {
         checkArgument(dataCycler != null, "Must supply a data cycler");
 
         return new AttributeImportanceFinder<>(modelBuilder, dataCycler, percentAttributesToRemovePerIteration,
-                numberOfIterations, attributesToKeep, lossFunctions, primaryLossFunction.getName());
+                numberOfIterations, attributesToKeep, lossFunctions, primaryLossFunction);
     }
 
 

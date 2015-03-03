@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
-import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;

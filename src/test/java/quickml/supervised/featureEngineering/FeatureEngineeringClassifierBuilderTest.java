@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FeatureEngineeringPredictiveModelBuilderTest {
+public class FeatureEngineeringClassifierBuilderTest {
 
     private static Integer valueToTest = 1;
 
@@ -24,8 +24,8 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
         List<ClassifierInstance> trainingData = Lists.newArrayList();
         trainingData.add(new ClassifierInstance(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
-        FeatureEngineeringPredictiveModelBuilder feBuilder = new FeatureEngineeringPredictiveModelBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
-        final FeatureEngineeredPredictiveModel predictiveModel = feBuilder.buildPredictiveModel(trainingData);
+        FeatureEngineeringClassifierBuilder feBuilder = new FeatureEngineeringClassifierBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
+        final FeatureEngineeredClassifier predictiveModel = feBuilder.buildPredictiveModel(trainingData);
         predictiveModel.getProbability(trainingData.get(0).getAttributes(), valueToTest);
     }
 
@@ -82,10 +82,6 @@ public class FeatureEngineeringPredictiveModelBuilderTest {
             return predict(attributes);
         }
 
-        @Override
-        public void dump(Appendable appendable) {
-
-        }
     }
 }
 

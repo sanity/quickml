@@ -17,12 +17,12 @@ import java.util.Set;
   This class uses the Pool-adjacent violators algorithm to calibrate the probabilities returned by a binary classifier, where postive
   classifications have a label of 1.0, and negative classifications have a label 0.0.
 */
-public class CalibratedPredictiveModel implements Classifier {
+public class CalibratedClassifier implements Classifier {
     private static final long serialVersionUID = 8291739965981425742L;
     public PoolAdjacentViolatorsModel pavFunction;
     public Classifier wrappedPredictiveModel;
 
-    public CalibratedPredictiveModel(Classifier wrappedPredictiveModel, PoolAdjacentViolatorsModel PAVFunction) {
+    public CalibratedClassifier(Classifier wrappedPredictiveModel, PoolAdjacentViolatorsModel PAVFunction) {
         this.wrappedPredictiveModel = wrappedPredictiveModel;
         this.pavFunction = PAVFunction;
     }
@@ -57,14 +57,6 @@ public class CalibratedPredictiveModel implements Classifier {
         predictionMap.put(Double.valueOf(0.0), 1.0 - positiveClassProb);
 
         return predictionMap;
-    }
-
-    @Override
-    public void dump(Appendable appendable) {
-        //dump the defining information of the wrapped predictive model
-        wrappedPredictiveModel.dump(appendable);
-        //dump the calibartion set of the PAV function.
-        pavFunction.dump(appendable);
     }
 
     @Override

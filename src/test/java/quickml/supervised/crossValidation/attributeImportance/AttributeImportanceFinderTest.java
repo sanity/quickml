@@ -7,6 +7,8 @@ import org.junit.Test;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
+import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
@@ -28,12 +30,12 @@ public class AttributeImportanceFinderTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
-                .modelBuilder(new RandomForestBuilder<>().numTrees(5))
-                .dataCycler(new OutOfTimeData<>(instances, .2, 5, new OnespotDateTimeExtractor()))
-                .percentAttributesToRemovePerIteration(0.2)
-                .numOfIterations(10)
+                .modelBuilder(new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).ignoreAttributeAtNodeProbability(.7)).numTrees(5))
+                .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
+                .percentAttributesToRemovePerIteration(0.3)
+                .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())
-                .primaryLossFunction(new ClassifierLogCVLossFunction(0.000001))
+                .primaryLossFunction(new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());

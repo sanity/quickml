@@ -43,7 +43,7 @@ public class PredictiveAccuracyTests {
     }
 
 
-    private List<ClassifierInstance> loadIrisDataset() throws IOException {
+     public static List<ClassifierInstance> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("iris.data.gz")))));
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 

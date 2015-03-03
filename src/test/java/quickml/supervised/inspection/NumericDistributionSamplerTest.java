@@ -1,7 +1,7 @@
 package quickml.supervised.inspection;
 
-import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

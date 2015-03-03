@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<TwoStageModel, T> {
+public class TwoStageModelBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<TwoStageClassifier, T> {
     PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1;
     PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2;
 
@@ -22,7 +22,7 @@ public class TwoStageModelBuilder<T extends ClassifierInstance> implements Predi
     }
 
     @Override
-    public TwoStageModel buildPredictiveModel(Iterable<T> trainingData) {
+    public TwoStageClassifier buildPredictiveModel(Iterable<T> trainingData) {
         List<ClassifierInstance> stage1Data = Lists.newArrayList();
         List<ClassifierInstance> stage2Data = Lists.newArrayList();
         List<ClassifierInstance> validationData = Lists.newArrayList();
@@ -47,7 +47,7 @@ public class TwoStageModelBuilder<T extends ClassifierInstance> implements Predi
 
         Classifier c1 = wrappedModelBuilder1.buildPredictiveModel(stage1Data);
         Classifier c2 = wrappedModelBuilder2.buildPredictiveModel(stage2Data);
-        return new TwoStageModel(c1, c2);
+        return new TwoStageClassifier(c1, c2);
     }
 
     @Override

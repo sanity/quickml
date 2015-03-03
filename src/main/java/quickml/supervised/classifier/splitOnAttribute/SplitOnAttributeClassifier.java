@@ -30,6 +30,9 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
         this.splitValToGroupId = splitValToGroupId;
         this.defaultGroup = defaultGroup;
     }
+    public Integer getDefaultGroup() {
+        return defaultGroup;
+    }
 
     public Map<? extends Serializable, Integer> getSplitValToGroupId() {
         return splitValToGroupId;
@@ -52,19 +55,6 @@ public class SplitOnAttributeClassifier extends AbstractClassifier {
     @Override
     public PredictionMap predictWithoutAttributes(final AttributesMap attributes, Set<String> attributesToIgnore) {
         return getModelForAttributes(attributes).predictWithoutAttributes(attributes, attributesToIgnore);
-    }
-
-    @Override
-    public void dump(final Appendable appendable) {
-        try {
-            for (Map.Entry<Integer, Classifier> splitModelEntry : splitModels.entrySet()) {
-                appendable.append("Predictive model for " + attributeKey + "=" + splitModelEntry.getKey());
-                splitModelEntry.getValue().dump(appendable);
-            }
-            appendable.append("Default");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

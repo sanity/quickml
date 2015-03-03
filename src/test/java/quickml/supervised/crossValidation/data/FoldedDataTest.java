@@ -1,6 +1,6 @@
 package quickml.supervised.crossValidation.data;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.supervised.crossValidation.data.FoldedData;

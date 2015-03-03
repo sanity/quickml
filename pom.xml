@@ -4,8 +4,36 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quickml</groupId>
     <artifactId>quickml</artifactId>
-    <!-- Use Semantic Versioning - MAJOR.MINOR.PATCH, see http://semver.org/ -->
-    <version>0.5.0</version>
+
+    <!-- 
+    1)  Use Semantic Versioning - MAJOR.MINOR.PATCH. Note that versions starting 
+        with 0.x.x are considered pre-release, ie. 0.MAJOR.MINOR.
+        
+        MAJOR: A breaking (ie. backwards-incompatible) change to the public API of the library
+               eg. Removing or modifying a public or protected method in a class
+        MINOR: A backwards-compatible change to the public API
+               eg. Adding a new method to a class, or adding a new class
+        PATCH: An improvement that doesn't affect the public API
+               eg. A refactor, performance improvement, or bugfix
+        
+        We won't go to 1.x.x until we have a high degree of confidence that
+        future backwards-compatible changes to the API will be rare.
+        
+        Please read http://semver.org/ if you haven't already.
+        
+    2)  When you increase the version you must create a new Github release for this
+        version.  This will trigger an automatic regeneration of the Maven repository
+        using the http://jitpack.io/ service.
+        
+    3)  You must also modify the relevant part of the index.html page
+        in the gh-pages branch to update the installation instructions so that they
+        point to the new version.
+        
+    4)  *ANY* change to the master branch (ie. when a feature branch is merged) must
+        be accompanied by a bump in version number, regardless of how minor the change.
+    -->
+    <version>0.6.0</version>
+
     <repositories>
         <repository>
             <id>sanity-maven-repo</id>

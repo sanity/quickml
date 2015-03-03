@@ -54,6 +54,10 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         wrappedBuilder.updateBuilderConfig(config);
     }
 
+    public int getGroupFromSplitVal(Serializable val) {
+        return splitValToGroupIdMap.get(val);
+    }
+
     private Map<Integer, SplitModelGroup> getSplitModelGroups(Collection<SplitModelGroup> splitModelGroupCollection) {
         Map<Integer, SplitModelGroup> splitModelGroupMap = new HashMap<>();
         for (SplitModelGroup splitModelGroup : splitModelGroupCollection) {

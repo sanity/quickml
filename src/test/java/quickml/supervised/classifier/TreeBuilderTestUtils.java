@@ -24,6 +24,7 @@ public class TreeBuilderTestUtils {
             attributes.put("weight", weight);
             attributes.put("height", height);
             attributes.put("gender", random.nextInt(2));
+            attributes.put("other", random.nextInt(2));
             instances.add(new ClassifierInstance(attributes, bmiHealthy(weight, height)));
         }
         return instances;

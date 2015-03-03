@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation.attributeImportance;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class LossFunctionTracker {
 
     private static final Logger logger = LoggerFactory.getLogger(LossFunctionTracker.class);
@@ -17,11 +20,18 @@ public class LossFunctionTracker {
 
     // Map of loss function name to the running loss for that function
     private Map<String, RunningWeight> functionLossMap = Maps.newHashMap();
+    private ClassifierLossFunction primaryLossFunction;
 
     public LossFunctionTracker(List<ClassifierLossFunction> lossFunctions) {
+        this(getSecondaryLossFunctions(lossFunctions), lossFunctions.get(0));
+    }
+
+    public LossFunctionTracker(List<ClassifierLossFunction> lossFunctions, ClassifierLossFunction primaryLossFunction) {
+        this.primaryLossFunction = primaryLossFunction;
         for (ClassifierLossFunction lossFunction : lossFunctions) {
             functionLossMap.put(lossFunction.getName(), new RunningWeight(lossFunction));
         }
+        functionLossMap.put(primaryLossFunction.getName(), new RunningWeight(primaryLossFunction));
     }
 
     public void updateLosses(PredictionMapResults results) {
@@ -34,6 +44,10 @@ public class LossFunctionTracker {
         return functionLossMap.keySet();
     }
 
+    public double getPrimaryLoss() {
+        return getLossForFunction(primaryLossFunction.getName());
+    }
+
     public double getLossForFunction(String lossFunction) {
         return functionLossMap.get(lossFunction).loss();
     }
@@ -42,6 +56,11 @@ public class LossFunctionTracker {
         for (String functionName : functionLossMap.keySet()) {
             logger.info("Log function - {} - Loss - {}", functionName, functionLossMap.get(functionName).loss() );
         }
+    }
+
+    private static List<ClassifierLossFunction> getSecondaryLossFunctions(List<ClassifierLossFunction> lossFunctions) {
+        checkArgument(lossFunctions.size() > 0, "There must be at least one loss function supplied");
+        return lossFunctions.subList(1, lossFunctions.size());
     }
 
     class RunningWeight implements Comparable<RunningWeight> {

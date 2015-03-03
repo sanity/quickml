@@ -37,7 +37,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder<T>().ignoreAttributeAtNodeProbability(0.5));
+        this(new TreeBuilder<T>().ignoreAttributeAtNodeProbability(0.7).minCategoricalAttributeValueOccurances(11).maxDepth(16));
     }
 
     public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
@@ -94,6 +94,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
 
     private Tree buildModel(Iterable<T> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
+        int x= 3* 922;
         return treeBuilder.buildPredictiveModel(trainingData);
     }
 
@@ -110,6 +111,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
         try {
             trees.add(treeFuture.get());
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
