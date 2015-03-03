@@ -104,17 +104,17 @@ and link to Wiki pages to deep-dive on any particular topic.
             which is included with QuickML for your convenience.  We then generate a prediction for a particular set of
             input attributes:
   <pre class="prettyprint">
-import quickml.supervised.classifier.randomForest.RandomForest;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.data.*;
+import quickml.supervised.classifier.randomForest.*;
 // ...
-final List&lt;Instance&lt;Map&lt;String, Serializable&gt;&gt;&gt; irisDataset = Benchmarks.loadIrisDataset();
+List&lt;ClassifierInstance&gt; irisDataset = PredictiveAccuracyTests.loadIrisDataset();
 final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
-Map&lt;String, Serializable&gt; attributes = Maps.newHashMap();
-attributes.put(&quot;sepal-length&quot;, 5.84);
-attributes.put(&quot;sepal-width&quot;, 3.05);
-attributes.put(&quot;petal-length&quot;, 3.76);
-attributes.put(&quot;petal-width&quot;, 1.2);
-System.out.println(&quot;Prediction: &quot; + randomForest.getProbability(attributes, &quot;Iris-virginica&quot;));
+AttributesMap attributes = new AttributesMap();
+attributes.put("sepal-length", 5.84);
+attributes.put("sepal-width", 3.05);
+attributes.put("petal-length", 3.76);
+attributes.put("petal-width", 1.2);
+System.out.println("Prediction: " + randomForest.getProbability(attributes, "Iris-virginica"));
 </pre>
           </p>
           <h1>History</h1>
