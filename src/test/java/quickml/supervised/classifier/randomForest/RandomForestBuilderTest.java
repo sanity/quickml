@@ -9,12 +9,19 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.classifier.decisionTree.tree.*;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 
 public class RandomForestBuilderTest {
     @Test
@@ -41,6 +48,63 @@ public class RandomForestBuilderTest {
 
 
     @Test
+    public void twoDeterministicTreesinAForestsAreEqual() throws IOException, ClassNotFoundException {
+        final List<ClassifierInstance> instancesTrain =  getAdvertisingInstances();
+
+        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).ignoreAttributeAtNodeProbability(0).maxDepth(10)).numTrees(2);
+        MapUtils.random.setSeed(1l);
+        final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+
+
+        Node root1 = randomForest1.trees.get(0).node;
+        Node root2 = randomForest1.trees.get(1).node;
+        traverseTree(root1, root2);
+    }
+
+    private void traverseTree(Node node0, Node node1) {
+        compareNode(node0, node1);
+        if (node0 instanceof Branch && node1 instanceof Branch) {
+            traverseTree(((Branch) node0).falseChild, ((Branch) node1).falseChild);
+            traverseTree(((Branch) node0).trueChild, ((Branch) node1).trueChild);
+
+        }
+        if (node0 instanceof Branch)
+            Assert.assertTrue(node1 instanceof Branch);
+        if (node1 instanceof Branch)
+            Assert.assertTrue(node0 instanceof Branch);
+
+    }
+
+    private void compareNode(Node node0, Node node1) {
+        if (node0 instanceof CategoricalBranch)  {
+            CategoricalBranch categoricalBranch1 = (CategoricalBranch)node0;
+            CategoricalBranch categoricalBranch2 = (CategoricalBranch)node1;
+            Set<Serializable> inset1 = categoricalBranch1.inSet;
+            Set<Serializable> inset2= categoricalBranch2.inSet;
+
+
+            Assert.assertTrue(inset1.containsAll(inset2) && inset2.containsAll(inset1));
+        }
+
+        else if (node0 instanceof NumericBranch) {
+            NumericBranch numericBranch1 = (NumericBranch)node0;
+            NumericBranch numericBranch2 = (NumericBranch)node1;
+            double threshold1 = numericBranch1.threshold;
+            double threshold2= numericBranch2.threshold;
+
+
+            Assert.assertEquals(threshold1, threshold2);
+        }
+        else if (node0 instanceof Leaf) {
+            Leaf leaf1 = (Leaf)node0;
+            Leaf leaf2 = (Leaf)node1;
+            double posProb1 = leaf1.getProbability(1.0);
+            double posProb2= leaf2.getProbability(1.0);
+            Assert.assertEquals(posProb1, posProb2);
+        }
+    }
+
+    @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
         final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()));
@@ -56,10 +120,9 @@ public class RandomForestBuilderTest {
 
         final List<ClassifierInstance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (ClassifierInstance instance : instancesTest) {
-           PredictionMap map1 = randomForest1.predict(instance.getAttributes());
-           PredictionMap map2 = randomForest2.predict(instance.getAttributes());
+            PredictionMap map1 = randomForest1.predict(instance.getAttributes());
+            PredictionMap map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }
-
 }

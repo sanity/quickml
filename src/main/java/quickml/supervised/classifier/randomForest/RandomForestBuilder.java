@@ -38,7 +38,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(16));
+        this(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(5));
     }
 
     public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
