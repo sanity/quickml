@@ -270,7 +270,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<T> trainingData, final int depth,
+    private Node buildTree(Branch parent, final Iterable<T> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
