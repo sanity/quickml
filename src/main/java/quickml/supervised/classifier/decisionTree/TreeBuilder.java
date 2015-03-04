@@ -63,21 +63,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private  double majorityToMinorityRatio = 1;
     private boolean binaryClassifications = true;
 
-    public TreeBuilder(TreeBuilder that) {
-        this.scorer = that.scorer;
-        this.maxDepth = that.maxDepth;
-        this.minimumScore = that.minimumScore;
-        this.minDiscreteAttributeValueOccurances = that.minDiscreteAttributeValueOccurances;
-        this.minLeafInstances = that.minLeafInstances;
-        this.penalizeCategoricalSplitsBySplitAttributeInformationValue = that.penalizeCategoricalSplitsBySplitAttributeInformationValue;
-        this.degreeOfGainRatioPenalty = that.degreeOfGainRatioPenalty;
-        this.ordinalTestSpilts = that.ordinalTestSpilts;
-        this.applyCrossValidationToNodeConstruction = that.applyCrossValidationToNodeConstruction;
-        this.attributeIgnoringStrategy = that.attributeIgnoringStrategy.copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor();
-        this.fractionOfDataToUseInHoldOutSet = that.fractionOfDataToUseInHoldOutSet;
-
-    }
-
     public TreeBuilder() {
         this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
     }
@@ -87,16 +72,20 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return this;
     }
 
-
-    public TreeBuilder applyCrossValidationToNodeConstruction(double fractionOfDataToUseInHoldOutSet) {
-        if (fractionOfDataToUseInHoldOutSet>0) {
-            applyCrossValidationToNodeConstruction = true;
-            this.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
-        }
-        else {
-            applyCrossValidationToNodeConstruction = false;
-        }
-        return this;
+    public TreeBuilder copy() {
+        TreeBuilder<T> copy = new TreeBuilder<>();
+        copy.scorer = scorer;
+        copy.maxDepth = maxDepth;
+        copy.minimumScore = minimumScore;
+        copy.minDiscreteAttributeValueOccurances = minDiscreteAttributeValueOccurances;
+        copy.minLeafInstances = minLeafInstances;
+        copy.penalizeCategoricalSplitsBySplitAttributeInformationValue = penalizeCategoricalSplitsBySplitAttributeInformationValue;
+        copy.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
+        copy.ordinalTestSpilts = ordinalTestSpilts;
+        copy.applyCrossValidationToNodeConstruction = applyCrossValidationToNodeConstruction;
+        copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
+        copy.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
+        return copy;
     }
 
     public TreeBuilder(final Scorer scorer) {

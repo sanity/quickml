@@ -95,8 +95,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
 
     private Tree buildModel(Iterable<T> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
-        TreeBuilder<T> thisTreeBuilder = new TreeBuilder(treeBuilder);
-        return thisTreeBuilder.buildPredictiveModel(trainingData);
+        return treeBuilder.copy().buildPredictiveModel(trainingData);
     }
 
 

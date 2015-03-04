@@ -16,10 +16,10 @@ public class CompositeAttributeIgnoringStrategy implements AttributeIgnoringStra
     }
 
     @Override
-    public CompositeAttributeIgnoringStrategy copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor() {
+    public CompositeAttributeIgnoringStrategy copy() {
         List<AttributeIgnoringStrategy> copies = Lists.newArrayList();
         for (AttributeIgnoringStrategy attributeIgnoringStrategy : attributeIgnoringStrategies) {
-            copies.add(attributeIgnoringStrategy.copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor());
+            copies.add(attributeIgnoringStrategy.copy());
         }
         return new CompositeAttributeIgnoringStrategy(copies);
     }
