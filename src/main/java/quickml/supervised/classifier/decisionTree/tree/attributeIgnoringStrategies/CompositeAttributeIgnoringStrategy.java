@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies;
 
 import com.google.common.collect.Lists;
+import quickml.supervised.classifier.decisionTree.tree.Branch;
 
 import java.util.List;
 
@@ -24,9 +25,9 @@ public class CompositeAttributeIgnoringStrategy implements AttributeIgnoringStra
     }
 
     @Override
-    public boolean ignoreAttribute(String attribute) {
+    public boolean ignoreAttribute(String attribute, Branch parent) {
         for (AttributeIgnoringStrategy attributeIgnoringStrategy : attributeIgnoringStrategies) {
-            if (attributeIgnoringStrategy.ignoreAttribute(attribute)) {
+            if (attributeIgnoringStrategy.ignoreAttribute(attribute, parent)) {
                 return true;
             }
         }

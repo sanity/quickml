@@ -286,7 +286,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<T> trainingData, final int depth,
+    private Node buildTree(Branch parent, final Iterable<T> trainingData, final int depth,
                            final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
@@ -366,7 +366,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
     }
 
-    private Pair<? extends Branch, Double> getBestNodePair(Node parent, Iterable<T> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Branch parent, Iterable<T> trainingData, final Map<String, double[]> splits) {
         //should not be doing the following operation every time we call buildTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
@@ -374,7 +374,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         Pair<? extends Branch, Double> bestPair = null;
         //TODO: make this lazy in the sense that only numeric attributes that are not randomly rignored should have this done
         for (final Entry<String, AttributeCharacteristics> attributeCharacteristicsEntry : attributeCharacteristics.entrySet()) {
-            if (this.attributeIgnoringStrategy.ignoreAttribute(attributeCharacteristicsEntry.getKey())) {
+            if (this.attributeIgnoringStrategy.ignoreAttribute(attributeCharacteristicsEntry.getKey(), parent)) {
                 continue;
             }
 

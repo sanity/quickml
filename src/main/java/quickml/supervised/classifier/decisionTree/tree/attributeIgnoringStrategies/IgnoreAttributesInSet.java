@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies;
 
 import com.google.common.collect.Sets;
+import quickml.supervised.classifier.decisionTree.tree.Branch;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -35,7 +36,7 @@ public class IgnoreAttributesInSet implements AttributeIgnoringStrategy {
     }
 
     @Override
-    public boolean ignoreAttribute(String attribute) {
+    public boolean ignoreAttribute(String attribute, Branch Parent) {
         if (attributesToIgnore.contains(attribute)) {
             return true;
         }

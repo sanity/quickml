@@ -1,5 +1,7 @@
 package quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies;
 
+import quickml.supervised.classifier.decisionTree.tree.Branch;
+
 import java.util.Random;
 
 /**
@@ -21,7 +23,7 @@ public class IgnoreAttributesWithConstantProbability implements AttributeIgnorin
     }
 
     @Override
-    public boolean ignoreAttribute(String attribute) {
+    public boolean ignoreAttribute(String attribute, Branch parent) {
         if (random.nextDouble() < ignoreAttributeProbability) {
             return true;
         }

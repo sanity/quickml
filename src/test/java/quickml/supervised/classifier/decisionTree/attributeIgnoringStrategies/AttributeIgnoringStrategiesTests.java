@@ -75,7 +75,7 @@ public class AttributeIgnoringStrategiesTests {
         int numIgnored = 0;
         List<String> attributes = Arrays.asList("domain", "creativeId", "region", "hourOfDay");
         for (String attribute : attributes) {
-            if (attributeIgnoringStrategy.ignoreAttribute(attribute)) {
+            if (attributeIgnoringStrategy.ignoreAttribute(attribute, null)) {
                 numIgnored++;
             }
         }
