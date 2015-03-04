@@ -1,7 +1,6 @@
 package quickml.supervised.classifier.decisionTree.attributeIgnoringStrategies;
 
-import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.testng.Assert;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
