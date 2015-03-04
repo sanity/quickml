@@ -39,7 +39,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     private Scorer scorer;
-    private int maxDepth = Integer.MAX_VALUE;
+    private int maxDepth = 5;
     private double ignoreAttributeAtNodeProbability = 0.0;
     private double minimumScore = 0.00000000000001;
     private int minCategoricalAttributeValueOccurances = 0;
@@ -513,10 +513,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
 
         return informationValue;
-    }
-
-    private double getInformationValueOfNumericAttribute(int numberOfBins) {
-        return 1;//-Math.log(1/numberOfBins)/Math.log(2);
     }
 
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
