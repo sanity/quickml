@@ -20,6 +20,23 @@ and link to Wiki pages to deep-dive on any particular topic.
       pre {font-size:7pt;}
     </style>
     <title>Quickml - An easy-to-use but powerful and fast machine learning library for Java</title>
+    <script>
+      var xmlhttp = new XMLHttpRequest();
+
+      xmlhttp.onreadystatechange = function() {
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+              var myArr = JSON.parse(xmlhttp.responseText);
+              populateRelease(myArr);
+          }
+      }
+      xmlhttp.open("GET", "https://api.github.com/repos/sanity/quickml/releases", true);
+      xmlhttp.send();
+      
+      function populateRelease(arr) {
+          var release = arr[0].tag_name;
+          document.getElementById("current_release").innerHTML = release;
+      }
+</script>
   </head>
 
   <body>
@@ -103,7 +120,7 @@ and link to Wiki pages to deep-dive on any particular topic.
   <pre class="prettyprint">&lt;dependency&gt;
   &lt;groupId&gt;com.github.sanity&lt;/groupId&gt;
   &lt;artifactId&gt;quickml&lt;/artifactId&gt;
-  &lt;version&gt;0.6.2&lt;/version&gt;
+  &lt;version&gt;<span id="current_release">0.6.0</span>&lt;/version&gt;
 &lt;/dependency&gt;  </pre>
           </p>
           <h2>Build a simple predictive model</h2>
