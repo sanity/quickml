@@ -12,6 +12,7 @@ import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
 
@@ -31,11 +32,11 @@ public class PredictiveModelOptimizerIntegrationTest {
     @Before
     public void setUp() throws Exception {
         List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
-        advertisingInstances = advertisingInstances.subList(0, 3000);
+        //advertisingInstances = advertisingInstances.subList(0, 3000);
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
                 .modelBuilder(new RandomForestBuilder<>())
-                .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.5, 12, new OnespotDateTimeExtractor()))
-                .lossChecker(new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001)))
+                .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
+                .lossChecker(new ClassifierLossChecker<>(new WeightedAUCCrossValLossFunction(1.0)))
                 .valuesToTest(createConfig())
                 .iterations(3)
                 .build();
