@@ -207,7 +207,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
         int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
-        int samplesToSkipPerStep = Math.max(1, trainingData.size()/RESERVOIR_SIZE);
+        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
         for (int i=0; i<trainingData.size(); i+=samplesToSkipPerStep) {
             Serializable value = trainingData.get(i).getAttributes().get(attribute);
             if (value == null) {
@@ -220,12 +220,13 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
     private Map<String, double[]> createNumericSplits(final List<T> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
+        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
         for (final T instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<>(RESERVOIR_SIZE, rand);
+                        reservoirSampler = new ReservoirSampler<>(numSamples, rand);
                         rsm.put(attributeEntry.getKey(), reservoirSampler);
                     }
                     reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
