@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 

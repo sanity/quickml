@@ -43,7 +43,7 @@ public class TemporallyReweightedClassifierBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(model);
 
-        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this node should take far less than 20 seconds");
+        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this root should take far less than 20 seconds");
     }
 
 }

@@ -140,8 +140,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     @Override
     public Tree buildPredictiveModel(Iterable<T> trainingData) {
-        Set<Serializable> classifications = getClassificationProperties(trainingData);
-        return new Tree(buildTree(null, trainingData, 0, createNumericSplits(trainingData)), classifications);
+        List <T> trainingDataList = Lists.newArrayList();
+        for (T instance : trainingData ) {
+            trainingDataList.add(instance);
+        }
+        Set<Serializable> classifications = getClassificationProperties(trainingDataList);
+        return new Tree(growTree(null, trainingData, 0, createNumericSplits(trainingDataList)), classifications);
     }
 
     private Set<Serializable> getClassificationProperties(Iterable<T> trainingData) {
@@ -199,18 +203,21 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         this.majorityToMinorityRatio = majorityToMinorityRatio;
     }
 
-    private double[] createNumericSplit(final Iterable<T> trainingData, final String attribute) {
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(RESERVOIR_SIZE, rand);
-        for (final T instance : trainingData) {
-            Serializable value = instance.getAttributes().get(attribute);
-            if (value == null) value = 0;
+    private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
+        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
+        int samplesToSkipPerStep = Math.max(1, trainingData.size()/RESERVOIR_SIZE);
+        for (int i=0; i<trainingData.size(); i+=samplesToSkipPerStep) {
+            Serializable value = trainingData.get(i).getAttributes().get(attribute);
+            if (value == null) {
+                continue;
+            }
             reservoirSampler.sample(((Number) value).doubleValue());
         }
 
         return getSplit(reservoirSampler);
     }
-
-    private Map<String, double[]> createNumericSplits(final Iterable<T> trainingData) {
+    private Map<String, double[]> createNumericSplits(final List<T> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         for (final T instance : trainingData) {
             for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
@@ -252,8 +259,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node buildTree(Node parent, final Iterable<T> trainingData, final int depth,
-                           final Map<String, double[]> splits) {
+    private Node growTree(Node parent, final Iterable<T> trainingData, final int depth,
+                          final Map<String, double[]> splits) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
 
@@ -268,7 +275,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         // If we were unable to find a useful branch, return the leaf
         if (bestNode == null || bestScore < minimumScore) {
             // will be null if all attributes are ignored, and best score will be 0 if
-            //1 of 3 things happen: (1) all instances in the node have the same classification, (2) each attribute tried has just 1 observed value
+            //1 of 3 things happen: (1) all instances in the root have the same classification, (2) each attribute tried has just 1 observed value
             //(3) subsets with the same attribute value have the same distribution of classifications
             return thisLeaf;
         }
@@ -302,7 +309,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
 
         // Recurse down the true branch
-        bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1, splits);
+        bestNode.trueChild = growTree(bestNode, trueTrainingSet, depth + 1, splits);
 
         // And now replace the old split if this is an NumericBranch
         if (bestNode instanceof NumericBranch) {
@@ -311,7 +318,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
 
         // Recurse down the false branch
-        bestNode.falseChild = buildTree(bestNode, falseTrainingSet, depth + 1, splits);
+        bestNode.falseChild = growTree(bestNode, falseTrainingSet, depth + 1, splits);
 
         // And now replace the original split if this is an NumericBranch
         if (bestNode instanceof NumericBranch) {
@@ -333,7 +340,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private Pair<? extends Branch, Double> getBestNodePair(Node parent, Iterable<T> trainingData, final Map<String, double[]> splits) {
-        //should not be doing the following operation every time we call buildTree
+        //should not be doing the following operation every time we call growTree
         Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);

@@ -28,7 +28,7 @@ public class RandomForestDumper {
         List<TreeSummary> summaries = new ArrayList<>();
         for (Tree t : forest.trees) {
             TreeSummary summary = new TreeSummary();
-            summary.summarizeNode(t.node, 0);
+            summary.summarizeNode(t.root, 0);
             summaries.add(summary);
         }
 

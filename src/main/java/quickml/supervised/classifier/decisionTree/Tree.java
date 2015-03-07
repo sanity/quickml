@@ -21,11 +21,11 @@ import java.util.Set;
  */
 public class Tree extends AbstractClassifier {
     static final long serialVersionUID = 56394564395635672L;
-    public final Node node;
+    public final Node root;
     private Set<Serializable> classifications = new HashSet<>();
 
-    protected Tree(Node tree, Set<Serializable> classifications) {
-        this.node = tree;
+    protected Tree(Node root, Set<Serializable> classifications) {
+        this.root = root;
         this.classifications = classifications;
     }
 
@@ -35,19 +35,19 @@ public class Tree extends AbstractClassifier {
 
     @Override
     public double getProbability(AttributesMap attributes, Serializable classification) {
-        Leaf leaf = node.getLeaf(attributes);
+        Leaf leaf = root.getLeaf(attributes);
         return leaf.getProbability(classification);
     }
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
-        return node.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+        return root.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
     }
 
 
     @Override
     public PredictionMap predict(AttributesMap attributes) {
-        Leaf leaf = node.getLeaf(attributes);
+        Leaf leaf = root.getLeaf(attributes);
         Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         for (Serializable classification : leaf.getClassifications()) {
             probsByClassification.put(classification, leaf.getProbability(classification));
@@ -66,7 +66,7 @@ public class Tree extends AbstractClassifier {
 
     @Override
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
-        Leaf leaf = node.getLeaf(attributes);
+        Leaf leaf = root.getLeaf(attributes);
         return leaf.getBestClassification();
     }
 
@@ -77,20 +77,20 @@ public class Tree extends AbstractClassifier {
 
         final Tree tree = (Tree) o;
 
-        if (!node.equals(tree.node)) return false;
+        if (!root.equals(tree.root)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return node.hashCode();
+        return root.hashCode();
     }
     
     @Override
     public String toString() {
         StringBuilder dump = new StringBuilder();
-        node.dump(dump);
+        root.dump(dump);
         return dump.toString();
     }
 }

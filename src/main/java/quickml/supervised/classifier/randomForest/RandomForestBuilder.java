@@ -32,7 +32,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
 
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
     private final TreeBuilder<T> treeBuilder;
-    private int numTrees = 20;
+    private int numTrees = 8;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
 

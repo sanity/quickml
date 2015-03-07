@@ -113,7 +113,7 @@ public class BenchmarkTest {
     }
 
     private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5).binaryClassification(true)).numTrees(100).executorThreadCount(8);
+        return new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5).binaryClassification(true)).numTrees(8).executorThreadCount(8);
     }
 }
 

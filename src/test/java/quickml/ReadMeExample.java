@@ -65,7 +65,7 @@ public class ReadMeExample {
                 System.out.println("They are overweight!");
             }
             
-            tree.node.dump(System.out);
+            tree.root.dump(System.out);
             
         }
         

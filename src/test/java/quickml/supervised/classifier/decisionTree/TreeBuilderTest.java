@@ -28,13 +28,13 @@ public class TreeBuilderTest {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final long startTime = System.currentTimeMillis();
         final Tree tree = tb.buildPredictiveModel(instances);
-        final Node node = tree.node;
+        final Node node = tree.root;
 
         TreeBuilderTestUtils.serializeDeserialize(node);
 
         final int nodeSize = node.size();
         assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
-        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
+        assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
     }
 
 
@@ -54,7 +54,7 @@ public class TreeBuilderTest {
         {
             final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
             final Tree tree = tb.buildPredictiveModel(instances);
-            System.out.println("SplitDiffScorer node size: " + tree.node.size());
+            System.out.println("SplitDiffScorer root size: " + tree.root.size());
         }
     }
 
@@ -94,19 +94,19 @@ public class TreeBuilderTest {
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
-        TreeBuilderTestUtils.serializeDeserialize(tree.node);
+        TreeBuilderTestUtils.serializeDeserialize(tree.root);
 
-        int nodeSize = tree.node.size();
-        double nodeMeanDepth = tree.node.meanDepth();
+        int nodeSize = tree.root.size();
+        double nodeMeanDepth = tree.root.meanDepth();
         assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
-        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
+        assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
         final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
         assertTrue("Expect same tree to be updated", tree == newTree);
-        assertNotSame("Expected new nodes", nodeSize, newTree.node.size());
-        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.node.meanDepth());
+        assertNotSame("Expected new nodes", nodeSize, newTree.root.size());
+        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.root.meanDepth());
     }
 
     @Ignore("Test is currently failing, but is really testing updating of a predictive model, which 1. has been removed and 2. doesn't belong here")
@@ -117,18 +117,18 @@ public class TreeBuilderTest {
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
-        TreeBuilderTestUtils.serializeDeserialize(tree.node);
+        TreeBuilderTestUtils.serializeDeserialize(tree.root);
 
-        int nodeSize = tree.node.size();
-        double nodeMeanDepth = tree.node.meanDepth();
+        int nodeSize = tree.root.size();
+        double nodeMeanDepth = tree.root.meanDepth();
         assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
-        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
+        assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
         final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
-        assertEquals("Expected same nodes", nodeSize, newTree.node.size());
-        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.node.meanDepth());
+        assertEquals("Expected same nodes", nodeSize, newTree.root.size());
+        assertNotSame("Expected new mean depth", nodeMeanDepth, newTree.root.meanDepth());
 
     }
 
@@ -139,13 +139,13 @@ public class TreeBuilderTest {
         final long startTime = System.currentTimeMillis();
         final Tree tree = treeBuilder.buildPredictiveModel(instances);
 
-        TreeBuilderTestUtils.serializeDeserialize(tree.node);
+        TreeBuilderTestUtils.serializeDeserialize(tree.root);
 
-        int nodeSize = tree.node.size();
-        double nodeMeanDepth = tree.node.meanDepth();
+        int nodeSize = tree.root.size();
+        double nodeMeanDepth = tree.root.meanDepth();
         assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
-        assertTrue("Building this node should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
+        assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
         final List<ClassifierInstance> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final Tree newTree = treeBuilder.buildPredictiveModel(newInstances);
@@ -165,9 +165,9 @@ public class TreeBuilderTest {
         MapUtils.random.setSeed(1l);
         final Tree tree2 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
 
-        TreeBuilderTestUtils.serializeDeserialize(tree1.node);
-        TreeBuilderTestUtils.serializeDeserialize(tree2.node);
-        assertTrue("Deterministic Decision Trees must have same number of nodes", tree1.node.size() == tree2.node.size());
+        TreeBuilderTestUtils.serializeDeserialize(tree1.root);
+        TreeBuilderTestUtils.serializeDeserialize(tree2.root);
+        assertTrue("Deterministic Decision Trees must have same number of nodes", tree1.root.size() == tree2.root.size());
 
         final List<ClassifierInstance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (ClassifierInstance instance : instancesTest) {
