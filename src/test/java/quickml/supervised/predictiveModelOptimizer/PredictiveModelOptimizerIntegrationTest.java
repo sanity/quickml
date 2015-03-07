@@ -32,7 +32,7 @@ public class PredictiveModelOptimizerIntegrationTest {
     @Before
     public void setUp() throws Exception {
         List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
-        //advertisingInstances = advertisingInstances.subList(0, 3000);
+        advertisingInstances = advertisingInstances.subList(0, 3000);
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
                 .modelBuilder(new RandomForestBuilder<>())
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
