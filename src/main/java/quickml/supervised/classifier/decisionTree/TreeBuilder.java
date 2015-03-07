@@ -14,7 +14,6 @@ import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 
 import javax.annotation.Nullable;
@@ -30,7 +29,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String MIN_CAT_ATTR_OCC = "minCatAttrOcc";
     public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
     public static final String SCORER = "scorer";
-    public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeInformationValue";
+    public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
     public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
 
 
@@ -47,7 +46,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private int minLeafInstances = 0;
 
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
-    private boolean penalizeCategoricalSplitsBySplitAttributeInformationValue = true;
+    private boolean penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = true;
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
     private boolean applyCrossValidationToNodeConstruction = false;
@@ -57,6 +56,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private  Serializable majorityClassification;
     private  double majorityToMinorityRatio = 1;
     private boolean binaryClassifications = true;
+    Map<String, AttributeCharacteristics> attributeCharacteristics;
+
 
     public TreeBuilder() {
         this(new GiniImpurityScorer());
@@ -120,7 +121,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
-        this.penalizeCategoricalSplitsBySplitAttributeInformationValue = useGainRatio;
+        this.penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = useGainRatio;
         return this;
     }
 
@@ -146,7 +147,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             trainingDataList.add(instance);
         }
         Set<Serializable> classifications = getClassificationProperties(trainingDataList);
-        return new Tree(growTree(null, trainingData, 0, createNumericSplits(trainingDataList)), classifications);
+        attributeCharacteristics = surveyTrainingData(trainingData);
+        return new Tree(growTree(null, trainingDataList, 0), classifications);
     }
 
     private Set<Serializable> getClassificationProperties(Iterable<T> trainingData) {
@@ -221,8 +223,10 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private Map<String, double[]> createNumericSplits(final List<T> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
         int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
-        for (final T instance : trainingData) {
-            for (final Entry<String, Serializable> attributeEntry : instance.getAttributes().entrySet()) {
+        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
+
+        for (int i=0; i<numSamples; i+=samplesToSkipPerStep) {
+            for (final Entry<String, Serializable> attributeEntry : trainingData.get(i).getAttributes().entrySet()) {
                 if (attributeEntry.getValue() instanceof Number) {
                     ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
                     if (reservoirSampler == null) {
@@ -261,73 +265,35 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node growTree(Node parent, final Iterable<T> trainingData, final int depth,
-                          final Map<String, double[]> splits) {
+    private Node growTree(Node parent, final List<T> trainingData, final int depth) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
-        final Leaf thisLeaf = new Leaf(parent, trainingData, depth);
-
         if (depth >= maxDepth) {
-            return thisLeaf;
+            return getLeaf(parent, trainingData, depth);
         }
 
-        Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData, splits);
+        Pair<? extends Branch, Double> bestPair = getBestNodePair(parent, trainingData);
         Branch bestNode = bestPair != null ? bestPair.getValue0() : null;
         double bestScore = bestPair != null ? bestPair.getValue1() : 0;
 
-        // If we were unable to find a useful branch, return the leaf
         if (bestNode == null || bestScore < minimumScore) {
-            // will be null if all attributes are ignored, and best score will be 0 if
-            //1 of 3 things happen: (1) all instances in the root have the same classification, (2) each attribute tried has just 1 observed value
-            //(3) subsets with the same attribute value have the same distribution of classifications
-            return thisLeaf;
+            //bestNode will be null if no attribute could provide a split that would produce 2 children where each had at
+            //at least minInstancesPerLeafSamples.
+            //The best score condition naturally catches the situation where all instances have the same classification.
+            return getLeaf(parent, trainingData, depth);
         }
 
         ArrayList<T> trueTrainingSet = Lists.newArrayList();
         ArrayList<T> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestNode, trueTrainingSet, falseTrainingSet);
 
+        bestNode.trueChild = growTree(bestNode, trueTrainingSet, depth + 1);
+        bestNode.falseChild = growTree(bestNode, falseTrainingSet, depth + 1);
 
-        if (trueTrainingSet.size() < this.minLeafInstances) {
-            return thisLeaf;
-        }
-
-        if (falseTrainingSet.size() < this.minLeafInstances) {
-            return thisLeaf;
-        }
-
-        double trueWeight = getTotalWeight(trueTrainingSet);
-        double falseWeight = getTotalWeight(falseTrainingSet);
-        if (trueWeight == 0 || falseWeight == 0) {
-            return thisLeaf;
-        }
-
-        double[] oldSplit = null;
-        // We want to temporarily replace the split for an attribute for
-        // descendants of an numeric branch, first the true split
-        if (bestNode instanceof NumericBranch) {
-            final NumericBranch bestBranch = (NumericBranch) bestNode;
-            oldSplit = splits.get(bestBranch.attribute);
-            splits.put(bestBranch.attribute, createNumericSplit(trueTrainingSet, bestBranch.attribute));
-        }
-
-        // Recurse down the true branch
-        bestNode.trueChild = growTree(bestNode, trueTrainingSet, depth + 1, splits);
-
-        // And now replace the old split if this is an NumericBranch
-        if (bestNode instanceof NumericBranch) {
-            final NumericBranch bestBranch = (NumericBranch) bestNode;
-            splits.put(bestBranch.attribute, createNumericSplit(falseTrainingSet, bestBranch.attribute));
-        }
-
-        // Recurse down the false branch
-        bestNode.falseChild = growTree(bestNode, falseTrainingSet, depth + 1, splits);
-
-        // And now replace the original split if this is an NumericBranch
-        if (bestNode instanceof NumericBranch) {
-            final NumericBranch bestBranch = (NumericBranch) bestNode;
-            splits.put(bestBranch.attribute, oldSplit);
-        }
         return bestNode;
+    }
+
+    private Leaf getLeaf(Node parent, List<T> trainingData, int depth) {
+        return new Leaf(parent, trainingData, depth);
     }
 
     private void setTrueAndFalseTrainingSets(Iterable<T> trainingData, Branch bestNode, List<T> trueTrainingSet, List<T> falseTrainingSet) {
@@ -341,9 +307,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         }
     }
 
-    private Pair<? extends Branch, Double> getBestNodePair(Node parent, Iterable<T> trainingData, final Map<String, double[]> splits) {
+    private Pair<? extends Branch, Double> getBestNodePair(Node parent, List<T> trainingData) {
         //should not be doing the following operation every time we call growTree
-        Map<String, AttributeCharacteristics> attributeCharacteristics = surveyTrainingData(trainingData);
 
         boolean smallTrainingSet = isSmallTrainingSet(trainingData);
         Pair<? extends Branch, Double> bestPair = null;
@@ -358,7 +323,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             Pair<? extends Branch, Double> categoricalPair = null;
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
-                numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData, splits.get(attributeCharacteristicsEntry.getKey()));
+                numericPair = createNumericNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             } else if (!attributeCharacteristicsEntry.getValue().isNumber) {
                 categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             }
@@ -373,14 +338,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             }
         }
         return bestPair;
-    }
-
-    private double getTotalWeight(List<T> trainingSet) {
-        double trueWeight = 0;
-        for (T instance : trainingSet) {
-            trueWeight += instance.getWeight();
-        }
-        return trueWeight;
     }
 
     private boolean isSmallTrainingSet(Iterable<T> trainingData) {
@@ -460,7 +417,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
-            if (penalizeCategoricalSplitsBySplitAttributeInformationValue) {
+            if (penalizeCategoricalSplitsBySplitAttributeIntrinsicValue) {
                 thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }
 
             if (thisScore > bestScore) {
@@ -488,9 +445,13 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
                 //outSet.add(attributeValueWithClassificationCounter.attributeValue);
             }
         }
+        if (bestScore==0)
+            return null;
+        else {
 
-        Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet, probabilityOfBeingInInset), bestScore);
-        return bestPair;
+            Pair<CategoricalBranch, Double> bestPair = Pair.with(new CategoricalBranch(parent, attribute, inSet, probabilityOfBeingInInset), bestScore);
+            return bestPair;
+        }
     }
 
     private int labelAttributeValuesWithInsufficientData(List<AttributeValueWithClassificationCounter> valuesWithClassificationCounters) {
@@ -646,14 +607,15 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private Pair<? extends Branch, Double> createNumericNode(Node parent, final String attribute,
-                                                             Iterable<T> instances,
-                                                             final double[] splits) {
+                                                             List<T> instances
+                                                             ) {
         double bestScore = 0;
         double bestThreshold = 0;
 
         double lastThreshold = Double.MIN_VALUE;
         double probabilityOfBeingInInset = 0;
 
+        final double[] splits = createNumericSplit(instances, attribute);
         for (final double threshold : splits) {
 
             if (threshold == lastThreshold) {
