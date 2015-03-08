@@ -85,7 +85,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
             degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
 
-        penalizeCategoricalSplitsBySplitAttributeInformationValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
+        penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
     public TreeBuilder degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
@@ -120,7 +120,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return this;
     }
 
-    public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeInformationValue(boolean useGainRatio) {
+    public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(boolean useGainRatio) {
         this.penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = useGainRatio;
         return this;
     }
@@ -276,8 +276,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         double bestScore = bestPair != null ? bestPair.getValue1() : 0;
 
         if (bestNode == null || bestScore < minimumScore) {
-            //bestNode will be null if no attribute could provide a split that would produce 2 children where each had at
-            //at least minInstancesPerLeafSamples.
+            //bestNode will be null if no attribute could provide a split that had enough statistically significant variable values
+            // to produce 2 children where each had at least minInstancesPerLeafSamples.
             //The best score condition naturally catches the situation where all instances have the same classification.
             return getLeaf(parent, trainingData, depth);
         }
