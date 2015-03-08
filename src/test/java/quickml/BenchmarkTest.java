@@ -13,6 +13,7 @@ import quickml.supervised.classifier.decisionTree.Scorer;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
@@ -113,7 +114,7 @@ public class BenchmarkTest {
     }
 
     private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilder().ignoreAttributeAtNodeProbability(0.5).binaryClassification(true)).numTrees(100).executorThreadCount(8);
+        return new RandomForestBuilder(new TreeBuilder().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).binaryClassification(true)).numTrees(5);
     }
 }
 

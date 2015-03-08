@@ -19,7 +19,7 @@ import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 public class StaticBuildersTest {
     private static final Logger logger = LoggerFactory.getLogger(StaticBuildersTest.class);
 
-    @Test
+
     public void getOptimizedDownsampledRandomForestIntegrationTest() throws Exception {
         double fractionOfDataForValidation = .2;
         int rebuildsPerValidation = 1;

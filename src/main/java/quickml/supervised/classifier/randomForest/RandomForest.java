@@ -10,7 +10,6 @@ import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.tree.Leaf;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -132,7 +131,7 @@ public class RandomForest extends AbstractClassifier {
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (Tree tree : trees) {
-            Leaf leaf =tree.node.getLeaf(attributes);
+            Leaf leaf =tree.root.getLeaf(attributes);
             for (Serializable classification : leaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {

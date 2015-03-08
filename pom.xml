@@ -31,7 +31,9 @@
     4)  *ANY* change to the master branch (ie. when a feature branch is merged) must
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
-    <version>0.6.1</version>
+
+    <version>0.7.0</version>
+
 
     <repositories>
         <repository>

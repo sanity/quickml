@@ -5,6 +5,7 @@ import quickml.data.*;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
@@ -65,14 +66,14 @@ public class ReadMeExample {
                 System.out.println("They are overweight!");
             }
             
-            tree.node.dump(System.out);
+            tree.root.dump(System.out);
             
         }
         
         {
         
             TreeBuilder treeBuilder = new TreeBuilder()
-                .ignoreAttributeAtNodeProbability(0.7);
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
             RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
                 .numTrees(50);
             RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
