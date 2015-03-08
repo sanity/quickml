@@ -4,14 +4,15 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
-import quickml.data.PredictionMap;
 import quickml.data.ClassifierInstance;
+import quickml.data.PredictionMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -49,7 +50,10 @@ public class RandomForestBuilderTest {
     public void twoDeterministicTreesinAForestsAreEqual() throws IOException, ClassNotFoundException {
         final List<ClassifierInstance> instancesTrain =  getAdvertisingInstances();
 
-        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).ignoreAttributeAtNodeProbability(0).maxDepth(10)).numTrees(2);
+        TreeBuilder treeBuilder = new TreeBuilder(new GiniImpurityScorer())
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
+                .maxDepth(10);
+        final RandomForestBuilder<ClassifierInstance> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 

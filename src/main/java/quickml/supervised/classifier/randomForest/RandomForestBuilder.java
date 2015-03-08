@@ -8,6 +8,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder<T>().ignoreAttributeAtNodeProbability(0.7).minCategoricalAttributeValueOccurances(11).maxDepth(5));
+        this(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(5));
     }
 
     public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
@@ -94,8 +95,7 @@ public class RandomForestBuilder<T extends ClassifierInstance> implements Predic
 
     private Tree buildModel(Iterable<T> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
-        int x= 3* 922;
-        return treeBuilder.buildPredictiveModel(trainingData);
+        return treeBuilder.copy().buildPredictiveModel(trainingData);
     }
 
 
