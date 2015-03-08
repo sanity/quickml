@@ -7,6 +7,16 @@ import quickml.supervised.classifier.decisionTree.tree.Branch;
  */
 public interface AttributeIgnoringStrategy {
 
+    /**
+     * Should this attribute be ignored
+     * @param attribute
+     * @param parent
+     * @return
+     */
     boolean ignoreAttribute(String attribute, Branch parent);
-    AttributeIgnoringStrategy copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor();
+
+    /**
+     * @return a copy of this AttributeIgnoringStrategy
+     */
+    AttributeIgnoringStrategy copy();
 }

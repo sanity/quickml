@@ -31,7 +31,7 @@ public class IgnoreAttributesInSet implements AttributeIgnoringStrategy {
     }
 
     @Override
-    public IgnoreAttributesInSet copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor(){
+    public IgnoreAttributesInSet copy(){
         return new IgnoreAttributesInSet(proposedAttributesToIgnore, discardProbability);
     }
 

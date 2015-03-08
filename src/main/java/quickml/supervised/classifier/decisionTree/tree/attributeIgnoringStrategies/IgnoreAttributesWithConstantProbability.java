@@ -2,7 +2,7 @@ package quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrateg
 
 import quickml.supervised.classifier.decisionTree.tree.Branch;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by alexanderhawk on 2/28/15.
@@ -10,15 +10,14 @@ import java.util.Random;
 public class IgnoreAttributesWithConstantProbability implements AttributeIgnoringStrategy {
 
     private final double ignoreAttributeProbability;
-    private Random random = new Random();
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public IgnoreAttributesWithConstantProbability(double ignoreAttributeProbability) {
         this.ignoreAttributeProbability = ignoreAttributeProbability;
-
     }
 
     @Override
-    public IgnoreAttributesWithConstantProbability copyThatPreservesAllFieldsThatAreNotRandomlySetByTheConstructor(){
+    public IgnoreAttributesWithConstantProbability copy(){
         return new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability);
     }
 
