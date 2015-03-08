@@ -1,6 +1,7 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
+import org.joda.time.DateTime;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -8,10 +9,9 @@ import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
+import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 7/31/14.
@@ -61,6 +61,17 @@ public class Utils {
             results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
+    }
+
+    public static void sortTrainingInstancesByTime(List<ClassifierInstance> trainingData, final DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
+        Collections.sort(trainingData, new Comparator<ClassifierInstance>() {
+            @Override
+            public int compare(ClassifierInstance o1, ClassifierInstance o2) {
+                DateTime dateTime1 = dateTimeExtractor.extractDateTime(o1);
+                DateTime dateTime2 = dateTimeExtractor.extractDateTime(o2);
+                return dateTime1.compareTo(dateTime2);
+            }
+        });
     }
 
 

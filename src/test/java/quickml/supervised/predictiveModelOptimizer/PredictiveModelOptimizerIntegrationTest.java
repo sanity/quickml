@@ -40,10 +40,10 @@ public class PredictiveModelOptimizerIntegrationTest {
         advertisingInstances = advertisingInstances.subList(0, 3000);
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
                 .modelBuilder(new RandomForestBuilder<>())
-                .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.5, 12, new OnespotDateTimeExtractor()))
-                .lossChecker(new ClassifierLossChecker<>(new WeightedAUCCrossValLossFunction(1.0)))// ClassifierLogCVLossFunction(0.000001)))
+                .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
+                .lossChecker(new ClassifierLossChecker<>(new WeightedAUCCrossValLossFunction(1.0)))
                 .valuesToTest(createConfig())
-                .iterations(1)
+                .iterations(3)
                 .build();
     }
 
@@ -71,7 +71,6 @@ public class PredictiveModelOptimizerIntegrationTest {
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75, .5 ));
         return config;
     }
-
 
 
 

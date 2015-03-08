@@ -13,6 +13,7 @@ import org.javatuples.Pair;
 import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
@@ -45,6 +46,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private int maxDepth = 5;
     private double minimumScore = 0.00000000000001;
     private int minDiscreteAttributeValueOccurances = 0;
+
     private int minLeafInstances = 0;
 
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
@@ -61,7 +63,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private boolean binaryClassifications = true;
 
     public TreeBuilder() {
-        this(new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE));
+        this(new GiniImpurityScorer());
     }
 
     public TreeBuilder attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
@@ -676,8 +678,10 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
             if (binaryClassifications) {
-                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts) ||
-                        attributeValueOrIntervalOfValuesHasInsufficientStatistics(outClassificationCounts)) {
+                if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts)
+                        || inClassificationCounts.getTotal() < minLeafInstances
+                        || attributeValueOrIntervalOfValuesHasInsufficientStatistics(outClassificationCounts)
+                        || outClassificationCounts.getTotal() < minLeafInstances) {
                     continue;
                 }
             } else if (shouldWeIgnoreThisValue(inClassificationCounts) || shouldWeIgnoreThisValue(outClassificationCounts)) {
