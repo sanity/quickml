@@ -4,6 +4,7 @@ import org.junit.Ignore;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
+import quickml.supervised.InstanceLoader;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
@@ -34,8 +35,8 @@ public class TemporallyReweightedClassifierBuilderTest {
 
     @Ignore("Reweighting implementation is broken currently")
     @Test
-    public void simpleBmiTest() throws Exception {
-        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getIntegerInstances(10000);
+    public void simpleAdTest() throws Exception {
+        final List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
         final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
