@@ -63,7 +63,7 @@ public class Utils {
         return new PredictionMapResults(results);
     }
 
-    public static void sortTrainingInstancesByTime(List<ClassifierInstance> trainingData, final DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
+    public static void sortTrainingInstancesByTime(List<? extends ClassifierInstance> trainingData, final DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
         Collections.sort(trainingData, new Comparator<ClassifierInstance>() {
             @Override
             public int compare(ClassifierInstance o1, ClassifierInstance o2) {
