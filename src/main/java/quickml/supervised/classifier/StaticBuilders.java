@@ -77,6 +77,11 @@ public class StaticBuilders {
         return new Pair<Map<String, Object>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
     }
 
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<ClassifierInstance> modelBuilder) {
+        Map<String, FieldValueRecommender> config = createConfig();
+        return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
+    }
+
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor,  Map<String, FieldValueRecommender> config) {
         DownsamplingClassifierBuilder<ClassifierInstance> modelBuilder = new DownsamplingClassifierBuilder<>(new RandomForestBuilder<>(), .1);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
