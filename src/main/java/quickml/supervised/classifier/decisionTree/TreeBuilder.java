@@ -35,13 +35,13 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
     public static final String ATTRIBUTE_IGNORING_STRATEGY = "attributeIgnoringStrategy";
     public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
+    private static final int SAMPLES_PER_BIN = 10;
 
 
     public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
-    public static final int RESERVOIR_SIZE = 1000;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
-    private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
+    private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 2;
 
     private Scorer scorer;
     private int maxDepth = 5;
@@ -54,6 +54,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private boolean penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = true;
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
+    public int reservoirSize = 50;
+
     private double fractionOfDataToUseInHoldOutSet;
     private AttributeIgnoringStrategy attributeIgnoringStrategy = new IgnoreAttributesWithConstantProbability(0.0);
 
@@ -121,6 +123,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public TreeBuilder ordinalTestSplits(int ordinalTestSpilts) {
         this.ordinalTestSpilts = ordinalTestSpilts;
+        this.reservoirSize = SAMPLES_PER_BIN *ordinalTestSpilts;
         return this;
     }
 
@@ -228,9 +231,9 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
-        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
+        int numSamples = Math.min(reservoirSize, trainingData.size());
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
+        int samplesToSkipPerStep = Math.max(1, trainingData.size() / reservoirSize);
         for (int i=0; i<trainingData.size(); i+=samplesToSkipPerStep) {
             Serializable value = trainingData.get(i).getAttributes().get(attribute);
             if (value == null) {
@@ -243,8 +246,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
     private Map<String, double[]> createNumericSplits(final List<T> trainingData) {
         final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
+        int numSamples = Math.min(reservoirSize, trainingData.size());
+        int samplesToSkipPerStep = Math.max(1, trainingData.size() / reservoirSize);
 
         for (int i=0; i<numSamples; i+=samplesToSkipPerStep) {
             for (final Entry<String, Serializable> attributeEntry : trainingData.get(i).getAttributes().entrySet()) {
@@ -637,6 +640,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         double probabilityOfBeingInInset = 0;
 
         final double[] splits = createNumericSplit(instances, attribute);
+        //TODO: only loop thorugh once, and count each instance towards each possible in our out classification for each split point.
         for (final double threshold : splits) {
 
             if (threshold == lastThreshold) {
