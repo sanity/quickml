@@ -19,14 +19,14 @@ import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 public class StaticBuildersTest {
     private static final Logger logger = LoggerFactory.getLogger(StaticBuildersTest.class);
 
-
+@Test
     public void getOptimizedDownsampledRandomForestIntegrationTest() throws Exception {
         double fractionOfDataForValidation = .2;
         int rebuildsPerValidation = 1;
         List<ClassifierInstance> trainingData = getAdvertisingInstances().subList(0, 3000);
         OnespotDateTimeExtractor dateTimeExtractor = new OnespotDateTimeExtractor();
         Pair<Map<String, Object>, DownsamplingClassifier> downsamplingClassifierPair =
-                StaticBuilders.getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
+                StaticBuilders.<ClassifierInstance>getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
         logger.info("logged weighted auc loss should be between 0.25 and 0.28");
     }
 }
