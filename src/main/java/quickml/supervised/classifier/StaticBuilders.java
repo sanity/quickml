@@ -48,7 +48,7 @@ import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM
 public class StaticBuilders {
     private static final Logger logger = LoggerFactory.getLogger(StaticBuilders.class);
 
-    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<ClassifierInstance> modelBuilder,  Map<String, FieldValueRecommender> config) {
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder,  Map<String, FieldValueRecommender> config) {
         /**
          * @param rebuildsPerValidation is the number of times the model will be rebuilt with a new training set while estimating the loss of a model
          *                              with a prarticular set of hyperparameters
@@ -77,13 +77,13 @@ public class StaticBuilders {
         return new Pair<Map<String, Object>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
     }
 
-    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<ClassifierInstance> modelBuilder) {
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder) {
         Map<String, FieldValueRecommender> config = createConfig();
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
     }
 
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor,  Map<String, FieldValueRecommender> config) {
-        DownsamplingClassifierBuilder<ClassifierInstance> modelBuilder = new DownsamplingClassifierBuilder<>(new RandomForestBuilder<>(), .1);
+        DownsamplingClassifierBuilder<T> modelBuilder = new DownsamplingClassifierBuilder<T>(new RandomForestBuilder<T>(), .1);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
 
     }
