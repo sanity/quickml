@@ -66,7 +66,7 @@ public class StaticBuilders {
                         .dataCycler(outOfTimeData)
                         .lossChecker(classifierInstanceClassifierLossChecker)
                         .valuesToTest(config)
-                        .iterations(3).build();
+                        .iterations(4).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
         RandomForestBuilder<T> randomForestBuilder = new RandomForestBuilder<T>(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
@@ -101,10 +101,10 @@ public class StaticBuilders {
 
     private static  Map<String, FieldValueRecommender> createConfig() {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
-        config.put(MAX_DEPTH, new FixedOrderRecommender(4, 8, 16));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
-        config.put(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE, new FixedOrderRecommender(7, 14));
+        config.put(MAX_DEPTH, new FixedOrderRecommender(4, 8, 12));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
+        config.put(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE, new FixedOrderRecommender(7, 10));
         config.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 15));
-        config.put(DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(.1, .2));
+        config.put(DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(.1, .25));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75));
         return config;
     }
