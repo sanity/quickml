@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
 
-    <version>0.7.0</version>
+    <version>0.7.1</version>
 
 
     <repositories>
