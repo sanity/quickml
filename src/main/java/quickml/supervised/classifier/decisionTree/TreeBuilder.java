@@ -41,7 +41,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int SAMPLES_PER_BIN = 10;
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 2;
-    private int numSamplesForComputingNumericSplitPoints = 100;
+    private int numSamplesForComputingNumericSplitPoints = 50;
     Map<String, AttributeCharacteristics> attributeCharacteristics;
     private Scorer scorer;
     private int maxDepth = 5;
@@ -653,13 +653,14 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         for (T instance : instances) {
 
             double attributeVal = ((Number) (instance.getAttributes().get(attribute))).doubleValue();
-            double threshold=0, previousThreshold=0;
+           double threshold=0, previousThreshold=0;
 
             for (int i = 0; i < splits.length; i++) {
-                previousThreshold = threshold;
+               previousThreshold = threshold;
                 threshold = splits[i];
                 if (previousThreshold == threshold && i!=0)
                     continue;
+
                 ClassificationCountingPair classificationCountingPair = classificationCounts.get(i);
                 if (attributeVal > threshold) {
                     updateCounts(instance.getLabel(), classificationCountingPair.inCounter);

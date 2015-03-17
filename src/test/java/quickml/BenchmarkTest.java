@@ -65,7 +65,7 @@ public class BenchmarkTest {
     public void performanceTest() throws Exception {
         Random random = new Random();
         List<ClassifierInstance> instances = loadDiabetesDataset();
-        for (int i =1; i<300000; i++) {
+        for (int i =1; i<60000; i++) {
             instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
         }
         double time0 = System.currentTimeMillis();
