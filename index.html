@@ -39,6 +39,7 @@ and link to Wiki pages to deep-dive on any particular topic.
       function populateRelease(arr) {
           var release = arr[0].tag_name;
           $("span.current_release").text(release);
+          $("a.jdoclink").attr("href", "https://jitpack.io/com/github/sanity/quickml/"+release+"/javadoc/");
       }
 </script>
   </head>
@@ -96,7 +97,10 @@ and link to Wiki pages to deep-dive on any particular topic.
           </a>
             <a href="https://gitter.im/sanity/quickml"><img src="https://badges.gitter.im/Join%20Chat.svg" \></a>
           </p>
-          <h1>Note</h1>
+          <h1>Documentation</h1>
+          <p>
+            Read the current release's JavaDocs <a class="jdoclink" href="">here</a>.
+          </p>
           <p>
             Documentation of QuickML is currently lagging significantly behind functionality,
             but the API is fairly well defined and should be mostly self-explanatory using the
