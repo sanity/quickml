@@ -52,7 +52,7 @@ public class RandomForestBuilderTest {
 
         TreeBuilder treeBuilder = new TreeBuilder(new GiniImpurityScorer())
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
-                .maxDepth(10);
+                .maxDepth(10).numSamplesForComputingNumericSplitPoints(instancesTrain.size());
         final RandomForestBuilder<ClassifierInstance> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
@@ -109,7 +109,7 @@ public class RandomForestBuilderTest {
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
         final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
-        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()));
+        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(instancesTrain.size()));
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);

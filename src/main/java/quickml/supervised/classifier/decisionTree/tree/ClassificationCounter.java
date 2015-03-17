@@ -25,6 +25,11 @@ public class ClassificationCounter implements Serializable {
     public ClassificationCounter(ClassificationCounter classificationCounter) {
         this.counts.putAll(classificationCounter.counts);
     }
+    public ClassificationCounter(HashMap<Serializable, ? extends Number> mapOfCounts) {
+        for (Serializable classification: mapOfCounts.keySet()) {
+            counts.addToValue(classification, mapOfCounts.get(classification).doubleValue());
+        }
+    }
 
 
     public void setHasSufficientData(boolean hasSufficientData) {

@@ -159,11 +159,12 @@ public class TreeBuilderTest {
     @Test
     public void twoDeterministicDecisionTreesAreEqual() throws IOException, ClassNotFoundException {
 
-        final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        int numSamples = 1000;
+        final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(numSamples);
         MapUtils.random.setSeed(1l);
-        final Tree tree1 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
+        final Tree tree1 = (new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);
-        final Tree tree2 = (new TreeBuilder(new SplitDiffScorer())).buildPredictiveModel(instancesTrain);
+        final Tree tree2 = (new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
 
         TreeBuilderTestUtils.serializeDeserialize(tree1.root);
         TreeBuilderTestUtils.serializeDeserialize(tree2.root);
