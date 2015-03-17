@@ -10,7 +10,9 @@ import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Scorer;
+import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
 import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
@@ -26,6 +28,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.zip.GZIPInputStream;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -56,6 +59,28 @@ public class BenchmarkTest {
     @Test
     public void testMoboInstances() throws Exception {
         testWithInstances("mobo", loadMoboDataset());
+    }
+
+    @Test
+    public void performanceTest() throws Exception {
+        Random random = new Random();
+        List<ClassifierInstance> instances = loadDiabetesDataset();
+        for (int i =1; i<100000; i++) {
+            instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
+        }
+        double time0 = System.currentTimeMillis();
+        TreeBuilder<ClassifierInstance> treeBuilder = new TreeBuilder<>(new GiniImpurityScorer())
+                .numSamplesForComputingNumericSplitPoints(50)
+                .ordinalTestSplits(5)
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
+                .maxDepth(16)
+                .minLeafInstances(5)
+                .binaryClassification(true);
+        treeBuilder.buildPredictiveModel(instances);
+
+        double time1 = System.currentTimeMillis();
+        System.out.println("run time in seconds on numeric data set: " + (time1-time0)/1000);
+
     }
 
 
