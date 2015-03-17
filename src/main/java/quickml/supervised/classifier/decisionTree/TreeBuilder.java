@@ -39,7 +39,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
-    public static final int RESERVOIR_SIZE = 1000;
+    public static final int RESERVOIR_SIZE = 50;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
 
