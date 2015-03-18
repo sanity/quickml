@@ -74,8 +74,8 @@ public class BenchmarkTest {
                 .ordinalTestSplits(5)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
                 .maxDepth(16)
-                .minLeafInstances(5)
-                .binaryClassification(true);
+                .minLeafInstances(5);
+
         treeBuilder.buildPredictiveModel(instances);
 
         double time1 = System.currentTimeMillis();
@@ -135,11 +135,11 @@ public class BenchmarkTest {
     }
 
     private TreeBuilder createTreeBuilder() {
-        return new TreeBuilder().binaryClassification(true);
+        return new TreeBuilder();
     }
 
     private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilder().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).binaryClassification(true)).numTrees(5);
+        return new RandomForestBuilder(new TreeBuilder().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5);
     }
 }
 
