@@ -27,10 +27,11 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public static final String MAX_DEPTH = "maxDepth";
     public static final String MIN_SCORE = "minScore";
+    public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
+
     //the minimum number of times a categorical attribute value must be observed to be considered during splitting.
     //also the minimimum number of times a numeric attribute must be observed to fall inside a closed interval for that interval to be considered in a split decision
     public static final String MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE = "minOccurrencesOfAttributeValue";
-    public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
     public static final String SCORER = "scorer";
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
     public static final String ATTRIBUTE_IGNORING_STRATEGY = "attributeIgnoringStrategy";
@@ -164,11 +165,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     @Override
     public Tree buildPredictiveModel(Iterable<T> trainingData) {
-        List<T> trainingDataList = Lists.newArrayList();
-        for (T instance : trainingData) {
-            trainingDataList.add(instance);
-        }
-        classificationProperties= ClassificationProperties.<T>getClassificationProperties(trainingDataList);
+        List<T> trainingDataList = iterableToList(trainingData);
+        classificationProperties= ClassificationProperties.<T>getClassificationProperties(trainingDataList);  //should only exist in ClassificationTree
         if (classificationProperties.classificationsAreBinary()) {
             attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy((BinaryClassificationProperties) classificationProperties, minOccurancesOfAttributeValue);
         }
@@ -176,7 +174,16 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             attributeValueIgnoringStrategy = new MultiClassAtributeIgnoringStrategy(minOccurancesOfAttributeValue);
         }
         attributeCharacteristics = surveyTrainingData(trainingData);
-        return new Tree(growTree(null, trainingDataList, 0), classificationProperties.getClassifications());
+
+        return new Tree(buildTree(null, trainingDataList, 0), classificationProperties.getClassifications());
+    }
+
+    private List<T> iterableToList(Iterable<T> trainingData) {
+        List<T> trainingDataList = Lists.newArrayList();
+        for (T instance : trainingData) {
+            trainingDataList.add(instance);
+        }
+        return trainingDataList;
     }
 
 
@@ -240,7 +247,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node growTree(Branch parent, final List<T> trainingData, final int depth) {
+    private Node buildTree(Branch parent, final List<T> trainingData, final int depth) {
         if (trainingData.size()==0)
             System.out.println("wtf");
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
@@ -263,8 +270,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         ArrayList<T> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestNode, trueTrainingSet, falseTrainingSet);
 
-        bestNode.trueChild = growTree(bestNode, trueTrainingSet, depth + 1);
-        bestNode.falseChild = growTree(bestNode, falseTrainingSet, depth + 1);
+        bestNode.trueChild = buildTree(bestNode, trueTrainingSet, depth + 1);
+        bestNode.falseChild = buildTree(bestNode, falseTrainingSet, depth + 1);
 
         return bestNode;
     }
@@ -285,6 +292,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     }
 
     private Pair<? extends Branch, Double> getBestNodePair(Branch parent, List<T> trainingData) {
+        //check if there is enough data data for further splitting.  for cllassification tree's we check there is enough.  e.g. must be at least 2*min instance's per leaf to make a split possible...also must be certain num positive examples
+
         //should return null right after this line if it is a small training set.  note reason is there needs to be enough attributes for the number of bins.
         boolean smallTrainingSet = trainingData.size() <SMALL_TRAINING_SET_LIMIT;
         Pair<? extends Branch, Double> bestPair = null;

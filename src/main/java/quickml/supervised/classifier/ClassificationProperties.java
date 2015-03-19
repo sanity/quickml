@@ -1,6 +1,7 @@
 package quickml.supervised.classifier;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.mutable.MutableInt;
 import quickml.data.ClassifierInstance;
 
@@ -13,6 +14,7 @@ import java.util.Set;
  * Created by alexanderhawk on 3/18/15.
  */
 public class ClassificationProperties {
+
     HashMap<Serializable, MutableInt> classificationsAndCounts;
 
     protected ClassificationProperties(HashMap<Serializable, MutableInt> classificationsAndCounts) {
@@ -43,10 +45,15 @@ public class ClassificationProperties {
     }
 
     public Set<Serializable> getClassifications() {
-        return classificationsAndCounts.keySet();
+        return Sets.newHashSet(classificationsAndCounts.keySet());
     }
 
     public boolean classificationsAreBinary(){
         return classificationsAndCounts.size() == 2;
     }
+
+    public HashMap<Serializable, MutableInt> getClassificationsAndCounts() {
+        return classificationsAndCounts;
+    }
+
 }

@@ -1,5 +1,6 @@
 package quickml.supervised.classifier;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import java.io.Serializable;
@@ -23,6 +24,7 @@ public class BinaryClassificationProperties extends ClassificationProperties {
 
 
     protected static ClassificationProperties createClassificationPropertiesOfBinaryData(HashMap<Serializable, MutableInt> classificationsAndCounts) {
+        Preconditions.checkArgument(classificationsAndCounts.keySet().size() ==2);
         Serializable minorityClassification = null;
         Serializable majorityClassification = null;
         boolean binaryClassifications = true;
@@ -31,14 +33,15 @@ public class BinaryClassificationProperties extends ClassificationProperties {
 
         double majorityClassificationCount = 0;
         for (Serializable val : classificationsAndCounts.keySet()) {
-            if (minorityClassification == null || classificationsAndCounts.get(val).doubleValue() < minorityClassificationCount) {
-                minorityClassification = val;
-                minorityClassificationCount = classificationsAndCounts.get(val).doubleValue();
-            }
             if (majorityClassification == null || classificationsAndCounts.get(val).doubleValue() > majorityClassificationCount) {
                 majorityClassification = val;
                 majorityClassificationCount = classificationsAndCounts.get(val).doubleValue();
             }
+            else if (minorityClassification == null || classificationsAndCounts.get(val).doubleValue() < minorityClassificationCount) {
+                minorityClassification = val;
+                minorityClassificationCount = classificationsAndCounts.get(val).doubleValue();
+            }
+
         }
         majorityToMinorityRatio = classificationsAndCounts.get(majorityClassification).doubleValue()
                 / classificationsAndCounts.get(minorityClassification).doubleValue();
