@@ -6,10 +6,10 @@ import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
 
-public class OnespotDateTimeExtractor implements DateTimeExtractor<ClassifierInstance> {
+public class OnespotDateTimeExtractor implements DateTimeExtractor<InstanceWithAttributesMap> {
 
     @Override
-    public DateTime extractDateTime(ClassifierInstance instance) {
+    public DateTime extractDateTime(InstanceWithAttributesMap instance) {
         int year = attrVal(instance, "timeOfArrival-year");
         int month = attrVal(instance,"timeOfArrival-monthOfYear");
         int day = attrVal(instance,"timeOfArrival-dayOfMonth");

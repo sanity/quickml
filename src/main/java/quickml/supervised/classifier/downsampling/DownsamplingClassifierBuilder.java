@@ -1,17 +1,15 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,7 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Classifier, T> {
+public class DownsamplingClassifierBuilder<T extends InstanceWithAttributesMap> implements PredictiveModelBuilder<Classifier, T> {
 
     public static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
 
@@ -75,10 +73,10 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
         return this;
     }
 
-    private void printSampleInstancesForInspection(Iterable<? extends ClassifierInstance> trainingData) {
+    private void printSampleInstancesForInspection(Iterable<? extends InstanceWithAttributesMap> trainingData) {
         logger.info("length of training data" + Iterables.size(trainingData));
         int counter = 0;
-        for (ClassifierInstance instance : trainingData) {
+        for (InstanceWithAttributesMap instance : trainingData) {
             if (counter++ % 100 == 0) {
                 if (instance.getLabel().equals(Double.valueOf(1.0))) {
                     logger.info("instance " + counter);
@@ -91,10 +89,10 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
         }
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends ClassifierInstance> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends InstanceWithAttributesMap> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
-        for (ClassifierInstance instance : trainingData) {
+        for (InstanceWithAttributesMap instance : trainingData) {
             AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
                 count = new AtomicLong(0);

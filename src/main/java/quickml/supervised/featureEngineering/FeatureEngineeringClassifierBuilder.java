@@ -8,7 +8,7 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 
 import java.util.List;
@@ -17,13 +17,13 @@ import java.util.Map;
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuilder<FeatureEngineeredClassifier, ClassifierInstance> {
+public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuilder<FeatureEngineeredClassifier, InstanceWithAttributesMap> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringClassifierBuilder.class);
 
-    private final PredictiveModelBuilder<Classifier, ClassifierInstance>  wrappedBuilder;
+    private final PredictiveModelBuilder<Classifier, InstanceWithAttributesMap>  wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringClassifierBuilder(PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }
@@ -37,14 +37,14 @@ public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuild
     }
 
     @Override
-    public FeatureEngineeredClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
+    public FeatureEngineeredClassifier buildPredictiveModel(Iterable<InstanceWithAttributesMap> trainingData) {
         List<AttributesEnricher> enrichers = Lists.newArrayListWithExpectedSize(enrichStrategies.size());
 
         for (AttributesEnrichStrategy enrichStrategy : enrichStrategies) {
             enrichers.add(enrichStrategy.build(trainingData));
         }
 
-        final Iterable<ClassifierInstance> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
+        final Iterable<InstanceWithAttributesMap> enrichedTrainingData = Iterables.transform(trainingData, new InstanceEnricher(enrichers));
 
         PredictiveModel<AttributesMap, PredictionMap> predictiveModel = wrappedBuilder.buildPredictiveModel(enrichedTrainingData);
 

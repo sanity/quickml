@@ -2,9 +2,8 @@ package quickml.supervised.crossValidation.data;
 
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
-import quickml.supervised.crossValidation.data.OutOfTimeData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +14,13 @@ import static quickml.TestUtils.createClassifierInstance;
 
 public class OutOfTimeDataTest {
 
-    private OutOfTimeData<ClassifierInstance> outOfTimeData;
+    private OutOfTimeData<InstanceWithAttributesMap> outOfTimeData;
     private OnespotDateTimeExtractor dateTimeExtractor;
 
     @Before
     public void setUp() throws Exception {
         dateTimeExtractor = new OnespotDateTimeExtractor();
-        List<ClassifierInstance> instances = new ArrayList<>();
+        List<InstanceWithAttributesMap> instances = new ArrayList<>();
 
         // Create an instance for 6 consecutive days
         instances.add(createClassifierInstance(1));
@@ -38,7 +37,7 @@ public class OutOfTimeDataTest {
     @Test
     public void testOutOfTimeData() throws Exception {
 
-        List<ClassifierInstance> trainingSet = outOfTimeData.getTrainingSet();
+        List<InstanceWithAttributesMap> trainingSet = outOfTimeData.getTrainingSet();
 
 
         // Verifiy the inital data is split up - half for the training set, and one entry in the validation set
@@ -47,7 +46,7 @@ public class OutOfTimeDataTest {
         assertDayOfMonthMatches(trainingSet.get(1), 2);
         assertDayOfMonthMatches(trainingSet.get(2), 3);
 
-        List<ClassifierInstance> validationSet = outOfTimeData.getValidationSet();
+        List<InstanceWithAttributesMap> validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 4);
 
@@ -73,19 +72,19 @@ public class OutOfTimeDataTest {
     @Test
     public void testValidateIfThereIsABreakInTheDataWeMoveOnToTheNextPeriod() throws Exception {
 
-        List<ClassifierInstance> instances = new ArrayList<>();
+        List<InstanceWithAttributesMap> instances = new ArrayList<>();
 
         // Create an instance for 3 days, with a gap after the first two
         instances.add(createClassifierInstance(1));
         instances.add(createClassifierInstance(2));
         instances.add(createClassifierInstance(4));
 
-        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
+        OutOfTimeData<InstanceWithAttributesMap> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
 
 
         // Verifiy the inital data is split up - half for the training set, and one entry in the validation set
-        List<ClassifierInstance> trainingSet = outOfTimeData.getTrainingSet();
-        List<ClassifierInstance> validationSet = outOfTimeData.getValidationSet();
+        List<InstanceWithAttributesMap> trainingSet = outOfTimeData.getTrainingSet();
+        List<InstanceWithAttributesMap> validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, trainingSet.size());
         assertDayOfMonthMatches(trainingSet.get(0), 1);
         assertEquals(1, validationSet.size());
@@ -98,7 +97,7 @@ public class OutOfTimeDataTest {
 
     }
 
-    private void assertDayOfMonthMatches(final ClassifierInstance instance, final int expected) {
+    private void assertDayOfMonthMatches(final InstanceWithAttributesMap instance, final int expected) {
         assertEquals(expected, dateTimeExtractor.extractDateTime(instance).dayOfMonth().get());
     }
 

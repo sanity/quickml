@@ -2,7 +2,7 @@ package quickml;
 
 import com.google.common.collect.Sets;
 import quickml.data.*;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
@@ -20,33 +20,33 @@ import java.util.Set;
 public class ReadMeExample {
     
     public static void main(String[] args) {
-        final Set<ClassifierInstance> instances = Sets.newHashSet();
+        final Set<InstanceWithAttributesMap> instances = Sets.newHashSet();
         // A male weighing 168lb that is 55 inches tall, they are overweight
         AttributesMap  attributes = AttributesMap.newHashMap() ;
         attributes.put("height",55);
         attributes.put("weight", 168);
         attributes.put("gender", "male");
-        instances.add(new ClassifierInstance(attributes, "overweight"));
+        instances.add(new InstanceWithAttributesMap(attributes, "overweight"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("height",75);
         attributes.put("weight", 168);
         attributes.put("gender", "female");
-        instances.add(new ClassifierInstance(attributes, "healthy"));
+        instances.add(new InstanceWithAttributesMap(attributes, "healthy"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("height",74);
         attributes.put("weight", 143);
         attributes.put("gender", "male");
-        instances.add(new ClassifierInstance(attributes, "underweight"));
+        instances.add(new InstanceWithAttributesMap(attributes, "underweight"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("height",49);
         attributes.put("weight", 144);
         attributes.put("gender", "female");
-        instances.add(new ClassifierInstance(attributes, "underweight"));
+        instances.add(new InstanceWithAttributesMap(attributes, "underweight"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("height",83);
         attributes.put("weight", 223);
         attributes.put("gender", "male");
-        instances.add(new ClassifierInstance(attributes, "healthy"));
+        instances.add(new InstanceWithAttributesMap(attributes, "healthy"));
         
         {
             

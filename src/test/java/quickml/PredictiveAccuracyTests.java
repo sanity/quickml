@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
@@ -30,9 +30,9 @@ public class PredictiveAccuracyTests {
     @Test
     public void irisTest() throws Exception {
 
-        final FoldedData<ClassifierInstance> data = new FoldedData<>(loadIrisDataset(), 4, 4);
+        final FoldedData<InstanceWithAttributesMap> data = new FoldedData<>(loadIrisDataset(), 4, 4);
 
-        final CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker<>(new ClassifierRMSELossFunction()), data);
+        final CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker<>(new ClassifierRMSELossFunction()), data);
 
         final double crossValidatedLoss = validator.getLossForModel();
         double previousLoss = 0.673;
@@ -43,9 +43,9 @@ public class PredictiveAccuracyTests {
     }
 
 
-    private List<ClassifierInstance> loadIrisDataset() throws IOException {
+    private List<InstanceWithAttributesMap> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("iris.data.gz")))));
-        final List<ClassifierInstance> instances = Lists.newLinkedList();
+        final List<InstanceWithAttributesMap> instances = Lists.newLinkedList();
 
         String[] headings = new String[]{"sepal-length", "sepal-width", "petal-length", "petal-width"};
 
@@ -57,7 +57,7 @@ public class PredictiveAccuracyTests {
             for (int x = 0; x < splitLine.length - 1; x++) {
                 attributes.put(headings[x], splitLine[x]);
             }
-            instances.add(new ClassifierInstance(attributes, splitLine[splitLine.length - 1]));
+            instances.add(new InstanceWithAttributesMap(attributes, splitLine[splitLine.length - 1]));
             line = br.readLine();
         }
 

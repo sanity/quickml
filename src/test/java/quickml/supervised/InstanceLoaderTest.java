@@ -2,7 +2,7 @@ package quickml.supervised;
 
 import org.junit.Assert;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ public class InstanceLoaderTest {
 
     @Test
     public void getAdvertisingInstancesTest() {
-        List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
+        List<InstanceWithAttributesMap> instances = InstanceLoader.getAdvertisingInstances();
         assertEquals(instances.size(), 12000);
-        ClassifierInstance lastInstance = instances.get(11999);
+        InstanceWithAttributesMap lastInstance = instances.get(11999);
         Assert.assertTrue(lastInstance.getLabel().equals(0.0));
         Assert.assertTrue(lastInstance.getAttributes().get("country").equals("US"));
     }

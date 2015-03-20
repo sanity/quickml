@@ -11,11 +11,11 @@ import java.util.HashMap;
  */
 public class BinaryClassificationProperties extends ClassificationProperties {
 
-    public Serializable minorityClassification;
-    public Serializable majorityClassification;
-    public double majorityToMinorityRatio = 1;
+    final public Serializable minorityClassification;
+    final public Serializable majorityClassification;
+    final public double majorityToMinorityRatio;
 
-    protected BinaryClassificationProperties(HashMap<Serializable, MutableInt> classificationsAndCounts, Serializable minorityClassification, Serializable majorityClassification, double majorityToMinorityRatio) {
+    protected BinaryClassificationProperties(HashMap<Serializable, Long> classificationsAndCounts, Serializable minorityClassification, Serializable majorityClassification, double majorityToMinorityRatio) {
         super(classificationsAndCounts);
         this.minorityClassification = minorityClassification;
         this.majorityClassification = majorityClassification;
@@ -23,7 +23,7 @@ public class BinaryClassificationProperties extends ClassificationProperties {
     }
 
 
-    protected static ClassificationProperties createClassificationPropertiesOfBinaryData(HashMap<Serializable, MutableInt> classificationsAndCounts) {
+    protected static ClassificationProperties createClassificationPropertiesOfBinaryData(HashMap<Serializable, Long> classificationsAndCounts) {
         Preconditions.checkArgument(classificationsAndCounts.keySet().size() ==2);
         Serializable minorityClassification = null;
         Serializable majorityClassification = null;
@@ -48,6 +48,7 @@ public class BinaryClassificationProperties extends ClassificationProperties {
 
         return new BinaryClassificationProperties(classificationsAndCounts, minorityClassification, majorityClassification,majorityToMinorityRatio);
     }
+
 
 }
 

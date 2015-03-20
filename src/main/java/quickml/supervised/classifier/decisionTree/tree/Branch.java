@@ -14,14 +14,15 @@ public abstract class Branch extends Node {
 	private static final long serialVersionUID = 8290012786245422175L;
 
 	public final String attribute;
-
 	public Node trueChild, falseChild;
+    public double score;
     private double probabilityOfTrueChild;
 
-	public Branch(Node parent, final String attribute, double probabilityOfTrueChild) {
+	public Branch(Node parent, final String attribute, double probabilityOfTrueChild, double score) {
 		super(parent);
         this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
+        this.score = score;
 	}
 
 	public abstract boolean decide(Map<String, Serializable> attributes);

@@ -2,7 +2,7 @@ package quickml.supervised;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -16,14 +16,14 @@ import static java.nio.charset.Charset.defaultCharset;
 
 public class JsonInstanceLoader {
 
-    private static List<ClassifierInstance> loadInstanceData(final String resourceName) throws IOException {
+    private static List<InstanceWithAttributesMap> loadInstanceData(final String resourceName) throws IOException {
         Gson gson = createGson();
         JsonReader reader = new JsonReader(asCharSource(getResource(resourceName), defaultCharset()).openStream());
-        List<ClassifierInstance> instances = new ArrayList<>();
+        List<InstanceWithAttributesMap> instances = new ArrayList<>();
 
         reader.beginArray();
         while (reader.hasNext()) {
-            instances.add(gson.<ClassifierInstance>fromJson(reader, ClassifierInstance.class));
+            instances.add(gson.<InstanceWithAttributesMap>fromJson(reader, InstanceWithAttributesMap.class));
         }
         reader.endArray();
         reader.close();

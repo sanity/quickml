@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import java.util.List;
@@ -14,23 +14,23 @@ public class ProbabilityEnrichStrategyTest {
 
     @Test
     public void testCreateAttributesEnricher() throws Exception {
-        List<ClassifierInstance> trainingData = Lists.newLinkedList();
+        List<InstanceWithAttributesMap> trainingData = Lists.newLinkedList();
         AttributesMap  attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",2);
         attributes.put("k2",1);
-        trainingData.add(new ClassifierInstance(attributes, "true"));
+        trainingData.add(new InstanceWithAttributesMap(attributes, "true"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",1);
         attributes.put("k2",2);
-        trainingData.add(new ClassifierInstance(attributes, "true"));
+        trainingData.add(new InstanceWithAttributesMap(attributes, "true"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",2);
         attributes.put("k2",2);
-        trainingData.add(new ClassifierInstance(attributes, "false"));
+        trainingData.add(new InstanceWithAttributesMap(attributes, "false"));
         attributes = AttributesMap.newHashMap() ;
         attributes.put("k1",1);
         attributes.put("k2",2);
-        trainingData.add(new ClassifierInstance(attributes, "false"));
+        trainingData.add(new InstanceWithAttributesMap(attributes, "false"));
         ProbabilityEnrichStrategy probabilityEnrichStrategy = new ProbabilityEnrichStrategy(Sets.newHashSet("k1", "k2"), "true");
         final AttributesEnricher attributesEnricher = probabilityEnrichStrategy.build(trainingData);
         {

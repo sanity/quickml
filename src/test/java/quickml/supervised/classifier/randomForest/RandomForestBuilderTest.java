@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.decisionTree.Tree;
@@ -25,7 +25,7 @@ import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 public class RandomForestBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
-        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
@@ -48,12 +48,12 @@ public class RandomForestBuilderTest {
 
     @Test
     public void twoDeterministicTreesinAForestsAreEqual() throws IOException, ClassNotFoundException {
-        final List<ClassifierInstance> instancesTrain =  getAdvertisingInstances();
+        final List<InstanceWithAttributesMap> instancesTrain =  getAdvertisingInstances();
 
         TreeBuilder treeBuilder = new TreeBuilder(new GiniImpurityScorer())
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
                 .maxDepth(10).numSamplesForComputingNumericSplitPoints(instancesTrain.size());
-        final RandomForestBuilder<ClassifierInstance> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
+        final RandomForestBuilder<InstanceWithAttributesMap> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
@@ -108,7 +108,7 @@ public class RandomForestBuilderTest {
 
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
-        final List<ClassifierInstance> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
+        final List<InstanceWithAttributesMap> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(instancesTrain.size()));
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
@@ -120,8 +120,8 @@ public class RandomForestBuilderTest {
             Assert.assertTrue(randomForest1.trees.get(i).root.size() == randomForest2.trees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
-        final List<ClassifierInstance> instancesTest = TreeBuilderTestUtils.getInstances(1000);
-        for (ClassifierInstance instance : instancesTest) {
+        final List<InstanceWithAttributesMap> instancesTest = TreeBuilderTestUtils.getInstances(1000);
+        for (InstanceWithAttributesMap instance : instancesTest) {
             PredictionMap map1 = randomForest1.predict(instance.getAttributes());
             PredictionMap map2 = randomForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");

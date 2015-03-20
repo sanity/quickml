@@ -6,7 +6,7 @@ import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
@@ -46,27 +46,27 @@ public class Utils {
         return weight;
     }
 
-    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends ClassifierInstance> validationSet) {
+    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends InstanceWithAttributesMap> validationSet) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
-        for (ClassifierInstance instance : validationSet) {
+        for (InstanceWithAttributesMap instance : validationSet) {
             results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
     }
 
-    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<? extends ClassifierInstance> validationSet, Set<String> attributesToIgnore) {
+    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<? extends InstanceWithAttributesMap> validationSet, Set<String> attributesToIgnore) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
-        for (ClassifierInstance instance : validationSet) {
+        for (InstanceWithAttributesMap instance : validationSet) {
             PredictionMap prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);
             results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
     }
 
-    public static void sortTrainingInstancesByTime(List<ClassifierInstance> trainingData, final DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
-        Collections.sort(trainingData, new Comparator<ClassifierInstance>() {
+    public static void sortTrainingInstancesByTime(List<InstanceWithAttributesMap> trainingData, final DateTimeExtractor<InstanceWithAttributesMap> dateTimeExtractor) {
+        Collections.sort(trainingData, new Comparator<InstanceWithAttributesMap>() {
             @Override
-            public int compare(ClassifierInstance o1, ClassifierInstance o2) {
+            public int compare(InstanceWithAttributesMap o1, InstanceWithAttributesMap o2) {
                 DateTime dateTime1 = dateTimeExtractor.extractDateTime(o1);
                 DateTime dateTime2 = dateTimeExtractor.extractDateTime(o2);
                 return dateTime1.compareTo(dateTime2);

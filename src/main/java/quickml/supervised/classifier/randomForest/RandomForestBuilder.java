@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Classifier, T> {
+public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements PredictiveModelBuilder<Classifier, T> {
 
     public static final String NUM_TREES = "numTrees";
 

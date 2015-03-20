@@ -1,7 +1,7 @@
 package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
@@ -16,7 +16,7 @@ import static java.lang.Math.max;
 import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
-public class AttributeImportanceFinder <T extends ClassifierInstance> {
+public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
     private final PredictiveModelBuilder<Classifier, T> modelBuilder;
     private final TrainingDataCycler<T> dataCycler;
     private final int numAttributesToRemovePerIteration;
@@ -58,7 +58,7 @@ public class AttributeImportanceFinder <T extends ClassifierInstance> {
     private void removeLowestPerformingAttributes(List<String> orderedAttributes) {
         for (int i = orderedAttributes.size() - 1; i >= max(0, orderedAttributes.size() - 1 - numAttributesToRemovePerIteration); i--) {
             if (!attributesToNotRemove.contains(orderedAttributes.get(i))) {
-                for (ClassifierInstance instance : dataCycler.getAllData()) {
+                for (InstanceWithAttributesMap instance : dataCycler.getAllData()) {
                     instance.getAttributes().remove(orderedAttributes.get(i));
                 }
             }

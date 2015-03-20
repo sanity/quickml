@@ -10,7 +10,7 @@ import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
@@ -55,9 +55,9 @@ public class DownsamplingClassifierBuilderTest {
             }
         });
         DownsamplingClassifierBuilder downsamplingClassifierBuilder = new DownsamplingClassifierBuilder(mockPredictiveModelBuilder, 0.2);
-        List<ClassifierInstance> data = Lists.newArrayList();
+        List<InstanceWithAttributesMap> data = Lists.newArrayList();
         for (int x = 0; x < 10000; x++) {
-            data.add(new ClassifierInstance(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
+            data.add(new InstanceWithAttributesMap(AttributesMap.newHashMap(), (MapUtils.random.nextDouble() < 0.05)));
         }
         DownsamplingClassifier predictiveModel = downsamplingClassifierBuilder.buildPredictiveModel(data);
         AttributesMap map = AttributesMap.newHashMap();
@@ -73,7 +73,7 @@ public class DownsamplingClassifierBuilderTest {
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
-        final List<ClassifierInstance> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
+        final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getIntegerInstances(1000);
         final long startTime = System.currentTimeMillis();
         final DownsamplingClassifier downsamplingClassifier = dpmb.buildPredictiveModel(instances);
 

@@ -9,7 +9,7 @@ import quickml.supervised.crossValidation.attributeImportance.LossFunctionTracke
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.predictiveModelOptimizer.MultiLossModelTester;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 public class SplitOnAttributeClassifierBuilderTest {
 
-    private List<ClassifierInstance> instances;
+    private List<InstanceWithAttributesMap> instances;
 
     @Before
     public void setUp() throws Exception {

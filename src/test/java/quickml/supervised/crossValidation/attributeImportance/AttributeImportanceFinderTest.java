@@ -4,7 +4,7 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class AttributeImportanceFinderTest {
 
 
-    private List<ClassifierInstance> instances;
+    private List<InstanceWithAttributesMap> instances;
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +30,7 @@ public class AttributeImportanceFinderTest {
 
     @Test
     public void testAttributeImportanceFinder() throws Exception {
-        AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
+        AttributeImportanceFinder<InstanceWithAttributesMap> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
                 .modelBuilder(new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5))
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)

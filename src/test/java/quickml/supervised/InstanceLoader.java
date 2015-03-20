@@ -3,7 +3,7 @@ package quickml.supervised;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.BenchmarkTest;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 
@@ -18,9 +18,9 @@ import java.util.zip.GZIPInputStream;
 public class InstanceLoader {
     private static final Logger logger = LoggerFactory.getLogger(InstanceLoader.class);
 
-    public static List<ClassifierInstance> getAdvertisingInstances() {
+    public static List<InstanceWithAttributesMap> getAdvertisingInstances() {
         CSVToInstanceReader csvToInstanceReader = new CSVToInstanceReaderBuilder().collumnNameForLabel("outcome").buildCsvReader();
-        List<ClassifierInstance> advertisingInstances;
+        List<InstanceWithAttributesMap> advertisingInstances;
         try {
             final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("advertisingData.csv.gz")))));
             advertisingInstances = csvToInstanceReader.readCsvFromReader(br);

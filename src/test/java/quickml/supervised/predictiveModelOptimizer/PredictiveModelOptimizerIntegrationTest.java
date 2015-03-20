@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
@@ -33,9 +33,9 @@ public class PredictiveModelOptimizerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
+        List<InstanceWithAttributesMap> advertisingInstances = getAdvertisingInstances();
         advertisingInstances = advertisingInstances.subList(0, 3000);
-        optimizer = new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
+        optimizer = new PredictiveModelOptimizerBuilder<Classifier, InstanceWithAttributesMap>()
                 .modelBuilder(new RandomForestBuilder<>())
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
                 .lossChecker(new ClassifierLossChecker<>(new WeightedAUCCrossValLossFunction(1.0)))

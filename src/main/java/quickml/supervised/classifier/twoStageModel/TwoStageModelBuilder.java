@@ -1,7 +1,7 @@
 package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
@@ -11,34 +11,34 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<TwoStageClassifier, T> {
-    PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1;
-    PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2;
+public class TwoStageModelBuilder<T extends InstanceWithAttributesMap> implements PredictiveModelBuilder<TwoStageClassifier, T> {
+    PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedModelBuilder1;
+    PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedModelBuilder2;
 
-    public TwoStageModelBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1,
-                                PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2) {
+    public TwoStageModelBuilder(PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedModelBuilder1,
+                                PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedModelBuilder2) {
         this.wrappedModelBuilder1 = wrappedModelBuilder1;
         this.wrappedModelBuilder2 = wrappedModelBuilder2;
     }
 
     @Override
     public TwoStageClassifier buildPredictiveModel(Iterable<T> trainingData) {
-        List<ClassifierInstance> stage1Data = Lists.newArrayList();
-        List<ClassifierInstance> stage2Data = Lists.newArrayList();
-        List<ClassifierInstance> validationData = Lists.newArrayList();
+        List<InstanceWithAttributesMap> stage1Data = Lists.newArrayList();
+        List<InstanceWithAttributesMap> stage2Data = Lists.newArrayList();
+        List<InstanceWithAttributesMap> validationData = Lists.newArrayList();
 
         for (T instance : trainingData) {
             if (instance.getLabel().equals("positive-both")) {
-                stage1Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
-                stage2Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
-                validationData.add(new ClassifierInstance(instance.getAttributes(), 1.0));
+                stage1Data.add(new InstanceWithAttributesMap(instance.getAttributes(), 1.0));
+                stage2Data.add(new InstanceWithAttributesMap(instance.getAttributes(), 1.0));
+                validationData.add(new InstanceWithAttributesMap(instance.getAttributes(), 1.0));
             } else if (instance.getLabel().equals("positive-first")) {
-                stage1Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
-                stage2Data.add(new ClassifierInstance(instance.getAttributes(), 0.0));
-                validationData.add(new ClassifierInstance(instance.getAttributes(), 0.0));
+                stage1Data.add(new InstanceWithAttributesMap(instance.getAttributes(), 1.0));
+                stage2Data.add(new InstanceWithAttributesMap(instance.getAttributes(), 0.0));
+                validationData.add(new InstanceWithAttributesMap(instance.getAttributes(), 0.0));
             } else if (instance.getLabel().equals("negative")) {
-                stage1Data.add(new ClassifierInstance(instance.getAttributes(), 0.0));
-                validationData.add(new ClassifierInstance(instance.getAttributes(), 0.0));
+                stage1Data.add(new InstanceWithAttributesMap(instance.getAttributes(), 0.0));
+                validationData.add(new InstanceWithAttributesMap(instance.getAttributes(), 0.0));
             } else {
                 throw new RuntimeException("missing valid label");
             }

@@ -1,13 +1,13 @@
 package quickml.supervised.crossValidation;
 
 import quickml.supervised.Utils;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 
 import java.util.List;
 
-public class ClassifierLossChecker<T extends ClassifierInstance> implements LossChecker<Classifier, T> {
+public class ClassifierLossChecker<T extends InstanceWithAttributesMap> implements LossChecker<Classifier, T> {
 
     private ClassifierLossFunction lossFunction;
 

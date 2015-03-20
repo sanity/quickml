@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
@@ -19,7 +19,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<ClassifierInstance> trainingData) {
+    public AttributesEnricher build(final Iterable<InstanceWithAttributesMap> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

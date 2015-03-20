@@ -6,7 +6,7 @@ import quickml.data.*;
 
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -21,8 +21,8 @@ public class FeatureEngineeringClassifierBuilderTest {
 
     @Test
     public void simpleTest() {
-        List<ClassifierInstance> trainingData = Lists.newArrayList();
-        trainingData.add(new ClassifierInstance(AttributesMap.newHashMap(), 1));
+        List<InstanceWithAttributesMap> trainingData = Lists.newArrayList();
+        trainingData.add(new InstanceWithAttributesMap(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringClassifierBuilder feBuilder = new FeatureEngineeringClassifierBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredClassifier predictiveModel = feBuilder.buildPredictiveModel(trainingData);
@@ -32,7 +32,7 @@ public class FeatureEngineeringClassifierBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<ClassifierInstance> trainingData) {
+        public AttributesEnricher build(final Iterable<InstanceWithAttributesMap> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -46,10 +46,10 @@ public class FeatureEngineeringClassifierBuilderTest {
         }
     }
 
-    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, ClassifierInstance> {
+    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, InstanceWithAttributesMap> {
         @Override
-        public TestPM buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
-            for (ClassifierInstance instance : trainingData) {
+        public TestPM buildPredictiveModel(Iterable<InstanceWithAttributesMap> trainingData) {
+            for (InstanceWithAttributesMap instance : trainingData) {
                 if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }

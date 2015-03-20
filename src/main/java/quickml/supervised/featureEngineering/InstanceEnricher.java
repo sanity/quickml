@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering;
 
 import com.google.common.base.Function;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by ian on 5/20/14.
  */
-public class InstanceEnricher implements Function<ClassifierInstance, ClassifierInstance> {
+public class InstanceEnricher implements Function<InstanceWithAttributesMap, InstanceWithAttributesMap> {
     private final List<AttributesEnricher> attributesEnrichers;
 
     public InstanceEnricher(List<AttributesEnricher> attributesEnrichers) {
@@ -19,11 +19,11 @@ public class InstanceEnricher implements Function<ClassifierInstance, Classifier
 
     @Nullable
     @Override
-    public ClassifierInstance apply(@Nullable ClassifierInstance instance) {
+    public InstanceWithAttributesMap apply(@Nullable InstanceWithAttributesMap instance) {
         AttributesMap attributes = instance.getAttributes();
         for (AttributesEnricher attributesEnricher : attributesEnrichers) {
             attributes = attributesEnricher.apply(attributes);
         }
-        return new ClassifierInstance(attributes, instance.getLabel(), instance.getWeight());
+        return new InstanceWithAttributesMap(attributes, instance.getLabel(), instance.getWeight());
     }
 }

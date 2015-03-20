@@ -7,10 +7,9 @@ import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.decisionTree.Scorer;
-import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
@@ -35,7 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {
 
-    private ClassifierLossChecker<ClassifierInstance> classifierLossChecker;
+    private ClassifierLossChecker<InstanceWithAttributesMap> classifierLossChecker;
     private ArrayList<Scorer> scorers;
     private TreeBuilder treeBuilder;
     private RandomForestBuilder randomForestBuilder;
@@ -64,12 +63,12 @@ public class BenchmarkTest {
     @Test
     public void performanceTest() throws Exception {
         Random random = new Random();
-        List<ClassifierInstance> instances = loadDiabetesDataset();
+        List<InstanceWithAttributesMap> instances = loadDiabetesDataset();
         for (int i =1; i<60000; i++) {
             instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
         }
         double time0 = System.currentTimeMillis();
-        TreeBuilder<ClassifierInstance> treeBuilder = new TreeBuilder<>(new GiniImpurityScorer())
+        TreeBuilder<InstanceWithAttributesMap> treeBuilder = new TreeBuilder<>(new GiniImpurityScorer())
                 .numSamplesForComputingNumericSplitPoints(50)
                 .ordinalTestSplits(5)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
@@ -84,22 +83,22 @@ public class BenchmarkTest {
     }
 
 
-    private void testWithInstances(String dsName, final List<ClassifierInstance> instances) {
-        FoldedData<ClassifierInstance> data = new FoldedData<>(instances, 4, 4);
+    private void testWithInstances(String dsName, final List<InstanceWithAttributesMap> instances) {
+        FoldedData<InstanceWithAttributesMap> data = new FoldedData<>(instances, 4, 4);
 
         for (final Scorer scorer : scorers) {
             Map<String, Object> cfg = Maps.newHashMap();
             cfg.put(TreeBuilder.SCORER, scorer);
-            CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(treeBuilder, classifierLossChecker, data);
+            CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(treeBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", single-tree, " + scorer + ", " + validator.getLossForModel(cfg));
             validator = new CrossValidator<>(randomForestBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", random-forest, " + scorer + ", " + validator.getLossForModel(cfg));
         }
     }
 
-    private List<ClassifierInstance> loadDiabetesDataset() throws IOException {
+    private List<InstanceWithAttributesMap> loadDiabetesDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<ClassifierInstance> instances = Lists.newLinkedList();
+        final List<InstanceWithAttributesMap> instances = Lists.newLinkedList();
 
 
         String line = br.readLine();
@@ -109,7 +108,7 @@ public class BenchmarkTest {
             for (int x = 0; x < 8; x++) {
                 attributes.put("attr" + x, Double.parseDouble(splitLine[x]));
             }
-            instances.add(new ClassifierInstance(attributes, splitLine[8]));
+            instances.add(new InstanceWithAttributesMap(attributes, splitLine[8]));
             line = br.readLine();
         }
 
@@ -117,10 +116,10 @@ public class BenchmarkTest {
     }
 
 
-    private List<ClassifierInstance> loadMoboDataset() throws IOException {
+    private List<InstanceWithAttributesMap> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("mobo1.json.gz")))));
 
-        final List<ClassifierInstance> instances = Lists.newLinkedList();
+        final List<InstanceWithAttributesMap> instances = Lists.newLinkedList();
 
         String line = br.readLine();
         while (line != null) {
@@ -128,7 +127,7 @@ public class BenchmarkTest {
             AttributesMap a = AttributesMap.newHashMap();
             a.putAll((JSONObject) jo.get("attributes"));
             String binaryClassification = jo.get("output").equals("none") ? "none" : "notNone";
-            instances.add(new ClassifierInstance(a, binaryClassification));
+            instances.add(new InstanceWithAttributesMap(a, binaryClassification));
             line = br.readLine();
         }
         return instances;

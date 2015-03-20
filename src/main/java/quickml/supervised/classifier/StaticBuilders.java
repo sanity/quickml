@@ -1,45 +1,31 @@
 package quickml.supervised.classifier;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.ClassifierInstance;
-import quickml.data.OnespotDateTimeExtractor;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.LossFunction;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
-import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 
 /**
  * Created by alexanderhawk on 3/5/15.
@@ -47,7 +33,7 @@ import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM
 public class StaticBuilders {
     private static final Logger logger = LoggerFactory.getLogger(StaticBuilders.class);
 
-    public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<ClassifierInstance> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor,  Map<String, FieldValueRecommender> config) {
+    public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<InstanceWithAttributesMap> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor,  Map<String, FieldValueRecommender> config) {
         /**
          * @param rebuildsPerValidation is the number of times the model will be rebuilt with a new training set while estimating the loss of a model
          *                              with a prarticular set of hyperparameters
@@ -57,7 +43,7 @@ public class StaticBuilders {
 
         int timeSliceHours = getTimeSliceHours(trainingData, rebuildsPerValidation, dateTimeExtractor);
         double crossValidationFraction = 0.2;
-        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<Classifier, ClassifierInstance>()
+        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<Classifier, InstanceWithAttributesMap>()
                         .modelBuilder(new RandomForestBuilder<>())
                         .dataCycler(new OutOfTimeData<>(trainingData, crossValidationFraction, timeSliceHours,dateTimeExtractor))
                         .lossChecker(new ClassifierLossChecker<>(lossFunction))
@@ -65,19 +51,19 @@ public class StaticBuilders {
                         .iterations(3).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
-        RandomForestBuilder<ClassifierInstance> randomForestBuilder = new RandomForestBuilder<>(new TreeBuilder<>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
-        DownsamplingClassifierBuilder<ClassifierInstance> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<>(randomForestBuilder,0.1);
+        RandomForestBuilder<InstanceWithAttributesMap> randomForestBuilder = new RandomForestBuilder<>(new TreeBuilder<>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
+        DownsamplingClassifierBuilder<InstanceWithAttributesMap> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<>(randomForestBuilder,0.1);
         downsamplingClassifierBuilder.updateBuilderConfig(bestParams);
 
         DownsamplingClassifier downsamplingClassifier = downsamplingClassifierBuilder.buildPredictiveModel(trainingData);
         return new Pair<Map<String, Object>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
     }
-    public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<ClassifierInstance> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor) {
+    public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<InstanceWithAttributesMap> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor) {
         Map<String, FieldValueRecommender> config = createConfig();
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, config);
     }
 
-    private static int getTimeSliceHours(List<ClassifierInstance> trainingData, int rebuildsPerValidation, DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
+    private static int getTimeSliceHours(List<InstanceWithAttributesMap> trainingData, int rebuildsPerValidation, DateTimeExtractor<InstanceWithAttributesMap> dateTimeExtractor) {
 
         Utils.sortTrainingInstancesByTime(trainingData, dateTimeExtractor);
         DateTime latestDateTime = dateTimeExtractor.extractDateTime(trainingData.get(trainingData.size()-1));
