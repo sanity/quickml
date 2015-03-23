@@ -59,7 +59,7 @@ public class PredictiveModelOptimizer {
         for (Object value : fieldValueRecommender.getValues()) {
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
-            if (fieldValueRecommender.shouldContinue(losses.getLosses()))
+            if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }
 

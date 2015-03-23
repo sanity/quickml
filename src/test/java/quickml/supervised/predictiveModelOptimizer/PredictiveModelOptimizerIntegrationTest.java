@@ -59,7 +59,7 @@ public class PredictiveModelOptimizerIntegrationTest {
                 new IgnoreAttributesWithConstantProbability(0.7), new IgnoreAttributesInSet(attributesToIgnore, probabilityOfDiscardingFromAttributesToIgnore)
         ));
         config.put(ATTRIBUTE_IGNORING_STRATEGY, new FixedOrderRecommender(new IgnoreAttributesWithConstantProbability(0.7), compositeAttributeIgnoringStrategy ));
-        config.put(NUM_TREES, new MonotonicConvergenceRecommender(asList(20)));
+        config.put(NUM_TREES, new MonotonicConvergenceRecommender(asList(2, 4, 8), 0.02));
         config.put(MAX_DEPTH, new FixedOrderRecommender( 4, 8, 16));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
         config.put(MIN_SCORE, new FixedOrderRecommender(0.00000000000001));//, Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         config.put(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE, new FixedOrderRecommender(2, 11, 16, 30 ));

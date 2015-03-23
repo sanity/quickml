@@ -33,8 +33,6 @@
     -->
 
     <version>0.7.5</version>
-
-
     <repositories>
         <repository>
             <id>sanity-maven-repo</id>

@@ -35,8 +35,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
     public static final String ATTRIBUTE_IGNORING_STRATEGY = "attributeIgnoringStrategy";
     public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
-
-
+    public static final String IGNORE_ATTR_PROB = "ignoreAttributeAtNodeProbability";
     public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
     public static final int RESERVOIR_SIZE = 50;
@@ -55,6 +54,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private double degreeOfGainRatioPenalty = 1.0;
     private int ordinalTestSpilts = 5;
     private double fractionOfDataToUseInHoldOutSet;
+
     private AttributeIgnoringStrategy attributeIgnoringStrategy = new IgnoreAttributesWithConstantProbability(0.0);
 
     //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
@@ -71,6 +71,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public TreeBuilder attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
+        return this;
+    }
+
+    @Deprecated
+    public TreeBuilder ignoreAttributeAtNodeProbability(double ignoreAttributeAtNodeProbability) {
+        attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(ignoreAttributeAtNodeProbability));
         return this;
     }
 
@@ -110,6 +116,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
             attributeIgnoringStrategy((AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY));
+        if (cfg.containsKey(IGNORE_ATTR_PROB))
+            ignoreAttributeAtNodeProbability((Double)cfg.get(IGNORE_ATTR_PROB));
 
         penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
