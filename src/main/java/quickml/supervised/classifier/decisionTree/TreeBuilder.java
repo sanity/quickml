@@ -23,6 +23,7 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
 
     //TODO: belongs in the Branch builders in specific form
     private ForestConfigBuilder<T> configBuilder;
+    private ForestConfig<T> forestConfig;
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
 
     public TreeBuilder(ForestConfigBuilder config) {
@@ -40,10 +41,11 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
     @Override
     public Tree buildPredictiveModel(Iterable<T> trainingData) {
         List<T> trainingDataList = Utils.<T>iterableToList(trainingData);
-        ForestConfig<T> forestConfig = configBuilder.buildConfig(trainingDataList);
-        return buildTree(trainingDataList, forestConfig);
+        forestConfig = configBuilder.buildConfig(trainingDataList);
+        //need to do tree construction here
+        return buildTree(null, trainingDataList, 0);
     }
-
+//all numeric and categorical node
     private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
         int numSamples = Math.min(numSamplesForComputingNumericSplitPoints, trainingData.size());
         if (numSamples == trainingData.size()) {
@@ -106,11 +108,11 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
 
     private Node buildTree(Branch parent, List<T> trainingData, final int depth) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
-        if (depth >= maxDepth || trainingData.size() <= 2*minLeafInstances) {
+        if (depth >= config.maxDepth || trainingData.size() <= 2*minLeafInstances) {
             return getLeaf(parent, trainingData, depth);
         }
 
-        Optional<? extends Branch> bestBranchOptional = bestBranchFinder.findBestBranch(parent, trainingData);
+        Optional<? extends Branch> bestBranchOptional = findBestBranch(parent, trainingData);
         if (!bestBranchOptional.isPresent()) {
             return getLeaf(parent, trainingData, depth);
         }
