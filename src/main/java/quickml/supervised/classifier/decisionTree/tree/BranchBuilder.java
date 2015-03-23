@@ -11,9 +11,9 @@ import java.util.List;
  */
 public abstract class BranchBuilder<T extends InstanceWithAttributesMap> {
     /**categorical, numeric, boolean*/
-    private ImmutableList<String> attributesToConsider;
-    public void setAttributesToConsider(ImmutableList<String> attributesToConsider){
-        this.attributesToConsider = attributesToConsider;
+    private ImmutableList<String> candidateAttributesForSplits;
+    public void setCandidateAttributesForSplits(ImmutableList<String> candidateAttributesForSplits){
+        this.candidateAttributesForSplits = candidateAttributesForSplits;
     }
     public BranchType type;
     public abstract Optional<? extends Branch> findBestBranch(Branch parent, List<T> trainingData);

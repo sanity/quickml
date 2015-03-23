@@ -1,6 +1,7 @@
 package quickml.supervised.classifier;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import java.io.Serializable;
@@ -47,6 +48,14 @@ public class BinaryClassificationProperties extends ClassificationProperties {
                 / classificationsAndCounts.get(minorityClassification).doubleValue();
 
         return new BinaryClassificationProperties(classificationsAndCounts, minorityClassification, majorityClassification,majorityToMinorityRatio);
+    }
+
+    @Override
+    public BinaryClassificationProperties copy(){
+        //copy the map
+        HashMap<Serializable, Long> classificationsAndCounts = Maps.newHashMap(this.classificationsAndCounts);
+        return new BinaryClassificationProperties(classificationsAndCounts, minorityClassification, majorityClassification, majorityToMinorityRatio);
+
     }
 
 

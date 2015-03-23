@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class NClassNumericBranchBuilder<T extends InstanceWithAttributesMap> implements BranchBuilder<T> {
+public class NClassNumericBranchBuilder<T extends InstanceWithAttributesMap> implements NumericBranchBuilder<T> {
 
     public Branch findBestBranch(List<T> trainingData) {
 

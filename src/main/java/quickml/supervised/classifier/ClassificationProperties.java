@@ -3,11 +3,12 @@ package quickml.supervised.classifier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.mutable.MutableInt;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.classifier.decisionTree.tree.DataPropertiesTransformer;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,21 +17,23 @@ import java.util.Set;
 public class ClassificationProperties {
 
     final ImmutableMap<Serializable, Long> classificationsAndCounts;
+
+
     protected ClassificationProperties(HashMap<Serializable, Long> classificationsAndCounts) {
-        this.classificationsAndCounts = new ImmutableMap.Builder<Serializable,Long>()
-                                             .putAll(classificationsAndCounts)
-                                             .build();
+        this.classificationsAndCounts = new ImmutableMap.Builder<Serializable, Long>()
+                .putAll(classificationsAndCounts)
+                .build();
     }
 
-    public static <T extends InstanceWithAttributesMap> ClassificationProperties getClassificationProperties(Iterable<T> trainingData) {
+    public static <T extends InstanceWithAttributesMap> ClassificationProperties setDataProperties(List<T> trainingData) {
         HashMap<Serializable, Long> classificationsAndCounts = getClassificationsAndCounts(trainingData);
-        if (classificationsAndCounts.keySet().size()>2) {
+        if (classificationsAndCounts.keySet().size() > 2) {
             return new ClassificationProperties(classificationsAndCounts);
         }
         return BinaryClassificationProperties.createClassificationPropertiesOfBinaryData(classificationsAndCounts);
     }
 
-    private static <T extends InstanceWithAttributesMap> HashMap<Serializable, Long> getClassificationsAndCounts(Iterable<T> trainingData) {
+    private static <T extends InstanceWithAttributesMap> HashMap<Serializable, Long> getClassificationsAndCounts(List<T> trainingData) {
         HashMap<Serializable, Long> classificationsAndCounts = Maps.newHashMap();
         for (T instance : trainingData) {
             Serializable classification = instance.getLabel();
@@ -49,7 +52,7 @@ public class ClassificationProperties {
         return Sets.newHashSet(classificationsAndCounts.keySet());
     }
 
-    public boolean classificationsAreBinary(){
+    public boolean classificationsAreBinary() {
         return classificationsAndCounts.size() == 2;
     }
 
@@ -57,4 +60,11 @@ public class ClassificationProperties {
         return classificationsAndCounts;
     }
 
+    public ClassificationProperties copy() {
+        HashMap<Serializable, Long> classificationsAndCounts = Maps.newHashMap(this.classificationsAndCounts);
+        return new ClassificationProperties(classificationsAndCounts);
+
+    }
+
 }
+

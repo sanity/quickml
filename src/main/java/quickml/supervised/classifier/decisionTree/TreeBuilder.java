@@ -2,7 +2,6 @@ package quickml.supervised.classifier.decisionTree;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -12,185 +11,38 @@ import org.javatuples.Pair;
 import quickml.collections.MapUtils;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.Utils;
 import quickml.supervised.classifier.*;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.tree.*;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
-import java.util.Map.Entry;
 
 public final class TreeBuilder<T extends InstanceWithAttributesMap> implements PredictiveModelBuilder<Tree, T> {
 
-    public static final String MAX_DEPTH = "maxDepth";
-    public static final String BEST_BRANCH_FINDER = "bestBranchFinder";
-    public static final String MIN_SCORE = "minScore";
-    public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
 
-
-    //the minimum number of times a categorical attribute value must be observed to be considered during splitting.
-    //also the minimimum number of times a numeric attribute must be observed to fall inside a closed interval for that interval to be considered in a split decision
-    public static final String MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE = "minOccurrencesOfAttributeValue";
-    public static final String SCORER = "scorer";
-    public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
-    public static final String ATTRIBUTE_IGNORING_STRATEGY = "attributeIgnoringStrategy";
-    public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";
-    public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
-    public static final String NUM_SAMPLES_FOR_COMPUTING_NUMERIC_SPLIT_POINTS = "numSamplesForComputingNumericSplitPoints";
-    public static final int SMALL_TRAINING_SET_LIMIT = 9;
-    public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
-    private static final int SAMPLES_PER_BIN = 10;
-    private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 2;
-    //TODO: make it so only one thread computes the below 4 values since all trees compute the same values..
-    ClassificationProperties classificationProperties;
     //TODO: belongs in the Branch builders in specific form
-    AttributeValueIgnoringStrategy attributeValueIgnoringStrategy;
-    private BestBranchFinder bestBranchFinder;
-    private int numSamplesForComputingNumericSplitPoints = 50;
-    private Scorer scorer;
-    private int maxDepth = 5;
-    private double minimumScore = 0.00000000000001;
-    private int minOccurancesOfAttributeValue = 0;
-    private int minLeafInstances = 0;
+    private ForestConfigBuilder<T> configBuilder;
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
-    private boolean penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = true;
-    private double degreeOfGainRatioPenalty = 1.0;
-    private int ordinalTestSpilts = 5;
-    private double fractionOfDataToUseInHoldOutSet;
-    private AttributeIgnoringStrategy attributeIgnoringStrategy = new IgnoreAttributesWithConstantProbability(0.0);
 
-    public TreeBuilder() {
-        this(new GiniImpurityScorer());
+    public TreeBuilder(ForestConfigBuilder config) {
+        this.configBuilder = config;
     }
 
-    public TreeBuilder(final Scorer scorer) {
-        this.scorer = scorer;
+    public TreeBuilder<T> copy() {
+        return new TreeBuilder<>(configBuilder.copy());
     }
 
-    public TreeBuilder attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        this.attributeIgnoringStrategy = attributeIgnoringStrategy;
-        return this;
-    }
-
-    public TreeBuilder bestBranchFinder(BestBranchFinder bestBranchFinder) {
-        this.bestBranchFinder = bestBranchFinder;
-        return this;
-    }
-
-    public TreeBuilder numSamplesForComputingNumericSplitPoints(int numSamplesForComputingNumericSplitPoints) {
-        /**
-         * set this field to the size of the training set to ensure trial numeric split points are chosen deterministically
-         */
-        this.numSamplesForComputingNumericSplitPoints = numSamplesForComputingNumericSplitPoints;
-        return this;
-    }
-
-    public TreeBuilder copy() {
-        TreeBuilder<T> copy = new TreeBuilder<>();
-        copy.bestBranchFinder = bestBranchFinder.copy();
-        copy.scorer = scorer;
-        copy.maxDepth = maxDepth;
-        copy.minimumScore = minimumScore;
-        copy.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
-        copy.minLeafInstances = minLeafInstances;
-        copy.penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = penalizeCategoricalSplitsBySplitAttributeIntrinsicValue;
-        copy.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
-        copy.ordinalTestSpilts = ordinalTestSpilts;
-        copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
-        copy.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
-        copy.numSamplesForComputingNumericSplitPoints = numSamplesForComputingNumericSplitPoints;
-        return copy;
-    }
-
-    public void updateBuilderConfig(final Map<String, Object> cfg) {
-        if (cfg.containsKey(SCORER))
-            scorer((Scorer) cfg.get(SCORER));
-        if (cfg.containsKey(MAX_DEPTH))
-            maxDepth((Integer) cfg.get(MAX_DEPTH));
-        if (cfg.containsKey(MIN_SCORE))
-            minimumScore((Double) cfg.get(MIN_SCORE));
-        if (cfg.containsKey(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE))
-            minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE));
-        if (cfg.containsKey(MIN_LEAF_INSTANCES))
-            minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
-        if (cfg.containsKey(ORDINAL_TEST_SPLITS))
-            ordinalTestSplits((Integer) cfg.get(ORDINAL_TEST_SPLITS));
-        if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
-            degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
-        if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
-            attributeIgnoringStrategy((AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY));
-
-        penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
-    }
-
-    public TreeBuilder degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
-        this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
-        return this;
-    }
-
-    public TreeBuilder ordinalTestSplits(int ordinalTestSpilts) {
-        this.ordinalTestSpilts = ordinalTestSpilts;
-        this.numSamplesForComputingNumericSplitPoints = SAMPLES_PER_BIN * ordinalTestSpilts;
-        return this;
-    }
-
-
-    public TreeBuilder<T> scorer(final Scorer scorer) {
-        this.scorer = scorer;
-        return this;
-    }
-
-
-    public TreeBuilder<T> maxDepth(int maxDepth) {
-        this.maxDepth = maxDepth;
-        return this;
-    }
-
-    public TreeBuilder<T> minLeafInstances(int minLeafInstances) {
-        this.minLeafInstances = minLeafInstances;
-        return this;
-    }
-
-    public TreeBuilder<T> penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(boolean useGainRatio) {
-        this.penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = useGainRatio;
-        return this;
-    }
-
-    public TreeBuilder<T> minCategoricalAttributeValueOccurances(int occurances) {
-        this.minOccurancesOfAttributeValue = occurances;
-        return this;
-    }
-
-    public TreeBuilder<T> minimumScore(double minimumScore) {
-        this.minimumScore = minimumScore;
-        return this;
+    public void updateBuilderConfig(Map<String, Object> cfg) {
+        configBuilder.update(cfg);
     }
 
     @Override
     public Tree buildPredictiveModel(Iterable<T> trainingData) {
-        List<T> trainingDataList = iterableToList(trainingData);
-        classificationProperties = ClassificationProperties.<T>getClassificationProperties(trainingDataList);  //should only exist in ClassificationTree
-        if (classificationProperties.classificationsAreBinary()) {
-            attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy((BinaryClassificationProperties) classificationProperties, minOccurancesOfAttributeValue);
-        } else {
-            attributeValueIgnoringStrategy = new MultiClassAtributeIgnoringStrategy(minOccurancesOfAttributeValue);
-        }
-        attributeCharacteristics = TrainingDataSurveyor.<T>groupAttributesByType(trainingDataList);
-
-        return new Tree(buildTree(null, trainingDataList, 0), classificationProperties.getClassifications());
+        List<T> trainingDataList = Utils.<T>iterableToList(trainingData);
+        ForestConfig<T> forestConfig = configBuilder.buildConfig(trainingDataList);
+        return buildTree(trainingDataList, forestConfig);
     }
-
-    private List<T> iterableToList(Iterable<T> trainingData) {
-        List<T> trainingDataList = Lists.newArrayList();
-        for (T instance : trainingData) {
-            trainingDataList.add(instance);
-        }
-        return trainingDataList;
-    }
-
 
     private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
         int numSamples = Math.min(numSamplesForComputingNumericSplitPoints, trainingData.size());
@@ -252,7 +104,7 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
         return split;
     }
 
-    private Node buildTree(Branch parent, final List<T> trainingData, final int depth) {
+    private Node buildTree(Branch parent, List<T> trainingData, final int depth) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         if (depth >= maxDepth || trainingData.size() <= 2*minLeafInstances) {
             return getLeaf(parent, trainingData, depth);
@@ -263,14 +115,51 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
             return getLeaf(parent, trainingData, depth);
         }
         Branch bestBranch = bestBranchOptional.get();
+
         ArrayList<T> trueTrainingSet = Lists.newArrayList();
         ArrayList<T> falseTrainingSet = Lists.newArrayList();
         setTrueAndFalseTrainingSets(trainingData, bestBranch, trueTrainingSet, falseTrainingSet);
+
+        trainingData = null;
+        System.gc();//enable garbage collection
 
         bestBranch.trueChild = buildTree(bestBranch, trueTrainingSet, depth + 1);
         bestBranch.falseChild = buildTree(bestBranch, falseTrainingSet, depth + 1);
 
         return bestBranch;
+    }
+
+    private Optional<? extends Branch> findBestBranch(Branch parent, List<T> instances) {
+        double bestScore = configBuilder.minScore;
+        Optional<? extends Branch> bestBranchOptional = Optional.absent();
+        Map<BranchType, BranchBuilder<T>> branchBuilders = getBranchBuilders();
+
+        for (BranchType branchType : branchBuilders.keySet()) {
+            BranchBuilder<T> branchBuilder =  branchBuilders.get(branchType);
+            Optional<? extends Branch> thisBranchOptional = branchBuilder.findBestBranch(parent, instances);
+            if (thisBranchOptional.isPresent()) {
+                Branch thisBranch = thisBranchOptional.get();
+                if (thisBranch.score > bestScore) {  //minScore evaluation delegated to branchBuilder
+                    bestBranchOptional = thisBranchOptional;
+                    bestScore = thisBranch.score;
+                }
+            }
+        }
+        return bestBranchOptional;
+    }
+
+    private Map<BranchType, BranchBuilder<T>> getBranchBuilders() {
+        Map<BranchType, BranchBuilder<T>> branchBuilders = new HashMap<>();
+        if (configBuilder.numericBranchBuilder!=null) {
+            branchBuilders.put(BranchType.NUMERIC, configBuilder.numericBranchBuilder);
+        }
+        if (configBuilder.categoricalBranchBuilder !=null){
+            branchBuilders.put(BranchType.CATEGORICAL, configBuilder.categoricalBranchBuilder);
+        }
+        if (configBuilder.booleanBranchBuilder !=null){
+            branchBuilders.put(BranchType.BOOLEAN, configBuilder.booleanBranchBuilder);
+        }
+        return branchBuilders;
     }
 
     private Leaf getLeaf(Node parent, List<T> trainingData, int depth) {
@@ -287,8 +176,6 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
             }
         }
     }
-
-
 
     private Pair<? extends Branch, Double> createCategoricalNode(Node parent, String attribute, Iterable<T> instances) {
         if (classificationProperties.classificationsAreBinary()) {
@@ -409,7 +296,7 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
 
         final Set<Serializable> values = getAttributeValues(instances, attribute);
 
-        if (insufficientTrainingDataGivenNumberOfAttributeValues(instances, values)) return null;
+
 
         final Set<Serializable> inValueSet = Sets.newHashSet(); //the in-set
 
@@ -464,15 +351,7 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap> implements P
         return Pair.with(new CategoricalBranch(parent, attribute, inValueSet, probabilityOfBeingInInset), insetScore);
     }
 
-    private boolean insufficientTrainingDataGivenNumberOfAttributeValues(final Iterable<T> trainingData, final Set<Serializable> values) {
-        final int averageInstancesPerValue = Iterables.size(trainingData) / values.size();
-        final boolean notEnoughTrainingDataGivenNumberOfValues = averageInstancesPerValue < Math.max(this.minOccurancesOfAttributeValue,
-                HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE);
-        if (notEnoughTrainingDataGivenNumberOfValues) {
-            return true;
-        }
-        return false;
-    }
+
 
     private Set<Serializable> getAttributeValues(final Iterable<T> trainingData, final String attribute) {
         final Set<Serializable> values = Sets.newHashSet();

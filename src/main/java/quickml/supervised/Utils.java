@@ -75,5 +75,16 @@ public class Utils {
     }
 
 
+
+    public static  <T> List<T> iterableToList(Iterable<T> trainingData) {
+        List<T> trainingDataList = Lists.newArrayList();
+        for (T instance : trainingData) {
+            trainingDataList.add(instance);
+        }
+        return trainingDataList;
+    }
+
+
+
 }
 

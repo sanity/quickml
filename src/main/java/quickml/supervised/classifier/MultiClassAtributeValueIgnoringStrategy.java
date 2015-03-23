@@ -9,9 +9,9 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/18/15.
  */
-public class MultiClassAtributeIgnoringStrategy implements AttributeValueIgnoringStrategy{
+public class MultiClassAtributeValueIgnoringStrategy implements AttributeValueIgnoringStrategy{
     private int minOccurancesOfAttributeValue;
-    public MultiClassAtributeIgnoringStrategy(int minOccurancesOfAttributeValue) {
+    public MultiClassAtributeValueIgnoringStrategy(int minOccurancesOfAttributeValue) {
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
     }
 
@@ -25,5 +25,10 @@ public class MultiClassAtributeIgnoringStrategy implements AttributeValueIgnorin
         }
 
         return false;
+    }
+
+    @Override
+    public MultiClassAtributeValueIgnoringStrategy copy() {
+        return new MultiClassAtributeValueIgnoringStrategy(this.minOccurancesOfAttributeValue);
     }
 }

@@ -6,7 +6,6 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
 
     public double getProbability(AttributesMap attributes, Serializable classification) {
         double uncorrectedProbability = wrappedClassifier.getProbability(attributes, minorityClassification);
-        double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
+        double probabilityOfMinorityInstance = DownsamplingUtils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
             return probabilityOfMinorityInstance;
         } else {
@@ -42,7 +41,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         double uncorrectedProbability = wrappedClassifier.getProbabilityWithoutAttributes(attributes, minorityClassification, attributesToIgnore);
-        double probabilityOfMinorityInstance = Utils.correctProbability(dropProbability, uncorrectedProbability);
+        double probabilityOfMinorityInstance = DownsamplingUtils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
             return probabilityOfMinorityInstance;
         } else {

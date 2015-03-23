@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class NClassCategoricalBranchBuilder<T extends InstanceWithAttributesMap> implements BranchBuilder<T> {
+public class NClassCategoricalBranchBuilder<T extends InstanceWithAttributesMap> extends CategoricalBranchBuilder<T> {
 
     public Branch findBestBranch(List<T> trainingData) {
-
+    return null;
     }
 }

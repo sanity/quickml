@@ -1,7 +1,6 @@
 package quickml.supervised.classifier;
 
 import junit.framework.TestCase;
-import org.apache.commons.lang.mutable.MutableInt;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
@@ -46,7 +45,7 @@ public class ClassificationPropertiesTest extends TestCase {
     @Test
     public void testBinaryClassificationProperties() throws Exception {
         setup();
-        BinaryClassificationProperties binaryClassificationProperties = (BinaryClassificationProperties)ClassificationProperties.getClassificationProperties(binaryInstances);
+        BinaryClassificationProperties binaryClassificationProperties = (BinaryClassificationProperties)ClassificationProperties.setDataProperties(binaryInstances);
         org.junit.Assert.assertTrue(binaryClassificationProperties.classificationsAreBinary());
 
 
@@ -58,7 +57,7 @@ public class ClassificationPropertiesTest extends TestCase {
     @Test
     public void testGetClassificationsAndCounts() throws Exception {
         setup();
-        ClassificationProperties cp = ClassificationProperties.getClassificationProperties(nonBinaryInstances);
+        ClassificationProperties cp = ClassificationProperties.setDataProperties(nonBinaryInstances);
         HashMap<Serializable, Long> classificationsAndCounts = cp.getClassificationsAndCounts();
         org.junit.Assert.assertEquals(classificationsAndCounts.size(), 3);
         org.junit.Assert.assertEquals(classificationsAndCounts.get(2.0), Long.valueOf(3L));

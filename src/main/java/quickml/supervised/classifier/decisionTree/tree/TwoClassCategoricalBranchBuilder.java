@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class TwoClassCategoricalBranchBuilder<T extends InstanceWithAttributesMap> implements BranchBuilder<T> {
+public class TwoClassCategoricalBranchBuilder<T extends InstanceWithAttributesMap> implements CategoricalBranchBuilder<T> {
 
     public Branch findBestBranch(List<T> trainingData) {
 

@@ -18,6 +18,10 @@ public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValue
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
     }
 
+    public BinaryClassAttributeValueIgnoringStrategy copy() {
+        return new BinaryClassAttributeValueIgnoringStrategy(bcp.copy(), minOccurancesOfAttributeValue);
+    }
+
     public boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
         Map<Serializable, Double> counts = testValCounts.getCounts();
         if (counts.containsKey(bcp.minorityClassification) &&
