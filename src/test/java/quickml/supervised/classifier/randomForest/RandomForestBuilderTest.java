@@ -36,7 +36,7 @@ public class RandomForestBuilderTest {
         final List<Tree> trees = randomForest.trees;
         final int treeSize = trees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
-        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this root should take far less than 20 seconds");
+        Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this node should take far less than 20 seconds");
 
         final AttributesMap testAttributes = instances.get(0).getAttributes();
         for (Map.Entry<Serializable, Double> entry : randomForest.predict(testAttributes).entrySet()) {
@@ -58,8 +58,8 @@ public class RandomForestBuilderTest {
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
 
-        Node root1 = randomForest1.trees.get(0).root;
-        Node root2 = randomForest1.trees.get(1).root;
+        Node root1 = randomForest1.trees.get(0).node;
+        Node root2 = randomForest1.trees.get(1).node;
         traverseTree(root1, root2);
     }
 
@@ -117,7 +117,7 @@ public class RandomForestBuilderTest {
 
         Assert.assertTrue(randomForest1.trees.size() == randomForest2.trees.size(), "Deterministic Random Forests must have same number of trees");
         for (int i = 0; i < randomForest1.trees.size(); i++) {
-            Assert.assertTrue(randomForest1.trees.get(i).root.size() == randomForest2.trees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
+            Assert.assertTrue(randomForest1.trees.get(i).node.size() == randomForest2.trees.get(i).node.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
         final List<ClassifierInstance> instancesTest = TreeBuilderTestUtils.getInstances(1000);

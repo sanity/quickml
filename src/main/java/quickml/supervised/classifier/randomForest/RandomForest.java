@@ -131,7 +131,7 @@ public class RandomForest extends AbstractClassifier {
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (Tree tree : trees) {
-            Leaf leaf =tree.root.getLeaf(attributes);
+            Leaf leaf =tree.node.getLeaf(attributes);
             for (Serializable classification : leaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {
