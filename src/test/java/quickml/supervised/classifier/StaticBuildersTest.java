@@ -1,6 +1,5 @@
 package quickml.supervised.classifier;
 
-import junit.framework.TestCase;
 import org.javatuples.Pair;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class StaticBuildersTest {
         List<ClassifierInstance> trainingData = getAdvertisingInstances().subList(0, 3000);
         OnespotDateTimeExtractor dateTimeExtractor = new OnespotDateTimeExtractor();
         Pair<Map<String, Object>, DownsamplingClassifier> downsamplingClassifierPair =
-                StaticBuilders.<ClassifierInstance>getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
+                Classifiers.<ClassifierInstance>getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
         logger.info("logged weighted auc loss should be between 0.25 and 0.28");
     }
 }

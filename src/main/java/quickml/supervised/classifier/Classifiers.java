@@ -1,6 +1,5 @@
 package quickml.supervised.classifier;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
@@ -8,45 +7,32 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.ClassifierInstance;
-import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.Utils;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.LossFunction;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
-import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 
 /**
  * Created by alexanderhawk on 3/5/15.
  */
-public class StaticBuilders {
-    private static final Logger logger = LoggerFactory.getLogger(StaticBuilders.class);
+public class Classifiers {
+    private static final Logger logger = LoggerFactory.getLogger(Classifiers.class);
 
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder,  Map<String, FieldValueRecommender> config) {
         /**
