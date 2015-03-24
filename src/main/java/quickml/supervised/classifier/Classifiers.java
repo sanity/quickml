@@ -97,6 +97,7 @@ public class Classifiers {
         config.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 15));
         config.put(DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(.1, .25));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75));
+        config.put(ORDINAL_TEST_SPLITS, new FixedOrderRecommender(5, 7));
         return config;
     }
 
