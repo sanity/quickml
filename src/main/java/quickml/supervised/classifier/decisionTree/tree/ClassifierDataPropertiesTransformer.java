@@ -1,8 +1,10 @@
 package quickml.supervised.classifier.decisionTree.tree;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.*;
+import quickml.supervised.classifier.decisionTree.Scorer;
 
 import java.util.List;
 import java.util.Map;
@@ -15,17 +17,15 @@ public class ClassifierDataPropertiesTransformer<T extends InstanceWithAttribute
 
     public ForestConfig<T> createForestConfig(List<T> instances, ForestConfigBuilder configBuilder) {
         ClassificationProperties classificationProperties = ClassificationProperties.setDataProperties(instances);
-        Map<ForestOptions, Object> updatedConfigSettings = getInitializedConfigSettings(configBuilder, classificationProperties);
-        return new ForestConfig<>(updatedConfigSettings);
+        //get Numeric and categorical attributes here
+        Map<ForestOptions, Object> cfg = getInitializedConfigSettings(configBuilder, classificationProperties, instances);
+        return new ForestConfig<T>((Scorer)cfg.get(SCORER), (Double)cfg.get(MIN_SCORE), (Integer)cfg.get(MIN_LEAF_INSTANCES), (Integer)cfg.get(NUM_TREES), (Integer)cfg.get(MAX_DEPTH), (Iterable<BranchFinderBuilder<T>>)cfg.get(BRANCH_BUILDERS), (LeafBuilder<T>)cfg.get(LEAF_BUILDER));
 
 
     }
-//this and the method below can be static methods in InitializableUtils. since can be used for reg ression tress
-    public Map<ForestOptions, Object> getInitializedConfigSettings(ForestConfigBuilder<T> fcb, ClassificationProperties cp) {
+    public Map<ForestOptions, Object> getInitializedConfigSettings(ForestConfigBuilder<T> fcb, ClassificationProperties cp, List<T> instances) {
         Map<ForestOptions, Object> intializedConfigProperties = Maps.newHashMap();
-    //this is where the Branch builders update. Each branch builder can have a different interface that used from a method like this.
-        //in this case, ecah branch builders takes the cp's,  calls copy, and then updates the based on the cps.
-        updateBranchBuilder(fcb, cp, intializedConfigProperties);
+        List<BranchFinder<T>> branchFinders = initializeBranchFinders(fcb, cp, instances);
         intializedConfigProperties.put(LEAF_BUILDER, fcb.getLeafBuilder());
         intializedConfigProperties.put(SCORER, fcb.getScorer());
         intializedConfigProperties.put(MAX_DEPTH, fcb.getMaxDepth());
@@ -36,13 +36,12 @@ public class ClassifierDataPropertiesTransformer<T extends InstanceWithAttribute
         return intializedConfigProperties;
     }
 
-    private void updateBranchBuilder(ForestConfigBuilder<T> fcb, ClassificationProperties cp, Map<ForestOptions, Object> intializedConfigProperties) {
-     //create inferface for Branchbuilder that implemetn initializable
-        if (fcb.getCategoricalBranchBuilder().isPresent()) {
-            CategoricalBranchBuilder<T> categoricalBranchBuilder = fcb.categoricalBranchBuilder.get();
-            categoricalBranchBuilder.getInitializedBuilder(cp);
-            intializedConfigProperties.put(CATEGORICAL_BRANCH_BUILDER, categoricalBranchBuilder);
+    private List<BranchFinder<T>>  initializeBranchFinders(ForestConfigBuilder<T> fcb, ClassificationProperties cp, List<T> instances) {
+        List<BranchFinder<T>> initializedBranchFinderBuilders = Lists.newArrayList();
+        for (BranchFinderBuilder<T> BranchFinderBuilder : fcb.getBranchFinderBuilders()) {
+            initializedBranchFinderBuilders.add(BranchFinderBuilder.buildBranchFinder(cp));
         }
+        intializedConfigProperties.put(BRANCH_BUILDERS, initializedBranchFinderBuilders);
     }
 
     public ClassifierDataPropertiesTransformer<T> copy(){

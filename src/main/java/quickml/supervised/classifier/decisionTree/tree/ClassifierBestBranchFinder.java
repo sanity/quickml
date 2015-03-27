@@ -33,7 +33,7 @@ public class ClassifierBestBranchFinder<T extends InstanceWithAttributesMap> ext
         attributesByType = trainingDataSurveyor.groupAttributesByType(instances);
         for (BranchType branchType : branchBuilders.keySet()) {
             BranchBuilder<T> branchBuilder = branchBuilders.get(branchType);
-            branchBuilder.setCandidateAttributesForSplits(attributesByType.get(branchType));
+            branchBuilder.candidateSplitAttributes(attributesByType.get(branchType));
         }
 
         //create AttributeValueIgnoringStrategy

@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/18/15.
  */
-public class ClassificationProperties {
+public class ClassificationProperties implements DataProperties{
 
     final ImmutableMap<Serializable, Long> classificationsAndCounts;
 
