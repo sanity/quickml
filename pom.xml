@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
 
-    <version>0.7.7</version>
+    <version>0.7.8</version>
     <repositories>
         <repository>
             <id>sanity-maven-repo</id>
