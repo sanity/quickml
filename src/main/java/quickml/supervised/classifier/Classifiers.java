@@ -52,7 +52,7 @@ public class Classifiers {
                         .dataCycler(outOfTimeData)
                         .lossChecker(classifierInstanceClassifierLossChecker)
                         .valuesToTest(config)
-                        .iterations(4).build();
+                        .iterations(3).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
         RandomForestBuilder<T> randomForestBuilder = new RandomForestBuilder<T>(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
