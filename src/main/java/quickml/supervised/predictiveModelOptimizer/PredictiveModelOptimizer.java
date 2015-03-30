@@ -55,8 +55,15 @@ public class PredictiveModelOptimizer {
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
         FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
+        if (fieldValueRecommender.getValues().size() == 1) {
+            return;
+        }
         //bestConfig is not actually bestConfig inth for loop
         for (Object value : fieldValueRecommender.getValues()) {
+            //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
+            if (bestConfig.get(field).equals(value)) {
+                continue;
+            }
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
             if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
