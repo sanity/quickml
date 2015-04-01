@@ -294,7 +294,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return split;
     }
 
-    private Node growTree(Branch parent, final List<T> trainingData, final int depth) {
+    private Node growTree(Branch parent,  List<T> trainingData, final int depth) {
         Preconditions.checkArgument(!Iterables.isEmpty(trainingData), "At Depth: " + depth + ". Can't build a tree with no training data");
         if (depth >= maxDepth) {
             return getLeaf(parent, trainingData, depth);
@@ -310,6 +310,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             //The best score condition naturally catches the situation where all instances have the same classification.
             return getLeaf(parent, trainingData, depth);
         }
+
 
         ArrayList<T> trueTrainingSet = Lists.newArrayList();
         ArrayList<T> falseTrainingSet = Lists.newArrayList();
