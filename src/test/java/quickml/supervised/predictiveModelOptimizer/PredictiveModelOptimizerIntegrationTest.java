@@ -3,6 +3,7 @@ package quickml.supervised.predictiveModelOptimizer;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
@@ -44,7 +45,7 @@ public class PredictiveModelOptimizerIntegrationTest {
                 .build();
     }
 
-
+    @Ignore
     @Test
     public void testOptimizer() throws Exception {
         System.out.println("optimalConfig = " + optimizer.determineOptimalConfig());
