@@ -3,6 +3,7 @@ package quickml.supervised.classifier;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +85,8 @@ public class Classifiers {
         DateTime latestDateTime = dateTimeExtractor.extractDateTime(trainingData.get(trainingData.size()-1));
         int indexOfEarliestValidationInstance = (int) (0.8 * trainingData.size()) - 1;
         DateTime earliestValidationTime = dateTimeExtractor.extractDateTime(trainingData.get(indexOfEarliestValidationInstance));
-        Period period = new Period(earliestValidationTime, latestDateTime);
-        int validationPeriodHours = period.getHours();
+        Duration duration = new Duration(earliestValidationTime, latestDateTime);
+        int validationPeriodHours = (int)duration.getStandardHours();
         return validationPeriodHours/rebuildsPerValidation;
     }
 
