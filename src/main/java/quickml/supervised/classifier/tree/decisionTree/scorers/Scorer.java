@@ -9,6 +9,7 @@ import quickml.supervised.classifier.tree.decisionTree.tree.DataSummerizer;
 public abstract class Scorer<D extends DataSummerizer> {
 	private double degreeOfGainRatioPenalty;
 	private double intrinsicValueOfAttribute;
+	private double unSplitScore;
 
 	/**
 	 *
@@ -19,7 +20,8 @@ public abstract class Scorer<D extends DataSummerizer> {
 		 this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
 	 }
 	 public abstract void setIntrinsicValue(double intrinsicValue);
-	 public abstract double scoreSplit(D a, D b, double parentScore);
+	 public abstract double scoreSplit(D a, D b);
+	 public abstract void setUnSplitScore(D a); //internall call {scoreSplit(a, emptyDataSummurizer )};
 
 	 private double correctScoreForGainRatioPenalty(double uncorrectedScore) {
 		 /** call this method from score split only degreeOfGainRatioPenalty is non zero*/

@@ -30,6 +30,7 @@ public class ClassifierDataPropertiesTransformer<T extends InstanceWithAttribute
 
     private List<BranchFinder<T>> initializeBranchFinders(ForestConfigBuilder<T, S, AttributeAndClassificationProperties<T>> fcb, AttributeAndClassificationProperties cp) {
         List<BranchFinder<T>> initializedBranchFinders = Lists.newArrayList();
+        //TODO: TerminationConditions, attribute value
         for (BranchFinderBuilder<T, AttributeAndClassificationProperties<T>> branchFinderBuilder : fcb.getBranchFinderBuilders()) {
             initializedBranchFinders.add(branchFinderBuilder.buildBranchFinder(cp));
         }

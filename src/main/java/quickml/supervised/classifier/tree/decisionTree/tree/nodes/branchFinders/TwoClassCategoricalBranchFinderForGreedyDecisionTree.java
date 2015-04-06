@@ -27,14 +27,14 @@ public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends Inst
 
     private BinaryClassAttributeValueIgnoringStrategy<T> attributeValueIgnoringStrategy;
     private Scorer<ClassificationCounter> scorer;
-    private int minLeafInstances;
+    private TerminationConditions<T, StandardTerminationConditions.StandardSplitProperties> terminationConditions;
     private Serializable minorityClassification;
 
-    public TwoClassCategoricalBranchFinderForGreedyDecisionTree(BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, Scorer<ClassificationCounter> scorer, ImmutableList<String> candidateAttributes, int minLeafInstances) {
+    public TwoClassCategoricalBranchFinderForGreedyDecisionTree(BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, Scorer<ClassificationCounter> scorer, ImmutableList<String> candidateAttributes, TerminationConditions<T, StandardTerminationConditions.StandardSplitProperties> terminationConditions) {
         super(candidateAttributes, attributeIgnoringStrategy);
         this.attributeValueIgnoringStrategy = attributeValueIgnoringStrategy;
         this.scorer = scorer;
-        this.minLeafInstances = minLeafInstances;
+        this.terminationConditions = terminationConditions;
         this.minorityClassification = attributeValueIgnoringStrategy.getMinorityClassification();
 
     }
@@ -59,18 +59,18 @@ public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends Inst
 
         double bestScore = 0;
         scorer.setIntrinsicValue(ScorerUtils.getIntrinsicValueOfAttributeForClassifier(attributeValueDataList, attributeValueDataList.size()));
+        scorer.setUnSplitScore(falseCounts);
         for (final AttributeValueData valueWithClassificationCounter : attributeValueDataList) {
             final ClassificationCounter testValCounts = valueWithClassificationCounter.classificationCounter;
 
             trueCounts = trueCounts.add(testValCounts);
             falseCounts = falseCounts.subtract(testValCounts);
 
-            if (trueCounts.getTotal() < minLeafInstances || falseCounts.getTotal() < minLeafInstances) {
-                continue;
-            }
+            if (!terminationConditions.isValidSplit(new StandardTerminationConditions.StandardSplitProperties(((int) trueCounts.getTotal()), (int) falseCounts.getTotal())))
+                 continue;
 
-            double thisScore = scorer.scoreSplit(trueCounts, falseCounts, parent.score);
-            if (thisScore > bestScore) {
+        double thisScore = scorer.scoreSplit(trueCounts, falseCounts);//true score and false score
+                if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
                 probabilityOfBeingInInset = trueCounts.getTotal() / (trueCounts.getTotal() + falseCounts.getTotal());
