@@ -7,11 +7,11 @@ import org.junit.Test;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.classifier.tree.decisionTree.scorers.InformationGainScorer;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
@@ -23,7 +23,6 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
-import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 
 public class PredictiveModelOptimizerIntegrationTest {

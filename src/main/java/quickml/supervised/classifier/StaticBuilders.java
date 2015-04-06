@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
@@ -24,8 +24,6 @@ import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedO
 
 import java.util.List;
 import java.util.Map;
-
-import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 
 /**
  * Created by alexanderhawk on 3/5/15.

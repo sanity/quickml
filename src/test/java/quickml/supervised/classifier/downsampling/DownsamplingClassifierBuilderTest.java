@@ -14,9 +14,9 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
@@ -80,9 +80,9 @@ public class DownsamplingClassifierBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(downsamplingClassifier);
 
         RandomForest randomForest = (RandomForest) downsamplingClassifier.wrappedClassifier;
-        final List<Tree> trees = randomForest.trees;
-        final int treeSize = trees.size();
-        final int firstTreeNodeSize = trees.get(0).root.size();
+        final List<DecisionTree> decisionTrees = randomForest.decisionTrees;
+        final int treeSize = decisionTrees.size();
+        final int firstTreeNodeSize = decisionTrees.get(0).root.size();
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this root should take far less than 20 seconds");
     }

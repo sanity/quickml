@@ -3,9 +3,9 @@ package quickml;
 import com.google.common.collect.Sets;
 import quickml.data.*;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
@@ -51,13 +51,13 @@ public class ReadMeExample {
         {
             
             TreeBuilder treeBuilder = new TreeBuilder();
-            Tree tree = treeBuilder.buildPredictiveModel(instances);
+            DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
 
             attributes = AttributesMap.newHashMap() ;
             attributes.put("height",62);
             attributes.put("weight", 201);
             attributes.put("gender", "female");
-            Serializable classification = tree.getClassificationByMaxProb(attributes);
+            Serializable classification = decisionTree.getClassificationByMaxProb(attributes);
             if (classification.equals("healthy")) {
                 System.out.println("They are healthy!");
             } else if (classification.equals("underweight")) {
@@ -66,7 +66,7 @@ public class ReadMeExample {
                 System.out.println("They are overweight!");
             }
             
-            tree.root.dump(System.out);
+            decisionTree.root.dump(System.out);
             
         }
         

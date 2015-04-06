@@ -1,13 +1,13 @@
 package quickml.supervised.predictiveModelOptimizer;
 
 import com.google.common.collect.Sets;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.InformationGainScorer;
-import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
-import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.classifier.tree.decisionTree.scorers.InformationGainScorer;
+import quickml.supervised.classifier.tree.decisionTree.scorers.MSEScorer;
+import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilder;
 
@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 import static quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION;
 import static quickml.supervised.classifier.randomForest.RandomForestBuilder.NUM_TREES;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;

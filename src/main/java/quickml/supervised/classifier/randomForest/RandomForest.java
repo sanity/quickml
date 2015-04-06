@@ -7,8 +7,8 @@ import com.google.common.util.concurrent.AtomicDouble;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.tree.Leaf;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
 
 import java.io.Serializable;
 import java.util.*;
@@ -24,13 +24,13 @@ public class RandomForest extends AbstractClassifier {
 
     static final long serialVersionUID = 56394564395638954L;
 
-    public final List<Tree> trees;
+    public final List<DecisionTree> decisionTrees;
     private Set<Serializable> classifications = new HashSet<>();
     private boolean binaryClassification = true;
 
-    protected RandomForest(List<Tree> trees, Set<Serializable> classifications) {
-        Preconditions.checkArgument(trees.size() > 0, "We must have at least one tree");
-        this.trees = trees;
+    protected RandomForest(List<DecisionTree> decisionTrees, Set<Serializable> classifications) {
+        Preconditions.checkArgument(decisionTrees.size() > 0, "We must have at least one tree");
+        this.decisionTrees = decisionTrees;
         this.classifications = classifications;
         if (classifications.size() > 2) {
             binaryClassification = false;
@@ -42,26 +42,26 @@ public class RandomForest extends AbstractClassifier {
     @Override
     public double getProbability(AttributesMap attributes, Serializable classification) {
         double total = 0;
-        for (Tree tree : trees) {
-            final double probability = tree.getProbability(attributes, classification);
+        for (DecisionTree decisionTree : decisionTrees) {
+            final double probability = decisionTree.getProbability(attributes, classification);
             if (Double.isInfinite(probability) || Double.isNaN(probability)) {
                 throw new RuntimeException("Probability must be a normal number, not "+probability);
             }
             total += probability;
         }
-        return total / trees.size();
+        return total / decisionTrees.size();
     }
 
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         double total = 0;
-        for (Tree tree : trees) {
-            final double probability = tree.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+        for (DecisionTree decisionTree : decisionTrees) {
+            final double probability = decisionTree.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
             if (Double.isInfinite(probability) || Double.isNaN(probability)) {
                 throw new RuntimeException("Probability must be a normal number, not "+probability);
             }
             total += probability;
         }
-        return total / trees.size();
+        return total / decisionTrees.size();
     }
 
     @Override
@@ -76,8 +76,8 @@ public class RandomForest extends AbstractClassifier {
 
     private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
         PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
-        for (Tree tree : trees) {
-            final PredictionMap treeProbs = tree.predict(attributes);
+        for (DecisionTree decisionTree : decisionTrees) {
+            final PredictionMap treeProbs = decisionTree.predict(attributes);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
@@ -87,7 +87,7 @@ public class RandomForest extends AbstractClassifier {
         }
         PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
-            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
+            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
     }
@@ -95,8 +95,8 @@ public class RandomForest extends AbstractClassifier {
     @Override
     public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
         PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
-        for (Tree tree : trees) {
-            final PredictionMap treeProbs = tree.predictWithoutAttributes(attributes, attributesToIgnore);
+        for (DecisionTree decisionTree : decisionTrees) {
+            final PredictionMap treeProbs = decisionTree.predictWithoutAttributes(attributes, attributesToIgnore);
             for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
@@ -106,7 +106,7 @@ public class RandomForest extends AbstractClassifier {
         }
         PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
-            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / trees.size());
+            probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
     }
@@ -130,8 +130,8 @@ public class RandomForest extends AbstractClassifier {
     @Override
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
-        for (Tree tree : trees) {
-            Leaf leaf =tree.root.getLeaf(attributes);
+        for (DecisionTree decisionTree : decisionTrees) {
+            Leaf leaf = decisionTree.root.getLeaf(attributes);
             for (Serializable classification : leaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {
@@ -159,14 +159,14 @@ public class RandomForest extends AbstractClassifier {
 
         final RandomForest that = (RandomForest) o;
 
-        if (!trees.equals(that.trees)) return false;
+        if (!decisionTrees.equals(that.decisionTrees)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return trees.hashCode();
+        return decisionTrees.hashCode();
     }
 
 }

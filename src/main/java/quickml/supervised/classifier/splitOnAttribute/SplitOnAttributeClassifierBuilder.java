@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.*;

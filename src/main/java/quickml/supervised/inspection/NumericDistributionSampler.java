@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
 import java.io.Serializable;
 import java.util.*;

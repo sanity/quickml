@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -67,8 +67,8 @@ public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
 
-        List<Future<Tree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
-        List<Tree> trees = Lists.newArrayListWithCapacity(numTrees);
+        List<Future<DecisionTree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
+        List<DecisionTree> decisionTrees = Lists.newArrayListWithCapacity(numTrees);
 
         // Submit all tree building jobs to the executor
         for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
@@ -76,40 +76,40 @@ public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements
         }
 
         // Collect all completed trees. Will block until complete
-        collectTreeFutures(trees, treeFutures);
+        collectTreeFutures(decisionTrees, treeFutures);
         Set<Serializable> classifications = new HashSet<>();
-        for (Tree tree : trees) {
-            classifications.addAll(tree.getClassifications());
+        for (DecisionTree decisionTree : decisionTrees) {
+            classifications.addAll(decisionTree.getClassifications());
         }
-        return new RandomForest(trees, classifications);
+        return new RandomForest(decisionTrees, classifications);
     }
 
-    private Future<Tree> submitTreeBuild(final Iterable<T> trainingData, final int treeIndex) {
-        return executorService.submit(new Callable<Tree>() {
+    private Future<DecisionTree> submitTreeBuild(final Iterable<T> trainingData, final int treeIndex) {
+        return executorService.submit(new Callable<DecisionTree>() {
             @Override
-            public Tree call() throws Exception {
+            public DecisionTree call() throws Exception {
                 return buildModel(trainingData, treeIndex);
             }
         });
     }
 
-    private Tree buildModel(Iterable<T> trainingData, int treeIndex) {
+    private DecisionTree buildModel(Iterable<T> trainingData, int treeIndex) {
         logger.debug("Building tree {} of {}", treeIndex, numTrees);
         return treeBuilder.copy().buildPredictiveModel(trainingData);
     }
 
 
-    protected void collectTreeFutures(List<Tree> trees, List<Future<Tree>> treeFutures) {
-        for (Future<Tree> treeFuture : treeFutures) {
-            collectTreeFutures(trees, treeFuture);
+    protected void collectTreeFutures(List<DecisionTree> decisionTrees, List<Future<DecisionTree>> treeFutures) {
+        for (Future<DecisionTree> treeFuture : treeFutures) {
+            collectTreeFutures(decisionTrees, treeFuture);
         }
 
         executorService.shutdown();
     }
 
-    private void collectTreeFutures(List<Tree> trees, Future<Tree> treeFuture) {
+    private void collectTreeFutures(List<DecisionTree> decisionTrees, Future<DecisionTree> treeFuture) {
         try {
-            trees.add(treeFuture.get());
+            decisionTrees.add(treeFuture.get());
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

@@ -1,7 +1,6 @@
 package quickml.supervised.classifier;
 
-import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
+import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.Map;

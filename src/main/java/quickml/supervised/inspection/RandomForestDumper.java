@@ -1,10 +1,10 @@
 package quickml.supervised.inspection;
 
 import quickml.utlities.SerializationUtility;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.tree.CategoricalBranch;
-import quickml.supervised.classifier.decisionTree.tree.Node;
-import quickml.supervised.classifier.decisionTree.tree.NumericBranch;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
+import quickml.supervised.classifier.tree.decisionTree.tree.Node;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
 import quickml.supervised.classifier.randomForest.RandomForest;
 
 import java.io.*;
@@ -26,7 +26,7 @@ public class RandomForestDumper {
     public void summarizeModel(PrintStream out, RandomForest forest) {
 
         List<TreeSummary> summaries = new ArrayList<>();
-        for (Tree t : forest.trees) {
+        for (DecisionTree t : forest.decisionTrees) {
             TreeSummary summary = new TreeSummary();
             summary.summarizeNode(t.root, 0);
             summaries.add(summary);
@@ -52,7 +52,7 @@ public class RandomForestDumper {
         }
 
         // Output trees, total splits, distinct attributes
-        out.format("%d trees, %d total splits, %d distinct attributes\n", forest.trees.size(), summary.splits, summary.attributes.size());
+        out.format("%d trees, %d total splits, %d distinct attributes\n", forest.decisionTrees.size(), summary.splits, summary.attributes.size());
 
         // Get attributes, sort, emit:
         // - name, # trees, # splits, depths

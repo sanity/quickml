@@ -1,7 +1,7 @@
 package quickml.supervised.classifier;
 
-import com.google.common.base.Preconditions;
-import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -9,17 +9,13 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/18/15.
  */
-public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValueIgnoringStrategy {
+public class BinaryClassAttributeValueIgnoringStrategy<T extends InstanceWithAttributesMap> implements AttributeValueIgnoringStrategy<ClassificationCounter> {
     private final int minOccurancesOfAttributeValue;
-    private final BinaryClassificationProperties bcp;
+    private final AttributeAndBinaryClassificationProperties<T> bcp;
 
-    public BinaryClassAttributeValueIgnoringStrategy(BinaryClassificationProperties bcp, final int minOccurancesOfAttributeValue) {
+    public BinaryClassAttributeValueIgnoringStrategy(AttributeAndBinaryClassificationProperties<T> bcp, final int minOccurancesOfAttributeValue) {
         this.bcp = bcp;
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
-    }
-
-    public BinaryClassAttributeValueIgnoringStrategy copy() {
-        return new BinaryClassAttributeValueIgnoringStrategy(bcp.copy(), minOccurancesOfAttributeValue);
     }
 
     public boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
@@ -49,6 +45,10 @@ public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValue
 
     private boolean hasBothClassifications(Map<Serializable, Double> counts) {
         return counts.containsKey(bcp.majorityClassification) && counts.containsKey(bcp.minorityClassification);
+    }
+
+    public Serializable getMinorityClassification(){
+        return bcp.minorityClassification;
     }
 
 

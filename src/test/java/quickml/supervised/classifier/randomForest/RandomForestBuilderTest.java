@@ -7,12 +7,15 @@ import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.decisionTree.Tree;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.decisionTree.tree.*;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.classifier.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.classifier.tree.decisionTree.tree.*;
+import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -33,8 +36,8 @@ public class RandomForestBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(randomForest);
 
-        final List<Tree> trees = randomForest.trees;
-        final int treeSize = trees.size();
+        final List<DecisionTree> decisionTrees = randomForest.decisionTrees;
+        final int treeSize = decisionTrees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this root should take far less than 20 seconds");
 
@@ -58,8 +61,8 @@ public class RandomForestBuilderTest {
         final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
 
-        Node root1 = randomForest1.trees.get(0).root;
-        Node root2 = randomForest1.trees.get(1).root;
+        Node root1 = randomForest1.decisionTrees.get(0).root;
+        Node root2 = randomForest1.decisionTrees.get(1).root;
         traverseTree(root1, root2);
     }
 
@@ -115,9 +118,9 @@ public class RandomForestBuilderTest {
         MapUtils.random.setSeed(1l);
         final RandomForest randomForest2 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
-        Assert.assertTrue(randomForest1.trees.size() == randomForest2.trees.size(), "Deterministic Random Forests must have same number of trees");
-        for (int i = 0; i < randomForest1.trees.size(); i++) {
-            Assert.assertTrue(randomForest1.trees.get(i).root.size() == randomForest2.trees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
+        Assert.assertTrue(randomForest1.decisionTrees.size() == randomForest2.decisionTrees.size(), "Deterministic Random Forests must have same number of trees");
+        for (int i = 0; i < randomForest1.decisionTrees.size(); i++) {
+            Assert.assertTrue(randomForest1.decisionTrees.get(i).root.size() == randomForest2.decisionTrees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
         final List<InstanceWithAttributesMap> instancesTest = TreeBuilderTestUtils.getInstances(1000);
