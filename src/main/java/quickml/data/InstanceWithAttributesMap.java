@@ -1,22 +1,21 @@
 package quickml.data;
 
-import java.io.Serializable;
 
-public class InstanceWithAttributesMap implements Instance<AttributesMap, Serializable> {
+public class InstanceWithAttributesMap implements Instance<AttributesMap, Object> {
 
     private AttributesMap attributes;
-    private Serializable label;
+    private Object label;
     private double weight;
 
     private InstanceWithAttributesMap() {
 
     }
 
-    public InstanceWithAttributesMap(AttributesMap attributes, Serializable label) {
+    public InstanceWithAttributesMap(AttributesMap attributes, Object label) {
         this(attributes, label, 1.0);
     }
 
-    public InstanceWithAttributesMap(AttributesMap attributes, Serializable label, double weight) {
+    public InstanceWithAttributesMap(AttributesMap attributes, Object label, double weight) {
         this.attributes = attributes;
         this.label = label;
         this.weight = weight;
@@ -28,7 +27,7 @@ public class InstanceWithAttributesMap implements Instance<AttributesMap, Serial
     }
 
     @Override
-    public Serializable getLabel() {
+    public Object getLabel() {
         return label;
     }
 
