@@ -43,7 +43,7 @@ public class PredictiveAccuracyTests {
     }
 
 
-    private List<ClassifierInstance> loadIrisDataset() throws IOException {
+    public static  List<ClassifierInstance> loadIrisDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("iris.data.gz")))));
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 
@@ -55,7 +55,7 @@ public class PredictiveAccuracyTests {
 
             AttributesMap attributes = AttributesMap.newHashMap();
             for (int x = 0; x < splitLine.length - 1; x++) {
-                attributes.put(headings[x], splitLine[x]);
+                attributes.put(headings[x], Double.valueOf((String)splitLine[x]));
             }
             instances.add(new ClassifierInstance(attributes, splitLine[splitLine.length - 1]));
             line = br.readLine();
