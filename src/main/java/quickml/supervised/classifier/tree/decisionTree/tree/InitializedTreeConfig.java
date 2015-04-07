@@ -9,12 +9,12 @@ import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class ForestConfig<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
+public class InitializedTreeConfig<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
 
-    public ForestConfig(TerminationConditions<T, S> terminationConditions, Scorer scorer, int numTrees,
-                        Iterable<BranchFinder<T>> branchFinders, LeafBuilder<T> leafBuilder, Optional<Bagging<T>> bagging,
-                        Optional<Double> downSamplingTargetMinorityProportion, Optional<PostPruningStrategy<T>> postPruningStrategy,
-                        TreeFactory<D> treeFactory, D dataProperities) {
+    public InitializedTreeConfig(TerminationConditions<T, S> terminationConditions, Scorer scorer, int numTrees,
+                                 Iterable<BranchFinder<T>> branchFinders, LeafBuilder<T> leafBuilder, Optional<Bagging<T>> bagging,
+                                 Optional<Double> downSamplingTargetMinorityProportion, Optional<PostPruningStrategy<T>> postPruningStrategy,
+                                 TreeFactory<D> treeFactory, D dataProperities) {
         this.scorer = scorer;
         this.numTrees = numTrees;
         this.branchFinders = branchFinders;

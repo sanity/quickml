@@ -12,15 +12,15 @@ import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
 
 import java.util.*;
 
-public final class TreeBuilder<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> implements PredictiveModelBuilder<Tree, T> {
+public  class TreeBuilder<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> implements PredictiveModelBuilder<Tree, T> {
 //TO
-    private ForestConfigBuilder<T, S, D> configBuilder;
-    private ForestConfig<T, S, D> forestConfig;
-    private Optional<List<T>> outOfBagTrainingData = Optional.absent();
+    private TreeConfig<T, S, D> configBuilder;
+    private InitializedTreeConfig<T, S, D> initializedTreeConfig;
+    private Optional<List<T>> outOfBagTrainingData = Optional.absent();  //make non field...and an empty list by default
 
 
-    public TreeBuilder(ForestConfigBuilder config) {
-        this.configBuilder = config;
+    public TreeBuilder(TreeConfig treeConfig) {
+        this.configBuilder = treeConfig.copy();  //defensive copy to preserve thread safety
     }
 
     public TreeBuilder<T, S, D> copy() {
@@ -34,7 +34,7 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap, S extends Sp
     @Override
     public Tree buildPredictiveModel(Iterable<T> unprocessedTrainingData) {
         List<T> trainingData = prepareTrainingData(unprocessedTrainingData);
-        forestConfig = configBuilder.buildForestConfig(trainingData);
+        initializedTreeConfig = configBuilder.buildForestConfig(trainingData);
         return buildTree(trainingData);
 
     }
@@ -42,8 +42,8 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap, S extends Sp
     //forest config should have a bagging object, since there can be more than one type of bagging
     private List<T> prepareTrainingData(Iterable<T> unprocessedTrainingData) {
         List<T> trainingData = Utils.<T>iterableToList(unprocessedTrainingData);
-        if (forestConfig.getBagging().isPresent()) {
-            Bagging<T> bagging = forestConfig.getBagging().get();
+        if (initializedTreeConfig.getBagging().isPresent()) {
+            Bagging<T> bagging = initializedTreeConfig.getBagging().get();
             Bagging.BaggedPair<T> baggedPair = bagging.separateTrainingDataFromOutOfBagData(trainingData);
             this.outOfBagTrainingData = Optional.of(baggedPair.outOfBagTrainingData);
             trainingData = baggedPair.baggedTrainingData;
@@ -54,21 +54,23 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap, S extends Sp
     private Tree buildTree(List<T> trainingData) {
         Branch parent = null; //parent of root should be null
         Node root = createNode(parent, trainingData);
-        TreeFactory treeFactory = forestConfig.getTreeFactory();
-        Tree tree = treeFactory.constructTree(root, forestConfig.getDataProperities());
+        TreeFactory treeFactory = initializedTreeConfig.getTreeFactory(); //forest config should have method
+        Tree tree = treeFactory.constructTree(root, initializedTreeConfig.getDataProperities());
         if (canPrune()) {
-            tree = forestConfig.getPostPruningStrategy().get().prune(tree, outOfBagTrainingData.get());
+            tree = initializedTreeConfig.getPostPruningStrategy().get().prune(tree, outOfBagTrainingData.get());
         }
         return tree;
     }
+//if use inheritance: make a build tree method which is implented in specific treebuilders.  Tree would need to be generic as well...and it's ok cuz no one will have handle on the generic
+
 
     private boolean canPrune() {
-        return forestConfig.getPostPruningStrategy().isPresent() && outOfBagTrainingData.isPresent();
+        return initializedTreeConfig.getPostPruningStrategy().isPresent() && outOfBagTrainingData.isPresent();
     }
 
     private Node createNode(Branch parent, List<T> trainingData) {
         Preconditions.checkArgument(trainingData == null || trainingData.size() ==0, "Can't build a tree with no training data");
-        TerminationConditions<T, S> terminationConditions = forestConfig.getTerminationConditions();
+        TerminationConditions<S> terminationConditions = initializedTreeConfig.getTerminationConditions();
         if (!terminationConditions.canTryAddingChildren(parent, trainingData)) {
             return getLeaf(parent, trainingData);
         }
@@ -87,14 +89,14 @@ public final class TreeBuilder<T extends InstanceWithAttributesMap, S extends Sp
     }
 
     private Leaf getLeaf(Branch parent, List<T> trainingData) {
-        return forestConfig.getLeafBuilder().buildLeaf(parent, trainingData);
+        return initializedTreeConfig.getLeafBuilder().buildLeaf(parent, trainingData);
     }
 
     private Optional<? extends Branch> findBestBranch(Branch parent, List<T> instances) {
 
-        double bestScore = forestConfig.getTerminationConditions().getMinScore();
+        double bestScore = initializedTreeConfig.getTerminationConditions().getMinScore();
         Optional<? extends Branch> bestBranchOptional = Optional.absent();
-        Iterable<BranchFinder<T>> BranchFinders = forestConfig.getBranchFinders();
+        Iterable<BranchFinder<T>> BranchFinders = initializedTreeConfig.getBranchFinders();
         for (BranchFinder<T> BranchFinder : BranchFinders) {
             Optional<? extends Branch> thisBranchOptional = BranchFinder.findBestBranch(parent, instances);
             if (thisBranchOptional.isPresent()) {

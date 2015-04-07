@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public interface TerminationConditions<S extends SplitProperties> {
+public interface TerminationConditions  <S extends SplitProperties> {
     boolean isValidSplit(S splitProperties);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
     <T extends InstanceWithAttributesMap> boolean canTryAddingChildren(Branch branch, List<T> instances);//Branch has score and depth info in itg
     double getMinScore();

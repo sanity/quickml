@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class ForestConfigBuilder<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
+public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
     private Scorer scorer;
     private TerminationConditions<T,S> terminationConditions;
     private int numTrees = 1;
@@ -74,42 +74,42 @@ public class ForestConfigBuilder<T extends InstanceWithAttributesMap, S extends 
     }
 
     //builder setting methods
-    public ForestConfigBuilder bagging(Bagging<T> bagging) {
+    public TreeConfig bagging(Bagging<T> bagging) {
         this.bagging = Optional.of(bagging);
         return this;
     }
-    public ForestConfigBuilder downSamplingTargetMinorityProportion(Optional<Double> downSamplingTargetMinorityProportion) {
+    public TreeConfig downSamplingTargetMinorityProportion(Optional<Double> downSamplingTargetMinorityProportion) {
         this.downSamplingTargetMinorityProportion = downSamplingTargetMinorityProportion;
         return this;
     }
-    public ForestConfigBuilder pruningStrategy(Optional<PostPruningStrategy<T>> pruningStrategy) {
+    public TreeConfig pruningStrategy(Optional<PostPruningStrategy<T>> pruningStrategy) {
         this.pruningStrategy = pruningStrategy;
         return this;
     }
 
 
-    public ForestConfigBuilder leafBuilder(LeafBuilder leafBuilder) {
+    public TreeConfig leafBuilder(LeafBuilder leafBuilder) {
         this.leafBuilder = leafBuilder;
         return this;
     }
 
-    public ForestConfigBuilder dataPropertiesTransformer(DataPropertiesTransformer<T, S, D> dataPropertiesTransformer) {
+    public TreeConfig dataPropertiesTransformer(DataPropertiesTransformer<T, S, D> dataPropertiesTransformer) {
         this.dataPropertiesTransformer = dataPropertiesTransformer;
         return this;
     }
 
-    public ForestConfigBuilder scorer(Scorer scorer) {
+    public TreeConfig scorer(Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
 
-    public ForestConfigBuilder numTrees(int numTrees) {
+    public TreeConfig numTrees(int numTrees) {
         this.numTrees = numTrees;
         return this;
     }
 
-    public ForestConfigBuilder BranchFinderBuilders(BranchFinderBuilder<T, D>... branchFinderBuilders ) {
+    public TreeConfig BranchFinderBuilders(BranchFinderBuilder<T, D>... branchFinderBuilders ) {
         Preconditions.checkArgument(branchFinderBuilders.length > 0, "must have at least one branch builder");
         this.branchFinderBuilders = Lists.newArrayList(branchFinderBuilders);
         return this;
@@ -151,12 +151,12 @@ public class ForestConfigBuilder<T extends InstanceWithAttributesMap, S extends 
 
 */
 
-    public ForestConfig<T, S, D> buildForestConfig(List<T> instances) {
+    public InitializedTreeConfig<T, S, D> buildForestConfig(List<T> instances) {
        return dataPropertiesTransformer.createForestConfig(instances, this);
     }
 
-    public ForestConfigBuilder<T, S, D> copy() {
-        ForestConfigBuilder<T, S, D> copy = new ForestConfigBuilder<>();
+    public TreeConfig<T, S, D> copy() {
+        TreeConfig<T, S, D> copy = new TreeConfig<>();
         copy.dataPropertiesTransformer = dataPropertiesTransformer.copy();
         copy.terminationConditions = terminationConditions.copy();
         copy.branchFinderBuilders= copyBranchFinderBuilders();
