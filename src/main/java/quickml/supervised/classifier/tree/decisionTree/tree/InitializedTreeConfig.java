@@ -9,9 +9,9 @@ import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class InitializedTreeConfig<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
+public class InitializedTreeConfig<L, T extends InstanceWithAttributesMap<L>, GS extends GroupStatistics> {
 
-    public InitializedTreeConfig(TerminationConditions<T, S> terminationConditions, Scorer scorer, int numTrees,
+    public InitializedTreeConfig(TerminationConditions<L, T, GS> terminationConditions, Scorer scorer, int numTrees,
                                  Iterable<BranchFinder<T>> branchFinders, LeafBuilder<T> leafBuilder, Optional<Bagging<T>> bagging,
                                  Optional<Double> downSamplingTargetMinorityProportion, Optional<PostPruningStrategy<T>> postPruningStrategy,
                                  TreeFactory<D> treeFactory, D dataProperities) {
@@ -23,24 +23,19 @@ public class InitializedTreeConfig<T extends InstanceWithAttributesMap, S extend
         this.bagging = bagging;
         this.downSamplingTargetMinorityProportion = downSamplingTargetMinorityProportion;
         this.postPruningStrategy = postPruningStrategy;
-        this.treeFactory = treeFactory;
         this.dataProperities = dataProperities;
     }
 
     private Scorer scorer;
     private int numTrees = 1;
     private TerminationConditions terminationConditions;
-    private Optional<Bagging<T>> bagging;
+    private Optional<Bagging> bagging;
     private Optional<Double> downSamplingTargetMinorityProportion;
     private Optional<PostPruningStrategy<T>> postPruningStrategy;
-    private TreeFactory<?> treeFactory;
-    private D dataProperities;
-    private Iterable<BranchFinder<T>> branchFinders;
-    private LeafBuilder<T> leafBuilder;
+    //let instantiating class select appropriate data properties private DataProperties dataProperities;
+    private Iterable<BranchFinder<L, T>> branchFinders;
+    private LeafBuilder<GS> leafBuilder;
 
-    public TreeFactory<?> getTreeFactory() {
-        return treeFactory;
-    }
 
     public D getDataProperities() {
         return dataProperities;
@@ -59,7 +54,7 @@ public class InitializedTreeConfig<T extends InstanceWithAttributesMap, S extend
         return numTrees;
     }
 
-    public Iterable<BranchFinder<T>> getBranchFinders(){
+    public Iterable<BranchFinder<L, T>> getBranchFinders(){
         return branchFinders;
     }
 
@@ -68,7 +63,7 @@ public class InitializedTreeConfig<T extends InstanceWithAttributesMap, S extend
         return terminationConditions;
     }
 
-    public Optional<Bagging<T>> getBagging() {
+    public Optional<Bagging> getBagging() {
         return bagging;
     }
 

@@ -8,6 +8,6 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/22/15.
  */
-public interface LeafBuilder<T extends InstanceWithAttributesMap> {
-    Leaf buildLeaf(Branch parent, List<T> instances);
+public interface LeafBuilder<GS extends GroupStatistics> {
+    Leaf buildLeaf(Branch parent, GroupStatistics groupStatistics);
 }

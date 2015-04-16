@@ -23,14 +23,14 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends InstanceWithAttributesMap> extends BranchFinder<T> {
+public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends InstanceWithAttributesMap> extends SortableBranchFinder<T> {
 
     private BinaryClassAttributeValueIgnoringStrategy<T> attributeValueIgnoringStrategy;
     private Scorer<ClassificationCounter> scorer;
-    private TerminationConditions<T, StandardTerminationConditions.StandardSplitProperties> terminationConditions;
+    private TerminationConditions<T, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> terminationConditions;
     private Serializable minorityClassification;
 
-    public TwoClassCategoricalBranchFinderForGreedyDecisionTree(BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, Scorer<ClassificationCounter> scorer, ImmutableList<String> candidateAttributes, TerminationConditions<T, StandardTerminationConditions.StandardSplitProperties> terminationConditions) {
+    public TwoClassCategoricalBranchFinderForGreedyDecisionTree(BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, Scorer<ClassificationCounter> scorer, ImmutableList<String> candidateAttributes, TerminationConditions<T, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> terminationConditions) {
         super(candidateAttributes, attributeIgnoringStrategy);
         this.attributeValueIgnoringStrategy = attributeValueIgnoringStrategy;
         this.scorer = scorer;
@@ -43,7 +43,7 @@ public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends Inst
     public Optional<Branch> getBranch(Branch parent, List<T> instances, String attribute) {
 
         final Pair<ClassificationCounter, List<AttributeValueData>> valueOutcomeCountsPairs =
-                ClassificationCounter.getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, minorityClassification);  //returs a list of ClassificationCounterList
+                getSortedListOfAttributeValuesWithClassificationCounters(instances, attribute, minorityClassification);  //returs a list of ClassificationCounterList
 
         ClassificationCounter falseCounts = new ClassificationCounter(valueOutcomeCountsPairs.getValue0()); //classification counter treating all values the same
         ClassificationCounter trueCounts = new ClassificationCounter(); //the histogram of counts by classification for the in-set
@@ -66,10 +66,10 @@ public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends Inst
             trueCounts = trueCounts.add(testValCounts);
             falseCounts = falseCounts.subtract(testValCounts);
 
-            if (!terminationConditions.isValidSplit(new StandardTerminationConditions.StandardSplitProperties(((int) trueCounts.getTotal()), (int) falseCounts.getTotal())))
+            if (!terminationConditions.isValidSplit(GroupStatistics ds1, GroupStatistics ds2)//new StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity(((int) trueCounts.getTotal()), (int) falseCounts.getTotal())))
                  continue;
 
-        double thisScore = scorer.scoreSplit(trueCounts, falseCounts);//true score and false score
+             double thisScore = scorer.scoreSplit(trueCounts, falseCounts);//true score and false score
                 if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;

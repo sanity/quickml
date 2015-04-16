@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/22/15.
  */
-public class ClassifierDataPropertiesTransformer<T extends InstanceWithAttributesMap, S extends SplitProperties> implements DataPropertiesTransformer<T, S, AttributeAndClassificationProperties<T>> {
+public class ClassifierDataPropertiesTransformer<T extends InstanceWithAttributesMap, S extends DataForTheAssessmentOfSplitValidity> implements DataPropertiesTransformer<T, S, AttributeAndClassificationProperties<T>> {
     private boolean considerBooleanAttributes = false;
 
     public ClassifierDataPropertiesTransformer(boolean considerBooleanAttributes) {

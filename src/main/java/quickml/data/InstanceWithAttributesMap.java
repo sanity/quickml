@@ -1,21 +1,21 @@
 package quickml.data;
 
 
-public class InstanceWithAttributesMap implements Instance<AttributesMap, Object> {
+public class InstanceWithAttributesMap<L> implements Instance<AttributesMap, L> {
 
     private AttributesMap attributes;
-    private Object label;
+    private L label;
     private double weight;
 
     private InstanceWithAttributesMap() {
 
     }
 
-    public InstanceWithAttributesMap(AttributesMap attributes, Object label) {
+    public InstanceWithAttributesMap(AttributesMap attributes, L label) {
         this(attributes, label, 1.0);
     }
 
-    public InstanceWithAttributesMap(AttributesMap attributes, Object label, double weight) {
+    public InstanceWithAttributesMap(AttributesMap attributes, L label, double weight) {
         this.attributes = attributes;
         this.label = label;
         this.weight = weight;
@@ -27,7 +27,7 @@ public class InstanceWithAttributesMap implements Instance<AttributesMap, Object
     }
 
     @Override
-    public Object getLabel() {
+    public L getLabel() {
         return label;
     }
 

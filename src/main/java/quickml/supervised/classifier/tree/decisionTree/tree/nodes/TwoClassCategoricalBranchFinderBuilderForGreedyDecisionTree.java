@@ -9,7 +9,6 @@ import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.BranchType;
 import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.classifier.tree.decisionTree.tree.StandardTerminationConditions;
-import quickml.supervised.classifier.tree.decisionTree.tree.TerminationConditions;
 import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.BranchFinder;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.BranchFinderBuilder;
@@ -21,7 +20,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public class TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T extends InstanceWithAttributesMap> implements BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardSplitProperties>{
+public class TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T extends InstanceWithAttributesMap> implements BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity>{
 
     private BinaryClassAttributeValueIgnoringStrategyBuilder<T> attributeValueIgnoringStrategyBuilder;
     private AttributeIgnoringStrategy attributeIgnoringStrategy;
@@ -53,7 +52,7 @@ public class TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T exten
 
 
     @Override
-    public BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardSplitProperties> copy() {
+    public BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> copy() {
         TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> copy = new TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T>();
         copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
         copy.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder.copy();

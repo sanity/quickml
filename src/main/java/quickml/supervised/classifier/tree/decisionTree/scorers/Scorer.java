@@ -1,12 +1,12 @@
 package quickml.supervised.classifier.tree.decisionTree.scorers;
 
 
-import quickml.supervised.classifier.tree.decisionTree.tree.DataSummerizer;
+import quickml.supervised.classifier.tree.decisionTree.tree.GroupStatistics;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
  */
-public abstract class Scorer<D extends DataSummerizer> {
+public abstract class Scorer<GS extends GroupStatistics> {
 	private double degreeOfGainRatioPenalty;
 	private double intrinsicValueOfAttribute;
 	private double unSplitScore;
@@ -20,8 +20,8 @@ public abstract class Scorer<D extends DataSummerizer> {
 		 this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
 	 }
 	 public abstract void setIntrinsicValue(double intrinsicValue);
-	 public abstract double scoreSplit(D a, D b);
-	 public abstract void setUnSplitScore(D a); //internall call {scoreSplit(a, emptyDataSummurizer )};
+	 public abstract double scoreSplit(GS a, GS b);
+	 public abstract void setUnSplitScore(GS a); //internall call {scoreSplit(a, emptyDataSummurizer )};
 
 	 private double correctScoreForGainRatioPenalty(double uncorrectedScore) {
 		 /** call this method from score split only degreeOfGainRatioPenalty is non zero*/

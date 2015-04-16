@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.DataProperties;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.BranchFinderBuilder;
 
@@ -16,16 +15,14 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProperties, D extends DataProperties> {
-    private Scorer scorer;
-    private TerminationConditions<T,S> terminationConditions;
-    private int numTrees = 1;
-    private List<BranchFinderBuilder<T,D>> branchFinderBuilders = Lists.newArrayList();
-    private LeafBuilder<T> leafBuilder;
-    private DataPropertiesTransformer<T, S, D> dataPropertiesTransformer;
-    private TreeFactory<D> treeFactory;
-    private Optional<Bagging<T>> bagging;
-    private Optional<Double> downSamplingTargetMinorityProportion = Optional.absent();
+public abstract class TreeConfig<L, T extends InstanceWithAttributesMap<L>, GS extends GroupStatistics, Tr extends TreeConfig<L, T, GS, Tr >> {  //specifically Tr must be of the same type as TreeConfig
+   //notes: pull the implementation of dataProperties transformer into the intitialize method
+    private Scorer<GS> scorer;
+    //how do i promise to have a termination conditions class
+    private TerminationConditions<L, T, GS> terminationConditions;
+    private List<BranchFinderBuilder<L, T, Tr>> branchFinderBuilders = Lists.newArrayList();
+    private LeafBuilder<GS> leafBuilder;
+    private Optional<Bagging> bagging;
     private Optional<PostPruningStrategy<T>> pruningStrategy = Optional.absent();
     /*
     private int attributeValueObservationsThreshold = 0;  //goes in branchbuilder
@@ -37,7 +34,7 @@ public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProp
     */
 
 
-    public Optional<Bagging<T>> getBagging() {
+    public Optional<Bagging> getBagging() {
         return bagging;
     }
 
@@ -45,71 +42,52 @@ public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProp
         return scorer;
     }
 
-    public TerminationConditions<T, S> getTerminationConditions() {
+    public TerminationConditions<L, T, GS> getTerminationConditions() {
         return terminationConditions;
     }
 
-    public int getNumTrees() {
-        return numTrees;
-    }
-
-    public List<BranchFinderBuilder<T, D>> getBranchFinderBuilders() {
+    public List<BranchFinderBuilder<L, T, Tr>> getBranchFinderBuilders() {
         return branchFinderBuilders;
     }
 
-    public LeafBuilder<T> getLeafBuilder() {
+    public LeafBuilder<GS> getLeafBuilder() {
         return leafBuilder;
     }
 
-    public TreeFactory<D> getTreeFactory() {
-        return treeFactory;
-    }
-
-    public Optional<Double> getDownSamplingTargetMinorityProportion() {
-        return downSamplingTargetMinorityProportion;
-    }
 
     public Optional<PostPruningStrategy<T>> getPruningStrategy() {
         return pruningStrategy;
     }
 
     //builder setting methods
-    public TreeConfig bagging(Bagging<T> bagging) {
+    public TreeConfig bagging(Bagging bagging) {
         this.bagging = Optional.of(bagging);
         return this;
     }
-    public TreeConfig downSamplingTargetMinorityProportion(Optional<Double> downSamplingTargetMinorityProportion) {
-        this.downSamplingTargetMinorityProportion = downSamplingTargetMinorityProportion;
-        return this;
-    }
-    public TreeConfig pruningStrategy(Optional<PostPruningStrategy<T>> pruningStrategy) {
+
+    public TreeConfig<L, T, GS, Tr> pruningStrategy(Optional<PostPruningStrategy<T>> pruningStrategy) {
         this.pruningStrategy = pruningStrategy;
         return this;
     }
 
 
-    public TreeConfig leafBuilder(LeafBuilder leafBuilder) {
+    public TreeConfig<L, T, GS, Tr> leafBuilder(LeafBuilder leafBuilder) {
         this.leafBuilder = leafBuilder;
         return this;
     }
 
-    public TreeConfig dataPropertiesTransformer(DataPropertiesTransformer<T, S, D> dataPropertiesTransformer) {
+    public TreeConfig<L, T, GS, Tr> dataPropertiesTransformer(DataPropertiesTransformer<T, S, D> dataPropertiesTransformer) {
         this.dataPropertiesTransformer = dataPropertiesTransformer;
         return this;
     }
 
-    public TreeConfig scorer(Scorer scorer) {
+    public TreeConfig<L, T, GS, Tr> scorer(Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
 
-    public TreeConfig numTrees(int numTrees) {
-        this.numTrees = numTrees;
-        return this;
-    }
-
-    public TreeConfig BranchFinderBuilders(BranchFinderBuilder<T, D>... branchFinderBuilders ) {
+    public TreeConfig BranchFinderBuilders(BranchFinderBuilder<L, T, Tr>... branchFinderBuilders ) {
         Preconditions.checkArgument(branchFinderBuilders.length > 0, "must have at least one branch builder");
         this.branchFinderBuilders = Lists.newArrayList(branchFinderBuilders);
         return this;
@@ -151,22 +129,17 @@ public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProp
 
 */
 
-    public InitializedTreeConfig<T, S, D> buildForestConfig(List<T> instances) {
-       return dataPropertiesTransformer.createForestConfig(instances, this);
-    }
+    public abstract InitializedTreeConfig<T, S, D> buildForestConfig(List<T> instances);
 
-    public TreeConfig<T, S, D> copy() {
+    public TreeConfig<L, T, GS, Tr> copy() {
         TreeConfig<T, S, D> copy = new TreeConfig<>();
         copy.dataPropertiesTransformer = dataPropertiesTransformer.copy();
         copy.terminationConditions = terminationConditions.copy();
         copy.branchFinderBuilders= copyBranchFinderBuilders();
-        copy.treeFactory = treeFactory;
         copy.scorer = scorer;
-        copy.numTrees = numTrees;
         copy.leafBuilder = leafBuilder;
         copy.pruningStrategy = pruningStrategy;
         copy.bagging = bagging;
-        copy.downSamplingTargetMinorityProportion = downSamplingTargetMinorityProportion;
 
         return copy;
     }
@@ -187,14 +160,9 @@ public class TreeConfig<T extends InstanceWithAttributesMap, S extends SplitProp
         }
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<T>) cfg.get(LEAF_BUILDER.name());
-        if (cfg.containsKey(TREE_FACTORY.name()))
-            treeFactory = (TreeFactory<D>) cfg.get(TREE_FACTORY.name());
-        if (cfg.containsKey(NUM_TREES.name()))
-            numTrees = (Integer) cfg.get(NUM_TREES.name());
         if (cfg.containsKey(BAGGING.name()))
             bagging = (Optional<Bagging<T>>) cfg.get(BAGGING.name());
-        if (cfg.containsKey(DOWNSAMPLING_TARGET_MINORITY_PROPORTION.name()))
-            downSamplingTargetMinorityProportion = (Optional<Double>) cfg.get(DOWNSAMPLING_TARGET_MINORITY_PROPORTION.name());
+
         if (cfg.containsKey(PRUNING_STRATEGY.name()))
             pruningStrategy = (Optional<PostPruningStrategy<T>>) cfg.get(PRUNING_STRATEGY.name());
         if (cfg.containsKey(DATA_PROPERTIES_TRANSFORMER))

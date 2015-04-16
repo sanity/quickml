@@ -61,7 +61,7 @@ public abstract class Node implements Serializable {
     @Override
     public abstract int hashCode();
 
-    protected abstract void calcMeanDepth(LeafDepthStats stats);
+    public abstract void calcMeanDepth(LeafDepthStats stats);
 
 	protected static class LeafDepthStats {
 		int ttlDepth = 0;

@@ -13,7 +13,7 @@ import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public class StandardTerminationConditions<T extends InstanceWithAttributesMap> implements TerminationConditions<T, StandardTerminationConditions.StandardSplitProperties> {
+public class StandardTerminationConditions<T extends InstanceWithAttributesMap> implements TerminationConditions<T, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> {
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
@@ -37,7 +37,7 @@ public class StandardTerminationConditions<T extends InstanceWithAttributesMap> 
     }
 
     @Override
-    public boolean isValidSplit(StandardSplitProperties standardSplitProperties) {
+    public boolean isValidSplit(StandardDataForTheAssessmentOfSplitValidity standardSplitProperties) {
         return standardSplitProperties.numInSetInstances > minLeafInstances
                 && standardSplitProperties.numOutSetInstances > minLeafInstances;
     }
@@ -62,11 +62,11 @@ public class StandardTerminationConditions<T extends InstanceWithAttributesMap> 
         return new StandardTerminationConditions(this.minScore, this.maxDepth, this.minLeafInstances);
     }
 
-    public static class StandardSplitProperties implements SplitProperties{
+    public static class StandardDataForTheAssessmentOfSplitValidity implements DataForTheAssessmentOfSplitValidity {
         public int numInSetInstances;
         public int numOutSetInstances;
 
-        public StandardSplitProperties(int inSetInstances, int outSetInstances) {
+        public StandardDataForTheAssessmentOfSplitValidity(int inSetInstances, int outSetInstances) {
             this.numInSetInstances = inSetInstances;
             this.numOutSetInstances = outSetInstances;
         }

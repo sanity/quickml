@@ -3,6 +3,7 @@ package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.supervised.classifier.tree.decisionTree.tree.GroupStatistics;
 import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 
@@ -12,22 +13,24 @@ import java.util.Map;
 import java.util.Set;
 
 
-public abstract class Branch extends Node {
+public abstract class Branch<GS extends GroupStatistics> extends Node {
 	private static final long serialVersionUID = 8290012786245422175L;
 
 	public final String attribute;
 	public Node trueChild, falseChild;
-    public double score; //should this be the normalized score.  I would think so.
     //should put in node that implements: ModelWithIgnorableAttributes
     private double probabilityOfTrueChild;
+    public double score;
     public int depth;
+    public GS groupStatistics;
 
-	public Branch(Branch parent, final String attribute, double probabilityOfTrueChild, double score) {
+	public Branch(Branch parent, final String attribute, double probabilityOfTrueChild, double score, GS groupStatistics) {
 		super(parent);
         this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
-        this.score = score;
         this.depth =  (parent!=null) ? this.depth = parent.depth + 1 : 0;
+        this.score = score;
+        this.groupStatistics = groupStatistics;
 	}
 
 	public abstract boolean decide(Map<String, Serializable> attributes);
@@ -104,7 +107,7 @@ public abstract class Branch extends Node {
 	public abstract String toNotString();
 
 	@Override
-	protected void calcMeanDepth(final LeafDepthStats stats) {
+	public void calcMeanDepth(final LeafDepthStats stats) {
 		trueChild.calcMeanDepth(stats);
 		falseChild.calcMeanDepth(stats);
 	}
