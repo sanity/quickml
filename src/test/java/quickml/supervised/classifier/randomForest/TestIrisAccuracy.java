@@ -16,13 +16,16 @@ import java.util.List;
 public class TestIrisAccuracy {
     public static void main(String[] args) throws IOException {
         List<ClassifierInstance> irisDataset = PredictiveAccuracyTests.loadIrisDataset();
-        final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
-        //  final RandomForest randomForest = new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(2).ignoreAttributeAtNodeProbability(0.2)).numTrees(2).buildPredictiveModel(irisDataset);
+        //final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
+        final RandomForest randomForest = new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(8).ignoreAttributeAtNodeProbability(0.7)).numTrees(2).buildPredictiveModel(irisDataset);
         AttributesMap attributes = new AttributesMap();
         attributes.put("sepal-length", 5.84);
         attributes.put("sepal-width", 3.05);
         attributes.put("petal-length", 3.76);
         attributes.put("petal-width", 1.20);
         System.out.println("Prediction: " + randomForest.predict(attributes));
+        for (ClassifierInstance instance : irisDataset) {
+            System.out.println("classification: " + randomForest.getClassificationByMaxProb(instance.getAttributes()));
+        }
     }
 }
