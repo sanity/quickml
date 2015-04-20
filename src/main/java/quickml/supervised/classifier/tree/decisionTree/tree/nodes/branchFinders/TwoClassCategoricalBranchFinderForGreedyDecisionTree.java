@@ -66,7 +66,7 @@ public class TwoClassCategoricalBranchFinderForGreedyDecisionTree<T extends Inst
             trueCounts = trueCounts.add(testValCounts);
             falseCounts = falseCounts.subtract(testValCounts);
 
-            if (!terminationConditions.isValidSplit(GroupStatistics ds1, GroupStatistics ds2)//new StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity(((int) trueCounts.getTotal()), (int) falseCounts.getTotal())))
+            if (!terminationConditions.isValidSplit(TermStatistics ds1, TermStatistics ds2)//new StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity(((int) trueCounts.getTotal()), (int) falseCounts.getTotal())))
                  continue;
 
              double thisScore = scorer.scoreSplit(trueCounts, falseCounts);//true score and false score

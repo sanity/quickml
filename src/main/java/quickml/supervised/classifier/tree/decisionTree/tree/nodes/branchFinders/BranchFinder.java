@@ -1,13 +1,9 @@
 package quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.tree.decisionTree.tree.DataForTheAssessmentOfSplitValidity;
-import quickml.supervised.classifier.tree.decisionTree.tree.StandardTerminationConditions;
-import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
+import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.AttributeStats;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
 
 import java.util.List;
 
@@ -15,25 +11,15 @@ import java.util.List;
  * Created by alexanderhawk on 3/24/15.
  */
 
-public abstract class BranchFinder<L, T extends InstanceWithAttributesMap<L>> {
-    protected final ImmutableList<String> candidateAttributes;
-    private AttributeIgnoringStrategy attributeIgnoringStrategy;
+public abstract class BranchFinder<GS extends TermStatistics> {
 
-
-    public BranchFinder(ImmutableList<String> candidateAttributes,AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        this.candidateAttributes = candidateAttributes;
-        this.attributeIgnoringStrategy = attributeIgnoringStrategy;
-    }
-
-    public Optional<? extends Branch> findBestBranch(Branch parent, List<T> trainingData) {
+    public Optional<? extends Branch> findBestBranch(Branch parent, List<AttributeStats<GS>> groupStatsByAttribute) {
         double bestScore = 0;
         Optional<? extends Branch> bestBranchOptional = Optional.absent();
 
-        for (String attribute : candidateAttributes) {
-            if (attributeIgnoringStrategy.ignoreAttribute(attribute,parent)) {
-                continue;
-            }
-            Optional<? extends Branch> thisBranchOptional = getBranch(parent, trainingData, attribute);
+        for (AttributeStats<GS> attributeStats : groupStatsByAttribute) {
+
+            Optional<? extends Branch> thisBranchOptional = getBranch(parent, attributeStats);
             if (thisBranchOptional.isPresent()) {
                 Branch thisBranch = thisBranchOptional.get();
                 if (thisBranch.score > bestScore) {
@@ -45,5 +31,5 @@ public abstract class BranchFinder<L, T extends InstanceWithAttributesMap<L>> {
         return bestBranchOptional;
     }
 
-    public abstract Optional<? extends Branch> getBranch(Branch parent, List<T> trainingData, String attribute);
+    public abstract Optional<? extends Branch> getBranch(Branch parent, AttributeStats<GS> attributeStats);
 }

@@ -2,18 +2,15 @@ package quickml.supervised.classifier.tree.decisionTree.tree;
 
 import com.google.common.base.Optional;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.BranchFinderBuilder;
 
 import java.util.Map;
 
 import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions.*;
-import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions.DATA_PROPERTIES_TRANSFORMER;
 
 /**
  * Created by alexanderhawk on 4/15/15.
  */
-public class ForestConfig <L, T extends InstanceWithAttributesMap<L>, GS extends GroupStatistics, Tr extends TreeConfig<L, T, GS, Tr >> {
+public class ForestConfig <L, T extends InstanceWithAttributesMap<L>, GS extends TermStatistics, Tr extends TreeConfig<L, T, GS, Tr >> {
     TreeConfig<L, T, GS, Tr> treeConfig;
     private int numTrees = 1;
     private Optional<Double> downSamplingTargetMinorityProportion = Optional.absent();

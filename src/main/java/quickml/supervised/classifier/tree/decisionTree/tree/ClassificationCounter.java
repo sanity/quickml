@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-public class ClassificationCounter extends GroupStatistics implements Serializable {
+public class ClassificationCounter extends TermStatistics implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private final ValueSummingMap<Object> counts = new ValueSummingMap<Object>();
 

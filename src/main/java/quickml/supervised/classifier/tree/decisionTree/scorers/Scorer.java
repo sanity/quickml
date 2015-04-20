@@ -1,12 +1,12 @@
 package quickml.supervised.classifier.tree.decisionTree.scorers;
 
 
-import quickml.supervised.classifier.tree.decisionTree.tree.GroupStatistics;
+import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
  */
-public abstract class Scorer<GS extends GroupStatistics> {
+public abstract class Scorer<GS extends TermStatistics> {
 	private double degreeOfGainRatioPenalty;
 	private double intrinsicValueOfAttribute;
 	private double unSplitScore;

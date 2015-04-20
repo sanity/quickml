@@ -3,7 +3,7 @@ package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.tree.decisionTree.tree.GroupStatistics;
+import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
 import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public abstract class Branch<GS extends GroupStatistics> extends Node {
+public abstract class Branch<GS extends TermStatistics> extends Node {
 	private static final long serialVersionUID = 8290012786245422175L;
 
 	public final String attribute;
