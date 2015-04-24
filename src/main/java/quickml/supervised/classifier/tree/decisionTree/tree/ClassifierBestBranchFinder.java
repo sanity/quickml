@@ -3,7 +3,7 @@ package quickml.supervised.classifier.tree.decisionTree.tree;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.AttributeAndClassificationProperties;
+import quickml.supervised.classifier.ClassifierDataProperties;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by alexanderhawk on 3/19/15.
  */
 public class ClassifierBestBranchFinder<T extends InstanceWithAttributesMap> extends BestBranchFinder<T>{
-    AttributeAndClassificationProperties attributeAndClassificationProperties;
+    ClassifierDataProperties classifierDataProperties;
     ImmutableMap<BranchType, ImmutableList<String>> attributesByType;
     boolean considerBooleanAttributes = false;
 
@@ -28,7 +28,7 @@ public class ClassifierBestBranchFinder<T extends InstanceWithAttributesMap> ext
 
     @Override
     public void surveyTheData(List<T> instances) {
-        attributeAndClassificationProperties = AttributeAndClassificationProperties.setDataProperties(instances);
+        classifierDataProperties = ClassifierDataProperties.createClassifierDataProperties(instances);
         TrainingDataSurveyor<T> trainingDataSurveyor = new TrainingDataSurveyor<T>(considerBooleanAttributes);
         attributesByType = trainingDataSurveyor.groupAttributesByType(instances);
         for (BranchType branchType : branchBuilders.keySet()) {
@@ -47,7 +47,7 @@ public class ClassifierBestBranchFinder<T extends InstanceWithAttributesMap> ext
             copiedBranchBuilders.put(key, this.branchBuilders.get(key).copy());
         }
         ClassifierBestBranchFinder<T> copy = new ClassifierBestBranchFinder<T>(copiedBranchBuilders, considerBooleanAttributes);
-        copy.attributeAndClassificationProperties = attributeAndClassificationProperties;
+        copy.classifierDataProperties = classifierDataProperties;
         copy.attributesByType = attributesByType;
         return copy;
     }

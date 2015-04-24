@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.tree.decisionTree.tree;
 
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.util.Map;
 
@@ -10,13 +11,14 @@ import java.util.Map;
 
 //options get rid of the class and
 
-    //isValidSplit, move to BranchFinderClass? Sure. Makes sense. except
-public interface TerminationConditions  <GS extends TermStatistics> {
+    //isInvalidSplit, move to BranchFinderClass? Sure. Makes sense. except
+public interface TerminationConditions  <TS extends TermStatsAndOperations<TS>> {
     //so should the BranchFinderBuildersGet their own termination conditions? Maybe.
-    boolean isValidSplit(GS groupStatistics);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
-    boolean canTryAddingChildren(Branch branch, GS gs);//Branch has score and depth info in itg
+    boolean isInvalidSplit(TS trueTermStats, TS falseTermStats);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
+    boolean canTryAddingChildren(Branch branch, TS ts);//Branch has score and depth info in itg
     double getMinScore();
     int getMaxDepth();
+    int getMinLeafInstances();
     void update(Map<String, Object> cfg);
     TerminationConditions copy();
 }

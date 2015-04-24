@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Leaf extends Node {
+public class Leaf extends Node implements Serializable {
     private static final long serialVersionUID = -5617660873196498754L;
 
     private static final AtomicLong guidCounter = new AtomicLong(0);
@@ -33,7 +33,7 @@ public class Leaf extends Node {
      */
     public final ClassificationCounter classificationCounts;
 
-    protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
+    protected transient volatile Map.Entry<Object, Double> bestClassificationEntry = null;
 
 
     public Leaf(Node parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
@@ -54,14 +54,14 @@ public class Leaf extends Node {
      * @return The most likely classification
      */
 
-    public Serializable getBestClassification() {
+    public Object getBestClassification() {
         return getBestClassificationEntry().getKey();
     }
 
-    protected synchronized Map.Entry<Serializable, Double> getBestClassificationEntry() {
+    protected synchronized Map.Entry<Object, Double> getBestClassificationEntry() {
         if (bestClassificationEntry != null) return bestClassificationEntry;
 
-        for (Map.Entry<Serializable, Double> e : classificationCounts.getCounts().entrySet()) {
+        for (Map.Entry<Object, Double> e : classificationCounts.getCounts().entrySet()) {
             if (bestClassificationEntry == null || e.getValue() > bestClassificationEntry.getValue()) {
                 bestClassificationEntry = e;
             }
@@ -94,7 +94,7 @@ public class Leaf extends Node {
     }
 
     @Override
-    protected void calcMeanDepth(final LeafDepthStats stats) {
+    public void calcMeanDepth(final LeafDepthStats stats) {
         stats.ttlDepth += depth * exampleCount;
         stats.ttlSamples += exampleCount;
     }
@@ -102,13 +102,13 @@ public class Leaf extends Node {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (Serializable key : getClassifications()) {
+        for (Object key : getClassifications()) {
             builder.append(key + "=" + this.getProbability(key) + " ");
         }
         return builder.toString();
     }
 
-    public double getProbability(Serializable classification) {
+    public double getProbability(Object classification) {
         final double totalCount = classificationCounts.getTotal();
         if (totalCount == 0) {
             throw new IllegalStateException("Trying to get a probability from a Leaf with no examples");
@@ -117,11 +117,11 @@ public class Leaf extends Node {
         return probability;
     }
 
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attribute) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attribute) {
         return getProbability(classification);
     }
 
-    public Set<Serializable> getClassifications() {
+    public Set<Object> getClassifications() {
         return classificationCounts.getCounts().keySet();
     }
 

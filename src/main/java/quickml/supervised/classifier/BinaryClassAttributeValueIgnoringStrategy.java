@@ -11,15 +11,15 @@ import java.util.Map;
  */
 public class BinaryClassAttributeValueIgnoringStrategy<T extends InstanceWithAttributesMap> implements AttributeValueIgnoringStrategy<ClassificationCounter> {
     private final int minOccurancesOfAttributeValue;
-    private final AttributeAndBinaryClassificationProperties<T> bcp;
+    private final BinaryClassifierDataProperties<T> bcp;
 
-    public BinaryClassAttributeValueIgnoringStrategy(AttributeAndBinaryClassificationProperties<T> bcp, final int minOccurancesOfAttributeValue) {
+    public BinaryClassAttributeValueIgnoringStrategy(BinaryClassifierDataProperties<T> bcp, final int minOccurancesOfAttributeValue) {
         this.bcp = bcp;
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
     }
 
-    public boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-        Map<Serializable, Double> counts = testValCounts.getCounts();
+    public boolean shouldWeIgnoreThisValue(final ClassificationCounter termStatistics) {
+        Map<Serializable, Double> counts = termStatistics.getCounts();
         if (counts.containsKey(bcp.minorityClassification) &&
                 counts.get(bcp.minorityClassification) > minOccurancesOfAttributeValue) {
             return false;

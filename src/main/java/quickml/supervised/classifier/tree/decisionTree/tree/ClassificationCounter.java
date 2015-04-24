@@ -4,20 +4,29 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatisticsOperations;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
 
-public class ClassificationCounter extends TermStatistics implements Serializable {
+public class ClassificationCounter extends TermStatsAndOperations<ClassificationCounter> implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private final ValueSummingMap<Object> counts = new ValueSummingMap<Object>();
 
-    public ClassificationCounter() {
+    public ClassificationCounter() {}
+
+    public ClassificationCounter(Object attrVal) {
+        super(attrVal);
+    }
+    public boolean isEmpty() {
+        return counts.isEmpty();
     }
 
     public ClassificationCounter(ClassificationCounter classificationCounter) {
+        super(classificationCounter.attrVal);
         this.counts.putAll(classificationCounter.counts);
     }
     public ClassificationCounter(HashMap<Object, ? extends Number> mapOfCounts) {
@@ -90,6 +99,7 @@ public class ClassificationCounter extends TermStatistics implements Serializabl
         return result;
     }
 
+    @Override
     public double getTotal() {
         return counts.getSumOfValues();
     }

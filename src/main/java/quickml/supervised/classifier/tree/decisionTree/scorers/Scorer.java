@@ -2,13 +2,17 @@ package quickml.supervised.classifier.tree.decisionTree.scorers;
 
 
 import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.AttributeStats;
+
+import java.util.List;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
  */
-public abstract class Scorer<GS extends TermStatistics> {
+public abstract class Scorer<TS extends TermStatistics> {
+	public static final double NO_SCORE = Double.MIN_VALUE;
 	private double degreeOfGainRatioPenalty;
-	private double intrinsicValueOfAttribute;
+	private double intrinsicValue;
 	private double unSplitScore;
 
 	/**
@@ -19,13 +23,25 @@ public abstract class Scorer<GS extends TermStatistics> {
 	 public Scorer(double degreeOfGainRatioPenalty) {
 		 this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
 	 }
-	 public abstract void setIntrinsicValue(double intrinsicValue);
-	 public abstract double scoreSplit(GS a, GS b);
-	 public abstract void setUnSplitScore(GS a); //internall call {scoreSplit(a, emptyDataSummurizer )};
+
+	  public void setIntrinsicValue(AttributeStats<? extends TermStatistics> attributeStats) {
+			 double intrinsicValue = 0;
+			 double attributeValProb = 0;
+
+			 for (TermStatistics termStatistics : attributeStats.getTermStats()) {
+				 attributeValProb = termStatistics.getTotal() / attributeStats.getAggregateStats().getTotal();//-insufficientDataInstances);
+				 intrinsicValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
+			 }
+
+			 this.intrinsicValue = intrinsicValue;
+		 }
+
+	 public abstract double scoreSplit(TS a, TS b);
+	 public abstract void setUnSplitScore(TS a); //internall call {scoreSplit(a, emptyDataSummurizer )};
 
 	 private double correctScoreForGainRatioPenalty(double uncorrectedScore) {
 		 /** call this method from score split only degreeOfGainRatioPenalty is non zero*/
-		 return uncorrectedScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (uncorrectedScore / intrinsicValueOfAttribute);
+		 return uncorrectedScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (uncorrectedScore / intrinsicValue);
 	 }
 
 }

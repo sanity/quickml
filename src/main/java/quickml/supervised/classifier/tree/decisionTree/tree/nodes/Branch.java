@@ -3,9 +3,11 @@ package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
 import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -13,48 +15,51 @@ import java.util.Map;
 import java.util.Set;
 
 
-public abstract class Branch<GS extends TermStatistics> extends Node {
+public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node implements Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
-
 	public final String attribute;
 	public Node trueChild, falseChild;
     //should put in node that implements: ModelWithIgnorableAttributes
     private double probabilityOfTrueChild;
-    public double score;
+    public double score = Scorer.NO_SCORE;
     public int depth;
-    public GS groupStatistics;
+    public TS termStatistics;
 
-	public Branch(Branch parent, final String attribute, double probabilityOfTrueChild, double score, GS groupStatistics) {
+	public Branch(Branch<TS> parent, final String attribute, double probabilityOfTrueChild, double score, TS termStatistics) {
 		super(parent);
         this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
         this.depth =  (parent!=null) ? this.depth = parent.depth + 1 : 0;
         this.score = score;
-        this.groupStatistics = groupStatistics;
+        this.termStatistics = termStatistics;
 	}
 
-	public abstract boolean decide(Map<String, Serializable> attributes);
+    public boolean isEmpty() {
+        return attribute.isEmpty();
+    }
+
+	public abstract boolean decide(Map<String, Object> attributes);
 
 	@Override
 	public int size() {
 		return 1 + trueChild.size() + falseChild.size();
 	}
 
-	public Predicate<Instance<AttributesMap, Serializable>> getInPredicate() {
-		return new Predicate<Instance<AttributesMap, Serializable>>() {
+	public Predicate<Instance<AttributesMap, Object>> getInPredicate() {
+		return new Predicate<Instance<AttributesMap, Object>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap, Serializable> input) {
+			public boolean apply(final Instance<AttributesMap, Object> input) {
 				return decide(input.getAttributes());
 			}
 		};
 	}
 
-	public Predicate<Instance<AttributesMap, Serializable>> getOutPredicate() {
-		return new Predicate<Instance<AttributesMap, Serializable>>() {
+	public Predicate<Instance<AttributesMap, Object>> getOutPredicate() {
+		return new Predicate<Instance<AttributesMap, Object>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap, Serializable> input) {
+			public boolean apply(final Instance<AttributesMap, Object> input) {
 				return !decide(input.getAttributes());
 			}
 		};
@@ -70,7 +75,7 @@ public abstract class Branch<GS extends TermStatistics> extends Node {
 	}
 
     @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
         //TODO[mk] - check with Alex
         if (attributesToIgnore.contains(this.attribute)) {
             return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
@@ -117,7 +122,7 @@ public abstract class Branch<GS extends TermStatistics> extends Node {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Branch branch = (Branch) o;
+        final Branch<TS> branch = (Branch<TS>) o;
 
         if (!attribute.equals(branch.attribute)) return false;
         if (!falseChild.equals(branch.falseChild)) return false;

@@ -19,9 +19,9 @@ public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
         this.considerBooleanAttributes = considerBooleanAttributes;
     }
 
-    public ImmutableMap<BranchType, ImmutableList<String>> groupAttributesByType(final List<T> trainingData) {
+    public Map<BranchType, Set<String>> groupAttributesByType(final List<T> trainingData) {
         Map<String, AttributeCharacteristics> attributeCharacteristics = getMapOfAttributesToAttributeCharacteristics(trainingData);
-        ImmutableMap<BranchType, ImmutableList<String>> attributesByType = groupByType(attributeCharacteristics);
+        Map<BranchType, Set<String>> attributesByType = groupByType(attributeCharacteristics);
         return attributesByType;
     }
 
@@ -45,12 +45,12 @@ public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
     }
 
 
-    private ImmutableMap<BranchType, ImmutableList<String>> groupByType(Map<String, AttributeCharacteristics> attributeCharacteristics) {
-        Map<BranchType, List<String>> attributesByType = Maps.newHashMap();
-        attributesByType.put(BranchType.CATEGORICAL, new ArrayList<String>());
-        attributesByType.put(BranchType.NUMERIC, new ArrayList<String>());
+    private Map<BranchType, Set<String>> groupByType(Map<String, AttributeCharacteristics> attributeCharacteristics) {
+        Map<BranchType, Set<String>> attributesByType = Maps.newHashMap();
+        attributesByType.put(BranchType.CATEGORICAL, new HashSet<String>());
+        attributesByType.put(BranchType.NUMERIC, new HashSet<String>());
         if (considerBooleanAttributes)
-            attributesByType.put(BranchType.BOOLEAN, new ArrayList<String>());
+            attributesByType.put(BranchType.BOOLEAN, new HashSet<String>());
 
         for(String attribute : attributeCharacteristics.keySet()) {
             if (attributeCharacteristics.get(attribute).isNumber) {
@@ -61,11 +61,7 @@ public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
                 attributesByType.get(BranchType.CATEGORICAL).add(attribute);
             }
         }
-        Map<BranchType, ImmutableList<String>> immutableListOfAttributesByType = new HashMap<>();
-        for (BranchType type : attributesByType.keySet()) {
-            immutableListOfAttributesByType.put(type, new ImmutableList.Builder<String>().addAll(attributesByType.get(type)).build());
-        }
-        return new ImmutableMap.Builder<BranchType, ImmutableList<String>>().putAll(immutableListOfAttributesByType).build();
+        return attributesByType;
     }
 
 

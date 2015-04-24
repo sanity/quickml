@@ -1,25 +1,23 @@
 package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 
 import com.google.common.collect.Sets;
-import quickml.supervised.classifier.tree.decisionTree.tree.Node;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-public final class CategoricalBranch extends Branch {
+public final class CategoricalBranch<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
 	private static final long serialVersionUID = -1723969623146234761L;
-	public final Set<Serializable> inSet;
+	public final Set<Object> inSet;
 
-	public CategoricalBranch(Node parent, final String attribute, final Set<Serializable> inSet, double probabilityOfTrueChild) {
-		super(parent, attribute, probabilityOfTrueChild);
+	public CategoricalBranch(Branch<TS> parent, final String attribute, final Set<Object> inSet, double probabilityOfTrueChild, double score, TS aggregateStats ) {
+		super(parent, attribute, probabilityOfTrueChild, score, aggregateStats);
 		this.inSet = Sets.newHashSet(inSet);
-
 	}
 
     @Override
-    public boolean decide(final Map<String, Serializable> attributes) {
-        Serializable attributeVal = attributes.get(attribute);
+    public boolean decide(final Map<String, Object> attributes) {
+        Object attributeVal = attributes.get(attribute);
         //missing values always go the way of the outset...which strangely seems to be most accurate
         return inSet.contains(attributeVal);
     }

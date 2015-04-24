@@ -2,6 +2,7 @@ package quickml.supervised.classifier.tree.decisionTree.tree;
 
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.DataProperties;
+import quickml.supervised.classifier.tree.treeConfig.TreeConfig;
 
 import java.util.List;
 

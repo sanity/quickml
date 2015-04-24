@@ -17,7 +17,7 @@ public abstract class Node implements Serializable {
         this.parent = parent;
     }
 
-    public abstract double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attribute);
+    public abstract double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attribute);
 
 	/**
 	 * Writes a textual representation of this tree to a PrintStream

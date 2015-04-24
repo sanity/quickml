@@ -1,6 +1,5 @@
 package quickml.data;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,17 +8,17 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 8/12/14.
  */
-public class PredictionMap implements Map<Serializable, Double>, Serializable{
+public class PredictionMap implements Map<Object, Double>{
 
-    private final Map<Serializable, Double> map;
+    private final Map<Object, Double> map;
     private final Double defaultValue = Double.valueOf(0);
 
-    public PredictionMap(Map<Serializable, Double> map) {
+    public PredictionMap(Map<Object, Double> map) {
         this.map = map;
     }
 
     public static PredictionMap newMap(){
-        return new PredictionMap(new HashMap<Serializable, Double>());
+        return new PredictionMap(new HashMap<Object, Double>());
     }
 
     @Override
@@ -49,7 +48,7 @@ public class PredictionMap implements Map<Serializable, Double>, Serializable{
     }
 
     @Override
-    public Double put(Serializable key, Double value) {
+    public Double put(Object key, Double value) {
         return map.put(key,value);
     }
 
@@ -59,7 +58,7 @@ public class PredictionMap implements Map<Serializable, Double>, Serializable{
     }
 
     @Override
-    public void putAll(Map<? extends Serializable, ? extends Double> m) {
+    public void putAll(Map<? extends Object, ? extends Double> m) {
         map.putAll(m);
     }
 
@@ -69,7 +68,7 @@ public class PredictionMap implements Map<Serializable, Double>, Serializable{
     }
 
     @Override
-    public Set<Serializable> keySet() {
+    public Set<Object> keySet() {
         return map.keySet();
     }
 
@@ -81,7 +80,7 @@ public class PredictionMap implements Map<Serializable, Double>, Serializable{
     }
 
     @Override
-    public Set<Entry<Serializable, Double>> entrySet() {
+    public Set<Entry<Object, Double>> entrySet() {
         return map.entrySet();
     }
 

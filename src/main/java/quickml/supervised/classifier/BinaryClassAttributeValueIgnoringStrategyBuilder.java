@@ -5,10 +5,10 @@ import quickml.supervised.classifier.tree.decisionTree.tree.AttributeValueIgnori
 import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 
 public class BinaryClassAttributeValueIgnoringStrategyBuilder<T extends InstanceWithAttributesMap> implements AttributeValueIgnoringStrategyBuilder<T, ClassificationCounter, BinaryClassAttributeValueIgnoringStrategy<T>> {
-    private AttributeAndBinaryClassificationProperties<T> bcp;
+    private BinaryClassifierDataProperties<T> bcp;
     private int minOccurancesOfAttributeValue;
 
-    public BinaryClassAttributeValueIgnoringStrategyBuilder<T> setBcp(AttributeAndBinaryClassificationProperties<T> bcp) {
+    public BinaryClassAttributeValueIgnoringStrategyBuilder<T> setBcp(BinaryClassifierDataProperties<T> bcp) {
         this.bcp = bcp;
         return this;
     }

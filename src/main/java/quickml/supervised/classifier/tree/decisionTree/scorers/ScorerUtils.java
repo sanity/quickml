@@ -14,7 +14,7 @@ public class ScorerUtils {
         double attributeValProb = 0;
 
         for (AttributeValueData attributeValueData : valuesWithCCs) {
-            ClassificationCounter classificationCounter = attributeValueData.classificationCounter;
+            ClassificationCounter classificationCounter = attributeValueData.termStatistics;
             attributeValProb = classificationCounter.getTotal() / (numTrainingExamples);//-insufficientDataInstances);
             informationValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
         }

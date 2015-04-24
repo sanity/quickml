@@ -1,21 +1,23 @@
 package quickml.supervised.classifier.tree.decisionTree.tree;
 
 import com.google.common.base.Optional;
-import quickml.supervised.classifier.tree.Tree;
+import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.classifier.DataProperties;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.BranchFinder;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class InitializedTreeConfig<GS extends TermStatistics, Tr extends Tree> {
+public class InitializedTreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataProperties> {
 //option here: if data properties only needed in service of intitializing the Attr. ignoring strategy, and the termination conditions, then only need d
     //in treeConfig...have a protected abstract method that initializes these objects we actually want to pass on, and in the constructor of the implementing class, we can initialize a field (the user doesn't
     //know about) we can create a data properties object that takes care of this for us.
 
 
-    public InitializedTreeConfig(TerminationConditions<GS> terminationConditions, Scorer scorer, int numTrees,
-                                 Iterable<BranchFinder<GS>> branchFinders, LeafBuilder<GS> leafBuilder, Optional<Bagging> bagging, TreeFactory<Tr> treeFactory
+    public InitializedTreeConfig(TerminationConditions<TS> terminationConditions, Scorer scorer,
+                                 Iterable<BranchFinder<TS>> branchFinders, LeafBuilder<TS> leafBuilder, Optional<Bagging> bagging, D dataProperties
 
                                  ) {
         this.scorer = scorer;
@@ -23,21 +25,21 @@ public class InitializedTreeConfig<GS extends TermStatistics, Tr extends Tree> {
         this.leafBuilder = leafBuilder;
         this.terminationConditions = terminationConditions;
         this.bagging = bagging;
-        this.treeFactory = treeFactory;
+        this.dataProperties = dataProperties;
     }
 
     private Scorer scorer;
     private TerminationConditions terminationConditions;
     private Optional<Bagging> bagging;
-    private TreeFactory<Tr> treeFactory;
-    private Iterable<BranchFinder<GS>> branchFinders;
-    private LeafBuilder<GS> leafBuilder;
+    private D dataProperties;
+    private Iterable<BranchFinder<TS>> branchFinders;
+    private LeafBuilder<TS> leafBuilder;
 
 
 
-    public TreeFactory<Tr> getTreeFactory() { return treeFactory; }
+    public D getDataProperties() { return dataProperties; }
 
-    public LeafBuilder<GS> getLeafBuilder() {
+    public LeafBuilder<TS> getLeafBuilder() {
         return leafBuilder;
     }
 
@@ -45,7 +47,7 @@ public class InitializedTreeConfig<GS extends TermStatistics, Tr extends Tree> {
         return scorer;
     }
 
-    public Iterable<BranchFinder<GS> >getBranchFinders(){
+    public Iterable<BranchFinder<TS> >getBranchFinders(){
         return branchFinders;
     }
 

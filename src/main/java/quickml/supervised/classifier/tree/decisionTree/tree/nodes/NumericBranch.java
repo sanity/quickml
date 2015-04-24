@@ -3,26 +3,25 @@ package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 
-import java.io.Serializable;
 import java.util.Map;
 
-public final class NumericBranch extends Branch {
+public final class NumericBranch extends Branch<ClassificationCounter> {
     private static final  Logger logger =  LoggerFactory.getLogger(NumericBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-	public NumericBranch(Node parent, final String attribute, final double threshold, double probabilityOfTrueChild) {
-		super(parent, attribute, probabilityOfTrueChild);
-		this.threshold = threshold;
-
-	}
+    public NumericBranch(Branch<ClassificationCounter> parent, String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics, double threshold) {
+        super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
+        this.threshold = threshold;
+    }
 
 	@Override
-	public boolean decide(final Map<String, Serializable> attributes) {
-        Serializable value = attributes.get(attribute);
+	public boolean decide(final Map<String, Object> attributes) {
+        Object value = attributes.get(attribute);
         if (value == null) value = Double.valueOf(0);
         else if (!(value instanceof Number)) {
             throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());

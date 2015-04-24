@@ -10,11 +10,11 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 8/26/14.
  */
-public class AttributesMap implements Map<String, Serializable>, Serializable {
+public class AttributesMap implements Map<String, Object>, Serializable {
 
-    private final Map<String, Serializable> map;
+    private final Map<String, Object> map;
 
-    public AttributesMap(Map<String, Serializable> map) {
+    public AttributesMap(Map<String, Object> map) {
         this.map = map;
     }
 
@@ -24,7 +24,7 @@ public class AttributesMap implements Map<String, Serializable>, Serializable {
 
 
     public static AttributesMap newHashMap() {
-        return new AttributesMap(new HashMap<String, Serializable>());
+        return new AttributesMap(new HashMap<String, Object>());
     }
 
     @Override
@@ -48,22 +48,22 @@ public class AttributesMap implements Map<String, Serializable>, Serializable {
     }
 
     @Override
-    public Serializable get(Object key) {
+    public Object get(Object key) {
         return map.get(key);
     }
 
     @Override
-    public Serializable put(String key, Serializable value) {
+    public Object put(String key, Object value) {
         return map.put(key, value);
     }
 
     @Override
-    public Serializable remove(Object key) {
+    public Object remove(Object key) {
         return map.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends Serializable> m) {
+    public void putAll(Map<? extends String, ? extends Object> m) {
         map.putAll(m);
     }
 
@@ -78,13 +78,13 @@ public class AttributesMap implements Map<String, Serializable>, Serializable {
     }
 
     @Override
-    public Collection<Serializable> values() {
-        Collection<Serializable> values = map.values();
+    public Collection<Object> values() {
+        Collection<Object> values = map.values();
         return values;
     }
 
     @Override
-    public Set<Entry<String, Serializable>> entrySet() {
+    public Set<Entry<String, Object>> entrySet() {
         return map.entrySet();
     }
 

@@ -1,10 +1,10 @@
 package quickml.supervised.classifier.tree.decisionTree.tree.nodes;
 
 import com.google.common.collect.ImmutableList;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.BinaryClassAttributeValueIgnoringStrategy;
 import quickml.supervised.classifier.BinaryClassAttributeValueIgnoringStrategyBuilder;
-import quickml.supervised.classifier.AttributeAndBinaryClassificationProperties;
+import quickml.supervised.classifier.BinaryClassifierDataProperties;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.BranchType;
 import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
@@ -20,40 +20,40 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public class TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T extends InstanceWithAttributesMap> implements BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity>{
+public class TwoClassCategoricalBranchFinderBuilder<I extends ClassifierInstance> implements BranchFinderBuilder<ClassificationCounter>{
 
-    private BinaryClassAttributeValueIgnoringStrategyBuilder<T> attributeValueIgnoringStrategyBuilder;
+    private BinaryClassAttributeValueIgnoringStrategyBuilder<I> attributeValueIgnoringStrategyBuilder;
     private AttributeIgnoringStrategy attributeIgnoringStrategy;
     private Scorer<ClassificationCounter> scorer;
     private int minLeafInstances;//should be termination condition and should be set by the data properties transformer
 
 
 
-    public TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
+    public TwoClassCategoricalBranchFinderBuilder<I> attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
         return this;
     }
 
 
-    public TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> scorer(Scorer<ClassificationCounter> scorer) {
+    public TwoClassCategoricalBranchFinderBuilder<I> scorer(Scorer<ClassificationCounter> scorer) {
         this.scorer = scorer;
         return this;
     }
 
-    public TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> minLeafInstances(int minLeafInstances) {
+    public TwoClassCategoricalBranchFinderBuilder<I> minLeafInstances(int minLeafInstances) {
         this.minLeafInstances = minLeafInstances;
         return this;
     }
 
-    public TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> attributeValueIgnoringStrategyBuilder(BinaryClassAttributeValueIgnoringStrategyBuilder<T> attributeValueIgnoringStrategyBuilder) {
+    public TwoClassCategoricalBranchFinderBuilder<I> attributeValueIgnoringStrategyBuilder(BinaryClassAttributeValueIgnoringStrategyBuilder<I> attributeValueIgnoringStrategyBuilder) {
         this.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder;
         return this;
     }
 
 
     @Override
-    public BranchFinderBuilder<T, AttributeAndBinaryClassificationProperties<T>, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> copy() {
-        TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T> copy = new TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T>();
+    public BranchFinderBuilder<I, BinaryClassifierDataProperties<I>, StandardTerminationConditions.StandardDataForTheAssessmentOfSplitValidity> copy() {
+        TwoClassCategoricalBranchFinderBuilder<I> copy = new TwoClassCategoricalBranchFinderBuilder<I>();
         copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
         copy.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder.copy();
         copy.scorer = scorer;        //scorer should be set in the cofig builder if it is null here.
@@ -66,16 +66,16 @@ public class TwoClassCategoricalBranchFinderBuilderForGreedyDecisionTree<T exten
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
             attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY);
         if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER))
-            attributeValueIgnoringStrategyBuilder= (BinaryClassAttributeValueIgnoringStrategyBuilder<T>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER);
+            attributeValueIgnoringStrategyBuilder= (BinaryClassAttributeValueIgnoringStrategyBuilder<I>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER);
         if (cfg.containsKey(SCORER))
             scorer = (Scorer<ClassificationCounter>) cfg.get(SCORER);
     }
 
     @Override
-    public BranchFinder<T> buildBranchFinder(AttributeAndBinaryClassificationProperties<T> bcp, StandardTerminationConditions<T> terminationConditions) {
-        BinaryClassAttributeValueIgnoringStrategy<T> binaryClassAttributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.setBcp(bcp).createAttributeValueIgnoringStrategy();
+    public BranchFinder<I> buildBranchFinder(BinaryClassifierDataProperties<I> bcp, StandardTerminationConditions<I> terminationConditions) {
+        BinaryClassAttributeValueIgnoringStrategy<I> binaryClassAttributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.setBcp(bcp).createAttributeValueIgnoringStrategy();
         ImmutableList<String> candidatetAttributes = bcp.getCandidateAttributesByBranchType().get(BranchType.CATEGORICAL);
-        BranchFinder<T> branchFinder =
+        BranchFinder<I> branchFinder =
                 new TwoClassCategoricalBranchFinderForGreedyDecisionTree<>(binaryClassAttributeValueIgnoringStrategy,attributeIgnoringStrategy, scorer, candidatetAttributes, terminationConditions);
         return branchFinder;
     }

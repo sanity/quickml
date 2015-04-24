@@ -45,19 +45,19 @@ public class AttributeAndClassificationPropertiesTest extends TestCase {
     @Test
     public void testBinaryClassificationProperties() throws Exception {
         setup();
-        AttributeAndBinaryClassificationProperties attributeAndBinaryClassificationProperties = (AttributeAndBinaryClassificationProperties) AttributeAndClassificationProperties.setDataProperties(binaryInstances);
-        org.junit.Assert.assertTrue(attributeAndBinaryClassificationProperties.classificationsAreBinary());
+        BinaryClassifierDataProperties binaryClassifierDataProperties = (BinaryClassifierDataProperties) ClassifierDataProperties.createClassifierDataProperties(binaryInstances);
+        org.junit.Assert.assertTrue(binaryClassifierDataProperties.classificationsAreBinary());
 
 
-        org.junit.Assert.assertEquals((int) attributeAndBinaryClassificationProperties.majorityToMinorityRatio, 1);
-        org.junit.Assert.assertTrue(attributeAndBinaryClassificationProperties.classificationsAreBinary());
-        org.junit.Assert.assertTrue(attributeAndBinaryClassificationProperties.majorityClassification!= attributeAndBinaryClassificationProperties.minorityClassification);
+        org.junit.Assert.assertEquals((int) binaryClassifierDataProperties.majorityToMinorityRatio, 1);
+        org.junit.Assert.assertTrue(binaryClassifierDataProperties.classificationsAreBinary());
+        org.junit.Assert.assertTrue(binaryClassifierDataProperties.majorityClassification!= binaryClassifierDataProperties.minorityClassification);
 
     }
     @Test
     public void testGetClassificationsAndCounts() throws Exception {
         setup();
-        AttributeAndClassificationProperties cp = AttributeAndClassificationProperties.setDataProperties(nonBinaryInstances);
+        ClassifierDataProperties cp = ClassifierDataProperties.createClassifierDataProperties(nonBinaryInstances);
         HashMap<Serializable, Long> classificationsAndCounts = cp.getClassificationsAndCounts();
         org.junit.Assert.assertEquals(classificationsAndCounts.size(), 3);
         org.junit.Assert.assertEquals(classificationsAndCounts.get(2.0), Long.valueOf(3L));
