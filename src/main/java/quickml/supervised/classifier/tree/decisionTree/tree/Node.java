@@ -2,11 +2,13 @@ package quickml.supervised.classifier.tree.decisionTree.tree;
 
 
 import quickml.data.AttributesMap;
+import quickml.supervised.classifier.tree.Leaf;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.io.Serializable;
 import java.util.Set;
 
-public abstract class Node implements Serializable {
+public abstract class Node<TS extends TermStatsAndOperations<TS>> implements Serializable {
     private static final long serialVersionUID = -8713974861744567620L;
 
     public abstract void dump(int indent, Appendable ap);
@@ -34,7 +36,7 @@ public abstract class Node implements Serializable {
 	 * @param attributes
 	 * @return
 	 */
-	public abstract DTLeaf getLeaf(AttributesMap attributes);
+	public abstract Leaf<TS> getLeaf(AttributesMap attributes);
 
 	/**
 	 * Return the mean depth of leaves in the tree. A lower number generally

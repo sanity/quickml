@@ -5,10 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.Classifier;
+import quickml.supervised.classifier.DataProperties;
 import quickml.supervised.classifier.tree.DecisionTree;
+import quickml.supervised.classifier.tree.Tree;
 import quickml.supervised.classifier.tree.TreeBuilder;
 import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -27,7 +29,10 @@ import java.util.concurrent.Future;
  * Time: 4:18 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements PredictiveModelBuilder<Classifier, T> {
+//what am i promising with generics when i say implements <Classifier, instance type>.  I am promising that the methods of this class will fulfill the contract of what ever uses the generic type.
+// meaning, the return types of interface methods can be more specific...but argurment types of interface methods must be written (in the implementer) as exactly what is in the interface
+
+public class RandomForestBuilder<L, I extends InstanceWithAttributesMap<L>, TS extends TermStatsAndOperations<TS>, TR extends Tree, D extends DataProperties> implements PredictiveModelBuilder<RandomDecisionForest<TR>, I> {
 
     public static final String NUM_TREES = "numTrees";
 
@@ -63,7 +68,7 @@ public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements
     }
 
     @Override
-    public RandomForest buildPredictiveModel(Iterable<T> trainingData) {
+    public RandomDecisionForest buildPredictiveModel(Iterable<T> trainingData) {
         executorService = Executors.newFixedThreadPool(executorThreadCount);
         logger.info("Building random forest with {} trees", numTrees);
 
@@ -81,7 +86,7 @@ public class RandomForestBuilder<T extends InstanceWithAttributesMap> implements
         for (DecisionTree decisionTree : decisionTrees) {
             classifications.addAll(decisionTree.getClassifications());
         }
-        return new RandomForest(decisionTrees, classifications);
+        return new RandomDecisionForest(decisionTrees, classifications);
     }
 
     private Future<DecisionTree> submitTreeBuild(final Iterable<T> trainingData, final int treeIndex) {

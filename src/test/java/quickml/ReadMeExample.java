@@ -6,7 +6,7 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.tree.DecisionTree;
 import quickml.supervised.classifier.tree.TreeBuilder;
 import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.classifier.randomForest.RandomForest;
+import quickml.supervised.classifier.randomForest.RandomDecisionForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
@@ -76,13 +76,13 @@ public class ReadMeExample {
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
             RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
                 .numTrees(50);
-            RandomForest randomForest = randomForestBuilder.buildPredictiveModel(instances);
+            RandomDecisionForest randomDecisionForest = randomForestBuilder.buildPredictiveModel(instances);
 
             attributes = AttributesMap.newHashMap() ;
             attributes.put("height",62);
             attributes.put("weight", 201);
             attributes.put("gender", "female");
-            Serializable classification = randomForest.getClassificationByMaxProb(attributes);
+            Serializable classification = randomDecisionForest.getClassificationByMaxProb(attributes);
             System.out.println("Assigned class: " + classification); 
         
         }

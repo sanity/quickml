@@ -17,7 +17,7 @@ import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.tree.DecisionTree;
 import quickml.supervised.classifier.tree.TreeBuilder;
 import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.randomForest.RandomForest;
+import quickml.supervised.classifier.randomForest.RandomDecisionForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
@@ -79,8 +79,8 @@ public class DownsamplingClassifierBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(downsamplingClassifier);
 
-        RandomForest randomForest = (RandomForest) downsamplingClassifier.wrappedClassifier;
-        final List<DecisionTree> decisionTrees = randomForest.decisionTrees;
+        RandomDecisionForest randomDecisionForest = (RandomDecisionForest) downsamplingClassifier.wrappedClassifier;
+        final List<DecisionTree> decisionTrees = randomDecisionForest.decisionTrees;
         final int treeSize = decisionTrees.size();
         final int firstTreeNodeSize = decisionTrees.get(0).root.size();
         org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");

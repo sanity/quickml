@@ -5,7 +5,7 @@ import quickml.supervised.classifier.tree.DecisionTree;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
-import quickml.supervised.classifier.randomForest.RandomForest;
+import quickml.supervised.classifier.randomForest.RandomDecisionForest;
 
 import java.io.*;
 import java.util.*;
@@ -13,17 +13,17 @@ import java.util.*;
 
 public class RandomForestDumper {
 
-    public void summarizeForest(PrintStream out, RandomForest randomForest) {
-        summarizeModel(out, randomForest);
+    public void summarizeForest(PrintStream out, RandomDecisionForest randomDecisionForest) {
+        summarizeModel(out, randomDecisionForest);
     }
 
     public void summarizeForest(PrintStream out, String file) {
-        SerializationUtility<RandomForest> serializationUtility = new SerializationUtility<>();
-        RandomForest randomForest = serializationUtility.loadObjectFromGZIPFile(file);
-        summarizeModel(out, randomForest);
+        SerializationUtility<RandomDecisionForest> serializationUtility = new SerializationUtility<>();
+        RandomDecisionForest randomDecisionForest = serializationUtility.loadObjectFromGZIPFile(file);
+        summarizeModel(out, randomDecisionForest);
     }
 
-    public void summarizeModel(PrintStream out, RandomForest forest) {
+    public void summarizeModel(PrintStream out, RandomDecisionForest forest) {
 
         List<TreeSummary> summaries = new ArrayList<>();
         for (DecisionTree t : forest.decisionTrees) {

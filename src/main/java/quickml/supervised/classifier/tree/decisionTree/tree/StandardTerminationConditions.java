@@ -14,6 +14,30 @@ import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions
  * Created by alexanderhawk on 4/4/15.
  */
 public class StandardTerminationConditions implements TerminationConditions<ClassificationCounter> {
+    private double minScore=0;
+    private int maxDepth = Integer.MAX_VALUE;
+    private int minLeafInstances = 0;
+
+    public StandardTerminationConditions(double minScore, int maxDepth, int minLeafInstances) {
+        this.minScore = minScore;
+        this.maxDepth = maxDepth;
+        this.minLeafInstances = minLeafInstances;
+    }
+
+    public StandardTerminationConditions() {}
+
+    public double getMinScore() {
+        return minScore;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public int getMinLeafInstances() {
+        return minLeafInstances;
+    }
+
     public StandardTerminationConditions minScore(double minScore) {
         this.minScore = minScore;
         return this;
@@ -30,27 +54,6 @@ public class StandardTerminationConditions implements TerminationConditions<Clas
         return this;
     }
 
-    private double minScore=0;
-    private int maxDepth = Integer.MAX_VALUE;
-    private int minLeafInstances = 0;
-
-    public StandardTerminationConditions(double minScore, int maxDepth, int minLeafInstances) {
-        this.minScore = minScore;
-        this.maxDepth = maxDepth;
-        this.minLeafInstances = minLeafInstances;
-    }
-
-    public double getMinScore() {
-        return minScore;
-    }
-
-    public int getMaxDepth() {
-        return maxDepth;
-    }
-
-    public int getMinLeafInstances() {
-        return minLeafInstances;
-    }
 
     @Override
     public boolean isInvalidSplit(ClassificationCounter trueSet, ClassificationCounter falseSet) {

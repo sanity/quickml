@@ -32,18 +32,18 @@ public class RandomForestBuilderTest {
         final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
         final RandomForestBuilder rfb = new RandomForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
-        final RandomForest randomForest = rfb.buildPredictiveModel(instances);
+        final RandomDecisionForest randomDecisionForest = rfb.buildPredictiveModel(instances);
 
-        TreeBuilderTestUtils.serializeDeserialize(randomForest);
+        TreeBuilderTestUtils.serializeDeserialize(randomDecisionForest);
 
-        final List<DecisionTree> decisionTrees = randomForest.decisionTrees;
+        final List<DecisionTree> decisionTrees = randomDecisionForest.decisionTrees;
         final int treeSize = decisionTrees.size();
         Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this root should take far less than 20 seconds");
 
         final AttributesMap testAttributes = instances.get(0).getAttributes();
-        for (Map.Entry<Serializable, Double> entry : randomForest.predict(testAttributes).entrySet()) {
-            Assert.assertEquals(entry.getValue(), randomForest.getProbability(testAttributes, entry.getKey()));
+        for (Map.Entry<Serializable, Double> entry : randomDecisionForest.predict(testAttributes).entrySet()) {
+            Assert.assertEquals(entry.getValue(), randomDecisionForest.getProbability(testAttributes, entry.getKey()));
         }
     }
 
@@ -58,11 +58,11 @@ public class RandomForestBuilderTest {
                 .maxDepth(10).numSamplesForComputingNumericSplitPoints(instancesTrain.size());
         final RandomForestBuilder<InstanceWithAttributesMap> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
         MapUtils.random.setSeed(1l);
-        final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+        final RandomDecisionForest randomDecisionForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
 
-        Node root1 = randomForest1.decisionTrees.get(0).root;
-        Node root2 = randomForest1.decisionTrees.get(1).root;
+        Node root1 = randomDecisionForest1.decisionTrees.get(0).root;
+        Node root2 = randomDecisionForest1.decisionTrees.get(1).root;
         traverseTree(root1, root2);
     }
 
@@ -114,19 +114,19 @@ public class RandomForestBuilderTest {
         final List<InstanceWithAttributesMap> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
         final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(instancesTrain.size()));
         MapUtils.random.setSeed(1l);
-        final RandomForest randomForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+        final RandomDecisionForest randomDecisionForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);
-        final RandomForest randomForest2 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
+        final RandomDecisionForest randomDecisionForest2 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
-        Assert.assertTrue(randomForest1.decisionTrees.size() == randomForest2.decisionTrees.size(), "Deterministic Random Forests must have same number of trees");
-        for (int i = 0; i < randomForest1.decisionTrees.size(); i++) {
-            Assert.assertTrue(randomForest1.decisionTrees.get(i).root.size() == randomForest2.decisionTrees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
+        Assert.assertTrue(randomDecisionForest1.decisionTrees.size() == randomDecisionForest2.decisionTrees.size(), "Deterministic Random Forests must have same number of trees");
+        for (int i = 0; i < randomDecisionForest1.decisionTrees.size(); i++) {
+            Assert.assertTrue(randomDecisionForest1.decisionTrees.get(i).root.size() == randomDecisionForest2.decisionTrees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
         }
 
         final List<InstanceWithAttributesMap> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (InstanceWithAttributesMap instance : instancesTest) {
-            PredictionMap map1 = randomForest1.predict(instance.getAttributes());
-            PredictionMap map2 = randomForest2.predict(instance.getAttributes());
+            PredictionMap map1 = randomDecisionForest1.predict(instance.getAttributes());
+            PredictionMap map2 = randomDecisionForest2.predict(instance.getAttributes());
             Assert.assertTrue(map1.equals(map2), "Deterministic Decision Trees must have equal classifications");
         }
     }

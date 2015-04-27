@@ -16,7 +16,10 @@ import java.util.List;
 public class DecisionTreeConfigTest extends TestCase {
     //limitations: setting ordinalSplits, setting split propert
 //baagging should be true or false and ovverloaded with an option to pass in bagging object
-    DecisionTreeConfig decisionTreeConfig = new DecisionTreeConfig().bagging(false).scorer(new GiniImpurityScorer()).terminationConditions(new StandardTerminationConditions(0, 10, 10));
+    DecisionTreeConfig decisionTreeConfig = new DecisionTreeConfig().
+            bagging(false).
+            scorer(new GiniImpurityScorer()).
+            terminationConditions(new StandardTerminationConditions().maxDepth(10).minLeafInstances(10).minScore(0.0000001));
     DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>(decisionTreeConfig);
     List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances()).subList(0, 1000);
     DecisionTree decisionTree = decisionTreeBuilder.buildPredictiveModel(instances);
