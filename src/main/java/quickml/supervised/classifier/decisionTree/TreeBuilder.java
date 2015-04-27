@@ -518,12 +518,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private double getIntrinsicValueOfNumericAttribute() {
         double informationValue = 0;
         double attributeValProb = 1.0/ordinalTestSpilts;
-
-//        for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithCCs) {
-//            ClassificationCounter classificationCounter = attributeValueWithClassificationCounter.classificationCounter;
-//            attributeValProb = classificationCounter.getTotal() / (numTrainingExamples);//-insufficientDataInstances);
             informationValue -= Math.log(attributeValProb) / Math.log(2);//factor of 1.0/ordinalTestSplits * ordinalTestSplits cancels
-       //}
 
         return informationValue;
     }
