@@ -38,7 +38,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final String IGNORE_ATTR_PROB = "ignoreAttributeAtNodeProbability";
     public static final String ORDINAL_TEST_SPLITS = "ordinalTestSpilts";
     public static final int SMALL_TRAINING_SET_LIMIT = 9;
-    public static final int RESERVOIR_SIZE = 50;
+    public static final int RESERVOIR_SIZE = 100;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
 
@@ -515,6 +515,19 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return informationValue;
     }
 
+    private double getIntrinsicValueOfNumericAttribute() {
+        double informationValue = 0;
+        double attributeValProb = 1.0/ordinalTestSpilts;
+
+//        for (AttributeValueWithClassificationCounter attributeValueWithClassificationCounter : valuesWithCCs) {
+//            ClassificationCounter classificationCounter = attributeValueWithClassificationCounter.classificationCounter;
+//            attributeValProb = classificationCounter.getTotal() / (numTrainingExamples);//-insufficientDataInstances);
+            informationValue -= Math.log(attributeValProb) / Math.log(2);//factor of 1.0/ordinalTestSplits * ordinalTestSplits cancels
+       //}
+
+        return informationValue;
+    }
+
     private Pair<? extends Branch, Double> createNClassCategoricalNode(Node parent, final String attribute,
                                                                        final Iterable<T> instances) {
 
@@ -681,7 +694,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         if (bestScore == 0) {
             return null;
         }
-        return Pair.with(new NumericBranch(parent, attribute, bestThreshold, probabilityOfBeingInInset), bestScore);
+        double penalizedBestScore = bestScore/getIntrinsicValueOfNumericAttribute();
+        return Pair.with(new NumericBranch(parent, attribute, bestThreshold, probabilityOfBeingInInset), penalizedBestScore);
     }
 
     public static class AttributeCharacteristics {
