@@ -22,11 +22,11 @@ import java.util.Set;
  * Created by alexanderhawk on 3/20/15.
  */
 public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataProperties> {  //specifically Tr must be of the same type as TreeConfig
-    private Scorer<TS> scorer;
-    private TerminationConditions<TS> terminationConditions;
-    private List<BranchFinderBuilder<TS, D>> branchFinderBuilders = Lists.newArrayList();
-    private LeafBuilder<TS> leafBuilder;
-    private Optional<Bagging> bagging;
+    protected Scorer<TS> scorer;
+    protected TerminationConditions<TS> terminationConditions;
+    protected List<BranchFinderBuilder<TS, D>> branchFinderBuilders = Lists.newArrayList();
+    protected LeafBuilder<TS> leafBuilder;
+    protected Optional<? extends Bagging> bagging;
 
     /*
     private int attributeValueObservationsThreshold = 0;  //goes in branchbuilder
@@ -45,7 +45,7 @@ public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataPro
         return branchTypes;
     }
 
-    public List<BranchFinderBuilder<TS, D>> getBranchFinderBuilders() {
+    public List<? extends BranchFinderBuilder<TS, D>> getBranchFinderBuilders() {
         return branchFinderBuilders;
     }
 
@@ -71,14 +71,25 @@ public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataPro
         return this;
     }
 
+    public TreeConfig<TS, D>  bagging(boolean bagging) {
+        this.bagging = Optional.of(new StationaryBagging());
+        return this;
+    }
+
     public TreeConfig<TS, D> scorer(Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
-    public TreeConfig<TS, D>  BranchFinderBuilders(BranchFinderBuilder<TS, D>... branchFinderFactories ) {
+    public TreeConfig<TS, D> branchFinderBuilders(BranchFinderBuilder<TS, D>... branchFinderFactories) {
         Preconditions.checkArgument(branchFinderFactories.length > 0, "must have at least one branch builder");
         this.branchFinderBuilders = Lists.newArrayList(branchFinderFactories);
+        return this;
+    }
+
+
+    public TreeConfig<TS, D> terminationConditions(TerminationConditions<TS> terminationConditions) {
+        this.terminationConditions = terminationConditions;
         return this;
     }
 

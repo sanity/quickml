@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.classifier.tree.Leaf;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,13 +12,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Leaf extends Node implements Serializable {
+public class DTLeaf extends Node implements Leaf<ClassificationCounter>, Serializable {
     private static final long serialVersionUID = -5617660873196498754L;
 
     private static final AtomicLong guidCounter = new AtomicLong(0);
 
     public final long guid;
 
+    public ClassificationCounter getTermStats() {
+        return classificationCounts;
+    }
     /**
      * How deep in the tree is this label? A lower number typically indicates a
      * more confident getBestClassification.
@@ -36,12 +40,12 @@ public class Leaf extends Node implements Serializable {
     protected transient volatile Map.Entry<Object, Double> bestClassificationEntry = null;
 
 
-    public Leaf(Node parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
+    public DTLeaf(Node parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
     }
 
-    public Leaf(Node parent, final ClassificationCounter classificationCounts, final int depth) {
+    public DTLeaf(Node parent, final ClassificationCounter classificationCounts, final int depth) {
         super(parent);
         guid = guidCounter.incrementAndGet();
         this.classificationCounts = classificationCounts;
@@ -84,7 +88,7 @@ public class Leaf extends Node implements Serializable {
     }
 
     @Override
-    public Leaf getLeaf(final AttributesMap attributes) {
+    public DTLeaf getLeaf(final AttributesMap attributes) {
         return this;
     }
 
@@ -130,11 +134,11 @@ public class Leaf extends Node implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Leaf leaf = (Leaf) o;
+        final DTLeaf DTLeaf = (DTLeaf) o;
 
-        if (depth != leaf.depth) return false;
-        if (Double.compare(leaf.exampleCount, exampleCount) != 0) return false;
-        if (!classificationCounts.equals(leaf.classificationCounts)) return false;
+        if (depth != DTLeaf.depth) return false;
+        if (Double.compare(DTLeaf.exampleCount, exampleCount) != 0) return false;
+        if (!classificationCounts.equals(DTLeaf.classificationCounts)) return false;
 
         return true;
     }

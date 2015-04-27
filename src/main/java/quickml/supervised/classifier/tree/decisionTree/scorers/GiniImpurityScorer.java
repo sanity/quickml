@@ -8,19 +8,26 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 6/24/14.
  */
-public class GiniImpurityScorer implements Scorer{
+public class GiniImpurityScorer implements Scorer<ClassificationCounter>{
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
         ClassificationCounter parent = ClassificationCounter.merge(a, b);
-        double parentGiniIndex = getGiniIndex(parent);
         double aGiniIndex = getGiniIndex(a) * a.getTotal() / parent.getTotal() ;
         double bGiniIndex = getGiniIndex(b) * b.getTotal() / parent.getTotal();
-        return parentGiniIndex - aGiniIndex - bGiniIndex;
+        double score =  unSplitScore - aGiniIndex - bGiniIndex;
+        //TODO: make this call only when the best split for a particular attribute is found...as it is redundant.
+        return correctScoreForGainRatioPenalty(score);
+    }
+
+    @Override
+    public void setUnSplitScore(ClassificationCounter a) {
+        unSplitScore = getGiniIndex(a);
+
     }
 
     private double getGiniIndex(ClassificationCounter cc) {
         double sum = 0.0d;
-        for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
+        for (Map.Entry<Object, Double> e : cc.getCounts().entrySet()) {
             double error = (cc.getTotal() > 0) ? e.getValue() / cc.getTotal() : 0;
             sum += error * error;
         }

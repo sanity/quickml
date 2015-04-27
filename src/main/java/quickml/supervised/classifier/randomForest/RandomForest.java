@@ -8,7 +8,7 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.tree.DecisionTree;
-import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
+import quickml.supervised.classifier.tree.decisionTree.tree.DTLeaf;
 
 import java.io.Serializable;
 import java.util.*;
@@ -131,14 +131,14 @@ public class RandomForest extends AbstractClassifier {
     public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (DecisionTree decisionTree : decisionTrees) {
-            Leaf leaf = decisionTree.root.getLeaf(attributes);
-            for (Serializable classification : leaf.getClassifications()) {
+            DTLeaf DTLeaf = decisionTree.root.getLeaf(attributes);
+            for (Serializable classification : DTLeaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {
                     ttlProb = new AtomicDouble(0);
                     probTotals.put(classification, ttlProb);
                 }
-                ttlProb.addAndGet(leaf.getProbability(classification));
+                ttlProb.addAndGet(DTLeaf.getProbability(classification));
             }
         }
         Serializable bestClassification = null;

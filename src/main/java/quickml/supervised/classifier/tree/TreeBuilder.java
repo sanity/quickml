@@ -96,7 +96,7 @@ public abstract class TreeBuilder<L, I extends InstanceWithAttributesMap<L>, TS 
         return !parent.isEmpty() ? parent.termStatistics : aggregateStatistics.getAggregateStats(trainingData);
     }
 
-    private Leaf getLeaf(Branch<TS> parent, TS aggregateStats, InitializedTreeConfig<TS, D> initializedTreeConfig) {
+    private DTLeaf getLeaf(Branch<TS> parent, TS aggregateStats, InitializedTreeConfig<TS, D> initializedTreeConfig) {
         return initializedTreeConfig.getLeafBuilder().buildLeaf(parent, aggregateStats);
     }
 

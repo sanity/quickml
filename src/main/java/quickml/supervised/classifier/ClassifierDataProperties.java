@@ -56,10 +56,6 @@ public class ClassifierDataProperties extends DataProperties{
         return Sets.newHashSet(classificationsAndCounts.keySet());
     }
 
-    public Map<BranchType, Set<String>> getCandidateAttributesByBranchType() {
-        return candidateAttributesByBranchType;
-    }
-
     public boolean classificationsAreBinary() {
         return classificationsAndCounts.size() == 2;
     }

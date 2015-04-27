@@ -14,6 +14,22 @@ import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions
  * Created by alexanderhawk on 4/4/15.
  */
 public class StandardTerminationConditions implements TerminationConditions<ClassificationCounter> {
+    public StandardTerminationConditions minScore(double minScore) {
+        this.minScore = minScore;
+        return this;
+    }
+
+    public StandardTerminationConditions maxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+        return this;
+
+    }
+
+    public StandardTerminationConditions minLeafInstances(int minLeafInstances) {
+        this.minLeafInstances = minLeafInstances;
+        return this;
+    }
+
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;

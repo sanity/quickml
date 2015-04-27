@@ -100,11 +100,11 @@ public class RandomForestBuilderTest {
 
             Assert.assertEquals(threshold1, threshold2);
         }
-        else if (node0 instanceof Leaf) {
-            Leaf leaf1 = (Leaf)node0;
-            Leaf leaf2 = (Leaf)node1;
-            double posProb1 = leaf1.getProbability(1.0);
-            double posProb2= leaf2.getProbability(1.0);
+        else if (node0 instanceof DTLeaf) {
+            DTLeaf DTLeaf1 = (DTLeaf)node0;
+            DTLeaf DTLeaf2 = (DTLeaf)node1;
+            double posProb1 = DTLeaf1.getProbability(1.0);
+            double posProb2= DTLeaf2.getProbability(1.0);
             Assert.assertEquals(posProb1, posProb2);
         }
     }

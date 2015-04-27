@@ -1,28 +1,27 @@
 package quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders;
 
 import quickml.supervised.classifier.AttributeValueIgnoringStrategy;
+import quickml.supervised.classifier.BinaryClassAttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.classifier.DataProperties;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
-import quickml.supervised.classifier.tree.decisionTree.tree.AttributeValueIgnoringStrategyBuilder;
-import quickml.supervised.classifier.tree.decisionTree.tree.BranchType;
-import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
-import quickml.supervised.classifier.tree.decisionTree.tree.TerminationConditions;
+import quickml.supervised.classifier.tree.decisionTree.tree.*;
 import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static quickml.supervised.classifier.tree.decisionTree.tree.ForestOptions.*;
+
 /**
  * Created by alexanderhawk on 3/19/15.
  */
 public abstract class BranchFinderBuilder<TS extends TermStatsAndOperations<TS>, D extends DataProperties> {
-    private TerminationConditions<TS> terminationConditions;
-    private Scorer<TS> scorer;
-    private AttributeIgnoringStrategy attributeIgnoringStrategy;
-    private AttributeValueIgnoringStrategyBuilder<TS, D> attributeValueIgnoringStrategyBuilder;
-    private BranchType branchType;
-
+    protected TerminationConditions<TS> terminationConditions;
+    protected Scorer<TS> scorer;
+    protected AttributeIgnoringStrategy attributeIgnoringStrategy;
+    protected AttributeValueIgnoringStrategyBuilder<TS, D> attributeValueIgnoringStrategyBuilder;
+    protected BranchType branchType;
 
     public BranchType getBranchType() {
         return branchType;
@@ -49,17 +48,30 @@ public abstract class BranchFinderBuilder<TS extends TermStatsAndOperations<TS>,
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
     }
 
-    public abstract void update(Map<String, Object> cfg);
+    public void update(Map<String, Object> cfg) {
+        if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
+            attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY);
+        if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER))
+            attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<TS, D>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER);
+        if (cfg.containsKey(SCORER))
+            scorer = (Scorer<TS>) cfg.get(SCORER);
+        if (cfg.containsKey(TERMINATION_CONDITIONS))
+            terminationConditions = (TerminationConditions<TS>) cfg.get(TERMINATION_CONDITIONS);
+    }
 
-    public abstract BranchFinderBuilder<TS, D> copy();
+    public BranchFinderBuilder<TS, D> copy() {
+        BranchFinderBuilder<TS,D> copy = createBranchFinderBuilder();
+        copy.terminationConditions = terminationConditions.copy();
+        copy.setScorer(scorer);
+        copy.setAttributeIgnoringStrategy(attributeIgnoringStrategy.copy());
+        copy.setAttributeValueIgnoringStrategyBuilder(attributeValueIgnoringStrategyBuilder.copy());
+        copy.branchType = branchType;
+        return copy;
+    }
+
+    public abstract BranchFinderBuilder<TS, D> createBranchFinderBuilder();
 
     public abstract BranchFinder<TS> buildBranchFinder(D dataProperties);
-/*        AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(dataProperties);
-        final Set<String> candidateAttributes = dataProperties.getCandidateAttributesByBranchType().get(branchFinderFactory.getBranchType());
-        return branchFinderFactory.createBranchFinder(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
-    }
-  */
-    //what is the problem.  Different Branch finders have different properties...which i need to copy and update.Think the branch finderBuilder is
 
 
 }

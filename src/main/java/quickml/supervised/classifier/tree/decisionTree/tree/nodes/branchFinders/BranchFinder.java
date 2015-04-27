@@ -2,6 +2,7 @@ package quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import quickml.supervised.classifier.AttributeValueIgnoringStrategy;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
 import quickml.supervised.classifier.tree.decisionTree.tree.BranchType;
@@ -12,22 +13,24 @@ import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStr
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.AttributeStats;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 3/24/15.
  */
 
 public abstract class BranchFinder<TS extends TermStatsAndOperations<TS>> {
-    protected List<String> candidateAttributes;
+    protected Set<String> candidateAttributes;
     protected TerminationConditions<TS> terminationConditions;
     protected Scorer<TS> scorer;
     protected AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected BranchType branchType;
 
-    public BranchFinder(List<String> candidateAttributes, TerminationConditions<TS> terminationConditions, Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        this.candidateAttributes = candidateAttributes;
+    public BranchFinder(Collection<String> candidateAttributes, TerminationConditions<TS> terminationConditions, Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+        this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.terminationConditions = terminationConditions;
         this.scorer = scorer;
         this.attributeValueIgnoringStrategy = attributeValueIgnoringStrategy;

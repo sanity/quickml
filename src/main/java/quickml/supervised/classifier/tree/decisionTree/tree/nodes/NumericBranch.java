@@ -5,16 +5,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatisticsOperations;
+import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
 import java.util.Map;
 
-public final class NumericBranch extends Branch<ClassificationCounter> {
+public final class NumericBranch<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
     private static final  Logger logger =  LoggerFactory.getLogger(NumericBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-    public NumericBranch(Branch<ClassificationCounter> parent, String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics, double threshold) {
+    public NumericBranch(Branch<TS> parent, String attribute, double probabilityOfTrueChild, double score, TS termStatistics, double threshold) {
         super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
         this.threshold = threshold;
     }

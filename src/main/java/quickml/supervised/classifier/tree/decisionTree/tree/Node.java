@@ -34,7 +34,7 @@ public abstract class Node implements Serializable {
 	 * @param attributes
 	 * @return
 	 */
-	public abstract Leaf getLeaf(AttributesMap attributes);
+	public abstract DTLeaf getLeaf(AttributesMap attributes);
 
 	/**
 	 * Return the mean depth of leaves in the tree. A lower number generally

@@ -1,10 +1,6 @@
 package quickml.supervised.classifier.tree;
 
-import quickml.supervised.classifier.tree.decisionTree.tree.InitializedTreeConfig;
-import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
-
-import java.util.List;
 
 /**
  * Created by alexanderhawk on 4/20/15.

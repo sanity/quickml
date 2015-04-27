@@ -11,18 +11,19 @@ import quickml.supervised.classifier.tree.decisionTree.tree.nodes.AttributeStats
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public class NumericBranchFinder extends BranchFinder<ClassificationCounter> {
-    public NumericBranchFinder(List<String> candidateAttributes, TerminationConditions<ClassificationCounter> terminationConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+public class NumericBranchFinder<TS extends TermStatsAndOperations<TS>> extends BranchFinder<TS> {
+    public NumericBranchFinder(Collection<String> candidateAttributes, TerminationConditions<TS> terminationConditions, Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 
     @Override
-    public Optional<? extends Branch<ClassificationCounter>> getBranch(Branch parent, AttributeStats<ClassificationCounter> attributeStats) {
+    public Optional<? extends Branch<TS>> getBranch(Branch parent, AttributeStats<TS> attributeStats) {
         if (attributeStats.getTermStats().size()<=1) {
             return Optional.absent();
         }
@@ -32,7 +33,7 @@ public class NumericBranchFinder extends BranchFinder<ClassificationCounter> {
            Optional.absent();
         }
         double bestThreshold = (Double)attributeStats.getTermStats().get(splitScore.indexOfLastTermStatsInTrueSet).getAttrVal();
-        return Optional.of(new NumericBranch(parent, attributeStats.getAttribute(),
+        return Optional.of(new NumericBranch<TS>(parent, attributeStats.getAttribute(),
                 splitScore.probabilityOfBeingInTrueSet, splitScore.score,
                 attributeStats.getAggregateStats(), bestThreshold));
     }

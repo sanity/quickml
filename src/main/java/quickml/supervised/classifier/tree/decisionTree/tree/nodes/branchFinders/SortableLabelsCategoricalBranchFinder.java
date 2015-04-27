@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public class SortableLabelsCategoricalBranchFinder<TS extends TermStatsAndOperations<TS>> extends BranchFinder<TS> {
 
-    public SortableLabelsCategoricalBranchFinder(List<String> candidateAttributes, TerminationConditions<TS> terminationConditions,
+    public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, TerminationConditions<TS> terminationConditions,
                                                  Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy,
                                                  AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);

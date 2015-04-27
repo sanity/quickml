@@ -11,12 +11,16 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/24/15.
  */
-public abstract class DataProperties {
+public class DataProperties {
 
     Map<BranchType, Set<String>> candidateAttributesByBranchType;
 
-    public Map<BranchType, Set<String>> getCandidateAttributesByBranchType() {
+    public Map<BranchType, Set<String>> getCandidateAttributesOfAllBranchFinders() {
         return candidateAttributesByBranchType;
+    }
+
+    public Set<String> getCandidateAttributesForBranchType(BranchType branchType) {
+        return candidateAttributesByBranchType.get(branchType);
     }
 
 }

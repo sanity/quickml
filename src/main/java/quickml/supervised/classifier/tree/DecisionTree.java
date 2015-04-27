@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
+import quickml.supervised.classifier.tree.decisionTree.tree.DTLeaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 
 import java.util.HashSet;
@@ -34,8 +34,8 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public double getProbability(AttributesMap attributes, Object classification) {
-        Leaf leaf = root.getLeaf(attributes);
-        return leaf.getProbability(classification);
+        DTLeaf DTLeaf = root.getLeaf(attributes);
+        return DTLeaf.getProbability(classification);
     }
 
     @Override
@@ -46,10 +46,10 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public PredictionMap predict(AttributesMap attributes) {
-        Leaf leaf = root.getLeaf(attributes);
+        DTLeaf DTLeaf = root.getLeaf(attributes);
         Map<Object, Double> probsByClassification = Maps.newHashMap();
-        for (Object classification : leaf.getClassifications()) {
-            probsByClassification.put(classification, leaf.getProbability(classification));
+        for (Object classification : DTLeaf.getClassifications()) {
+            probsByClassification.put(classification, DTLeaf.getProbability(classification));
         }
         return new PredictionMap(probsByClassification);
     }
@@ -65,8 +65,8 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public Object getClassificationByMaxProb(AttributesMap attributes) {
-        Leaf leaf = root.getLeaf(attributes);
-        return leaf.getBestClassification();
+        DTLeaf DTLeaf = root.getLeaf(attributes);
+        return DTLeaf.getBestClassification();
     }
 
     @Override

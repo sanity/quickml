@@ -11,9 +11,9 @@ import java.util.List;
  */
 public abstract class Scorer<TS extends TermStatistics> {
 	public static final double NO_SCORE = Double.MIN_VALUE;
-	private double degreeOfGainRatioPenalty;
-	private double intrinsicValue;
-	private double unSplitScore;
+	protected double degreeOfGainRatioPenalty;
+	protected double intrinsicValue;
+	protected double unSplitScore;
 
 	/**
 	 *
@@ -39,7 +39,7 @@ public abstract class Scorer<TS extends TermStatistics> {
 	 public abstract double scoreSplit(TS a, TS b);
 	 public abstract void setUnSplitScore(TS a); //internall call {scoreSplit(a, emptyDataSummurizer )};
 
-	 private double correctScoreForGainRatioPenalty(double uncorrectedScore) {
+	 protected double correctScoreForGainRatioPenalty(double uncorrectedScore) {
 		 /** call this method from score split only degreeOfGainRatioPenalty is non zero*/
 		 return uncorrectedScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (uncorrectedScore / intrinsicValue);
 	 }

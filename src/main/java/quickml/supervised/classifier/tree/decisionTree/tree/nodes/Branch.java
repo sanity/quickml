@@ -4,8 +4,7 @@ import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.classifier.tree.decisionTree.scorers.Scorer;
-import quickml.supervised.classifier.tree.decisionTree.tree.TermStatistics;
-import quickml.supervised.classifier.tree.decisionTree.tree.Leaf;
+import quickml.supervised.classifier.tree.decisionTree.tree.DTLeaf;
 import quickml.supervised.classifier.tree.decisionTree.tree.Node;
 import quickml.supervised.classifier.tree.decisionTree.tree.nodes.branchFinders.TermStatsAndOperations;
 
@@ -67,7 +66,7 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
 
 
 	@Override
-	public Leaf getLeaf(final AttributesMap attributes) {
+	public DTLeaf getLeaf(final AttributesMap attributes) {
 		if (decide(attributes))
 			return trueChild.getLeaf(attributes);
 		else

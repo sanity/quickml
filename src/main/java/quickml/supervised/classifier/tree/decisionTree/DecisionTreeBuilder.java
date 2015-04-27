@@ -27,9 +27,13 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> extends TreeBuild
             instancesToAttributeStatisticsMap.put(BranchType.CATEGORICAL, new InstanceToAttributeStatisticsForCatBranch<I>());
         }
         instancesToAttributeStatisticsMap.put(BranchType.NUMERIC, new InstanceToAttributeStatisticsNumericBranch<I>());
+        instancesToAttributeStatisticsMap.put(BranchType.BOOLEAN, new InstanceToAttributeStatisticsForCatBranch<I>());
+
         return  instancesToAttributeStatisticsMap;
     }
 
+    //question, what should go in the treeConfig.  Should the user have to specify their branch Finder Builders. I don't know.
+//mkae the input a decision treeConfig
     public DecisionTreeBuilder(TreeConfig<ClassificationCounter, ClassifierDataProperties> treeConfig) {
         super(treeConfig, new DecisionTreeConfigInitializer(), new AggregateClassificationCounts<I>());
     }
