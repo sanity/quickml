@@ -2,7 +2,7 @@ package quickml.experiments;
 
 import com.google.common.collect.Lists;
 import quickml.data.*;
-import quickml.supervised.classifier.randomForest.RandomDecisionForest;
+import quickml.supervised.ensembles.RandomDecisionForest;
 
 import java.io.Serializable;
 import java.util.List;

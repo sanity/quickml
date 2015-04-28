@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;

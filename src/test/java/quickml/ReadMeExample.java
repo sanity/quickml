@@ -3,11 +3,11 @@ package quickml;
 import com.google.common.collect.Sets;
 import quickml.data.*;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.tree.DecisionTree;
-import quickml.supervised.classifier.tree.TreeBuilder;
-import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.classifier.randomForest.RandomDecisionForest;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.ensembles.RandomDecisionForest;
+import quickml.supervised.ensembles.RandomForestBuilder;
 
 import java.io.Serializable;
 import java.util.Set;

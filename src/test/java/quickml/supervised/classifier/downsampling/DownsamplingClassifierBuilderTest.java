@@ -14,11 +14,11 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.tree.DecisionTree;
-import quickml.supervised.classifier.tree.TreeBuilder;
-import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.randomForest.RandomDecisionForest;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.scorers.SplitDiffScorer;
+import quickml.supervised.ensembles.RandomDecisionForest;
+import quickml.supervised.ensembles.RandomForestBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;

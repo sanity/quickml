@@ -13,9 +13,9 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.predictiveModelOptimizer.MultiLossModelTester;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.classifier.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.RandomForestBuilder;
 import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedForDownsampling;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 

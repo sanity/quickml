@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.tree.decisionTree.BinaryClassifierDataProperties;
+import quickml.supervised.tree.ClassifierDataProperties;
 
 import java.io.Serializable;
 import java.util.Arrays;

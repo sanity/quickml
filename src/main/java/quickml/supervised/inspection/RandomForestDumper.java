@@ -1,11 +1,11 @@
 package quickml.supervised.inspection;
 
 import quickml.utlities.SerializationUtility;
-import quickml.supervised.classifier.tree.DecisionTree;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
-import quickml.supervised.classifier.tree.decisionTree.tree.Node;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
-import quickml.supervised.classifier.randomForest.RandomDecisionForest;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.supervised.tree.nodes.CategoricalBranch;
+import quickml.supervised.tree.decisionTree.tree.Node;
+import quickml.supervised.tree.nodes.NumericBranch;
+import quickml.supervised.ensembles.RandomDecisionForest;
 
 import java.io.*;
 import java.util.*;

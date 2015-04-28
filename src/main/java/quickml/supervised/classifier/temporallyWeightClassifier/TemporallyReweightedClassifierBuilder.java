@@ -8,7 +8,7 @@ import org.joda.time.Hours;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.tree.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.ClassificationCounter;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;

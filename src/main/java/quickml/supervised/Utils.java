@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.Branch;
+import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.data.InstanceWithAttributesMap;

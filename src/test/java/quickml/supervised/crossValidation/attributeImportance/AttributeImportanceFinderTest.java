@@ -7,10 +7,10 @@ import org.junit.Test;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
-import quickml.supervised.classifier.tree.TreeBuilder;
-import quickml.supervised.classifier.tree.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.tree.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.ensembles.RandomForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 

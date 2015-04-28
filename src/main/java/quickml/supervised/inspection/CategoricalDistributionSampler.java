@@ -3,7 +3,7 @@ package quickml.supervised.inspection;
 import com.google.common.collect.*;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilder;
 
 import java.io.Serializable;
 import java.util.List;

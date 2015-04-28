@@ -9,8 +9,8 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.tree.TreeBuilder;
-import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.scorers.SplitDiffScorer;
 
 import java.util.LinkedList;
 import java.util.List;
