@@ -82,7 +82,6 @@ public class Classifiers {
     }
 
     private static int getTimeSliceHours(List<? extends ClassifierInstance> trainingData, int rebuildsPerValidation, DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
-
         Utils.sortTrainingInstancesByTime(trainingData, dateTimeExtractor);
         DateTime latestDateTime = dateTimeExtractor.extractDateTime(trainingData.get(trainingData.size()-1));
         int indexOfEarliestValidationInstance = (int) (0.8 * trainingData.size()) - 1;

@@ -48,7 +48,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private int maxDepth = 5;
     private double minimumScore = 0.00000000000001;
     private int minDiscreteAttributeValueOccurances = 0;
-    private double minSplitFraction = .05;
+    private double minSplitFraction = .005;
     private Set<String> exemptAttributes = Sets.newHashSet();
 
     private int minLeafInstances = 0;
