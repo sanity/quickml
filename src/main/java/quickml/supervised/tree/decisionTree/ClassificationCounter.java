@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 
 import java.io.Serializable;
 import java.util.*;

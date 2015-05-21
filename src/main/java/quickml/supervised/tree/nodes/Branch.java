@@ -17,21 +17,35 @@ import java.util.Set;
 public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node<TS> implements Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
 	public final String attribute;
-	public Node trueChild, falseChild;
+	private Node<TS> trueChild, falseChild;
     //should put in node that implements: ModelWithIgnorableAttributes
     private double probabilityOfTrueChild;
     public double score = Scorer.NO_SCORE;
     public int depth;
     public TS termStatistics;
+    private Node<TS> parent;
 
 	public Branch(Branch<TS> parent, final String attribute, double probabilityOfTrueChild, double score, TS termStatistics) {
-		super(parent);
+        this.parent = parent;
         this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
         this.depth =  (parent!=null) ? this.depth = parent.depth + 1 : 0;
         this.score = score;
         this.termStatistics = termStatistics;
 	}
+
+    public Node<TS> getTrueChild(){
+        return trueChild;
+    }
+
+    public Node<TS> getFalseChild(){
+        return trueChild;
+    }
+
+    public Node<TS> getParent() {
+        return parent;
+    }
+
 
     public boolean isEmpty() {
         return attribute.isEmpty();
@@ -73,40 +87,7 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
 			return falseChild.getLeaf(attributes);
 	}
 
-    @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
-        //TODO[mk] - check with Alex
-        if (attributesToIgnore.contains(this.attribute)) {
-            return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
-                    (1 - probabilityOfTrueChild) * falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
-        } else {
-            if (decide(attributes)) {
-                return trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
-            }
-            else {
-                return falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
-            }
-         }
-    }
 
-    @Override
-	public void dump(final int indent, final Appendable ap) {
-        try {
-            for (int x = 0; x < indent; x++) {
-                ap.append(' ');
-            }
-            ap.append(this+"\n");
-            trueChild.dump(indent + 2, ap);
-            for (int x = 0; x < indent; x++) {
-                ap.append(' ');
-            }
-            ap.append(toNotString() +"\n");
-            falseChild.dump(indent + 2, ap);
-        }
-        catch (IOException e) {
-            throw new RuntimeException();
-        }
-	}
 
 	public abstract String toNotString();
 
