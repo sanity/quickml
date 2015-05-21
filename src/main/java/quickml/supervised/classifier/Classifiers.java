@@ -24,8 +24,10 @@ import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 
@@ -64,8 +66,8 @@ public class Classifiers {
         return new Pair<Map<String, Object>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
     }
 
-    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder) {
-        Map<String, FieldValueRecommender> config = createConfig();
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder, Set<String> exemptAttributes) {
+        Map<String, FieldValueRecommender> config = createConfig(exemptAttributes);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
     }
 
@@ -74,13 +76,12 @@ public class Classifiers {
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
 
     }
-        public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<? extends ClassifierInstance> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor) {
-        Map<String, FieldValueRecommender> config = createConfig();
+        public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<? extends ClassifierInstance> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, Set<String> exemptAttributes) {
+        Map<String, FieldValueRecommender> config = createConfig(exemptAttributes);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, config);
     }
 
     private static int getTimeSliceHours(List<? extends ClassifierInstance> trainingData, int rebuildsPerValidation, DateTimeExtractor<ClassifierInstance> dateTimeExtractor) {
-
         Utils.sortTrainingInstancesByTime(trainingData, dateTimeExtractor);
         DateTime latestDateTime = dateTimeExtractor.extractDateTime(trainingData.get(trainingData.size()-1));
         int indexOfEarliestValidationInstance = (int) (0.8 * trainingData.size()) - 1;
@@ -91,7 +92,7 @@ public class Classifiers {
     }
 
 
-    private static  Map<String, FieldValueRecommender> createConfig() {
+    private static  Map<String, FieldValueRecommender> createConfig(Set<String> exemptAttributes) {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
         config.put(MAX_DEPTH, new FixedOrderRecommender(4, 8, 12));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
         config.put(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE, new FixedOrderRecommender(7, 10));
@@ -99,6 +100,8 @@ public class Classifiers {
         config.put(DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(.1, .25));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75));
         config.put(ORDINAL_TEST_SPLITS, new FixedOrderRecommender(5, 7));
+        config.put(MIN_SPLIT_FRACTION, new FixedOrderRecommender(0.01, 0.25, .5 ));
+        config.put(EXEMPT_ATTRIBUTES, new FixedOrderRecommender(exemptAttributes));
         return config;
     }
 
