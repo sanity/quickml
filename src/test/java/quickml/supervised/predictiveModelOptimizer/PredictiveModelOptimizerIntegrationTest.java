@@ -54,6 +54,9 @@ public class PredictiveModelOptimizerIntegrationTest {
     private Map<String, FieldValueRecommender> createConfig() {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
         Set<String> attributesToIgnore = Sets.newHashSet();
+        Set<String> exemptAttributes = Sets.newHashSet();
+        exemptAttributes.addAll(Arrays.asList("seenClick", "seenCampaignClick", "seenPixel", "seenCampaignPixel", "seenCreativeClick", "seenCampaignClick"));
+
         attributesToIgnore.addAll(Arrays.asList("browser", "eap", "destinationId", "seenPixel", "internalCreativeId"));
         double probabilityOfDiscardingFromAttributesToIgnore = 0.3;
         CompositeAttributeIgnoringStrategy compositeAttributeIgnoringStrategy = new CompositeAttributeIgnoringStrategy(Arrays.asList(
@@ -67,6 +70,9 @@ public class PredictiveModelOptimizerIntegrationTest {
         config.put(MIN_LEAF_INSTANCES, new FixedOrderRecommender(0, 20, 40));
         config.put(SCORER, new FixedOrderRecommender(new InformationGainScorer(), new GiniImpurityScorer()));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY, new FixedOrderRecommender(1.0, 0.75, .5 ));
+        config.put(MIN_SPLIT_FRACTION, new FixedOrderRecommender(0.01, 0.25, .5 ));
+        config.put(EXEMPT_ATTRIBUTES, new FixedOrderRecommender(exemptAttributes));
+
         return config;
     }
 
