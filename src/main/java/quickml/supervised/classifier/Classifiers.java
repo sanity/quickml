@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.ClassifierInstance;
@@ -24,7 +23,6 @@ import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +31,11 @@ import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 
 /**
  * Created by alexanderhawk on 3/5/15.
+ */
+
+/* FIXME: This is unnecessarily specialized to out-of-time cross-validation, should be generalized
+ *        so that it can support alternate ways to separate training from test set (for example,
+ *        any Comparable class can be used to sort the training instances, not just DateTime).
  */
 public class Classifiers {
     private static final Logger logger = LoggerFactory.getLogger(Classifiers.class);
