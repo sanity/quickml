@@ -14,15 +14,18 @@ import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +42,19 @@ import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
  */
 public class Classifiers {
     private static final Logger logger = LoggerFactory.getLogger(Classifiers.class);
+
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData) {
+        FoldedData<T> foldedData = new FoldedData<>(trainingData, 10, 2);
+        ClassifierLossChecker<T> classifierInstanceClassifierLossChecker = new ClassifierLossChecker<>(new ClassifierRMSELossFunction());
+        RandomForestBuilder<T> modelBuilder = new RandomForestBuilder<>();
+        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<Classifier, T>()
+                .modelBuilder(modelBuilder)
+                .dataCycler(foldedData)
+                .lossChecker(classifierInstanceClassifierLossChecker)
+                .valuesToTest(Classifiers.createRandomForestConfig(Collections.<String>emptySet()))
+                .iterations(3).build();
+
+    }
 
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder,  Map<String, FieldValueRecommender> config) {
         /**
@@ -70,7 +86,7 @@ public class Classifiers {
     }
 
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder, Set<String> exemptAttributes) {
-        Map<String, FieldValueRecommender> config = createConfig(exemptAttributes);
+        Map<String, FieldValueRecommender> config = createRandomForestConfig(exemptAttributes);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, modelBuilder, config);
     }
 
@@ -80,7 +96,7 @@ public class Classifiers {
 
     }
         public static Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<? extends ClassifierInstance> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, Set<String> exemptAttributes) {
-        Map<String, FieldValueRecommender> config = createConfig(exemptAttributes);
+        Map<String, FieldValueRecommender> config = createRandomForestConfig(exemptAttributes);
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, config);
     }
 
@@ -94,8 +110,9 @@ public class Classifiers {
         return validationPeriodHours/rebuildsPerValidation;
     }
 
-
-    private static  Map<String, FieldValueRecommender> createConfig(Set<String> exemptAttributes) {
+    // FIXME: Since most users of QuickML will be content with a default set of hyperparameters, we shouldn't force
+    //        them to
+    private static  Map<String, FieldValueRecommender> createRandomForestConfig(Set<String> exemptAttributes) {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
         config.put(MAX_DEPTH, new FixedOrderRecommender(4, 8, 12));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
         config.put(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE, new FixedOrderRecommender(7, 10));
