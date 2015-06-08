@@ -12,6 +12,7 @@ import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
+import quickml.supervised.classifier.randomForest.RandomForest;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.FoldedData;
@@ -43,7 +44,7 @@ import static quickml.supervised.classifier.decisionTree.TreeBuilder.*;
 public class Classifiers {
     private static final Logger logger = LoggerFactory.getLogger(Classifiers.class);
 
-    public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData) {
+    public static <T extends ClassifierInstance> Pair<Map<String, Object>, RandomForest>  getOptimizedRandomForest(List<T> trainingData) {
         FoldedData<T> foldedData = new FoldedData<>(trainingData, 10, 2);
         ClassifierLossChecker<T> classifierInstanceClassifierLossChecker = new ClassifierLossChecker<>(new ClassifierRMSELossFunction());
         RandomForestBuilder<T> modelBuilder = new RandomForestBuilder<>();
@@ -54,6 +55,10 @@ public class Classifiers {
                 .valuesToTest(Classifiers.createRandomForestConfig(Collections.<String>emptySet()))
                 .iterations(3).build();
 
+        Map<String, Object> optimalConfig = optimizer.determineOptimalConfig();
+
+        modelBuilder.updateBuilderConfig(optimalConfig);
+        return Pair.with(optimalConfig, modelBuilder.buildPredictiveModel(trainingData));
     }
 
     public static <T extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier>  getOptimizedDownsampledRandomForest(List<T> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor, DownsamplingClassifierBuilder<T> modelBuilder,  Map<String, FieldValueRecommender> config) {
