@@ -16,11 +16,11 @@ public final class SplitDiffScorer implements Scorer {
 	 * 
 	 * We therefore add up the differences between the proportions, however we
 	 * have another goal, which is that its preferable for the sets to be of
-	 * close to equal size. Without this requirement a split with 0 on one size
+	 * close to equal getSize. Without this requirement a split with 0 on one getSize
 	 * would get a high score because all of the proportions on that side would
 	 * be 0.
 	 * 
-	 * So, we multiply the score by the size of the smallest side, which
+	 * So, we multiply the score by the getSize of the smallest side, which
 	 * experimentally seems to provide an adequate bias against one-sided
 	 * splits.
 	 */

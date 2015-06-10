@@ -4,12 +4,15 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.branchSplitStatistics.AttributeStatisticsProducer;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.decisionTree.tree.BranchType;
-import quickml.supervised.tree.decisionTree.tree.TerminationConditions;
+
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.nodes.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
+import quickml.supervised.tree.terminationConditions.TerminationConditions;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +30,7 @@ public abstract class BranchFinder<TS extends TermStatsAndOperations<TS>> {
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected BranchType branchType;
 
+    //branch finder should not take so many arguments. Facade could simplify this.
     public BranchFinder(Collection<String> candidateAttributes, TerminationConditions<TS> terminationConditions, Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.terminationConditions = terminationConditions;

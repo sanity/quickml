@@ -50,14 +50,14 @@ public class OutOfTimeDataTest {
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 4);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(4, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 5);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(5, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();

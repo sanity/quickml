@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.decisionTree.tree.BranchType;
+import quickml.supervised.tree.constants.BranchType;
 
 import java.util.HashMap;
 import java.util.Map;

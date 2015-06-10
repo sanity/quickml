@@ -1,12 +1,15 @@
 package quickml.supervised.tree.branchFinders;
 
+import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
+import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
+import quickml.supervised.tree.terminationConditions.TerminationConditions;
 
 import java.util.Map;
 
-import static quickml.supervised.tree.decisionTree.tree.ForestOptions.*;
 
 /**
  * Created by alexanderhawk on 3/19/15.

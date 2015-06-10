@@ -4,9 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
+import quickml.supervised.tree.completeDataSetSummaries.TrainingDataSurveyor;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.decisionTree.tree.BranchType;
-import quickml.supervised.tree.decisionTree.tree.TrainingDataSurveyor;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/18/15.
  */
-public class ClassifierDataProperties extends DataProperties{
+public class ClassifierDataProperties extends DataProperties {
 
     final ImmutableMap<Object, Long> classificationsAndCounts;
     protected ClassifierDataProperties(HashMap<Object, Long> classificationsAndCounts,

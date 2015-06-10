@@ -34,7 +34,7 @@ public class DecisionTreeBuilderTest {
         TreeBuilderTestUtils.serializeDeserialize(node);
 
         final int nodeSize = node.size();
-        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Tree getSize should be less than 400 nodes", nodeSize < 400);
         assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
     }
 
@@ -55,7 +55,7 @@ public class DecisionTreeBuilderTest {
         {
             final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
             final DecisionTree decisionTree = tb.buildPredictiveModel(instances);
-            System.out.println("SplitDiffScorer root size: " + decisionTree.root.size());
+            System.out.println("SplitDiffScorer root getSize: " + decisionTree.root.getSize());
         }
     }
 
@@ -97,16 +97,16 @@ public class DecisionTreeBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(decisionTree.root);
 
-        int nodeSize = decisionTree.root.size();
+        int nodeSize = decisionTree.root.getSize();
         double nodeMeanDepth = decisionTree.root.meanDepth();
-        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Tree getSize should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
         final List<InstanceWithAttributesMap> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final DecisionTree newDecisionTree = treeBuilder.buildPredictiveModel(newInstances);
         assertTrue("Expect same tree to be updated", decisionTree == newDecisionTree);
-        assertNotSame("Expected new nodes", nodeSize, newDecisionTree.root.size());
+        assertNotSame("Expected new nodes", nodeSize, newDecisionTree.root.getSize());
         assertNotSame("Expected new mean depth", nodeMeanDepth, newDecisionTree.root.meanDepth());
     }
 
@@ -120,15 +120,15 @@ public class DecisionTreeBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(decisionTree.root);
 
-        int nodeSize = decisionTree.root.size();
+        int nodeSize = decisionTree.root.getSize();
         double nodeMeanDepth = decisionTree.root.meanDepth();
-        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Tree getSize should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
         final List<InstanceWithAttributesMap> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final DecisionTree newDecisionTree = treeBuilder.buildPredictiveModel(newInstances);
-        assertEquals("Expected same nodes", nodeSize, newDecisionTree.root.size());
+        assertEquals("Expected same nodes", nodeSize, newDecisionTree.root.getSize());
         assertNotSame("Expected new mean depth", nodeMeanDepth, newDecisionTree.root.meanDepth());
 
     }
@@ -142,9 +142,9 @@ public class DecisionTreeBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(decisionTree.root);
 
-        int nodeSize = decisionTree.root.size();
+        int nodeSize = decisionTree.root.getSize();
         double nodeMeanDepth = decisionTree.root.meanDepth();
-        assertTrue("Tree size should be less than 400 nodes", nodeSize < 400);
+        assertTrue("Tree getSize should be less than 400 nodes", nodeSize < 400);
         assertTrue("Mean depth should be less than 6", nodeMeanDepth < 6);
         assertTrue("Building this root should take far less than 20 seconds", (System.currentTimeMillis() - startTime) < 20000);
 
@@ -169,7 +169,7 @@ public class DecisionTreeBuilderTest {
 
         TreeBuilderTestUtils.serializeDeserialize(decisionTree1.root);
         TreeBuilderTestUtils.serializeDeserialize(decisionTree2.root);
-        assertTrue("Deterministic Decision Trees must have same number of nodes", decisionTree1.root.size() == decisionTree2.root.size());
+        assertTrue("Deterministic Decision Trees must have same number of nodes", decisionTree1.root.getSize() == decisionTree2.root.getSize());
 
         final List<InstanceWithAttributesMap> instancesTest = TreeBuilderTestUtils.getInstances(1000);
         for (InstanceWithAttributesMap instance : instancesTest) {

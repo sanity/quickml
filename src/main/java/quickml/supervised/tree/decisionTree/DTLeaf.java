@@ -4,16 +4,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.Leaf;
-import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.nodes.DTBranch;
+import quickml.supervised.tree.nodes.DTNode;
+import quickml.supervised.tree.nodes.Leaf;
+import quickml.supervised.tree.nodes.LeafDepthStats;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DTLeaf extends Node implements Leaf<ClassificationCounter>, Serializable {
+
+
+public class DTLeaf implements Leaf<ClassificationCounter>, DTNode, Serializable {
     private static final long serialVersionUID = -5617660873196498754L;
 
     private static final AtomicLong guidCounter = new AtomicLong(0);
@@ -23,11 +26,14 @@ public class DTLeaf extends Node implements Leaf<ClassificationCounter>, Seriali
     public ClassificationCounter getTermStats() {
         return classificationCounts;
     }
+
     /**
      * How deep in the tree is this label? A lower number typically indicates a
      * more confident getBestClassification.
      */
     public final int depth;
+
+    public final DTBranch parent;
     /**
      * How many training examples matched this leaf? A higher number indicates a
      * more confident getBestClassification.
@@ -41,19 +47,30 @@ public class DTLeaf extends Node implements Leaf<ClassificationCounter>, Seriali
     protected transient volatile Map.Entry<Object, Double> bestClassificationEntry = null;
 
 
-    public DTLeaf(Node parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
+    public DTLeaf(DTBranch parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
     }
 
-    public DTLeaf(Node parent, final ClassificationCounter classificationCounts, final int depth) {
-        super(parent);
+    public DTLeaf(DTBranch parent, final ClassificationCounter classificationCounts, final int depth) {
         guid = guidCounter.incrementAndGet();
         this.classificationCounts = classificationCounts;
         Preconditions.checkState(classificationCounts.getTotal() > 0, "Classifications must be > 0");
         exampleCount = classificationCounts.getTotal();
         this.depth = depth;
+        this.parent = parent;
     }
+
+    @Override
+    public int getDepth() {
+        return depth;
+    }
+
+    @Override
+    public DTBranch getParent() {
+        return parent;
+    }
+
 
     /**
      * @return The most likely classification
@@ -76,30 +93,18 @@ public class DTLeaf extends Node implements Leaf<ClassificationCounter>, Seriali
     }
 
     @Override
-    public void dump(final int indent, final Appendable ap) {
-        try {
-            for (int x = 0; x < indent; x++) {
-                ap.append(' ');
-            }
-            ap.append(this + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-    }
-
-    @Override
     public DTLeaf getLeaf(final AttributesMap attributes) {
         return this;
     }
 
     @Override
-    public int size() {
+    public int getSize() {
         return 1;
     }
 
+    //TODO: move this up when Java 8 is migrated too
     @Override
-    public void calcMeanDepth(final Node.LeafDepthStats stats) {
+    public void calcMeanDepth(final LeafDepthStats stats) {
         stats.ttlDepth += depth * exampleCount;
         stats.ttlSamples += exampleCount;
     }

@@ -5,36 +5,32 @@ import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.decisionTree.DTLeaf;
 
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 
-public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node<TS> implements Serializable {
+public abstract class Branch<TS extends TermStatsAndOperations<TS>> implements Node<TS>, Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
 	public final String attribute;
-	private Node<TS> trueChild, falseChild;
-    //should put in node that implements: ModelWithIgnorableAttributes
-    private double probabilityOfTrueChild;
-    public double score = Scorer.NO_SCORE;
-    public int depth;
+	public Node<TS> trueChild, falseChild;
     public TS termStatistics;
-    private Node<TS> parent;
+    protected Node<TS> parent;
+	protected final double probabilityOfTrueChild;
+	public final double score;
+	protected final int depth;
 
 	public Branch(Branch<TS> parent, final String attribute, double probabilityOfTrueChild, double score, TS termStatistics) {
         this.parent = parent;
-        this.probabilityOfTrueChild = probabilityOfTrueChild;
         this.attribute = attribute;
-        this.depth =  (parent!=null) ? this.depth = parent.depth + 1 : 0;
+        this.depth = (parent!=null) ? parent.depth + 1 : 0;
         this.score = score;
         this.termStatistics = termStatistics;
+		this.probabilityOfTrueChild = probabilityOfTrueChild;
 	}
 
-    public Node<TS> getTrueChild(){
+	public Node<TS> getTrueChild(){
         return trueChild;
     }
 
@@ -46,7 +42,6 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
         return parent;
     }
 
-
     public boolean isEmpty() {
         return attribute.isEmpty();
     }
@@ -54,8 +49,8 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
 	public abstract boolean decide(Map<String, Object> attributes);
 
 	@Override
-	public int size() {
-		return 1 + trueChild.size() + falseChild.size();
+	public int getSize() {
+		return 1 + trueChild.getSize() + falseChild.getSize();
 	}
 
 	public Predicate<Instance<AttributesMap, Object>> getInPredicate() {
@@ -67,29 +62,6 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
 			}
 		};
 	}
-
-	public Predicate<Instance<AttributesMap, Object>> getOutPredicate() {
-		return new Predicate<Instance<AttributesMap, Object>>() {
-
-			@Override
-			public boolean apply(final Instance<AttributesMap, Object> input) {
-				return !decide(input.getAttributes());
-			}
-		};
-	}
-
-
-	@Override
-	public Leaf<TS> getLeaf(final AttributesMap attributes) {
-		if (decide(attributes))
-			return trueChild.getLeaf(attributes);
-		else
-			return falseChild.getLeaf(attributes);
-	}
-
-
-
-	public abstract String toNotString();
 
 	@Override
 	public void calcMeanDepth(final LeafDepthStats stats) {
@@ -111,6 +83,7 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> extends Node
         return true;
     }
 
+	//TODO: this is wildly inefficient
     @Override
     public int hashCode() {
         int result = attribute.hashCode();

@@ -38,7 +38,7 @@ public class RandomForestBuilderTest {
 
         final List<DecisionTree> decisionTrees = randomDecisionForest.decisionTrees;
         final int treeSize = decisionTrees.size();
-        Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
+        Assert.assertTrue(treeSize < 400, "Forest getSize should be less than 400");
         Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000,"Building this root should take far less than 20 seconds");
 
         final AttributesMap testAttributes = instances.get(0).getAttributes();
@@ -120,7 +120,7 @@ public class RandomForestBuilderTest {
 
         Assert.assertTrue(randomDecisionForest1.decisionTrees.size() == randomDecisionForest2.decisionTrees.size(), "Deterministic Random Forests must have same number of trees");
         for (int i = 0; i < randomDecisionForest1.decisionTrees.size(); i++) {
-            Assert.assertTrue(randomDecisionForest1.decisionTrees.get(i).root.size() == randomDecisionForest2.decisionTrees.get(i).root.size(), "Deterministic Decision Trees must have same number of nodes");
+            Assert.assertTrue(randomDecisionForest1.decisionTrees.get(i).root.getSize() == randomDecisionForest2.decisionTrees.get(i).root.getSize(), "Deterministic Decision Trees must have same number of nodes");
         }
 
         final List<InstanceWithAttributesMap> instancesTest = TreeBuilderTestUtils.getInstances(1000);

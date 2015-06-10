@@ -5,12 +5,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import com.google.common.collect.Sets;
+import quickml.supervised.tree.bagging.Bagging;
+import quickml.supervised.tree.bagging.StationaryBagging;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
+import quickml.supervised.tree.constants.BranchType;
+import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
-
-import static quickml.supervised.tree.decisionTree.tree.ForestOptions.*;
+import quickml.supervised.tree.terminationConditions.TerminationConditions;
+import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +51,7 @@ public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataPro
         return branchFinderBuilders;
     }
 
-    public Optional<Bagging> getBagging() {
+    public Optional<? extends Bagging> getBagging() {
         return bagging;
     }
 
@@ -145,7 +149,7 @@ public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataPro
         for (BranchFinderBuilder<TS, D> branchFinderBuilder : branchFinderBuilders) {
             branchFinderBuilder.update(cfg);
         }
-        if (cfg.containsKey(SCORER))
+        if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer) cfg.get(SCORER);
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<TS>) cfg.get(LEAF_BUILDER.name());

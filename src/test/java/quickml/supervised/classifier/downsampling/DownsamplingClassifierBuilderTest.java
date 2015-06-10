@@ -82,8 +82,8 @@ public class DownsamplingClassifierBuilderTest {
         RandomDecisionForest randomDecisionForest = (RandomDecisionForest) downsamplingClassifier.wrappedClassifier;
         final List<DecisionTree> decisionTrees = randomDecisionForest.decisionTrees;
         final int treeSize = decisionTrees.size();
-        final int firstTreeNodeSize = decisionTrees.get(0).root.size();
-        org.testng.Assert.assertTrue(treeSize < 400, "Forest size should be less than 400");
+        final int firstTreeNodeSize = decisionTrees.get(0).root.getSize();
+        org.testng.Assert.assertTrue(treeSize < 400, "Forest getSize should be less than 400");
         org.testng.Assert.assertTrue((System.currentTimeMillis() - startTime) < 20000, "Building this root should take far less than 20 seconds");
     }
 

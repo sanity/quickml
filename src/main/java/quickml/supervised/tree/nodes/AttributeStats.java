@@ -1,6 +1,7 @@
 package quickml.supervised.tree.nodes;
 
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
+
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 
 import java.util.List;
 

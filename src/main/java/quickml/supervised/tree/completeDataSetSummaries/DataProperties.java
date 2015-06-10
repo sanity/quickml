@@ -1,8 +1,6 @@
 package quickml.supervised.tree.completeDataSetSummaries;
 
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.decisionTree.tree.BranchType;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +9,7 @@ import java.util.Set;
  */
 public class DataProperties {
 
-    Map<BranchType, Set<String>> candidateAttributesByBranchType;
+    protected Map<BranchType, Set<String>> candidateAttributesByBranchType;
 
     public Map<BranchType, Set<String>> getCandidateAttributesOfAllBranchFinders() {
         return candidateAttributesByBranchType;

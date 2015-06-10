@@ -1,13 +1,14 @@
 package quickml.supervised.tree.configurations;
 
 import com.google.common.base.Optional;
+import quickml.supervised.tree.bagging.Bagging;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
+import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.decisionTree.tree.Bagging;
-import quickml.supervised.tree.decisionTree.tree.LeafBuilder;
-import quickml.supervised.tree.decisionTree.tree.TerminationConditions;
+
 import quickml.supervised.tree.branchFinders.BranchFinder;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
+import quickml.supervised.tree.terminationConditions.TerminationConditions;
 
 /**
  * Created by alexanderhawk on 3/20/15.
@@ -19,7 +20,7 @@ public class InitializedTreeConfig<TS extends TermStatsAndOperations<TS>, D exte
 
 
     public InitializedTreeConfig(TerminationConditions<TS> terminationConditions, Scorer scorer,
-                                 Iterable<BranchFinder<TS>> branchFinders, LeafBuilder<TS> leafBuilder, Optional<Bagging> bagging, D dataProperties
+                                 Iterable<BranchFinder<TS>> branchFinders, LeafBuilder<TS> leafBuilder, Optional<? extends Bagging> bagging, D dataProperties
 
                                  ) {
         this.scorer = scorer;
@@ -32,7 +33,7 @@ public class InitializedTreeConfig<TS extends TermStatsAndOperations<TS>, D exte
 
     private Scorer scorer;
     private TerminationConditions terminationConditions;
-    private Optional<Bagging> bagging;
+    private Optional<? extends Bagging> bagging;
     private D dataProperties;
     private Iterable<BranchFinder<TS>> branchFinders;
     private LeafBuilder<TS> leafBuilder;
@@ -58,7 +59,7 @@ public class InitializedTreeConfig<TS extends TermStatsAndOperations<TS>, D exte
         return terminationConditions;
     }
 
-    public Optional<Bagging> getBagging() {
+    public Optional<? extends Bagging> getBagging() {
         return bagging;
     }
 

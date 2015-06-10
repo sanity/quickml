@@ -2,12 +2,11 @@ package quickml.supervised.tree.configurations;
 
 import com.google.common.collect.Lists;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
-import quickml.supervised.tree.decisionTree.tree.BranchType;
-import quickml.supervised.tree.decisionTree.tree.InitializedTreeConfig;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
+import quickml.supervised.tree.constants.BranchType;
 
 import java.util.List;
 import java.util.Set;

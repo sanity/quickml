@@ -5,6 +5,7 @@ import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
 import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
 import quickml.supervised.tree.nodes.AttributeStats;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class InstanceToAttributeStatisticsNumericBranch<I extends ClassifierInst
     private double[] createNumericSplit(final List<I> trainingData, final String attribute) {
         int numSamples = Math.min(numSamplesForComputingNumericSplitPoints, trainingData.size());
         if (numSamples == trainingData.size()) {
-            return getDeterministicSplit(trainingData, attribute); //makes code testable, because now can be made deterministic by making numSamplesForComputingNumericSplitPoints < trainingData.size.
+            return getDeterministicSplit(trainingData, attribute); //makes code testable, because now can be made deterministic by making numSamplesForComputingNumericSplitPoints < trainingData.getSize.
         }
 
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);

@@ -61,7 +61,7 @@ public class FoldedData<T> implements TrainingDataCycler<T> {
 
     private void checkArguments(List<T> allData, int numFolds, int foldsUsed) {
         checkArgument(allData.size() > 0, "Training set cannot be empty");
-        checkArgument(numFolds <= allData.size(), "Num Folds must be less than or equal to the data size");
+        checkArgument(numFolds <= allData.size(), "Num Folds must be less than or equal to the data getSize");
         checkArgument(foldsUsed <= numFolds, "Folds used must be less then or equal to the number of folds");
         checkArgument(foldsUsed > 0, "Number of folds used must be greater than 0");
     }

@@ -1,14 +1,14 @@
 package quickml.supervised.tree.nodes;
 
+import quickml.data.AttributesMap;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.decisionTree.tree.TermStatistics;
-
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 4/22/15.
  */
-public class ParentOfRoot<TS extends TermStatistics> extends Branch<TS> {
+public class ParentOfRoot<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
     public ParentOfRoot() {
         super(null, "parentOfRoot", 0, Scorer.NO_SCORE, null);
     }
@@ -19,7 +19,7 @@ public class ParentOfRoot<TS extends TermStatistics> extends Branch<TS> {
     }
 
     @Override
-    public String toNotString() {
+    public Leaf<TS> getLeaf(AttributesMap attributes) {
         return null;
     }
 }

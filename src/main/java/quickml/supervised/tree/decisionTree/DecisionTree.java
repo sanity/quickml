@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
-import quickml.supervised.tree.decisionTree.tree.Node;
+import quickml.supervised.tree.Tree;
+import quickml.supervised.tree.nodes.DTNode;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -19,10 +20,10 @@ import java.util.Set;
  */
 public class DecisionTree extends AbstractClassifier implements Tree<PredictionMap> {
     static final long serialVersionUID = 56394564395635672L;
-    public final Node root;
+    public final DTNode root;
     private Set<Object> classifications = new HashSet<>();
 
-    public DecisionTree(Node root, Set<Object> classifications) {
+    public DecisionTree(DTNode root, Set<Object> classifications) {
         this.root = root;
         this.classifications = classifications;
     }
@@ -33,13 +34,14 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public double getProbability(AttributesMap attributes, Object classification) {
-        DTLeaf DTLeaf = root.getLeaf(attributes);
-        return DTLeaf.getProbability(classification);
+        DTLeaf dtLeaf = root.getLeaf(attributes);
+        return dtLeaf.getProbability(classification);
     }
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
-        return root.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
+        DTLeaf dTLeaf = root.getLeaf(attributes);
+        return dTLeaf.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
     }
 
 
@@ -84,11 +86,5 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
     public int hashCode() {
         return root.hashCode();
     }
-    
-    @Override
-    public String toString() {
-        StringBuilder dump = new StringBuilder();
-        root.dump(dump);
-        return dump.toString();
-    }
+
 }

@@ -1,7 +1,7 @@
 package quickml.supervised.tree.terminationConditions;
 
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
 
 import java.util.Map;
 

@@ -7,12 +7,16 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.bagging.Bagging;
+import quickml.supervised.tree.branchSplitStatistics.AggregateStatistics;
+import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.constants.BranchType;
+import quickml.supervised.tree.nodes.Leaf;
+import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.nodes.ParentOfRoot;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
 import quickml.supervised.tree.terminationConditions.TerminationConditions;
 import quickml.supervised.tree.configurations.InitializedTreeConfig;
 import quickml.supervised.tree.configurations.TreeConfig;
@@ -20,7 +24,7 @@ import quickml.supervised.tree.configurations.TreeConfigInitializer;
 
 import java.util.*;
 
-public abstract class TreeBuilder<L, I extends InstanceWithAttributesMap<L>, TS extends TermStatsAndOperations<TS>, TR extends Tree<L>, D extends DataProperties> implements PredictiveModelBuilder<TR, I> {
+public abstract class TreeBuilder<L, P,  I extends InstanceWithAttributesMap<L>, TS extends TermStatsAndOperations<TS>, TR extends Tree<P>, D extends DataProperties> implements PredictiveModelBuilder<TR, I> {
 
     protected TreeConfig<TS, D> treeConfig;
     protected TreeConfigInitializer<L, I, TS, D> treeConfigInitializer;
@@ -56,7 +60,7 @@ public abstract class TreeBuilder<L, I extends InstanceWithAttributesMap<L>, TS 
         return tree;
     }
 
-    private Node createNode(Branch<TS> parent, List<I> trainingData, InitializedTreeConfig<TS, D> initializedTreeConfig, Map<BranchType, InstancesToAttributeStatistics<L, I, TS>> instancesToAttributeStatisticsMap) {
+    private Node<TS> createNode(Branch<TS> parent, List<I> trainingData, InitializedTreeConfig<TS, D> initializedTreeConfig, Map<BranchType, InstancesToAttributeStatistics<L, I, TS>> instancesToAttributeStatisticsMap) {
         Preconditions.checkArgument(trainingData == null || trainingData.isEmpty(), "Can't build a tree with no training data");
         TerminationConditions<TS> terminationConditions = initializedTreeConfig.getTerminationConditions();
         TS aggregateStats = getTermStats(parent, trainingData);
@@ -103,11 +107,11 @@ public abstract class TreeBuilder<L, I extends InstanceWithAttributesMap<L>, TS 
         return initializedTreeConfig.getLeafBuilder().buildLeaf(parent, aggregateStats);
     }
 
-    protected abstract TR constructTree(Node node, D dataProperties); //factory method pattern
+    protected abstract TR constructTree(Node<TS> node, D dataProperties); //factory method pattern
 
     protected abstract Map<BranchType, InstancesToAttributeStatistics<L, I, TS>> initializeInstancesToAttributeStatistics(InitializedTreeConfig<TS, D> initializedTreeConfig); //factory method pattern
 
-    public abstract TreeBuilder<L, I, TS, TR, D> copy();// {returns new TreeBuilder(configurations);}
+    public abstract TreeBuilder<L, P, I, TS, TR, D> copy();// {returns new TreeBuilder(configurations);}
 
 
     public void updateBuilderConfig(Map<String, Object> cfg) {

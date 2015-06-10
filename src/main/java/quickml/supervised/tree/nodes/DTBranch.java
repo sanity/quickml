@@ -1,7 +1,9 @@
 package quickml.supervised.tree.nodes;
 
 import quickml.data.AttributesMap;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.DTLeaf;
 
 import java.io.IOException;
 import java.util.Set;
@@ -9,14 +11,18 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/28/15.
  */
-public class DTBranch extends Branch<ClassificationCounter> implements DTNode {
+public abstract class DTBranch extends Branch<ClassificationCounter> implements DTNode {
     private DTNode trueChild, falseChild;
+
+    public DTBranch(Branch<ClassificationCounter> parent, final String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics) {
+        super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
+    }
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
         //TODO[mk] - check with Alex
         if (attributesToIgnore.contains(this.attribute)) {
-            return probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
+            return this.probabilityOfTrueChild * trueChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore) +
                     (1 - probabilityOfTrueChild) * falseChild.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
         } else {
             if (decide(attributes)) {
@@ -29,21 +35,10 @@ public class DTBranch extends Branch<ClassificationCounter> implements DTNode {
     }
 
     @Override
-    public void dump(final int indent, final Appendable ap) {
-        try {
-            for (int x = 0; x < indent; x++) {
-                ap.append(' ');
-            }
-            ap.append(this+"\n");
-            trueChild.dump(indent + 2, ap);
-            for (int x = 0; x < indent; x++) {
-                ap.append(' ');
-            }
-            ap.append(toNotString() +"\n");
-            falseChild.dump(indent + 2, ap);
-        }
-        catch (IOException e) {
-            throw new RuntimeException();
-        }
+    public DTLeaf getLeaf(final AttributesMap attributes) {
+        if (decide(attributes))
+            return trueChild.getLeaf(attributes);
+        else
+            return falseChild.getLeaf(attributes);
     }
 }

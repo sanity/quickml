@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import quickml.collections.MapUtils;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.bagging.Bagging;
-import quickml.supervised.tree.decisionTree.tree.Bagging;
 
 import java.util.HashSet;
 import java.util.List;

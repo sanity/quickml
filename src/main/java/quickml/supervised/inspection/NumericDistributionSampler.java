@@ -95,7 +95,7 @@ public class NumericDistributionSampler {
                 samplesToDetermineBinWidths = instances.size();
             }
 
-            //put samples in a list of appropriate size and sort it.
+            //put samples in a list of appropriate getSize and sort it.
             double[] splitList = new double[samplesToDetermineBinWidths];
             if (instances.size() < samplesToDetermineBinWidths / 2) {
                 int folds = instances.size() / samplesToDraw;

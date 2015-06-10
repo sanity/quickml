@@ -1,6 +1,5 @@
 package quickml.supervised.tree.branchSplitStatistics;
 
-import quickml.supervised.tree.decisionTree.tree.TermStatistics;
 
 /**
  * Created by alexanderhawk on 4/23/15.

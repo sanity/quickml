@@ -2,16 +2,22 @@ package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Maps;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.ClassifierDataProperties;
+import quickml.data.PredictionMap;
 import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.configurations.InitializedTreeConfig;
 import quickml.supervised.tree.configurations.TreeConfig;
+import quickml.supervised.tree.constants.BranchType;
+import quickml.supervised.tree.nodes.DTNode;
+import quickml.supervised.tree.nodes.Node;
 
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 4/20/15.
  */
-public class DecisionTreeBuilder<I extends ClassifierInstance> extends TreeBuilder<Object, I, ClassificationCounter, DecisionTree, ClassifierDataProperties> {
+public class DecisionTreeBuilder<I extends ClassifierInstance> extends TreeBuilder<Object, PredictionMap, I, ClassificationCounter, DecisionTree, ClassifierDataProperties> {
 
     @Override
     protected Map<BranchType, InstancesToAttributeStatistics<Object, I, ClassificationCounter>> initializeInstancesToAttributeStatistics(InitializedTreeConfig<ClassificationCounter, ClassifierDataProperties> initializedTreeConfig) {
@@ -29,20 +35,21 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> extends TreeBuild
         return  instancesToAttributeStatisticsMap;
     }
 
-    //question, what should go in the configurations.  Should the user have to specify their branch Finder Builders. I don't know.
-//mkae the input a decision configurations
+
     public DecisionTreeBuilder(TreeConfig<ClassificationCounter, ClassifierDataProperties> treeConfig) {
         super(treeConfig, new DecisionTreeConfigInitializer(), new AggregateClassificationCounts<I>());
     }
 
     @Override
-    public TreeBuilder<Object, I, ClassificationCounter, DecisionTree, ClassifierDataProperties> copy() {
+    public TreeBuilder<Object, PredictionMap, I, ClassificationCounter, DecisionTree, ClassifierDataProperties> copy() {
         return new DecisionTreeBuilder<>(treeConfig);
     }
 
+
+    //TODO need better solution than casting
     @Override
-    protected DecisionTree constructTree(Node node, ClassifierDataProperties dataProperties) {
-        return new DecisionTree(node, dataProperties.getClassifications());
+    protected DecisionTree constructTree(Node<ClassificationCounter> node, ClassifierDataProperties dataProperties) {
+        return new DecisionTree((DTNode)node, dataProperties.getClassifications());
     }
 
  }

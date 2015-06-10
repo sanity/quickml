@@ -4,12 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
 import quickml.supervised.tree.nodes.AttributeStats;
 
 import java.util.List;
 import java.util.Map;
+import static quickml.supervised.tree.constants.MissingValue.*;
 
-import static quickml.supervised.tree.decisionTree.tree.MissingValue.MISSING_VALUE;
 
 /**
  * Created by alexanderhawk on 4/23/15.
