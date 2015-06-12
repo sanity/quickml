@@ -14,7 +14,7 @@ public abstract class InstancesToAttributeStatistics<L, I extends InstanceWithAt
 
   protected List<I> trainingData;
 
-
+  //TODO: don't use setter...make new copy of the class.
   public void setTrainingData(List<I> trainingData) {
     this.trainingData = trainingData;
   }

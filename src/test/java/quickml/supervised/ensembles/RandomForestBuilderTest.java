@@ -15,7 +15,7 @@ import quickml.supervised.tree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.CategoricalBranch;
-import quickml.supervised.tree.nodes.NumericBranch;
+import quickml.supervised.tree.nodes.NumBranch;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -91,11 +91,11 @@ public class RandomForestBuilderTest {
             Assert.assertTrue(inset1.containsAll(inset2) && inset2.containsAll(inset1));
         }
 
-        else if (node0 instanceof NumericBranch) {
-            NumericBranch numericBranch1 = (NumericBranch)node0;
-            NumericBranch numericBranch2 = (NumericBranch)node1;
-            double threshold1 = numericBranch1.threshold;
-            double threshold2= numericBranch2.threshold;
+        else if (node0 instanceof NumBranch) {
+            NumBranch NumBranch1 = (NumBranch)node0;
+            NumBranch NumBranch2 = (NumBranch)node1;
+            double threshold1 = NumBranch1.threshold;
+            double threshold2= NumBranch2.threshold;
 
 
             Assert.assertEquals(threshold1, threshold2);

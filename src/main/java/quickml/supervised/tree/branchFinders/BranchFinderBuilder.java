@@ -7,6 +7,7 @@ import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.terminationConditions.TerminationConditions;
+import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.Map;
 
@@ -47,14 +48,14 @@ public abstract class BranchFinderBuilder<TS extends TermStatsAndOperations<TS>,
     }
 
     public void update(Map<String, Object> cfg) {
-        if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
-            attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY);
-        if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER))
-            attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<TS, D>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER);
-        if (cfg.containsKey(SCORER))
-            scorer = (Scorer<TS>) cfg.get(SCORER);
-        if (cfg.containsKey(TERMINATION_CONDITIONS))
-            terminationConditions = (TerminationConditions<TS>) cfg.get(TERMINATION_CONDITIONS);
+        if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name()))
+            attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY.name());
+        if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name()))
+            attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<TS, D>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name());
+        if (cfg.containsKey(SCORER.name()))
+            scorer = (Scorer<TS>) cfg.get(SCORER.name());
+        if (cfg.containsKey(TERMINATION_CONDITIONS.name()))
+            terminationConditions = (TerminationConditions<TS>) cfg.get(TERMINATION_CONDITIONS.name());
     }
 
     public BranchFinderBuilder<TS, D> copy() {

@@ -2,9 +2,10 @@ package quickml.supervised.tree.branchFinders;
 
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.decisionTree.tree.TerminationConditions;
 import quickml.supervised.tree.nodes.AttributeStats;
+import quickml.supervised.tree.terminationConditions.TerminationConditions;
 
 import java.util.List;
 import java.util.Set;

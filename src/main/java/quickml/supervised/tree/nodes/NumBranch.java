@@ -3,17 +3,17 @@ package quickml.supervised.tree.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 
 import java.util.Map;
 
-public final class NumericBranch<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
-    private static final  Logger logger =  LoggerFactory.getLogger(NumericBranch.class);
+public abstract class NumBranch<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
+    private static final  Logger logger =  LoggerFactory.getLogger(NumBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-    public NumericBranch(Branch<TS> parent, String attribute, double probabilityOfTrueChild, double score, TS termStatistics, double threshold) {
+    public NumBranch(Branch<TS> parent, String attribute, double probabilityOfTrueChild, double score, TS termStatistics, double threshold) {
         super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
         this.threshold = threshold;
     }
@@ -34,11 +34,6 @@ public final class NumericBranch<TS extends TermStatsAndOperations<TS>> extends 
 		return attribute + " > " + threshold;
 	}
 
-	@Override
-	public String toNotString() {
-		return attribute + " <= " + threshold;
-
-	}
 
     @Override
     public boolean equals(final Object o) {
@@ -46,7 +41,7 @@ public final class NumericBranch<TS extends TermStatsAndOperations<TS>> extends 
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        final NumericBranch that = (NumericBranch) o;
+        final NumBranch that = (NumBranch) o;
 
         if (Double.compare(that.threshold, threshold) != 0) return false;
 

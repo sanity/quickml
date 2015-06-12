@@ -72,5 +72,5 @@ public abstract class BranchFinder<TS extends TermStatsAndOperations<TS>> {
         return bestBranchOptional;
     }
 
-    public abstract Optional<? extends Branch<TS>> getBranch(Branch parent, AttributeStats<TS> attributeStats);
+    public abstract Optional<? extends Branch<TS>> getBranch(Branch<TS> parent, AttributeStats<TS> attributeStats);
 }

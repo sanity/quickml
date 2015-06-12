@@ -87,6 +87,7 @@ public abstract class TreeBuilder<L, P,  I extends InstanceWithAttributesMap<L>,
         Iterable<BranchFinder<TS>> branchFinders = initializedTreeConfig.getBranchFinders();
         for (BranchFinder<TS> branchFinder : branchFinders) {
             InstancesToAttributeStatistics<L, I, TS> instancesToAttributeStatistics = instancesToAttributeStatisticsMap.get(branchFinder.getBranchType());
+            instancesToAttributeStatistics.setTrainingData(instances);
             Optional<? extends Branch<TS>> thisBranchOptional = branchFinder.findBestBranch(parent, instancesToAttributeStatistics); //decoupling occurs bc instancesToAttributeStatistics implements a simpler interface
             if (thisBranchOptional.isPresent()) {
                 Branch<TS> thisBranch = thisBranchOptional.get();
@@ -106,7 +107,7 @@ public abstract class TreeBuilder<L, P,  I extends InstanceWithAttributesMap<L>,
     private Leaf<TS> getLeaf(Branch<TS> parent, TS aggregateStats, InitializedTreeConfig<TS, D> initializedTreeConfig) {
         return initializedTreeConfig.getLeafBuilder().buildLeaf(parent, aggregateStats);
     }
-
+    //replacing Node<TS>  with Nd where Nd extends Node<TS>
     protected abstract TR constructTree(Node<TS> node, D dataProperties); //factory method pattern
 
     protected abstract Map<BranchType, InstancesToAttributeStatistics<L, I, TS>> initializeInstancesToAttributeStatistics(InitializedTreeConfig<TS, D> initializedTreeConfig); //factory method pattern

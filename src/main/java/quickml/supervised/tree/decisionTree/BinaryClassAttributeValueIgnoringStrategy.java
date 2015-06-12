@@ -1,5 +1,6 @@
 package quickml.supervised.tree.decisionTree;
 
+import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
 
 import java.util.Map;
