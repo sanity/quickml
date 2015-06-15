@@ -41,11 +41,15 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     public static final int RESERVOIR_SIZE = 100;
     public static final Serializable MISSING_VALUE = "%missingVALUE%83257";
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
+    public static final String MIN_SPLIT_FRACTION = "minSplitFraction";
+    public static final String EXEMPT_ATTRIBUTES = "exemptAttributes";
 
     private Scorer scorer;
     private int maxDepth = 5;
     private double minimumScore = 0.00000000000001;
     private int minDiscreteAttributeValueOccurances = 0;
+    private double minSplitFraction = .005;
+    private Set<String> exemptAttributes = Sets.newHashSet();
 
     private int minLeafInstances = 0;
 
@@ -74,6 +78,16 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return this;
     }
 
+    public TreeBuilder exemptAttributes(Set<String> exemptAttributes) {
+        this.exemptAttributes = exemptAttributes;
+        return this;
+    }
+
+    public TreeBuilder minSplitFraction(double minSplitFraction) {
+        this.minSplitFraction = minSplitFraction;
+        return this;
+    }
+
     @Deprecated
     public TreeBuilder ignoreAttributeAtNodeProbability(double ignoreAttributeAtNodeProbability) {
         attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(ignoreAttributeAtNodeProbability));
@@ -92,6 +106,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         copy.ordinalTestSpilts = ordinalTestSpilts;
         copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
         copy.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
+        copy.minSplitFraction = minSplitFraction;
+        copy.exemptAttributes = exemptAttributes;
         return copy;
     }
 
@@ -110,8 +126,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             minCategoricalAttributeValueOccurances((Integer) cfg.get(MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE));
         if (cfg.containsKey(MIN_LEAF_INSTANCES))
             minLeafInstances((Integer) cfg.get(MIN_LEAF_INSTANCES));
+        if (cfg.containsKey(MIN_SPLIT_FRACTION))
+            minSplitFraction((Double) cfg.get(MIN_SPLIT_FRACTION));
         if (cfg.containsKey(ORDINAL_TEST_SPLITS))
             ordinalTestSplits((Integer) cfg.get(ORDINAL_TEST_SPLITS));
+        if (cfg.containsKey(EXEMPT_ATTRIBUTES))
+            exemptAttributes((Set<String>) cfg.get(EXEMPT_ATTRIBUTES));
         if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
             degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
@@ -441,6 +461,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             inCounts = inCounts.add(testValCounts);
             outCounts = outCounts.subtract(testValCounts);
 
+            double numInstances = inCounts.getTotal() + outCounts.getTotal();
+            if (!exemptAttributes.contains(attribute) && (inCounts.getTotal()/ numInstances <minSplitFraction ||
+                    outCounts.getTotal()/ numInstances < minSplitFraction)) {
+                continue;
+            }
+
             if (inCounts.getTotal() < minLeafInstances || outCounts.getTotal() < minLeafInstances) {
                 continue;
             }
@@ -666,6 +692,12 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             ClassificationCounter inClassificationCounts = ClassificationCounter.countAll(inSet);
             ClassificationCounter outClassificationCounts = ClassificationCounter.countAll(outSet);
 
+            double numInstances = inClassificationCounts.getTotal() + outClassificationCounts.getTotal();
+            if (!exemptAttributes.contains(attribute) && (inClassificationCounts.getTotal()/ numInstances <minSplitFraction ||
+                    outClassificationCounts.getTotal()/ numInstances < minSplitFraction)) {
+                continue;
+            }
+
             if (binaryClassifications) {
                 if (attributeValueOrIntervalOfValuesHasInsufficientStatistics(inClassificationCounts)
                         || inClassificationCounts.getTotal() < minLeafInstances
@@ -683,7 +715,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;
-                probabilityOfBeingInInset = inClassificationCounts.getTotal() / (inClassificationCounts.getTotal() + outClassificationCounts.getTotal());
+                probabilityOfBeingInInset = inClassificationCounts.getTotal() / numInstances;
             }
         }
         if (bestScore == 0) {

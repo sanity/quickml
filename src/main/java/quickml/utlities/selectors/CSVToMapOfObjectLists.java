@@ -1,12 +1,23 @@
-package quickml.utlities;
+package quickml.utlities.selectors;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.joda.time.DateTime;
+import org.joda.time.Hours;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
+import quickml.utlities.LinePlotter;
+import quickml.utlities.LinePlotterBuilder;
 
+import javax.xml.datatype.Duration;
 import java.io.FileReader;
-import java.util.*;
+import java.text.DateFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * Created by alexanderhawk on 10/2/14.
@@ -18,25 +29,25 @@ import java.util.*;
  provided in a header) are the keys for their respective lists.
  */
 
-public class CSVToMapOfNumericLists {
+public class CSVToMapOfObjectLists {
     private List<String> header;
     private char delimiter = ',';
     private boolean headerPresent = true;
-    private Map<String, List<Double>> dataLists = Maps.newHashMap();
+    private Map<String, List<Object>> dataLists = Maps.newHashMap();
 
-    public CSVToMapOfNumericLists() {
+    public CSVToMapOfObjectLists() {
     }
 
-    public CSVToMapOfNumericLists(char delimiter) {
+    public CSVToMapOfObjectLists(char delimiter) {
         this.delimiter = delimiter;
     }
 
-    public CSVToMapOfNumericLists(char delimiter, boolean noHeaderPresent) {
+    public CSVToMapOfObjectLists(char delimiter, boolean noHeaderPresent) {
         this.delimiter = delimiter;
         this.headerPresent = noHeaderPresent;
     }
 
-    public Map<String, List<Double>> readCsv(String fileName) throws Exception {
+    public Map<String, List<Object>> readCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
         List<String[]> csvLines = reader.readAll();
@@ -48,12 +59,12 @@ public class CSVToMapOfNumericLists {
                 startIndex = 0;
                 for (int i = 0; i < csvLines.get(0).length; i++) {
                     header.add(String.valueOf(i));
-                    dataLists.put(header.get(i), Lists.<Double>newArrayList());
+                    dataLists.put(header.get(i), Lists.<Object>newArrayList());
                 }
             } else {
                 for (int i = 0; i < csvLines.get(0).length; i++) {
                     header.add(csvLines.get(0)[i]);
-                    dataLists.put(header.get(i), Lists.<Double>newArrayList());
+                    dataLists.put(header.get(i), Lists.<Object>newArrayList());
                 }
                 for (int i = startIndex; i < csvLines.size(); i++) {
                     appendLineToLists(csvLines.get(i));
@@ -70,11 +81,11 @@ public class CSVToMapOfNumericLists {
             if (dataLine[i].isEmpty()) {
                 continue;
             }
-            List<Double> listToappendTo = dataLists.get(header.get(i));
+            List<Object> listToappendTo = dataLists.get(header.get(i));
             try {
                 listToappendTo.add(Double.valueOf(dataLine[i]));
             } catch (NumberFormatException e) {
-                listToappendTo.add(Double.NaN);
+                listToappendTo.add(dataLine[i]);
             }
         }
     }
@@ -82,11 +93,11 @@ public class CSVToMapOfNumericLists {
 
     public static void main(String[] args) {
 
-        CSVToMapOfNumericLists csvReader = new CSVToMapOfNumericLists(',', true);
+        CSVToMapOfObjectLists csvReader = new CSVToMapOfObjectLists(',', true);
         try {
-            Map<String, List<Double>> mapOfinstances = csvReader.readCsv("/Users/alexanderhawk/Downloads/20150526-181451.csv");
+            Map<String, List<Object>> mapOfinstances = csvReader.readCsv("/Users/alexanderhawk/Downloads/20150526-181451.csv");
             for (String key : mapOfinstances.keySet()) {
-                System.out.println("list key: " + key + "list Vals" + mapOfinstances.get(key).toString());
+                System.out.println("list key: " + key + " list Vals" + mapOfinstances.get(key).toString());
             }
         } catch (Exception e) {
             throw new RuntimeException();
@@ -98,12 +109,17 @@ public class CSVToMapOfNumericLists {
 
 
         for (int i = 0; i < csvReader.dataLists.get("target_cpc_customers").size(); i++) {
+
+            final Double target_cpc_customers = (Double)csvReader.dataLists.get("target_cpc_customers").get(i);
+            Double effective_cust_daily_spend = (Double)csvReader.dataLists.get("actual_spend_customers").get(i)/computeReservationTime(
+                    (String)csvReader.dataLists.get("reserved_at").get(i), (String)csvReader.dataLists.get("actual_spend_time").get(i));
+
             PoolAdjacentViolatorsModel.Observation observation = new PoolAdjacentViolatorsModel.Observation
-                    (csvReader.dataLists.get("target_cpc_customers").get(i), csvReader.dataLists.get("effective_cust_daily_spend").get(i));
+                    (target_cpc_customers, effective_cust_daily_spend);
             observations.add(observation);
         }
 
-        PoolAdjacentViolatorsModel pav = new PoolAdjacentViolatorsModel(observations, 4);
+        PoolAdjacentViolatorsModel pav = new PoolAdjacentViolatorsModel(observations, 16);
         PoolAdjacentViolatorsModel.Observation prev = null;
      //   observations.sort(Comparator.<PoolAdjacentViolatorsModel.Observation>naturalOrder());
         for (PoolAdjacentViolatorsModel.Observation observation : observations) {
@@ -125,5 +141,11 @@ public class CSVToMapOfNumericLists {
         linePlotter.addSeries(predictions, "weighted linear interpolation");
         linePlotter.addSeries(preSmoothingSet, "binned observations with weight 4");
         linePlotter.displayPlot();
+    }
+    private static double computeReservationTime(String startTime, String endTime) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss");
+        DateTime startDateTime = dateFormatter.parseDateTime(startTime.substring(0, 19));
+        DateTime endDateTime = dateFormatter.parseDateTime(endTime.substring(0,19));
+        return ((double) Seconds.secondsBetween(startDateTime, endDateTime).getSeconds())/(24.0*60*60);
     }
 }
