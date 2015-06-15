@@ -3,6 +3,7 @@ package quickml.supervised.tree.branchFinders;
 import com.google.common.base.Optional;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.DTNumBranch;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
@@ -16,7 +17,7 @@ import java.util.Collection;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public class NumericBranchFinder<TS extends TermStatsAndOperations<TS>> extends BranchFinder<TS> {
+public abstract class NumericBranchFinder<TS extends TermStatsAndOperations<TS>> extends BranchFinder<TS> {
     public NumericBranchFinder(Collection<String> candidateAttributes, TerminationConditions<TS> terminationConditions, Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
@@ -32,8 +33,8 @@ public class NumericBranchFinder<TS extends TermStatsAndOperations<TS>> extends 
            Optional.absent();
         }
         double bestThreshold = (Double)attributeStats.getTermStats().get(splitScore.indexOfLastTermStatsInTrueSet).getAttrVal();
-        return Optional.of(new DTNumBranch(parent, attributeStats.getAttribute(),
-                splitScore.probabilityOfBeingInTrueSet, splitScore.score,
-                attributeStats.getAggregateStats(), bestThreshold));
+        return createBranch(parent, attributeStats, splitScore, bestThreshold);
     }
+    protected abstract Optional<? extends Branch<TS>> createBranch(Branch<TS> parent, AttributeStats<TS> attributeStats, SplittingUtils.SplitScore splitScore, double bestThreshold);
+
 }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.BenchmarkTest;
 import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 

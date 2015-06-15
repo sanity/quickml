@@ -4,6 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
+import quickml.data.ClassifierInstance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.Classifier;
@@ -32,7 +33,7 @@ public class PredictiveModelOptimizerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        List<InstanceWithAttributesMap> advertisingInstances = getAdvertisingInstances();
+        List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
         advertisingInstances = advertisingInstances.subList(0, 3000);
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, InstanceWithAttributesMap>()
                 .modelBuilder(new RandomForestBuilder<>())

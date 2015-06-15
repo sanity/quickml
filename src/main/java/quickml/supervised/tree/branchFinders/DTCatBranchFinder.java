@@ -16,9 +16,9 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/11/15.
  */
-public class DTCatBranchFinderBuilder extends SortableLabelsCategoricalBranchFinder<ClassificationCounter> {
+public class DTCatBranchFinder extends SortableLabelsCategoricalBranchFinder<ClassificationCounter> {
 
-    public DTCatBranchFinderBuilder(Set<String> candidateAttributes, TerminationConditions<ClassificationCounter> terminationConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+    public DTCatBranchFinder(Set<String> candidateAttributes, TerminationConditions<ClassificationCounter> terminationConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 

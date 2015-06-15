@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation.data;
 
 import org.joda.time.DateTime;
 import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-
-public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> {
+//TODO: generalize this to make object a generic
+public class OutOfTimeData<T extends InstanceWithAttributesMap<Object>> implements TrainingDataCycler<T> {
     private static final int MIN_INSTANCES_PER_VALIDATION_PERIOD = 5;
     private final List<T> allData;
     private final double crossValidationFraction;
