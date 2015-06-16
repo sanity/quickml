@@ -43,12 +43,14 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     public static final String MIN_SPLIT_FRACTION = "minSplitFraction";
     public static final String EXEMPT_ATTRIBUTES = "exemptAttributes";
+    public static final String IMBALANCE_PENALTY_POWER = "impbalancePenaltyPower";
 
     private Scorer scorer;
     private int maxDepth = 5;
     private double minimumScore = 0.00000000000001;
     private int minDiscreteAttributeValueOccurances = 0;
     private double minSplitFraction = .005;
+    private double imbalancePenaltyPower = 0;
     private Set<String> exemptAttributes = Sets.newHashSet();
 
     private int minLeafInstances = 0;
@@ -75,6 +77,10 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
     public TreeBuilder attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
+        return this;
+    }
+    public TreeBuilder imbalancePenaltyPower(double imbalancePenaltyPower ) {
+        this.imbalancePenaltyPower = imbalancePenaltyPower;
         return this;
     }
 
@@ -108,6 +114,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         copy.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
         copy.minSplitFraction = minSplitFraction;
         copy.exemptAttributes = exemptAttributes;
+        copy.imbalancePenaltyPower = imbalancePenaltyPower;
         return copy;
     }
 
@@ -137,8 +144,9 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
             attributeIgnoringStrategy((AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY));
         if (cfg.containsKey(IGNORE_ATTR_PROB))
-            ignoreAttributeAtNodeProbability((Double)cfg.get(IGNORE_ATTR_PROB));
-
+            ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
+        if (cfg.containsKey(IMBALANCE_PENALTY_POWER))
+            imbalancePenaltyPower((Double)cfg.get(IMBALANCE_PENALTY_POWER));
         penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
@@ -474,8 +482,11 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeIntrinsicValue) {
-                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }
-
+                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);
+            }
+            if (imbalancePenaltyPower!=0) {
+                thisScore/=Math.pow(Math.min(inCounts.getTotal(), outCounts.getTotal()), imbalancePenaltyPower);
+            }
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
@@ -712,6 +723,11 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
 
             double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
+
+            if (imbalancePenaltyPower!=0) {
+                thisScore/=Math.pow(Math.min(inClassificationCounts.getTotal(), outClassificationCounts.getTotal()), imbalancePenaltyPower);
+            }
+
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;
