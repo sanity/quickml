@@ -43,7 +43,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     public static final String MIN_SPLIT_FRACTION = "minSplitFraction";
     public static final String EXEMPT_ATTRIBUTES = "exemptAttributes";
-    public static final String IMBALANCE_PENALTY_POWER = "impbalancePenaltyPower";
+    public static final String IMBALANCE_PENALTY_POWER = "imbalancePenaltyPower";
 
     private Scorer scorer;
     private int maxDepth = 5;
@@ -485,7 +485,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
                 thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);
             }
             if (imbalancePenaltyPower!=0) {
-                thisScore/=Math.pow(Math.min(inCounts.getTotal(), outCounts.getTotal()), imbalancePenaltyPower);
+                thisScore/=Math.pow(Math.max(inCounts.getTotal(), outCounts.getTotal()), imbalancePenaltyPower);
             }
             if (thisScore > bestScore) {
                 bestScore = thisScore;
