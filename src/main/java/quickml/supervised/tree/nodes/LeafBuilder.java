@@ -1,11 +1,11 @@
 package quickml.supervised.tree.nodes;
 
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 
 /**
  * Created by alexanderhawk on 3/22/15.
  */
-public interface LeafBuilder<TS extends TermStatsAndOperations<TS>> {
-    Leaf<TS> buildLeaf(Branch parent, TS termStatistics);
+public interface LeafBuilder<VC extends ValueCounter<VC>> {
+    Leaf<VC> buildLeaf(Branch<VC> parent, VC termStatistics);
 }

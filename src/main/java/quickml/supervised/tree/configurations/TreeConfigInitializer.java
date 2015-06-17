@@ -2,7 +2,7 @@ package quickml.supervised.tree.configurations;
 
 import com.google.common.collect.Lists;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/22/15.
  */
-public abstract  class TreeConfigInitializer<L, I extends InstanceWithAttributesMap<L>, TS extends TermStatsAndOperations<TS>, D extends DataProperties> {
+public abstract  class TreeConfigInitializer<L, I extends InstanceWithAttributesMap<L>, TS extends ValueCounter<TS>, D extends DataProperties> {
 
     public InitializedTreeConfig<TS, D> createTreeConfig(List<I> instances, TreeConfig<TS, D> fcb) {
         D dataProperties = getDataProperties(instances, fcb.getBranchTypes());

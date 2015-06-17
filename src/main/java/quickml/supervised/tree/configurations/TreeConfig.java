@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.bagging.Bagging;
 import quickml.supervised.tree.bagging.StationaryBagging;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.LeafBuilder;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class TreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataProperties> {  //specifically Tr must be of the same type as TreeConfig
+public class TreeConfig<TS extends ValueCounter<TS>, D extends DataProperties> {  //specifically Tr must be of the same type as TreeConfig
     protected Scorer<TS> scorer;
     protected TerminationConditions<TS> terminationConditions;
     protected List<BranchFinderBuilder<TS, D>> branchFinderBuilders = Lists.newArrayList();

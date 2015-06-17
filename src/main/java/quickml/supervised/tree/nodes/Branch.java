@@ -3,25 +3,24 @@ package quickml.supervised.tree.nodes;
 import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 
 import java.io.Serializable;
 import java.util.Map;
 
 
-public abstract class Branch<TS extends TermStatsAndOperations<TS>> implements Node<TS>, Serializable {
+public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
 	public final String attribute;
-	public Node<TS> trueChild, falseChild;
-    public TS termStatistics;
-    protected Node<TS> parent;
+	public Node<VC> trueChild, falseChild;
+    public VC termStatistics;
+    protected Node<VC> parent;
 	protected final double probabilityOfTrueChild;
 	public final double score;
 	protected final int depth;
 
-	public Branch(Branch<TS> parent, final String attribute, double probabilityOfTrueChild, double score, TS termStatistics) {
+	public Branch(Branch<VC> parent, final String attribute, double probabilityOfTrueChild, double score, VC termStatistics) {
         this.parent = parent;
         this.attribute = attribute;
         this.depth = (parent!=null) ? parent.depth + 1 : 0;
@@ -30,15 +29,31 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> implements N
 		this.probabilityOfTrueChild = probabilityOfTrueChild;
 	}
 
-	public Node<TS> getTrueChild(){
+	public Node<VC> getTrueChild(){
         return trueChild;
     }
 
-    public Node<TS> getFalseChild(){
+    public Node<VC> getFalseChild(){
         return trueChild;
     }
 
-    public Node<TS> getParent() {
+    public int getDepth() {
+        return depth;
+    }
+
+    public VC getTermStatistics() {
+        return termStatistics;
+    }
+
+    public double getProbabilityOfTrueChild() {
+        return probabilityOfTrueChild;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public Node<VC> getParent() {
         return parent;
     }
 
@@ -74,7 +89,7 @@ public abstract class Branch<TS extends TermStatsAndOperations<TS>> implements N
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Branch<TS> branch = (Branch<TS>) o;
+        final Branch<VC> branch = (Branch<VC>) o;
 
         if (!attribute.equals(branch.attribute)) return false;
         if (!falseChild.equals(branch.falseChild)) return false;

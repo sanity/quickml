@@ -1,11 +1,9 @@
 package quickml.supervised.tree.nodes;
 
 import quickml.data.AttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
 import quickml.supervised.tree.decisionTree.DTLeaf;
 
-import java.io.IOException;
 import java.util.Set;
 
 /**

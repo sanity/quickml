@@ -2,17 +2,13 @@ package quickml.supervised.tree.nodes;
 
 
 import quickml.data.AttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
+public interface Node<VC extends ValueCounter<VC>> {
 
-import java.io.Serializable;
-import java.util.Set;
+	public abstract Leaf<VC> getLeaf(AttributesMap attributes);
 
-public interface Node<TS extends TermStatsAndOperations<TS>> {
-
-	public abstract Leaf<TS> getLeaf(AttributesMap attributes);
-
-	public abstract Node<TS> getParent();
+	public abstract Node<VC> getParent();
 
 	@Override
 	public abstract boolean equals(final Object obj);

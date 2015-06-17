@@ -1,7 +1,7 @@
 package quickml.supervised.tree.branchFinders;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.constants.BranchType;
 
@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class NumericBranchFinderBuilder<TS extends TermStatsAndOperations<TS>, D extends DataProperties> extends BranchFinderBuilder<TS, D> {
+public class NumericBranchFinderBuilder<TS extends ValueCounter<TS>, D extends DataProperties> extends BranchFinderBuilder<TS, D> {
 
     @Override
     public BranchFinderBuilder<TS, D> createBranchFinderBuilder() {

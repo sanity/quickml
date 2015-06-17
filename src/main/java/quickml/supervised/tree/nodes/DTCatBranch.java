@@ -1,7 +1,6 @@
 package quickml.supervised.tree.nodes;
 
 import com.google.common.collect.Sets;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
 
 import java.util.Map;

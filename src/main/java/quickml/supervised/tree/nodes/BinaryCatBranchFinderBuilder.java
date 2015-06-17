@@ -1,7 +1,6 @@
 package quickml.supervised.tree.nodes;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.BinaryClassAttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.decisionTree.BinaryClassifierDataProperties;

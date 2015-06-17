@@ -2,7 +2,7 @@ package quickml.supervised.tree.branchFinders;
 
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.nodes.AttributeStats;
 import quickml.supervised.tree.terminationConditions.TerminationConditions;
@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class SplittingUtils {
 
-public static <TS extends TermStatsAndOperations<TS>> SplitScore splitSortedAttributeStats(AttributeStats<TS> attributeStats, Scorer<TS> scorer,
+public static <TS extends ValueCounter<TS>> SplitScore splitSortedAttributeStats(AttributeStats<TS> attributeStats, Scorer<TS> scorer,
                                                                                TerminationConditions<TS> terminationConditions,
                                                                                AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy) {
     double bestScore = terminationConditions.getMinScore();
@@ -55,7 +55,7 @@ public static <TS extends TermStatsAndOperations<TS>> SplitScore splitSortedAttr
     return new SplitScore(bestScore, indexOfLastTermStatsInTrueSet, probabilityOfBeingInTrueSet, trueSetVals);
 }
 
-    private static <TS extends TermStatsAndOperations<TS>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<TS> termStats) {
+    private static <TS extends ValueCounter<TS>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<TS> termStats) {
         Set<Object> trueSetVals = Sets.newHashSet();
         for(int j =0; j<=indexOfLastTermStatsInTrueSet; j++) {
             trueSetVals.add(termStats.get(j).getAttrVal());

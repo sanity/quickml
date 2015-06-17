@@ -3,11 +3,11 @@ package quickml.supervised.tree.nodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 import java.util.Map;
 
-public abstract class NumBranch<TS extends TermStatsAndOperations<TS>> extends Branch<TS> {
+public abstract class NumBranch<TS extends ValueCounter<TS>> extends Branch<TS> {
     private static final  Logger logger =  LoggerFactory.getLogger(NumBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;

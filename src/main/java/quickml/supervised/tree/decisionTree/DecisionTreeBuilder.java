@@ -1,3 +1,4 @@
+
 package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Maps;
@@ -5,7 +6,6 @@ import quickml.data.ClassifierInstance;
 import quickml.data.PredictionMap;
 import quickml.supervised.tree.TreeBuilder;
 import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
 import quickml.supervised.tree.configurations.InitializedTreeConfig;
 import quickml.supervised.tree.configurations.TreeConfig;
 import quickml.supervised.tree.constants.BranchType;
@@ -21,9 +21,11 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> extends TreeBuild
 
     @Override
     protected Map<BranchType, InstancesToAttributeStatistics<Object, I, ClassificationCounter>> initializeInstancesToAttributeStatistics(InitializedTreeConfig<ClassificationCounter, ClassifierDataProperties> initializedTreeConfig) {
-        //In general the instancesToAttributeStats may depend on training data, hence we put them here to hava access to the the initializad configurations.
+        //In general the instancesToAttributeStats may depend on training data, hence we put them here to have access to the the initializad configurations.
+
+        //alternative: each branchFinder get's initialized by a method that takes the training data
+
         Map<BranchType, InstancesToAttributeStatistics<Object, I, ClassificationCounter>> instancesToAttributeStatisticsMap = Maps.newHashMap();
-        //TODO: these entries should be linked to the branch finderBuilders some how...but not too strongly linked since decoupling is important to achieve parallelization, and use of inverted indices
         if (initializedTreeConfig.getDataProperties() instanceof  BinaryClassifierDataProperties) {
             instancesToAttributeStatisticsMap.put(BranchType.CATEGORICAL, new InstanceToAttributeStatisticsForBinaryClassCatBranch<I>(((BinaryClassifierDataProperties) initializedTreeConfig.getDataProperties()).minorityClassification));
         } else {

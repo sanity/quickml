@@ -2,10 +2,8 @@ package quickml.supervised.tree.branchFinders;
 
 import com.google.common.base.Optional;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.DTBranch;
-import quickml.supervised.tree.nodes.DTCatBranch;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.nodes.AttributeStats;
@@ -17,7 +15,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public abstract class SortableLabelsCategoricalBranchFinder<TS extends TermStatsAndOperations<TS>> extends BranchFinder<TS> {
+public abstract class SortableLabelsCategoricalBranchFinder<TS extends ValueCounter<TS>> extends BranchFinder<TS> {
 
     public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, TerminationConditions<TS> terminationConditions,
                                                  Scorer<TS> scorer, AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy,

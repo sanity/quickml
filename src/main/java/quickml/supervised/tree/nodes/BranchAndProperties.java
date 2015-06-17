@@ -1,13 +1,12 @@
 package quickml.supervised.tree.nodes;
 
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 /**
  * Created by alexanderhawk on 6/10/15.
  */
 //for later refactor
-public class BranchAndProperties<TS extends TermStatsAndOperations<TS>> {
+public class BranchAndProperties<TS extends ValueCounter<TS>> {
     public final double probabilityOfTrueChild;
     public final double score;
     public final int depth;

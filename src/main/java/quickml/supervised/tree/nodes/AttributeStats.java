@@ -1,14 +1,14 @@
 package quickml.supervised.tree.nodes;
 
 
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 import java.util.List;
 
 /**
  * Created by alexanderhawk on 4/16/15.
  */
-public class AttributeStats<TS extends TermStatsAndOperations<TS>> {
+public class AttributeStats<TS extends ValueCounter<TS>> {
     List<TS> termStats;
     TS aggregateStats;
     String attribute;

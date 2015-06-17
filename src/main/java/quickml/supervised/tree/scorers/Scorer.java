@@ -1,13 +1,13 @@
 package quickml.supervised.tree.scorers;
 
 
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.AttributeStats;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
  */
-public abstract class Scorer<TS extends TermStatsAndOperations<TS>> {
+public abstract class Scorer<TS extends ValueCounter<TS>> {
 	public static final double NO_SCORE = Double.MIN_VALUE;
 	protected double degreeOfGainRatioPenalty;
 	protected double intrinsicValue;

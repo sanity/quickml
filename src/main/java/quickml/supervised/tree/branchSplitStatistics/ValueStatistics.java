@@ -3,15 +3,15 @@ package quickml.supervised.tree.branchSplitStatistics;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public abstract class TermStatistics {
+public abstract class ValueStatistics {
 
     public Object attrVal;
 
-    public TermStatistics(Object attrVal) {
+    public ValueStatistics(Object attrVal) {
         this.attrVal = attrVal;
     }
 
-    public TermStatistics(){}
+    public ValueStatistics(){}
 
     public Object getAttrVal() {
         return attrVal;

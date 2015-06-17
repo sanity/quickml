@@ -4,14 +4,14 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
 
-public class ClassificationCounter extends TermStatsAndOperations<ClassificationCounter> implements Serializable {
+public class ClassificationCounter extends ValueCounter<ClassificationCounter> implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private final ValueSummingMap<Object> counts = new ValueSummingMap<Object>();
 

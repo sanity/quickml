@@ -1,6 +1,6 @@
 package quickml.supervised.tree.terminationConditions;
 
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Branch;
 
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Map;
 //options get rid of the class and
 
     //isInvalidSplit, move to BranchFinderClass? Sure. Makes sense. except
-public interface TerminationConditions  <TS extends TermStatsAndOperations<TS>> {
+public interface TerminationConditions  <TS extends ValueCounter<TS>> {
     //so should the BranchFinderBuildersGet their own termination conditions? Maybe.
     boolean isInvalidSplit(TS trueTermStats, TS falseTermStats);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
     boolean canTryAddingChildren(Branch branch, TS ts);//Branch has score and depth info in itg

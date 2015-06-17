@@ -2,7 +2,7 @@ package quickml.supervised.tree.configurations;
 
 import com.google.common.base.Optional;
 import quickml.supervised.tree.bagging.Bagging;
-import quickml.supervised.tree.branchSplitStatistics.TermStatsAndOperations;
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.scorers.Scorer;
@@ -13,7 +13,7 @@ import quickml.supervised.tree.terminationConditions.TerminationConditions;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class InitializedTreeConfig<TS extends TermStatsAndOperations<TS>, D extends DataProperties> {
+public class InitializedTreeConfig<TS extends ValueCounter<TS>, D extends DataProperties> {
 //option here: if data properties only needed in service of intitializing the Attr. ignoring strategy, and the termination conditions, then only need d
     //in configurations...have a protected abstract method that initializes these objects we actually want to pass on, and in the constructor of the implementing class, we can initialize a field (the user doesn't
     //know about) we can create a data properties object that takes care of this for us.
