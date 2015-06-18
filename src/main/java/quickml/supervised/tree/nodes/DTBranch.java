@@ -9,10 +9,9 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/28/15.
  */
-public abstract class DTBranch extends Branch<ClassificationCounter> implements DTNode {
-    private DTNode trueChild, falseChild;
+public abstract class DTBranch extends Branch<ClassificationCounter, DTNode> implements DTNode {
 
-    public DTBranch(Branch<ClassificationCounter> parent, final String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics) {
+    public DTBranch(DTBranch parent, final String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics) {
         super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
     }
 

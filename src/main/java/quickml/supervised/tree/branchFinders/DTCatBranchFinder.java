@@ -9,7 +9,7 @@ import quickml.supervised.tree.nodes.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.DTCatBranch;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.terminationConditions.TerminationConditions;
+import quickml.supervised.tree.terminationConditions.BranchingConditions;
 
 import java.util.Set;
 
@@ -18,8 +18,8 @@ import java.util.Set;
  */
 public class DTCatBranchFinder extends SortableLabelsCategoricalBranchFinder<ClassificationCounter> {
 
-    public DTCatBranchFinder(Set<String> candidateAttributes, TerminationConditions<ClassificationCounter> terminationConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+    public DTCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 
     @Override

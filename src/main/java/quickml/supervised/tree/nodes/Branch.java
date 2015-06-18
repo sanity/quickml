@@ -9,31 +9,31 @@ import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import java.io.Serializable;
 import java.util.Map;
 
-
-public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, Serializable {
+//signature ensures that Branch<VC, N> extends N (as it extends Node<VC, N>, which has exactly one valid extension: N).
+public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>> implements Node<VC, N>, Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
 	public final String attribute;
-	public Node<VC> trueChild, falseChild;
-    public VC termStatistics;
-    protected Node<VC> parent;
+	public N trueChild, falseChild;
+    public VC valueCounter;
+    protected N parent;
 	protected final double probabilityOfTrueChild;
 	public final double score;
 	protected final int depth;
 
-	public Branch(Branch<VC> parent, final String attribute, double probabilityOfTrueChild, double score, VC termStatistics) {
-        this.parent = parent;
+	public Branch(Branch<VC, N> parent, final String attribute, double probabilityOfTrueChild, double score, VC valueCounter) {
+        this.parent = (N)parent; //cast 100% guarenteed to work.  If java was smarter it would know this.
         this.attribute = attribute;
         this.depth = (parent!=null) ? parent.depth + 1 : 0;
         this.score = score;
-        this.termStatistics = termStatistics;
+        this.valueCounter = valueCounter;
 		this.probabilityOfTrueChild = probabilityOfTrueChild;
 	}
 
-	public Node<VC> getTrueChild(){
+	public N getTrueChild(){
         return trueChild;
     }
 
-    public Node<VC> getFalseChild(){
+    public N getFalseChild(){
         return trueChild;
     }
 
@@ -41,8 +41,8 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
         return depth;
     }
 
-    public VC getTermStatistics() {
-        return termStatistics;
+    public VC getValueCounter() {
+        return valueCounter;
     }
 
     public double getProbabilityOfTrueChild() {
@@ -53,7 +53,7 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
         return score;
     }
 
-    public Node<VC> getParent() {
+    public N getParent() {
         return parent;
     }
 
@@ -89,7 +89,7 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Branch<VC> branch = (Branch<VC>) o;
+        final Branch<VC, N> branch = (Branch<VC, N>) o;
 
         if (!attribute.equals(branch.attribute)) return false;
         if (!falseChild.equals(branch.falseChild)) return false;

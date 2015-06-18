@@ -1,12 +1,9 @@
-package quickml.supervised.tree.nodes;
+package quickml.supervised.tree.branchFinders;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.BinaryClassAttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.decisionTree.BinaryClassifierDataProperties;
-import quickml.supervised.tree.branchFinders.BranchFinder;
-import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
-import quickml.supervised.tree.branchFinders.SortableLabelsCategoricalBranchFinder;
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
 import quickml.supervised.tree.decisionTree.ClassifierDataProperties;
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -24,7 +21,7 @@ public class BinaryCatBranchFinderBuilder extends BranchFinderBuilder<Classifica
     @Override
     public BranchFinder<ClassificationCounter> buildBranchFinder(ClassifierDataProperties dataProperties) {
         AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy((BinaryClassifierDataProperties) dataProperties);
-        return new SortableLabelsCategoricalBranchFinder<ClassificationCounter>(dataProperties.getCandidateAttributesOfAllBranchFinders().get(BranchType.CATEGORICAL), terminationConditions,
+        return new SortableLabelsCategoricalBranchFinder<ClassificationCounter>(dataProperties.getCandidateAttributesOfAllBranchFinders().get(BranchType.CATEGORICAL), branchingConditions,
                 scorer, attributeValueIgnoringStrategy,
                 attributeIgnoringStrategy, branchType);
     }

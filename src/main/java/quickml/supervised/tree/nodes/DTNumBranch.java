@@ -9,10 +9,8 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/11/15.
  */
-public class DTNumBranch extends NumBranch<ClassificationCounter>  implements DTNode{
-    DTNode trueChild, falseChild;
+public class DTNumBranch extends NumBranch<ClassificationCounter, DTNode>  implements DTNode{
 
-    //TODO both getLeaf and getProb... are duplicated from DTBranch and DTCatBranch.  When java 8 is brought in, use it here.
     @Override
     public DTLeaf getLeaf(final AttributesMap attributes) {
         if (decide(attributes))
@@ -35,7 +33,7 @@ public class DTNumBranch extends NumBranch<ClassificationCounter>  implements DT
             }
         }
     }
-    public DTNumBranch(Branch<ClassificationCounter> parent, String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics, double threshold) {
+    public DTNumBranch(Branch<ClassificationCounter, DTNode> parent, String attribute, double probabilityOfTrueChild, double score, ClassificationCounter termStatistics, double threshold) {
         super(parent, attribute, probabilityOfTrueChild, score, termStatistics, threshold);
 
     }

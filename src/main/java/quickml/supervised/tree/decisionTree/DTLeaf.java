@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 
-public class DTLeaf implements Leaf<ClassificationCounter>, DTNode, Serializable {
+public class DTLeaf implements Leaf<ClassificationCounter, DTNode>, DTNode, Serializable {
     private static final long serialVersionUID = -5617660873196498754L;
 
     private static final AtomicLong guidCounter = new AtomicLong(0);

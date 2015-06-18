@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/16/15.
  */
-public abstract class InstancesToAttributeStatistics<L, I extends InstanceWithAttributesMap<L>, TS extends ValueCounter<TS>> implements AttributeStatisticsProducer<TS> {
+public abstract class TrainingDataReducer<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>> implements AttributeStatisticsProducer<VC> {
 
   protected List<I> trainingData;
 
@@ -18,5 +18,5 @@ public abstract class InstancesToAttributeStatistics<L, I extends InstanceWithAt
     this.trainingData = trainingData;
   }
 
-  public abstract AttributeStats<TS> getAttributeStats(String attribute);
+  public abstract AttributeStats<VC> getAttributeStats(String attribute);
 }

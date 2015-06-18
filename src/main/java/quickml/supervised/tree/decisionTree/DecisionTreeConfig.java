@@ -6,8 +6,8 @@ import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.decisionTree.tree.Bagging;
 import quickml.supervised.tree.branchFinders.NumericBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.tree.TerminationConditions;
-import quickml.supervised.tree.nodes.BinaryCatBranchFinderBuilder;
-import quickml.supervised.tree.nodes.CategoricalBranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.BinaryCatBranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.CategoricalBranchFinderBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
 import quickml.supervised.tree.configurations.TreeConfig;
 

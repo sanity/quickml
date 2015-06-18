@@ -12,18 +12,18 @@ import static quickml.supervised.tree.decisionTree.tree.ForestOptions.MIN_SCORE;
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public class StandardTerminationConditions implements TerminationConditions<ClassificationCounter> {
+public class StandardBranchingConditions implements BranchingConditions<ClassificationCounter> {
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
 
-    public StandardTerminationConditions(double minScore, int maxDepth, int minLeafInstances) {
+    public StandardBranchingConditions(double minScore, int maxDepth, int minLeafInstances) {
         this.minScore = minScore;
         this.maxDepth = maxDepth;
         this.minLeafInstances = minLeafInstances;
     }
 
-    public StandardTerminationConditions() {}
+    public StandardBranchingConditions() {}
 
     public double getMinScore() {
         return minScore;
@@ -37,18 +37,18 @@ public class StandardTerminationConditions implements TerminationConditions<Clas
         return minLeafInstances;
     }
 
-    public StandardTerminationConditions minScore(double minScore) {
+    public StandardBranchingConditions minScore(double minScore) {
         this.minScore = minScore;
         return this;
     }
 
-    public StandardTerminationConditions maxDepth(int maxDepth) {
+    public StandardBranchingConditions maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
         return this;
 
     }
 
-    public StandardTerminationConditions minLeafInstances(int minLeafInstances) {
+    public StandardBranchingConditions minLeafInstances(int minLeafInstances) {
         this.minLeafInstances = minLeafInstances;
         return this;
     }
@@ -62,7 +62,7 @@ public class StandardTerminationConditions implements TerminationConditions<Clas
 
     @Override
     public boolean canTryAddingChildren(Branch parent, ClassificationCounter totals){
-        return parent.depth < maxDepth && totals.getTotal() > 2 * minLeafInstances;
+        return parent.getDepth() < maxDepth && totals.getTotal() > 2 * minLeafInstances;
     }
 
     @Override
@@ -76,8 +76,8 @@ public class StandardTerminationConditions implements TerminationConditions<Clas
     }
 
     @Override
-    public StandardTerminationConditions copy(){
-        return new StandardTerminationConditions(this.minScore, this.maxDepth, this.minLeafInstances);
+    public StandardBranchingConditions copy(){
+        return new StandardBranchingConditions(this.minScore, this.maxDepth, this.minLeafInstances);
     }
 
 

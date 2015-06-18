@@ -7,13 +7,13 @@ import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 import java.util.Map;
 
-public abstract class NumBranch<TS extends ValueCounter<TS>> extends Branch<TS> {
+public abstract class NumBranch<VC extends ValueCounter<VC>, N extends Node<VC, N>> extends Branch<VC, N> {
     private static final  Logger logger =  LoggerFactory.getLogger(NumBranch.class);
 
 	private static final long serialVersionUID = 4456176008067679801L;
 	public final double threshold;
 
-    public NumBranch(Branch<TS> parent, String attribute, double probabilityOfTrueChild, double score, TS termStatistics, double threshold) {
+    public NumBranch(Branch<VC, N> parent, String attribute, double probabilityOfTrueChild, double score, VC termStatistics, double threshold) {
         super(parent, attribute, probabilityOfTrueChild, score, termStatistics);
         this.threshold = threshold;
     }

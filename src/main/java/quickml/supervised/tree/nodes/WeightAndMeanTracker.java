@@ -1,9 +1,10 @@
 package quickml.supervised.tree.nodes;
 
-import quickml.supervised.tree.decisionTree.tree.TermStatistics;
+
+import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 
 /**
  * Created by alexanderhawk on 4/9/15.
  */
-public class WeightAndMeanTracker extends TermStatistics {
+public abstract class WeightAndMeanTracker extends ValueCounter<WeightAndMeanTracker> {
 }

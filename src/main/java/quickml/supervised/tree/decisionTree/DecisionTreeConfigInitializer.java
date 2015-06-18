@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.ClassifierDataProperties;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.configurations.InitializedTreeConfig;
+import quickml.supervised.tree.configurations.StateAssociatedWithATreeBuild;
 import quickml.supervised.tree.configurations.TreeConfig;
 import quickml.supervised.tree.configurations.TreeConfigInitializer;
 
@@ -21,7 +21,7 @@ public class DecisionTreeConfigInitializer<I extends ClassifierInstance> extends
     }
 
     @Override
-    public InitializedTreeConfig<ClassificationCounter, ClassifierDataProperties> createTreeConfig(List<I> instances, TreeConfig<ClassificationCounter, ClassifierDataProperties> fcb) {
+    public StateAssociatedWithATreeBuild<ClassificationCounter, ClassifierDataProperties> createTreeConfig(List<I> instances, TreeConfig<ClassificationCounter, ClassifierDataProperties> fcb) {
         return super.createTreeConfig(instances, fcb);
     }
 

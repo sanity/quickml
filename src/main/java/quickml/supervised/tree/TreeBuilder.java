@@ -4,94 +4,85 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.bagging.Bagging;
 import quickml.supervised.tree.branchSplitStatistics.AggregateStatistics;
-import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
+import quickml.supervised.tree.branchSplitStatistics.TrainingDataReducer;
 import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
-import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
-import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Leaf;
-import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.nodes.ParentOfRoot;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.terminationConditions.TerminationConditions;
-import quickml.supervised.tree.configurations.InitializedTreeConfig;
+import quickml.supervised.tree.nodes.Leaf;
+import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.terminationConditions.BranchingConditions;
+import quickml.supervised.tree.configurations.StateAssociatedWithATreeBuild;
 import quickml.supervised.tree.configurations.TreeConfig;
 import quickml.supervised.tree.configurations.TreeConfigInitializer;
 
 import java.util.*;
 
-public abstract class TreeBuilder<L, P,  I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, TR extends Tree<P>, D extends DataProperties> implements PredictiveModelBuilder<TR, I> {
+public abstract class TreeBuilder<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>>  {
 
-    protected TreeConfig<VC, D> treeConfig;
-    protected TreeConfigInitializer<L, I, VC, D> treeConfigInitializer;
+    protected TreeConfig<L, I, VC, N> treeConfig;
+    protected TreeConfigInitializer<L, I, VC> treeConfigInitializer;
     protected AggregateStatistics<L, I, VC> aggregateStatistics;
 
-    protected TreeBuilder(TreeConfig<VC, D> treeConfig, TreeConfigInitializer<L, I, VC, D> treeConfigInitializer, AggregateStatistics<L, I, VC> aggregateStatistics) {
+    protected TreeBuilder(TreeConfig<L, I, VC, N>  treeConfig, TreeConfigInitializer<L, I, VC> treeConfigInitializer, AggregateStatistics<L, I, VC> aggregateStatistics) {
         this.treeConfig = treeConfig.copy();
         this.treeConfigInitializer = treeConfigInitializer; //abstract factory pattern (applied to all public (stateless wrt training data) fields)
         this.aggregateStatistics = aggregateStatistics;// abstract factory pattern
     }
 
-    @Override
-    public TR buildPredictiveModel(Iterable<I> unprocessedTrainingData) {
+
+    public N computeRoot(Iterable<I> unprocessedTrainingData) {
         Bagging.TrainingDataPair<L, I> trainingDataPair = prepareTrainingData(unprocessedTrainingData);
-        InitializedTreeConfig<VC, D> initializedTreeConfig = treeConfigInitializer.createTreeConfig(trainingDataPair.trainingData, treeConfig);  //make a method a param
-        Map<BranchType, InstancesToAttributeStatistics<L, I, VC>> instancesToAttributeStatisticsMap = initializeInstancesToAttributeStatistics(initializedTreeConfig);
-        return buildTree(trainingDataPair, initializedTreeConfig, instancesToAttributeStatisticsMap);
+        StateAssociatedWithATreeBuild<L, I, VC, N> stateAssociatedWithATreeBuild = treeConfigInitializer.createTreeConfig(trainingDataPair, treeConfig);  //make a method a param
+        return createNode(null, trainingDataPair.trainingData, stateAssociatedWithATreeBuild);
     }
 
     private Bagging.TrainingDataPair<L, I> prepareTrainingData(Iterable<I> unprocessedTrainingData) {
         List<I> trainingData = Lists.newArrayList(unprocessedTrainingData);
         Bagging.TrainingDataPair<L, I> trainingDataPair = new Bagging.TrainingDataPair<>(trainingData, null);
         if (treeConfig.getBagging().isPresent()) {
-            Bagging bagging = treeConfig.getBagging().get();
-            trainingDataPair = bagging.separateTrainingDataFromOutOfBagData(trainingData);
+            Optional<? extends Bagging> bagging = treeConfig.getBagging();
+            trainingDataPair = bagging.get().separateTrainingDataFromOutOfBagData(trainingData);
         }
         return trainingDataPair;
     }
 
-    private TR buildTree(Bagging.TrainingDataPair<L, I> trainingDataPair, InitializedTreeConfig<VC, D> initializedTreeConfig, Map<BranchType, InstancesToAttributeStatistics<L, I, VC>> instancesToAttributeStatisticsMap) {
-        Node root = createNode(new ParentOfRoot<VC>(), trainingDataPair.trainingData, initializedTreeConfig, instancesToAttributeStatisticsMap);
-        TR tree = constructTree(root, initializedTreeConfig.getDataProperties());
-        return tree;
-    }
 
-    private Node<VC> createNode(Branch<VC> parent, List<I> trainingData, InitializedTreeConfig<VC, D> initializedTreeConfig, Map<BranchType, InstancesToAttributeStatistics<L, I, VC>> instancesToAttributeStatisticsMap) {
+    private N createNode(Branch<VC, N> parent, List<I> trainingData, StateAssociatedWithATreeBuild<L, I, VC, N> stb) {
         Preconditions.checkArgument(trainingData == null || trainingData.isEmpty(), "Can't build a tree with no training data");
-        TerminationConditions<VC> terminationConditions = initializedTreeConfig.getTerminationConditions();
-        VC aggregateStats = getTermStats(parent, trainingData);
-        if (terminationConditions.canTryAddingChildren(parent, aggregateStats)) {
-            return getLeaf(parent, aggregateStats, initializedTreeConfig);
+        BranchingConditions<VC, N> branchingConditions = stb.getBranchingConditions();
+        VC aggregateStats = getValueCounter(parent, trainingData);
+        if (branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
+            return (N)getLeaf(parent, aggregateStats, stb); //cast 100% guaranteed, as Leaf<VC,N> extends N
         }
-        Optional<? extends Branch<VC>> bestBranchOptional = findBestBranch(parent, trainingData, initializedTreeConfig, instancesToAttributeStatisticsMap);
+        Optional<? extends Branch<VC, N>> bestBranchOptional = findBestBranch(parent, trainingData, stb);
         if (!bestBranchOptional.isPresent()) {
-            return getLeaf(parent, aggregateStats, initializedTreeConfig);
+            return (N)getLeaf(parent, aggregateStats, stb);//cast 100% guaranteed, as Leaf<VC,N> extends N
         }
-        Branch<VC> bestBranch = bestBranchOptional.get();
+        Branch<VC, N> bestBranch = bestBranchOptional.get();
         Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
 
-        bestBranch.trueChild = createNode(bestBranch, trueFalsePair.trueTrainingSet, initializedTreeConfig, instancesToAttributeStatisticsMap);
-        bestBranch.falseChild = createNode(bestBranch, trueFalsePair.falseTrainingSet, initializedTreeConfig, instancesToAttributeStatisticsMap);
+        bestBranch.trueChild = createNode(bestBranch, trueFalsePair.trueTrainingSet, stb);
+        bestBranch.falseChild = createNode(bestBranch, trueFalsePair.falseTrainingSet, stb);
 
-        return bestBranch;
+        return (N)bestBranch;//cast 100% guaranteed, as Branch<VC,N> extends N.
     }
 
-    private Optional<? extends Branch<VC>> findBestBranch(Branch parent, List<I> instances, InitializedTreeConfig<VC, D> initializedTreeConfig, Map<BranchType, InstancesToAttributeStatistics<L, I, VC>> instancesToAttributeStatisticsMap) {
+    private Optional<? extends Branch<VC, N>> findBestBranch(Branch parent, List<I> instances, StateAssociatedWithATreeBuild<L, I, VC, N> stb ) {
 
-        double bestScore = initializedTreeConfig.getTerminationConditions().getMinScore();
-        Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
-        Iterable<BranchFinder<VC>> branchFinders = initializedTreeConfig.getBranchFinders();
-        for (BranchFinder<VC> branchFinder : branchFinders) {
-            InstancesToAttributeStatistics<L, I, VC> instancesToAttributeStatistics = instancesToAttributeStatisticsMap.get(branchFinder.getBranchType());
-            instancesToAttributeStatistics.setTrainingData(instances);
-            Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, instancesToAttributeStatistics); //decoupling occurs bc instancesToAttributeStatistics implements a simpler interface
+        double bestScore = 0;
+        Optional<? extends Branch<VC, N>> bestBranchOptional = Optional.absent();
+        Iterable<BranchFinder<VC, N>> branchFinders = stb.getBranchFinders();
+        for (BranchFinder<VC, N> branchFinder : branchFinders) {
+            //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
+            TrainingDataReducer<L, I, VC> trainingDataReducer = stb.getTrainingDataReducers(branchFinder.getBranchType());
+            trainingDataReducer.setTrainingData(instances);
+            Optional<? extends Branch<VC, N>> thisBranchOptional = branchFinder.findBestBranch(parent, trainingDataReducer); //decoupling occurs bc trainingDataReducer implements a simpler interface
             if (thisBranchOptional.isPresent()) {
-                Branch<VC> thisBranch = thisBranchOptional.get();
-                if (thisBranch.score > bestScore) {  //minScore evaluation delegated to branchFinder
+                Branch<VC, N> thisBranch = thisBranchOptional.get();
+                if (isBestSplitSoFar(stb, bestScore, thisBranch)) {  //minScore evaluation delegated to branchFinder
                     bestBranchOptional = thisBranchOptional;
                     bestScore = thisBranch.score;
                 }
@@ -100,19 +91,19 @@ public abstract class TreeBuilder<L, P,  I extends InstanceWithAttributesMap<L>,
         return bestBranchOptional;
     }
 
-    private VC getTermStats(Branch<VC> parent, List<I> trainingData) {
-        return !parent.isEmpty() ? parent.termStatistics : aggregateStatistics.getAggregateStats(trainingData);
+    private boolean isBestSplitSoFar(StateAssociatedWithATreeBuild itc, double bestScore, Branch<VC, N> thisBranch) {
+        return thisBranch.getScore()> bestScore && !itc.getBranchingConditions().isInvalidSplit(thisBranch.getScore());
     }
 
-    private Leaf<VC> getLeaf(Branch<VC> parent, VC aggregateStats, InitializedTreeConfig<VC, D> initializedTreeConfig) {
-        return initializedTreeConfig.getLeafBuilder().buildLeaf(parent, aggregateStats);
+    private VC getValueCounter(Branch<VC, N> parent, List<I> trainingData) {
+        return !parent.isEmpty() ? parent.valueCounter : aggregateStatistics.getAggregateStats(trainingData);
     }
-    //replacing Node<TS>  with Nd where Nd extends Node<TS>
-    protected abstract TR constructTree(Node<VC> node, D dataProperties); //factory method pattern
 
-    protected abstract Map<BranchType, InstancesToAttributeStatistics<L, I, VC>> initializeInstancesToAttributeStatistics(InitializedTreeConfig<VC, D> initializedTreeConfig); //factory method pattern
+    protected  Leaf<VC, N> getLeaf(Branch<VC, N> parent, VC valueCounter, StateAssociatedWithATreeBuild<L, I, VC, N> stb) {
+            return stb.getLeafBuilder().buildLeaf(parent, valueCounter);
+    }
 
-    public abstract TreeBuilder<L, P, I, VC, TR, D> copy();// {returns new TreeBuilder(configurations);}
+    public abstract TreeBuilder<L, I, VC, N> copy();// {returns new TreeBuilder(configurations);}
 
 
     public void updateBuilderConfig(Map<String, Object> cfg) {

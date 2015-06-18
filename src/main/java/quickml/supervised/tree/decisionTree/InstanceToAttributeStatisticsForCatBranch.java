@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
+import quickml.supervised.tree.branchSplitStatistics.TrainingDataReducer;
 import quickml.supervised.tree.nodes.AttributeStats;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import static quickml.supervised.tree.constants.MissingValue.*;
 /**
  * Created by alexanderhawk on 4/23/15.
  */
-public class InstanceToAttributeStatisticsForCatBranch<I extends ClassifierInstance> extends InstancesToAttributeStatistics<Object, I, ClassificationCounter> {
+public class InstanceToAttributeStatisticsForCatBranch<I extends ClassifierInstance> extends TrainingDataReducer<Object, I, ClassificationCounter> {
 
     @Override
     public AttributeStats<ClassificationCounter> getAttributeStats(String attribute) {

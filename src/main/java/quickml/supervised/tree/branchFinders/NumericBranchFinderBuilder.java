@@ -22,6 +22,6 @@ public class NumericBranchFinderBuilder<TS extends ValueCounter<TS>, D extends D
     public BranchFinder<TS> buildBranchFinder(D dataProperties) { //would be better if it took a configFacade, which i could extend have problem with number of ordinal splits.
         Set<String> candidateAttributesForNumericBranch = dataProperties.getCandidateAttributesForBranchType(BranchType.NUMERIC);
         AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(dataProperties);
-        return new NumBranch(candidateAttributesForNumericBranch, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+        return new NumBranch(candidateAttributesForNumericBranch, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 }

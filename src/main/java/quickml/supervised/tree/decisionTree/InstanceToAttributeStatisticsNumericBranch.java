@@ -5,7 +5,7 @@ import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
 import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.branchSplitStatistics.InstancesToAttributeStatistics;
+import quickml.supervised.tree.branchSplitStatistics.TrainingDataReducer;
 import quickml.supervised.tree.nodes.AttributeStats;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/23/15.
  */
-public class InstanceToAttributeStatisticsNumericBranch<I extends ClassifierInstance> extends InstancesToAttributeStatistics<Object, I, ClassificationCounter> {
+public class InstanceToAttributeStatisticsNumericBranch<I extends ClassifierInstance> extends TrainingDataReducer<Object, I, ClassificationCounter> {
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
    //TODO: once verify functionality is correct, remove these variables and get n classification counters which can then be further merged in the branchFinder
     int numSamplesForComputingNumericSplitPoints = 50;

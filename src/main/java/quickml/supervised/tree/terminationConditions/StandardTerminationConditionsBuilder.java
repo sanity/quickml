@@ -20,7 +20,7 @@ public class StandardTerminationConditionsBuilder {
         return this;
     }
 
-    public StandardTerminationConditions buildStandardTerminationConditions() {
-        return new StandardTerminationConditions(minScore, maxDepth, minLeafInstances);
+    public StandardBranchingConditions buildStandardTerminationConditions() {
+        return new StandardBranchingConditions(minScore, maxDepth, minLeafInstances);
     }
 }

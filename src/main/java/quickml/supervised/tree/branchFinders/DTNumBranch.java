@@ -9,7 +9,7 @@ import quickml.supervised.tree.nodes.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.DTNumBranch;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.terminationConditions.TerminationConditions;
+import quickml.supervised.tree.terminationConditions.BranchingConditions;
 
 import java.util.Collection;
 
@@ -17,8 +17,8 @@ import java.util.Collection;
  * Created by alexanderhawk on 6/12/15.
  */
 public class DTNumBranchFinder extends  NumericBranchFinder<ClassificationCounter> {
-    public DTNumBranchFinder(Collection<String> candidateAttributes, TerminationConditions<ClassificationCounter> terminationConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, terminationConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+    public DTNumBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 
     @Override

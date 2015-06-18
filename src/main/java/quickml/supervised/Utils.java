@@ -13,7 +13,7 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.tree.nodes.LeafDepthStats;
-import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.nodes.NodeBase;
 
 import java.util.*;
 
@@ -134,7 +134,7 @@ public class Utils {
     }
 
 
-    public static <TS extends ValueCounter<TS>>  double meanDepth(Node<TS> node) {
+    public static <TS extends ValueCounter<TS>>  double meanDepth(NodeBase<TS> node) {
         final LeafDepthStats stats = new LeafDepthStats();
         node.calcMeanDepth(stats);
         return (double) stats.ttlDepth / stats.ttlSamples;

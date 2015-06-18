@@ -5,7 +5,7 @@ import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnorin
 import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.nodes.AttributeStats;
-import quickml.supervised.tree.terminationConditions.TerminationConditions;
+import quickml.supervised.tree.terminationConditions.BranchingConditions;
 
 import java.util.List;
 import java.util.Set;
@@ -16,9 +16,9 @@ import java.util.Set;
 public class SplittingUtils {
 
 public static <TS extends ValueCounter<TS>> SplitScore splitSortedAttributeStats(AttributeStats<TS> attributeStats, Scorer<TS> scorer,
-                                                                               TerminationConditions<TS> terminationConditions,
+                                                                               BranchingConditions<TS> branchingConditions,
                                                                                AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy) {
-    double bestScore = terminationConditions.getMinScore();
+    double bestScore = 0;
     int indexOfLastTermStatsInTrueSet = 0;
     double probabilityOfBeingInTrueSet = 0;
 
@@ -39,12 +39,12 @@ public static <TS extends ValueCounter<TS>> SplitScore splitSortedAttributeStats
 
         trueSet = trueSet.add(termStatsForTrialAttrVal);
         falseSet = falseSet.subtract(termStatsForTrialAttrVal);
-        if (terminationConditions.isInvalidSplit(trueSet, falseSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {
+        if (branchingConditions.isInvalidSplit(trueSet, falseSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {
             continue;
         }
 
         double thisScore = scorer.scoreSplit(trueSet, falseSet);
-        if (thisScore > bestScore) {
+        if (thisScore > bestScore && !branchingConditions.isInvalidSplit(thisScore)) {
             bestScore = thisScore;
             indexOfLastTermStatsInTrueSet = i;
             probabilityOfBeingInTrueSet = trueSet.getTotal() / (trueSet.getTotal() + falseSet.getTotal());
