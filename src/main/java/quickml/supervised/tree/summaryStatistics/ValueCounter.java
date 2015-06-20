@@ -1,4 +1,4 @@
-package quickml.supervised.tree.branchSplitStatistics;
+package quickml.supervised.tree.summaryStatistics;
 
 
 /**

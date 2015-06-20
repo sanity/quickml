@@ -6,16 +6,13 @@ import com.google.common.collect.Lists;
 
 import com.google.common.collect.Sets;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.bagging.Bagging;
-import quickml.supervised.tree.bagging.StationaryBagging;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.nodes.Leaf;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.terminationConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
@@ -26,93 +23,105 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public abstract class TreeConfig<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {  //specifically Tr must be of the same type as TreeConfig
+public abstract class TreeConfig<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     protected Scorer<VC> scorer;
+    protected LeafBuilder<VC, N> leafBuilder;
+    protected ValueCounterProducer<L, I, VC> valueCounterProducer;
+
     protected BranchingConditions<VC, N> branchingConditions;
     protected List<BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
-    protected LeafBuilder<VC, N> leafBuilder;
-    protected Optional<? extends Bagging> bagging;
+
+
+    public ValueCounterProducer<L, I, VC> getValueCounterProducer() {
+        return valueCounterProducer;
+    }
 
     public Set<BranchType> getBranchTypes() {
         Set<BranchType> branchTypes = Sets.newHashSet();
-        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
             branchTypes.add(branchFinderBuilder.getBranchType());
         }
         return branchTypes;
     }
 
-    public List<? extends BranchFinderBuilder<VC>> getBranchFinderBuilders() {
+    public List<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilders() {
         return branchFinderBuilders;
-    }
-
-    public Optional<? extends Bagging> getBagging() {
-        return bagging;
     }
 
     public Scorer getScorer() {
         return scorer;
     }
 
-    public BranchingConditions<VC> getBranchingConditions() {
+    public BranchingConditions<VC, N> getBranchingConditions() {
         return branchingConditions;
     }
-    
+
 
     public LeafBuilder<VC,N> getLeafBuilder() {
         return leafBuilder;
     }
-
-    public TreeConfig<L, I, VC, N>  bagging(Bagging bagging) {
-        this.bagging = Optional.of(bagging);
+   //perhaps make part of training data reducer as a default method...no need to set here separately
+    public TreeConfig<L, I, VC, N> aggregateStatistics(ValueCounterProducer<L, I, VC> valueCounterProducer) {
+        this.valueCounterProducer = valueCounterProducer;
         return this;
     }
 
-    public TreeConfig<L, I, VC, N>  bagging(boolean bagging) {
-        this.bagging = Optional.of(new StationaryBagging());
-        return this;
-    }
 
     public TreeConfig<L, I, VC, N> scorer(Scorer scorer) {
         this.scorer = scorer;
         return this;
     }
 
-    public TreeConfig<L, I, VC, N> branchFinderBuilders(BranchFinderBuilder<VC>... branchFinderFactories) {
+    public TreeConfig<L, I, VC, N> branchFinderBuilders(BranchFinderBuilder<VC, N>... branchFinderFactories) {
         Preconditions.checkArgument(branchFinderFactories.length > 0, "must have at least one branch builder");
         this.branchFinderBuilders = Lists.newArrayList(branchFinderFactories);
         return this;
     }
 
-
-    public TreeConfig<L, I, VC, N> terminationConditions(BranchingConditions<VC> branchingConditions) {
+    public TreeConfig<L, I, VC, N> terminationConditions(BranchingConditions<VC, N> branchingConditions) {
         this.branchingConditions = branchingConditions;
         return this;
     }
 
  public TreeConfig<L, I, VC, N> copy() {
-        TreeConfig<L, I, VC, N> copy = new TreeConfig();
-        List<BranchFinderBuilder<VC>> copiedBranchFinderBuilders = Lists.newArrayList();
-        for (BranchFinderBuilder<VC> branchFinderBuilder : this.branchFinderBuilders) {
+        TreeConfig<L, I, VC, N> copy = createTreeConfig();
+        List<BranchFinderBuilder<VC, N>> copiedBranchFinderBuilders = Lists.newArrayList();
+        for (BranchFinderBuilder<VC, N> branchFinderBuilder : this.branchFinderBuilders) {
             copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
         }
         copy.branchFinderBuilders = copiedBranchFinderBuilders;
         copy.branchingConditions = branchingConditions.copy();
         copy.scorer = scorer;
         copy.leafBuilder = leafBuilder;
-        copy.bagging = bagging;
         return copy;
     }
-    
+
+    protected boolean hasBranchFinderBuilder(BranchType branchType) {
+        return getBranchFinderBuilder(branchType).isPresent();
+    }
+
+    protected Optional<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilder(BranchType branchType) {
+        for (BranchFinderBuilder branchFinderBuilder : branchFinderBuilders) {
+            if (branchFinderBuilder.getBranchType().equals(branchType)) {
+                return Optional.of(branchFinderBuilder);
+            }
+        }
+        return Optional.absent();
+    }
+
+    public abstract TreeConfig<L, I, VC, N> createTreeConfig();
+
+    public abstract TreeBuildContext<L, I, VC, N> initialize(List<I> trainingData);
+
     public void update(final Map<String, Object> cfg) {
-        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
             branchFinderBuilder.update(cfg);
         }
         if (cfg.containsKey(SCORER.name()))
-            scorer = (Scorer) cfg.get(SCORER);
+            scorer = (Scorer) cfg.get(SCORER.name());
         if (cfg.containsKey(LEAF_BUILDER.name()))
-            leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
-        if (cfg.containsKey(BAGGING.name()))
-            bagging = (Optional<Bagging>) cfg.get(BAGGING.name());
+            leafBuilder = (LeafBuilder<VC, N>) cfg.get(LEAF_BUILDER.name());
+
         branchingConditions.update(cfg);
 
         /*
@@ -127,7 +136,15 @@ public abstract class TreeConfig<L, I extends InstanceWithAttributesMap<L>, VC e
 
         //branchFinderBuilders had many properties held
     }
-
+    
+    /*    public StateOfTreeBuild<VC, D> createTreeBuildContext(Bagging.TrainingDataPair<L, I> trainingDataPair, TreeConfig<VC, D> fcb) {
+        D dataProperties = getDataProperties(trainingDataPair.trainingData, fcb.getBranchTypes());
+        List<BranchFinder<VC, N>> initializedBranchFinders = initializeBranchFinders(fcb, dataProperties);
+        return new StateOfTreeBuild<VC, D>(fcb.getBranchingConditions(), fcb.getScorer(), initializedBranchFinders,
+                fcb.buildLeaf(), fcb.getBagging(), dataProperties, trainingDataPair.outOfBagTrainingData);
+    }
+    */
+    
 
 /*
 

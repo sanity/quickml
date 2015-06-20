@@ -10,7 +10,7 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.decisionTree.tree.Node;
 
@@ -26,7 +26,7 @@ public class DecisionTreeBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final TreeBuilderHelper tb = new TreeBuilderHelper(new SplitDiffScorer());
         final long startTime = System.currentTimeMillis();
         final DecisionTree decisionTree = tb.buildPredictiveModel(instances);
         final Node node = decisionTree.root;
@@ -53,7 +53,7 @@ public class DecisionTreeBuilderTest {
             instances.add(instance);
         }
         {
-            final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+            final TreeBuilderHelper tb = new TreeBuilderHelper(new SplitDiffScorer());
             final DecisionTree decisionTree = tb.buildPredictiveModel(instances);
             System.out.println("SplitDiffScorer root getSize: " + decisionTree.root.getSize());
         }
@@ -76,7 +76,7 @@ public class DecisionTreeBuilderTest {
         attributesMap.put("a", false);
         instances.add(new InstanceWithAttributesMap(attributesMap, 0.0));
 
-        TreeBuilder treeBuilder = new TreeBuilder().minCategoricalAttributeValueOccurances(0).minLeafInstances(0);
+        TreeBuilderHelper treeBuilder = new TreeBuilderHelper().minCategoricalAttributeValueOccurances(0).minLeafInstances(0);
         DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
         AttributesMap attributes = new AttributesMap();
         attributes.put("a", true);
@@ -91,7 +91,7 @@ public class DecisionTreeBuilderTest {
     @Test
     public void simpleBmiTestSplit() throws Exception {
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
-        TreeBuilder treeBuilder = createTreeBuilder();
+        TreeBuilderHelper treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
 
@@ -114,7 +114,7 @@ public class DecisionTreeBuilderTest {
     @Test
     public void simpleBmiTestNoSplit() throws Exception {
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
-        TreeBuilder treeBuilder = createTreeBuilder();
+        TreeBuilderHelper treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
 
@@ -136,7 +136,7 @@ public class DecisionTreeBuilderTest {
     @Test
     public void simpleBmiTestRebuild() throws Exception {
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
-        TreeBuilder treeBuilder = createTreeBuilder();
+        TreeBuilderHelper treeBuilder = createTreeBuilder();
         final long startTime = System.currentTimeMillis();
         final DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
 
@@ -153,8 +153,8 @@ public class DecisionTreeBuilderTest {
         Assert.assertFalse("Expect new tree to be built", decisionTree == newDecisionTree);
     }
 
-    private TreeBuilder createTreeBuilder() {
-        return new TreeBuilder(new SplitDiffScorer());
+    private TreeBuilderHelper createTreeBuilder() {
+        return new TreeBuilderHelper(new SplitDiffScorer());
     }
 
     @Test
@@ -163,9 +163,9 @@ public class DecisionTreeBuilderTest {
         int numSamples = 1000;
         final List<InstanceWithAttributesMap> instancesTrain = TreeBuilderTestUtils.getInstances(numSamples);
         MapUtils.random.setSeed(1l);
-        final DecisionTree decisionTree1 = (new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
+        final DecisionTree decisionTree1 = (new TreeBuilderHelper(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);
-        final DecisionTree decisionTree2 = (new TreeBuilder(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
+        final DecisionTree decisionTree2 = (new TreeBuilderHelper(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(numSamples)).buildPredictiveModel(instancesTrain);
 
         TreeBuilderTestUtils.serializeDeserialize(decisionTree1.root);
         TreeBuilderTestUtils.serializeDeserialize(decisionTree2.root);

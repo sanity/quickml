@@ -1,6 +1,6 @@
 package quickml.supervised.tree.nodes;
 
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 
 /**

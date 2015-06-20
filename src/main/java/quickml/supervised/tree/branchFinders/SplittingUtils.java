@@ -2,7 +2,8 @@ package quickml.supervised.tree.branchFinders;
 
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
+import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.nodes.AttributeStats;
 import quickml.supervised.tree.terminationConditions.BranchingConditions;
@@ -15,30 +16,29 @@ import java.util.Set;
  */
 public class SplittingUtils {
 
-public static <TS extends ValueCounter<TS>> SplitScore splitSortedAttributeStats(AttributeStats<TS> attributeStats, Scorer<TS> scorer,
-                                                                               BranchingConditions<TS> branchingConditions,
-                                                                               AttributeValueIgnoringStrategy<TS> attributeValueIgnoringStrategy) {
+public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
+                                                                               BranchingConditions<VC, N> branchingConditions,
+                                                                               AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy) {
     double bestScore = 0;
     int indexOfLastTermStatsInTrueSet = 0;
     double probabilityOfBeingInTrueSet = 0;
 
-    List<TS> termStats = attributeStats.getTermStats();
-    TS falseSet = attributeStats.getAggregateStats();
-    TS trueSet = falseSet.subtract(falseSet); //empty true Set
+    List<VC> termStats = attributeStats.getStatsOnEachValue();
+    VC falseSet = attributeStats.getAggregateStats();
+    VC trueSet = falseSet.subtract(falseSet); //empty true Set
 
     scorer.setIntrinsicValue(attributeStats);
     scorer.setUnSplitScore(attributeStats.getAggregateStats());
 
     for (int i = 0; i < termStats.size()-1; i++) {
 
-        TS termStatsForTrialAttrVal = termStats.get(i);
-        //for numeric branch this may not be wanted, but don't see how it can hurt.
-        if( attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(termStatsForTrialAttrVal)) {
+        VC valueCounterForAttrVal = termStats.get(i);
+        if( attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(valueCounterForAttrVal)) {
             continue;
         }
 
-        trueSet = trueSet.add(termStatsForTrialAttrVal);
-        falseSet = falseSet.subtract(termStatsForTrialAttrVal);
+        trueSet = trueSet.add(valueCounterForAttrVal);
+        falseSet = falseSet.subtract(valueCounterForAttrVal);
         if (branchingConditions.isInvalidSplit(trueSet, falseSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {
             continue;
         }

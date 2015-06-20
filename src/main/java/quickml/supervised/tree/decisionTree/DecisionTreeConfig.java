@@ -6,9 +6,9 @@ import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.decisionTree.tree.Bagging;
 import quickml.supervised.tree.branchFinders.NumericBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.tree.TerminationConditions;
-import quickml.supervised.tree.branchFinders.BinaryCatBranchFinderBuilder;
-import quickml.supervised.tree.branchFinders.CategoricalBranchFinderBuilder;
-import quickml.supervised.tree.branchFinders.BranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
+import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.configurations.TreeConfig;
 
 /**
@@ -21,8 +21,8 @@ public class DecisionTreeConfig extends TreeConfig<ClassificationCounter, Classi
         this.leafBuilder = new DTLeafBuilder();
         branchFinderBuilders = Lists.newArrayList();
         branchFinderBuilders.add(new NumericBranchFinderBuilder<ClassificationCounter, ClassifierDataProperties>());
-        branchFinderBuilders.add(new CategoricalBranchFinderBuilder<ClassificationCounter, ClassifierDataProperties>());
-        branchFinderBuilders.add(new BinaryCatBranchFinderBuilder<ClassificationCounter>());
+        branchFinderBuilders.add(new DTCatBranchFinderBuilder<ClassificationCounter, ClassifierDataProperties>());
+        branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder<ClassificationCounter>());
     }
 
     @Override

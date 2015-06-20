@@ -2,7 +2,7 @@ package quickml.supervised.tree.branchFinders;
 
 import com.google.common.base.Optional;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
@@ -18,19 +18,17 @@ import java.util.Set;
  */
 public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCounter<VC>, N extends Node<VC, N>> extends BranchFinder<VC, N> {
 
-    public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC> branchingConditions,
+    public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC, N> branchingConditions,
                                                  Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
                                                  AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
     }
 
 
-    //this class is f'd. options: Make the branch finder more
 
     @Override
     public Optional<? extends Branch<VC, N>> getBranch(Branch<VC, N> parent, AttributeStats<VC> attributeStats) {
-        //assumption: attributeStats has sorted vals
-        if (attributeStats.getTermStats().size()<=1) {
+        if (attributeStats.getStatsOnEachValue().size()<=1) {
             return Optional.absent();
         }
 

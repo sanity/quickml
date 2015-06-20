@@ -1,4 +1,4 @@
-package quickml.supervised.tree.branchSplitStatistics;
+package quickml.supervised.tree.summaryStatistics;
 
 import quickml.data.InstanceWithAttributesMap;
 
@@ -19,4 +19,5 @@ public abstract class TrainingDataReducer<L, I extends InstanceWithAttributesMap
   }
 
   public abstract AttributeStats<VC> getAttributeStats(String attribute);
+
 }

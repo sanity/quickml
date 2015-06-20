@@ -1,7 +1,7 @@
 package quickml.supervised.tree.nodes;
 
 
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class AttributeStats<TS extends ValueCounter<TS>> {
         this.attribute = attribute;
     }
 
-    public List<TS> getTermStats() {
+    public List<TS> getStatsOnEachValue() {
         return termStats;
     }
     public TS getAggregateStats() {

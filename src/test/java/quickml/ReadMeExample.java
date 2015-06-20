@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import quickml.data.*;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.decisionTree.DecisionTree;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.ensembles.RandomDecisionForest;
 import quickml.supervised.ensembles.RandomForestBuilder;
@@ -50,7 +50,7 @@ public class ReadMeExample {
         
         {
             
-            TreeBuilder treeBuilder = new TreeBuilder();
+            TreeBuilderHelper treeBuilder = new TreeBuilderHelper();
             DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
 
             attributes = AttributesMap.newHashMap() ;
@@ -72,7 +72,7 @@ public class ReadMeExample {
         
         {
         
-            TreeBuilder treeBuilder = new TreeBuilder()
+            TreeBuilderHelper treeBuilder = new TreeBuilderHelper()
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
             RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
                 .numTrees(50);

@@ -9,7 +9,7 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
 
 import java.util.LinkedList;
@@ -28,7 +28,7 @@ public class TemporallyReweightedClassifierBuilderTest {
         instances.add(new InstanceWithAttributesMap(map, "1"));
         instances.add(new InstanceWithAttributesMap(map, "2"));
         instances.add(new InstanceWithAttributesMap(map, "3"));
-        PredictiveModelBuilder predictiveModelBuilder = new TreeBuilder();
+        PredictiveModelBuilder predictiveModelBuilder = new TreeBuilderHelper();
         final TemporallyReweightedClassifierBuilder cpmb = new TemporallyReweightedClassifierBuilder(predictiveModelBuilder, 1.0, new OnespotDateTimeExtractor());
         cpmb.buildPredictiveModel(instances);
     }
@@ -37,7 +37,7 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Test
     public void simpleAdTest() throws Exception {
         final List<InstanceWithAttributesMap> instances = InstanceLoader.getAdvertisingInstances();
-        final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final PredictiveModelBuilder tb = new TreeBuilderHelper(new SplitDiffScorer());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
         final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);

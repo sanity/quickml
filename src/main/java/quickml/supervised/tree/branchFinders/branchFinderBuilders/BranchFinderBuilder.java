@@ -1,25 +1,27 @@
-package quickml.supervised.tree.branchFinders;
+package quickml.supervised.tree.branchFinders.branchFinderBuilders;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
-import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
+import quickml.supervised.tree.branchFinders.BranchFinder;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
+import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.terminationConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.Map;
+import java.util.Set;
 
 
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, D extends DataProperties> {
-    protected BranchingConditions<VC> branchingConditions;
+public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+    protected BranchingConditions<VC, N> branchingConditions;
     protected Scorer<VC> scorer;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
-    protected AttributeValueIgnoringStrategyBuilder<VC, D> attributeValueIgnoringStrategyBuilder;
+    protected AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder;
     protected BranchType branchType;
 
     public BranchType getBranchType() {
@@ -30,7 +32,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, D extends
         return attributeIgnoringStrategy;
     }
 
-    public void setBranchingConditions(BranchingConditions<VC> branchingConditions) {
+    public void setBranchingConditions(BranchingConditions<VC, N> branchingConditions) {
         this.branchingConditions = branchingConditions;
     }
 
@@ -39,7 +41,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, D extends
     }
 
 
-    public void setAttributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<VC, D> attributeValueIgnoringStrategyBuilder) {
+    public void setAttributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder) {
         this.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder;
     }
 
@@ -51,15 +53,15 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, D extends
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name()))
             attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY.name());
         if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name()))
-            attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<VC, D>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name());
+            attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<VC>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(TERMINATION_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC>) cfg.get(TERMINATION_CONDITIONS.name());
+            branchingConditions = (BranchingConditions<VC, N>) cfg.get(TERMINATION_CONDITIONS.name());
     }
 
-    public BranchFinderBuilder<VC, D> copy() {
-        BranchFinderBuilder<VC,D> copy = createBranchFinderBuilder();
+    public BranchFinderBuilder<VC, N> copy() {
+        BranchFinderBuilder<VC, N> copy = createBranchFinderBuilder();
         copy.branchingConditions = branchingConditions.copy();
         copy.setScorer(scorer);
         copy.setAttributeIgnoringStrategy(attributeIgnoringStrategy.copy());
@@ -68,9 +70,9 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, D extends
         return copy;
     }
 
-    public abstract BranchFinderBuilder<VC, D> createBranchFinderBuilder();
+    public abstract BranchFinderBuilder<VC, N> createBranchFinderBuilder();
 
-    public abstract BranchFinder<VC> buildBranchFinder(D dataProperties);
+    public abstract BranchFinder<VC, N> buildBranchFinder(VC valueCounter, Set<String> candidateAttributes);
 
 
 }

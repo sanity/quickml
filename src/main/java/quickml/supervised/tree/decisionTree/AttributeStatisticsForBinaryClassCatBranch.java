@@ -11,18 +11,18 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/22/15.
  */
-public class InstanceToAttributeStatisticsForBinaryClassCatBranch<I extends ClassifierInstance> extends InstanceToAttributeStatisticsForCatBranch<I>{
+public class AttributeStatisticsForBinaryClassCatBranch<I extends ClassifierInstance> extends AttributeStatisticsForCatBranch<I> {
     //move to Binary ClassifierNodeBuilder.
     Object minorityClassification;
 
-    public InstanceToAttributeStatisticsForBinaryClassCatBranch(Object minorityClassification) {
+    public AttributeStatisticsForBinaryClassCatBranch(Object minorityClassification) {
         this.minorityClassification = minorityClassification;
     }
 
     @Override
     public AttributeStats<ClassificationCounter> getAttributeStats(String attribute) {
         AttributeStats<ClassificationCounter> attributeStats = super.getAttributeStats(attribute);
-        List<ClassificationCounter> attributesWithClassificationCounters = attributeStats.getTermStats();
+        List<ClassificationCounter> attributesWithClassificationCounters = attributeStats.getStatsOnEachValue();
         Collections.sort(attributesWithClassificationCounters, new Comparator<ClassificationCounter>() {
             @Override
             public int compare(ClassificationCounter cc1, ClassificationCounter cc2) {

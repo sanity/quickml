@@ -8,7 +8,7 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.Tree;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.branchFinders.TermStatsAndOperations;
 
@@ -37,16 +37,16 @@ public class RandomForestBuilder<L, I extends InstanceWithAttributesMap<L>, TS e
     public static final String NUM_TREES = "numTrees";
 
     private static final Logger logger = LoggerFactory.getLogger(RandomForestBuilder.class);
-    private final TreeBuilder<T> treeBuilder;
+    private final TreeBuilderHelper<T> treeBuilder;
     private int numTrees = 8;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
 
     public RandomForestBuilder() {
-        this(new TreeBuilder<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(5));
+        this(new TreeBuilderHelper<T>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).minCategoricalAttributeValueOccurances(11).maxDepth(5));
     }
 
-    public RandomForestBuilder(TreeBuilder<T> treeBuilder) {
+    public RandomForestBuilder(TreeBuilderHelper<T> treeBuilder) {
         this.treeBuilder = treeBuilder;
     }
 

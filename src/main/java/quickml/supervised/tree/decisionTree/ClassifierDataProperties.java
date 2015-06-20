@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.completeDataSetSummaries.DataProperties;
-import quickml.supervised.tree.completeDataSetSummaries.TrainingDataSurveyor;
+import quickml.supervised.tree.completeDataSetSummaries.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.constants.BranchType;
 
 
@@ -29,8 +29,8 @@ public class ClassifierDataProperties extends DataProperties {
     }
 
     public static <I extends ClassifierInstance> ClassifierDataProperties createClassifierDataProperties(List<I> trainingData, boolean considerBooleanAttributes) {
-        TrainingDataSurveyor<I> trainingDataSurveyor = new TrainingDataSurveyor<>(considerBooleanAttributes);
-        Map<BranchType, Set<String>> candidateAttributesByBranchType = trainingDataSurveyor.groupAttributesByType(trainingData);
+        DTreeTrainingDataSurveyor<I> DTTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
+        Map<BranchType, Set<String>> candidateAttributesByBranchType = DTTrainingDataSurveyor.groupAttributesByType(trainingData);
         HashMap<Object, Long> classificationsAndCounts = getClassificationsAndCounts(trainingData);
         if (classificationsAndCounts.keySet().size() > 2) {
             return new ClassifierDataProperties(classificationsAndCounts, candidateAttributesByBranchType);
@@ -38,7 +38,7 @@ public class ClassifierDataProperties extends DataProperties {
         return BinaryClassifierDataProperties.createBinaryClassifierDataProperties(classificationsAndCounts, candidateAttributesByBranchType);
     }
 
-    private static <I extends ClassifierInstance> HashMap<Object, Long> getClassificationsAndCounts(List<I> trainingData) {
+    public static <I extends ClassifierInstance> HashMap<Object, Long> getClassificationsAndCounts(List<I> trainingData) {
         HashMap<Object, Long> classificationsAndCounts = Maps.newHashMap();
         for (I instance : trainingData) {
             Object classification = instance.getLabel();

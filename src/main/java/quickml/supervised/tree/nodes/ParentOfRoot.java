@@ -1,7 +1,7 @@
 package quickml.supervised.tree.nodes;
 
 import quickml.data.AttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.scorers.Scorer;
 import java.util.Map;
 

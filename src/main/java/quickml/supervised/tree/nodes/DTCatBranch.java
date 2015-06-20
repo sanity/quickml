@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/27/15.
  */
-public class DTCatBranch extends DTBranch implements DTNode {
+public class DTCatBranch extends DTBranch  {
     private static final long serialVersionUID = -1723969623146234761L;
     public final Set<Object> inSet;
 

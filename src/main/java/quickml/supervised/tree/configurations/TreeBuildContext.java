@@ -3,14 +3,12 @@ package quickml.supervised.tree.configurations;
 import com.google.common.base.Optional;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.bagging.Bagging;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
-import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.nodes.Leaf;
+import quickml.supervised.tree.branchFinders.BranchFinderAndReducer;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
-
-import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.terminationConditions.BranchingConditions;
 
 import java.util.List;
@@ -18,41 +16,39 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public abstract class StateAssociatedWithATreeBuild<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>>{
+public class TreeBuildContext<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
 
-    public StateAssociatedWithATreeBuild(BranchingConditions<VC, N> branchingConditions, Scorer scorer,
-                                         Iterable<BranchFinder<VC, N>> branchFinders, LeafBuilder<VC, N> leafBuilder, Optional<? extends Bagging> bagging) {
+    public TreeBuildContext(BranchingConditions<VC, N> branchingConditions, Scorer scorer,
+                            List<BranchFinderAndReducer<L, I, VC, N>> branchFindersAndReducers, LeafBuilder<VC, N> leafBuilder,
+                            ValueCounterProducer<L, I, VC> valueCounterProducer) {
         this.scorer = scorer;
-        this.branchFinders = branchFinders;
+        this.branchFindersAndReducers = branchFindersAndReducers;
         this.leafBuilder = leafBuilder;
         this.branchingConditions = branchingConditions;
-        this.bagging = bagging;
+        this.valueCounterProducer = valueCounterProducer;
     }
 
     private Scorer scorer;
     private BranchingConditions branchingConditions;
+    private final ValueCounterProducer<L, I, VC> valueCounterProducer;
     private Optional<? extends Bagging> bagging;
-    private Iterable<BranchFinder<VC, N>> branchFinders;
-    private LeafBuilder<VC> leafBuilder;
-    private List<I> outOfBagData;
+    private final List<BranchFinderAndReducer<L, I, VC, N>> branchFindersAndReducers;
+    private LeafBuilder<VC, N> leafBuilder;
 
-    public LeafBuilder<VC> getLeafBuilder() {
+    public LeafBuilder<VC, N> getLeafBuilder() {
         return leafBuilder;
     }
 
-    public List<I> getOutOfBagData() {
-        return outOfBagData;
+    public ValueCounterProducer<L, I, VC> getValueCounterProducer() {
+        return valueCounterProducer;
     }
-
-    public abstract Object getDataProperties();
-
 
     public Scorer getScorer() {
         return scorer;
     }
 
-    public Iterable<BranchFinder<VC, N> >getBranchFinders(){
-        return branchFinders;
+    public List<BranchFinderAndReducer<L, I, VC, N>> getBranchFindersAndReducers() {
+        return branchFindersAndReducers;
     }
 
 
@@ -63,6 +59,8 @@ public abstract class StateAssociatedWithATreeBuild<L, I extends InstanceWithAtt
     public Optional<? extends Bagging> getBagging() {
         return bagging;
     }
+
+}
 
     /*
         public boolean isInvalidSplit(double score){
@@ -92,4 +90,4 @@ public abstract class StateAssociatedWithATreeBuild<L, I extends InstanceWithAtt
     }
     */
     
-}
+

@@ -1,20 +1,20 @@
 package quickml.supervised.tree.completeDataSetSummaries;
 
 import com.google.common.collect.Maps;
+import quickml.data.ClassifierInstance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.constants.BranchType;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
+public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
 
     private boolean considerBooleanAttributes = false;
 
-    public TrainingDataSurveyor(boolean considerBooleanAttributes) {
+    public DTreeTrainingDataSurveyor(boolean considerBooleanAttributes) {
         this.considerBooleanAttributes = considerBooleanAttributes;
     }
 
@@ -28,7 +28,7 @@ public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (T instance : trainingData) {
-            for (Map.Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
+            for (Map.Entry<String, Object> e : instance.getAttributes().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
                     attributeCharacteristic = new AttributeCharacteristics();
@@ -68,9 +68,9 @@ public class TrainingDataSurveyor<T extends InstanceWithAttributesMap> {
 
         public boolean isNumber = true;
         public boolean isBoolean = true;
-        private TreeSet<Serializable> observedVals = new TreeSet();
+        private TreeSet<Object> observedVals = new TreeSet();
 
-        public void updateBooleanStatus(Serializable val) {
+        public void updateBooleanStatus(Object val) {
             if (!isBoolean || val == null) {
                 return;
             }

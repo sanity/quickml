@@ -2,17 +2,15 @@ package quickml.supervised.tree.terminationConditions;
 
 import quickml.supervised.tree.decisionTree.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
-
+import quickml.supervised.tree.nodes.DTNode;
+import static quickml.supervised.tree.constants.ForestOptions.*;
 import java.util.Map;
 
-import static quickml.supervised.tree.decisionTree.tree.ForestOptions.MAX_DEPTH;
-import static quickml.supervised.tree.decisionTree.tree.ForestOptions.MIN_LEAF_INSTANCES;
-import static quickml.supervised.tree.decisionTree.tree.ForestOptions.MIN_SCORE;
 
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public class StandardBranchingConditions implements BranchingConditions<ClassificationCounter> {
+public class StandardBranchingConditions extends BranchingConditions<ClassificationCounter, DTNode> {
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
@@ -58,6 +56,10 @@ public class StandardBranchingConditions implements BranchingConditions<Classifi
     public boolean isInvalidSplit(ClassificationCounter trueSet, ClassificationCounter falseSet) {
         return trueSet.getTotal() < minLeafInstances
                 || falseSet.getTotal() < minLeafInstances;
+    }
+
+    public boolean isInvalidSplit(double score) {
+        return score <= minScore;
     }
 
     @Override

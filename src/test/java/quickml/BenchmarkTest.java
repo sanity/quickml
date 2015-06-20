@@ -10,7 +10,7 @@ import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.scorers.MSEScorer;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
@@ -36,7 +36,7 @@ public class BenchmarkTest {
 
     private ClassifierLossChecker<InstanceWithAttributesMap> classifierLossChecker;
     private ArrayList<Scorer> scorers;
-    private TreeBuilder treeBuilder;
+    private TreeBuilderHelper treeBuilder;
     private RandomForestBuilder randomForestBuilder;
 
     @Before
@@ -68,7 +68,7 @@ public class BenchmarkTest {
             instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
         }
         double time0 = System.currentTimeMillis();
-        TreeBuilder<InstanceWithAttributesMap> treeBuilder = new TreeBuilder<>(new GiniImpurityScorer())
+        TreeBuilderHelper<InstanceWithAttributesMap> treeBuilder = new TreeBuilderHelper<>(new GiniImpurityScorer())
                 .numSamplesForComputingNumericSplitPoints(50)
                 .ordinalTestSplits(5)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
@@ -88,7 +88,7 @@ public class BenchmarkTest {
 
         for (final Scorer scorer : scorers) {
             Map<String, Object> cfg = Maps.newHashMap();
-            cfg.put(TreeBuilder.SCORER, scorer);
+            cfg.put(TreeBuilderHelper.SCORER, scorer);
             CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(treeBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", single-tree, " + scorer + ", " + validator.getLossForModel(cfg));
             validator = new CrossValidator<>(randomForestBuilder, classifierLossChecker, data);
@@ -133,12 +133,12 @@ public class BenchmarkTest {
         return instances;
     }
 
-    private TreeBuilder createTreeBuilder() {
-        return new TreeBuilder();
+    private TreeBuilderHelper createTreeBuilder() {
+        return new TreeBuilderHelper();
     }
 
     private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilder().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5);
+        return new RandomForestBuilder(new TreeBuilderHelper().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5);
     }
 }
 

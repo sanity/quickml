@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchSplitStatistics.AttributeStatisticsProducer;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.AttributeStatisticsProducer;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
@@ -25,14 +25,14 @@ import java.util.Set;
 
 public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     protected Set<String> candidateAttributes;
-    protected BranchingConditions<VC> branchingConditions;
+    protected BranchingConditions<VC, N> branchingConditions;
     protected Scorer<VC> scorer;
     protected AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected BranchType branchType;
 
     //branch finder should not take so many arguments. Facade could simplify this.
-    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC, N> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.branchingConditions = branchingConditions;
         this.scorer = scorer;

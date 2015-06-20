@@ -15,7 +15,7 @@ import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.decisionTree.DecisionTree;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
 import quickml.supervised.ensembles.RandomDecisionForest;
 import quickml.supervised.ensembles.RandomForestBuilder;
@@ -69,7 +69,7 @@ public class DownsamplingClassifierBuilderTest {
 
     @Test
     public void simpleBmiTest() throws IOException, ClassNotFoundException {
-        final TreeBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final TreeBuilderHelper tb = new TreeBuilderHelper(new SplitDiffScorer());
         final RandomForestBuilder urfb = new RandomForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 

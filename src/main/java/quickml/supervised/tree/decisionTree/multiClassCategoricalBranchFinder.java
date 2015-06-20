@@ -22,7 +22,7 @@ public class multiClassCategoricalBranchFinder<TS extends TermStatsAndOperations
     @Override
     public Optional<? extends Branch<TS>> getBranch(Branch parent, AttributeStats<TS> attributeStats) {
 
-        Set<TS> termStatsSet = Sets.newHashSet(attributeStats.getTermStats());
+        Set<TS> termStatsSet = Sets.newHashSet(attributeStats.getStatsOnEachValue());
         if (termStatsSet.size() <= 1) {
             return Optional.absent();
         }

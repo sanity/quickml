@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
@@ -89,13 +89,21 @@ public class Utils {
     }
 
     public static  <T extends InstanceWithAttributesMap> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
+       /**fly weight pattern */
         int firstIndexOfFalseSet = trainingData.size();
         int trialFirstIndexOfFalseSet = firstIndexOfFalseSet - 1;
 
+        firstIndexOfFalseSet = repartitionTrainingData(trainingData, bestNode, firstIndexOfFalseSet, trialFirstIndexOfFalseSet);
+        List<T> trueTrainingSet = trainingData.subList(0, firstIndexOfFalseSet);
+        List<T> falseTrainingSet = trainingData.subList(firstIndexOfFalseSet, trainingData.size());
+        return new TrueFalsePair(trueTrainingSet, falseTrainingSet);
+    }
+
+    private static <T extends InstanceWithAttributesMap<?>> int repartitionTrainingData(List<T> trainingData, Branch bestNode, int firstIndexOfFalseSet, int trialFirstIndexOfFalseSet) {
         for (int i = 0; i < trainingData.size() && firstIndexOfFalseSet > i; i++) {
             T instance = trainingData.get(i);
             if (bestNode.decide(instance.getAttributes())) {
-                continue; //the above condition ensures the instance at position i in the trueSet
+                continue; //the above condition ensures the instance at position i is in the trueSet
             } else {
                 //now swap with whatever instance sits just before the the firstIndexOfTheFalseSet.  If the new instance at i is in the trueSet,
                 //we return to the loop over i.  If not, we decrement firstnIndexOfTheFalseSet, and try swapping again.  We repeat until we either get
@@ -112,9 +120,7 @@ public class Utils {
                 }
             }
         }
-        List<T> trueTrainingSet = trainingData.subList(0, firstIndexOfFalseSet);
-        List<T> falseTrainingSet = trainingData.subList(firstIndexOfFalseSet, trainingData.size());
-        return new TrueFalsePair(trueTrainingSet, falseTrainingSet);
+        return firstIndexOfFalseSet;
     }
 
     private static <T extends InstanceWithAttributesMap> void swap(int i, int trialFirstIndexOfFalseSet, List<T> trainingData) {

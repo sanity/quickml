@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.branchSplitStatistics.ValueCounter;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;
 import java.util.*;
