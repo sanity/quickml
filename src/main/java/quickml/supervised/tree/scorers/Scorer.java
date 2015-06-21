@@ -2,7 +2,11 @@ package quickml.supervised.tree.scorers;
 
 
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.nodes.AttributeStats;
+import quickml.supervised.tree.reducers.AttributeStats;
+
+import java.util.Map;
+
+import static quickml.supervised.tree.constants.ForestOptions.*;
 
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
@@ -10,6 +14,7 @@ import quickml.supervised.tree.nodes.AttributeStats;
 public abstract class Scorer<VC extends ValueCounter<VC>> {
 	public static final double NO_SCORE = Double.MIN_VALUE;
 	protected double degreeOfGainRatioPenalty;
+	protected double imbalancePenaltyPower = 0;
 	protected double intrinsicValue;
 	protected double unSplitScore;
 
@@ -22,7 +27,12 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
 		 this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
 	 }
 
-	  public void setIntrinsicValue(AttributeStats<VC> attributeStats) {
+	public Scorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower) {
+		this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
+		this.imbalancePenaltyPower = imbalancePenaltyPower;
+	}
+
+	public void setIntrinsicValue(AttributeStats<VC> attributeStats) {
 			 double intrinsicValue = 0;
 			 double attributeValProb = 0;
 
@@ -41,5 +51,22 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
 		 /** call this method from score split only degreeOfGainRatioPenalty is non zero*/
 		 return uncorrectedScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (uncorrectedScore / intrinsicValue);
 	 }
+
+	public void update(Map<String, Object> cfg) {
+		if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name()))
+			degreeOfGainRatioPenalty = (Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY.name());
+		if (cfg.containsKey(IMBALANCE_PENALTY_POWER.name()))
+			imbalancePenaltyPower = (Double) cfg.get(IMBALANCE_PENALTY_POWER.name());
+	}
+
+	public Scorer<VC> copy() {
+		Scorer<VC> copy = createScorer();
+		copy.imbalancePenaltyPower = this.imbalancePenaltyPower;
+		copy.degreeOfGainRatioPenalty = this.degreeOfGainRatioPenalty;
+		return copy;
+	}
+
+	public abstract Scorer<VC> createScorer();
+
 
 }

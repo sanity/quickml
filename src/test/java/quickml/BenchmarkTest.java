@@ -15,7 +15,7 @@ import quickml.supervised.tree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.scorers.MSEScorer;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;

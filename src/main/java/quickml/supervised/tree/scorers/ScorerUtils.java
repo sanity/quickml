@@ -1,7 +1,7 @@
 package quickml.supervised.tree.scorers;
 
 import quickml.supervised.tree.decisionTree.tree.AttributeValueData;
-import quickml.supervised.tree.decisionTree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.util.List;
 

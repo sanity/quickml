@@ -1,15 +1,15 @@
 package quickml.supervised.tree.branchFinders;
 
 import com.google.common.base.Optional;
-import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
-import quickml.supervised.tree.nodes.AttributeStats;
+import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.terminationConditions.BranchingConditions;
+import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
 import java.util.Collection;
 

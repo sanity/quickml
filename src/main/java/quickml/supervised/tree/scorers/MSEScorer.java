@@ -1,6 +1,8 @@
 package quickml.supervised.tree.scorers;
 
-import quickml.supervised.tree.decisionTree.ClassificationCounter;
+
+//TODO: fix scorers
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.Map;

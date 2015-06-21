@@ -3,17 +3,17 @@ package quickml.supervised.tree.branchFinders;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.summaryStatistics.AttributeStatisticsProducer;
+import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.reducers.AttributeStatisticsProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
-import quickml.supervised.tree.nodes.AttributeStats;
+import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.terminationConditions.BranchingConditions;
+import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +31,6 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<V
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected BranchType branchType;
 
-    //branch finder should not take so many arguments. Facade could simplify this.
     public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC, N> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.branchingConditions = branchingConditions;
@@ -40,7 +39,6 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<V
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
         this.branchType = branchType;
     }
-    //what flexibility am i actually creating
 
     public BranchType getBranchType() {
         return branchType;

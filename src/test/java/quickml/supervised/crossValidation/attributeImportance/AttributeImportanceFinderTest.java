@@ -10,7 +10,7 @@ import quickml.supervised.InstanceLoader;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 

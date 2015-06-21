@@ -1,7 +1,7 @@
 package quickml.supervised.tree.branchFinders;
 
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.summaryStatistics.TrainingDataReducer;
+import quickml.supervised.tree.reducers.Reducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Node;
 
@@ -10,9 +10,9 @@ import quickml.supervised.tree.nodes.Node;
  */
 public class BranchFinderAndReducer <L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     protected BranchFinder<VC, N> branchFinder;
-    protected TrainingDataReducer<L, I, VC> reducer;
+    protected Reducer<L, I, VC> reducer;
 
-    public BranchFinderAndReducer(BranchFinder<VC, N> branchFinder, TrainingDataReducer<L, I, VC> reducer) {
+    public BranchFinderAndReducer(BranchFinder<VC, N> branchFinder, Reducer<L, I, VC> reducer) {
         this.branchFinder = branchFinder;
         this.reducer = reducer;
     }
@@ -21,7 +21,7 @@ public class BranchFinderAndReducer <L, I extends InstanceWithAttributesMap<L>, 
         return branchFinder;
     }
 
-    public TrainingDataReducer<L, I, VC> getReducer() {
+    public Reducer<L, I, VC> getReducer() {
         return reducer;
     }
 }

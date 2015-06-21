@@ -49,7 +49,7 @@ public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel, L, T ex
         Preconditions.checkArgument(modelBuilder != null, "You must supply a model builder");
         Preconditions.checkArgument(dataCycler != null, "You must supply a data cycler");
         Preconditions.checkArgument(lossChecker != null, "You must supply a loss checker");
-        Preconditions.checkArgument(valuesToTest != null, "You must supply a map of configurations to check");
+        Preconditions.checkArgument(valuesToTest != null, "You must supply a map of treeBuildContexts to check");
 
         return new PredictiveModelOptimizer(valuesToTest, new CrossValidator<>(modelBuilder, lossChecker, dataCycler), iterations);
     }

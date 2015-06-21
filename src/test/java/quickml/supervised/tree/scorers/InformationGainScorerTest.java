@@ -2,7 +2,7 @@ package quickml.supervised.tree.scorers;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.supervised.tree.decisionTree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 public class InformationGainScorerTest {
 

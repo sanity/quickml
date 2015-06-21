@@ -5,7 +5,9 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.tree.Tree;
-import quickml.supervised.tree.nodes.DTNode;
+import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
+import quickml.supervised.tree.decisionTree.nodes.DTNode;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +34,7 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
         return classifications;
     }
 
+
     @Override
     public double getProbability(AttributesMap attributes, Object classification) {
         DTLeaf dtLeaf = root.getLeaf(attributes);
@@ -47,10 +50,10 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public PredictionMap predict(AttributesMap attributes) {
-        DTLeaf DTLeaf = root.getLeaf(attributes);
+        DTLeaf dTLeaf = root.getLeaf(attributes);
         Map<Object, Double> probsByClassification = Maps.newHashMap();
-        for (Object classification : DTLeaf.getClassifications()) {
-            probsByClassification.put(classification, DTLeaf.getProbability(classification));
+        for (Object classification : dTLeaf.getClassifications()) {
+            probsByClassification.put(classification, dTLeaf.getProbability(classification));
         }
         return new PredictionMap(probsByClassification);
     }

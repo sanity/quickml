@@ -1,12 +1,12 @@
 package quickml.supervised.tree.branchFinders;
 
 import com.google.common.collect.Sets;
-import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
-import quickml.supervised.tree.nodes.AttributeStats;
-import quickml.supervised.tree.terminationConditions.BranchingConditions;
+import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
 import java.util.List;
 import java.util.Set;
@@ -23,16 +23,16 @@ public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore sp
     int indexOfLastTermStatsInTrueSet = 0;
     double probabilityOfBeingInTrueSet = 0;
 
-    List<VC> termStats = attributeStats.getStatsOnEachValue();
+    List<VC> attributeValueStatsList = attributeStats.getStatsOnEachValue();
     VC falseSet = attributeStats.getAggregateStats();
     VC trueSet = falseSet.subtract(falseSet); //empty true Set
 
     scorer.setIntrinsicValue(attributeStats);
     scorer.setUnSplitScore(attributeStats.getAggregateStats());
 
-    for (int i = 0; i < termStats.size()-1; i++) {
+    for (int i = 0; i < attributeValueStatsList.size()-1; i++) {
 
-        VC valueCounterForAttrVal = termStats.get(i);
+        VC valueCounterForAttrVal = attributeValueStatsList.get(i);
         if( attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(valueCounterForAttrVal)) {
             continue;
         }
@@ -50,7 +50,7 @@ public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore sp
             probabilityOfBeingInTrueSet = trueSet.getTotal() / (trueSet.getTotal() + falseSet.getTotal());
         }
     }
-    Set<Object> trueSetVals = createTrueSetVals(indexOfLastTermStatsInTrueSet, termStats);
+    Set<Object> trueSetVals = createTrueSetVals(indexOfLastTermStatsInTrueSet, attributeValueStatsList);
 
     return new SplitScore(bestScore, indexOfLastTermStatsInTrueSet, probabilityOfBeingInTrueSet, trueSetVals);
 }
@@ -64,10 +64,10 @@ public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore sp
     }
 
     public static class SplitScore {
-        double score;
-        int indexOfLastTermStatsInTrueSet;
-        double probabilityOfBeingInTrueSet;
-        Set<Object> trueSet;
+        public double score;
+        public int indexOfLastTermStatsInTrueSet;
+        public double probabilityOfBeingInTrueSet;
+        public Set<Object> trueSet;
 
         public SplitScore(double score, int indexOfLastTermStatsInTrueSet, double probabilityOfBeingInTrueSet, Set<Object> trueSet) {
             this.score = score;

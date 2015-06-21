@@ -1,6 +1,6 @@
 package quickml.supervised.tree.scorers;
 
-import quickml.supervised.tree.decisionTree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.io.Serializable;
 

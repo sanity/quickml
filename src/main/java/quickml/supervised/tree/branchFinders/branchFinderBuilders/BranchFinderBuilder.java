@@ -1,13 +1,13 @@
 package quickml.supervised.tree.branchFinders.branchFinderBuilders;
 
-import quickml.supervised.tree.attributeIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
+import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
-import quickml.supervised.tree.terminationConditions.BranchingConditions;
+import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.Map;
@@ -56,8 +56,8 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
             attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<VC>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
-        if (cfg.containsKey(TERMINATION_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC, N>) cfg.get(TERMINATION_CONDITIONS.name());
+        if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
+            branchingConditions = (BranchingConditions<VC, N>) cfg.get(BRANCHING_CONDITIONS.name());
     }
 
     public BranchFinderBuilder<VC, N> copy() {

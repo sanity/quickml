@@ -17,8 +17,8 @@ import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.scorers.SplitDiffScorer;
-import quickml.supervised.ensembles.RandomDecisionForest;
-import quickml.supervised.ensembles.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;

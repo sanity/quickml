@@ -12,7 +12,7 @@ import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.ensembles.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;

@@ -6,8 +6,8 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.RandomDecisionForest;
-import quickml.supervised.ensembles.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 
 import java.io.Serializable;
 import java.util.Set;

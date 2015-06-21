@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION;
-import static quickml.supervised.ensembles.RandomForestBuilder.NUM_TREES;
+import static quickml.supervised.ensembles.randomForest.RandomForestBuilder.NUM_TREES;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_POSITIVE;
 
