@@ -42,7 +42,7 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
 			 }
 
 			 this.intrinsicValue = intrinsicValue;
-		 }
+	}
 
 	 public abstract double scoreSplit(VC a, VC b);
 	 public abstract void setUnSplitScore(VC a); //internall call {scoreSplit(a, emptyDataSummurizer )};

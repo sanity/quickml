@@ -5,11 +5,8 @@ import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
 import quickml.collections.MapUtils;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.constants.ForestOptions;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.supervised.tree.reducers.Reducer;
 import quickml.supervised.tree.reducers.AttributeStats;
-import quickml.supervised.tree.scorers.Scorer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static quickml.supervised.tree.constants.ForestOptions.NUM_NUMERIC_BINS;
-import static quickml.supervised.tree.constants.ForestOptions.NUM_SAMPLES_PER_BIN;
-import static quickml.supervised.tree.constants.ForestOptions.SCORER;
+import static quickml.supervised.tree.constants.ForestOptions.NUM_SAMPLES_PER_NUMERIC_BIN;
 
 /**
  * Created by alexanderhawk on 4/23/15.
@@ -26,16 +22,16 @@ import static quickml.supervised.tree.constants.ForestOptions.SCORER;
 public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
    //TODO: once verify functionality is correct, remove these variables and get n classification counters which can then be further merged in the branchFinder
-    int numSamplesForComputingNumericSplitPoints = 50;
-    int ordinalTestSpilts = 6;
+    int numSamplesPerBin = 50;
+    int numNumericBins = 6;
 
     @Override
     public void update(Map<String, Object> cfg) {
-        if (cfg.containsKey(NUM_SAMPLES_PER_BIN.name())) {
-            numSamplesForComputingNumericSplitPoints = (int) cfg.get(NUM_SAMPLES_PER_BIN.name());
+        if (cfg.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
+            numSamplesPerBin = (int) cfg.get(NUM_SAMPLES_PER_NUMERIC_BIN.name());
         }
         if (cfg.containsKey(NUM_NUMERIC_BINS.name())) {
-            ordinalTestSpilts = (int) cfg.get(NUM_NUMERIC_BINS.name());
+            numNumericBins = (int) cfg.get(NUM_NUMERIC_BINS.name());
         }
     }
 
@@ -75,14 +71,14 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
 
     //all numeric and categorical node
     private double[] createNumericSplit(final List<I> trainingData, final String attribute) {
-        int numSamples = Math.min(numSamplesForComputingNumericSplitPoints, trainingData.size());
+        int numSamples = Math.min(numSamplesPerBin, trainingData.size());
         if (numSamples == trainingData.size()) {
-            return getDeterministicSplit(trainingData, attribute); //makes code testable, because now can be made deterministic by making numSamplesForComputingNumericSplitPoints < trainingData.getSize.
+            return getDeterministicSplit(trainingData, attribute); //makes code testable, because now can be made deterministic by making numSamplesPerNumericBin < trainingData.getSize.
         }
 
         final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / numSamplesForComputingNumericSplitPoints);
-        if (trainingData.size() / numSamplesForComputingNumericSplitPoints == 1) {
+        int samplesToSkipPerStep = Math.max(1, trainingData.size() / numSamplesPerBin);
+        if (trainingData.size() / numSamplesPerBin == 1) {
             samplesToSkipPerStep = 2;
         }
         for (int i = 0; i < trainingData.size(); i += samplesToSkipPerStep) {
@@ -107,7 +103,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         }
         Collections.sort(splitList);
 
-        final double[] split = new double[ordinalTestSpilts - 1];
+        final double[] split = new double[numNumericBins - 1];
         final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
         for (int x = 0; x < split.length; x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);
@@ -126,7 +122,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         }
         Collections.sort(splitList);
 
-        final double[] split = new double[ordinalTestSpilts - 1];
+        final double[] split = new double[numNumericBins - 1];
         final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
         for (int x = 0; x < split.length && (x + 1) * indexMultiplier < splitList.size(); x++) {
             split[x] = splitList.get((x + 1) * indexMultiplier);

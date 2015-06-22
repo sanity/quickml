@@ -26,22 +26,11 @@ import java.util.Set;
 public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     protected Scorer<VC> scorer;
     protected LeafBuilder<VC, N> leafBuilder;
-    protected ValueCounterProducer<L, I, VC> valueCounterProducer;
     protected BranchingConditions<VC, N> branchingConditions;
-    protected List<BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
+    protected List<? extends BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
 
 
-    public ValueCounterProducer<L, I, VC> getValueCounterProducer() {
-        return valueCounterProducer;
-    }
-
-    public Set<BranchType> getBranchTypes() {
-        Set<BranchType> branchTypes = Sets.newHashSet();
-        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
-            branchTypes.add(branchFinderBuilder.getBranchType());
-        }
-        return branchTypes;
-    }
+    public abstract ValueCounterProducer<L, I, VC> getValueCounterProducer();
 
     public List<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilders() {
         return branchFinderBuilders;
@@ -56,33 +45,12 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
     }
 
 
-    public LeafBuilder<VC,N> getLeafBuilder() {
+    public LeafBuilder<VC, N> getLeafBuilder() {
         return leafBuilder;
     }
-   //perhaps make part of training data reducer as a default method...no need to set here separately
-    public TreeContextBuilder<L, I, VC, N> aggregateStatistics(ValueCounterProducer<L, I, VC> valueCounterProducer) {
-        this.valueCounterProducer = valueCounterProducer;
-        return this;
-    }
 
 
-    public TreeContextBuilder<L, I, VC, N> scorer(Scorer scorer) {
-        this.scorer = scorer;
-        return this;
-    }
-
-    public TreeContextBuilder<L, I, VC, N> branchFinderBuilders(BranchFinderBuilder<VC, N>... branchFinderFactories) {
-        Preconditions.checkArgument(branchFinderFactories.length > 0, "must have at least one branch builder");
-        this.branchFinderBuilders = Lists.newArrayList(branchFinderFactories);
-        return this;
-    }
-
-    public TreeContextBuilder<L, I, VC, N> terminationConditions(BranchingConditions<VC, N> branchingConditions) {
-        this.branchingConditions = branchingConditions;
-        return this;
-    }
-
- public TreeContextBuilder<L, I, VC, N> copy() {
+    public TreeContextBuilder<L, I, VC, N> copy() {
         TreeContextBuilder<L, I, VC, N> copy = createTreeBuildContext();
         List<BranchFinderBuilder<VC, N>> copiedBranchFinderBuilders = Lists.newArrayList();
         for (BranchFinderBuilder<VC, N> branchFinderBuilder : this.branchFinderBuilders) {
@@ -90,7 +58,7 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
         }
         copy.branchFinderBuilders = copiedBranchFinderBuilders;
         copy.branchingConditions = branchingConditions.copy();
-        copy.scorer = scorer;
+        copy.scorer = scorer.copy();
         copy.leafBuilder = leafBuilder;
         return copy;
     }
@@ -113,82 +81,19 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
     public abstract TreeContext<L, I, VC, N> buildContext(List<I> trainingData);
 
     public void update(final Map<String, Object> cfg) {
-        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
-            branchFinderBuilder.update(cfg);
-        }
+        if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))
+            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC, N>>)cfg.get(BRANCH_FINDER_BUILDERS.name());
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<VC, N>) cfg.get(LEAF_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
-            scorer = (Scorer) cfg.get(SCORER.name());
+            scorer = (Scorer<VC>) cfg.get(SCORER.name());
+        if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
+            branchingConditions = (BranchingConditions<VC, N>) cfg.get(SCORER.name());
         scorer.update(cfg);
         branchingConditions.update(cfg);
-
-        /*
-        if (cfg.containsKey(BINS_FOR_NUMERIC_SPLITS))
-            binsForNumericSplits = (Integer) cfg.get(BINS_FOR_NUMERIC_SPLITS);
-        if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
-            degreeOfGainRatioPenalty = (Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY);
-
-        if (cfg.containsKey(SAMPLES_PER_BIN))
-            samplesPerBin = (int) cfg.get(SAMPLES_PER_BIN);
-           */
-
-        //branchFinderBuilders had many properties held
+        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
+            branchFinderBuilder.update(cfg);
+        }
     }
-    
-    /*    public StateOfTreeBuild<VC, D> createTreeBuildContext(Bagging.TrainingDataPair<L, I> trainingDataPair, TreeConfig<VC, D> fcb) {
-        D dataProperties = getDataProperties(trainingDataPair.trainingData, fcb.getBranchTypes());
-        List<BranchFinder<VC, N>> initializedBranchFinders = initializeBranchFinders(fcb, dataProperties);
-        return new StateOfTreeBuild<VC, D>(fcb.getBranchingConditions(), fcb.getScorer(), initializedBranchFinders,
-                fcb.buildLeaf(), fcb.getBagging(), dataProperties, trainingDataPair.outOfBagTrainingData);
-    }
-    */
-    
-
-/*
-
-    public ForestConfigBuilder degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
-        this.degreeOfGainRatioPenalty = degreeOfGainRatioPenalty;
-        return this;
-    }
-
-
-
-    public ForestConfigBuilder binsForNumericSplits(int binsForNumericSplits) {
-        this.binsForNumericSplits = binsForNumericSplits;
-        return this;
-    }
-
-    public ForestConfigBuilder samplesPerBin(int samplesPerBin) {
-        this.samplesPerBin = samplesPerBin;
-        return this;
-    }
-
-    public ForestConfigBuilder numericBranchBuilder(NumericBranchBuilder<T> numericBranchBuilder) {
-        this.numericBranchBuilder = Optional.of(numericBranchBuilder);
-        return this;
-    }
-
-    public ForestConfigBuilder categoricalBranchBuilder(CategoricalBranchBuilder<T> categoricalBranchBuilder) {
-        this.categoricalBranchBuilder = Optional.of(categoricalBranchBuilder);
-        return this;
-    }
-
-
-    public ForestConfigBuilder booleanBranchBuilder(BooleanBranchBuilder<T> booleanBranchBuilder) {
-        this.booleanBranchBuilder = Optional.of(booleanBranchBuilder);
-        return this;
-    }
-
-*/
-
-    /*
-    private int attributeValueObservationsThreshold = 0;  //goes in branchbuilder
-    private double degreeOfGainRatioPenalty = 1.0; //goes in scorer
-    private AttributeValueIgnoringStrategy attributeValueIgnoringStrategies;
-    private AttributeIgnoringStrategy attributeIgnoringStrategy;
-    private int binsForNumericSplits = 5; // goes in the numeric branch builder
-    private int samplesPerBin = 10; //goes in numeric branh builder
-    */
-
 }
+

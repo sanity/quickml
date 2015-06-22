@@ -6,6 +6,9 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 public class BinaryClassAttributeValueIgnoringStrategyBuilder implements AttributeValueIgnoringStrategyBuilder<ClassificationCounter> {
+    public BinaryClassAttributeValueIgnoringStrategyBuilder(int minOccurancesOfAttributeValue) {
+        this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
+    }
 
     @Override
     public AttributeValueIgnoringStrategy<ClassificationCounter> createAttributeValueIgnoringStrategy(ClassificationCounter cc) {
@@ -21,6 +24,9 @@ public class BinaryClassAttributeValueIgnoringStrategyBuilder implements Attribu
     }
 
     public BinaryClassAttributeValueIgnoringStrategyBuilder copy() {
-        return new BinaryClassAttributeValueIgnoringStrategyBuilder().setMinOccurancesOfAttributeValue(minOccurancesOfAttributeValue);
+        return new BinaryClassAttributeValueIgnoringStrategyBuilder(minOccurancesOfAttributeValue).setMinOccurancesOfAttributeValue(minOccurancesOfAttributeValue);
     }
+
+
+
 }

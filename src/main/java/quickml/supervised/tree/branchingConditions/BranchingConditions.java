@@ -11,7 +11,7 @@ import java.util.Map;
  */
 
 
-public abstract class BranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public interface BranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     public abstract boolean isInvalidSplit(VC trueValueStats, VC falseValueStats);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
 
     public abstract boolean isInvalidSplit(double score);

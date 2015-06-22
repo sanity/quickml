@@ -23,6 +23,23 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder;
     protected BranchType branchType;
+    protected int minOccurencesOfAttributeValue = 0;
+
+    public int getMinOccurencesOfAttributeValue() {
+        return minOccurencesOfAttributeValue;
+    }
+
+    public AttributeValueIgnoringStrategyBuilder<VC> getAttributeValueIgnoringStrategyBuilder() {
+        return attributeValueIgnoringStrategyBuilder;
+    }
+
+    public Scorer<VC> getScorer() {
+        return scorer;
+    }
+
+    public BranchingConditions<VC, N> getBranchingConditions() {
+        return branchingConditions;
+    }
 
     public BranchType getBranchType() {
         return branchType;
@@ -30,23 +47,6 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
 
     public AttributeIgnoringStrategy getAttributeIgnoringStrategy() {
         return attributeIgnoringStrategy;
-    }
-
-    public void setBranchingConditions(BranchingConditions<VC, N> branchingConditions) {
-        this.branchingConditions = branchingConditions;
-    }
-
-    public void setScorer(Scorer<VC> scorer) {
-        this.scorer = scorer;
-    }
-
-
-    public void setAttributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder) {
-        this.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder;
-    }
-
-    public void setAttributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        this.attributeIgnoringStrategy = attributeIgnoringStrategy;
     }
 
     public void update(Map<String, Object> cfg) {
@@ -58,14 +58,16 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC, N>) cfg.get(BRANCHING_CONDITIONS.name());
+        if (cfg.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name()))
+            minOccurencesOfAttributeValue = (Integer)cfg.get(MIN_ATTRIBUTE_OCCURRENCES.name());
     }
 
     public BranchFinderBuilder<VC, N> copy() {
         BranchFinderBuilder<VC, N> copy = createBranchFinderBuilder();
         copy.branchingConditions = branchingConditions.copy();
-        copy.setScorer(scorer);
-        copy.setAttributeIgnoringStrategy(attributeIgnoringStrategy.copy());
-        copy.setAttributeValueIgnoringStrategyBuilder(attributeValueIgnoringStrategyBuilder.copy());
+        copy.scorer = scorer.copy();
+        copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
+        copy.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder.copy();
         copy.branchType = branchType;
         return copy;
     }

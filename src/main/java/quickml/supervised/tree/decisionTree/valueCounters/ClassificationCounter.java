@@ -154,4 +154,9 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     public int hashCode() {
         return counts.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return getCounts().toString();
+    }
 }

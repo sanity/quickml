@@ -1,8 +1,10 @@
 package quickml.supervised.tree.branchingConditions;
 
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.decisionTree.nodes.DTNode;
+import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
+
 import static quickml.supervised.tree.constants.ForestOptions.*;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public class StandardBranchingConditions extends BranchingConditions<ClassificationCounter, DTNode> {
+public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> implements BranchingConditions<VC, N> {
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
@@ -59,7 +61,7 @@ public class StandardBranchingConditions extends BranchingConditions<Classificat
 
 
     @Override
-    public boolean isInvalidSplit(ClassificationCounter trueSet, ClassificationCounter falseSet) {
+    public boolean isInvalidSplit(VC trueSet, VC falseSet) {
         double splitFraction = Math.min(trueSet.getTotal(), falseSet.getTotal())/ (trueSet.getTotal() + falseSet.getTotal());
         return splitFraction < minSplitFraction || trueSet.getTotal() < minLeafInstances
                 || falseSet.getTotal() < minLeafInstances;
@@ -70,7 +72,7 @@ public class StandardBranchingConditions extends BranchingConditions<Classificat
     }
 
     @Override
-    public boolean canTryAddingChildren(Branch parent, ClassificationCounter totals){
+    public boolean canTryAddingChildren(Branch<VC, N> parent, VC totals){
         return parent.getDepth() < maxDepth && totals.getTotal() > 2 * minLeafInstances;
     }
 
