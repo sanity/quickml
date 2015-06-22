@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 import static  quickml.supervised.tree.constants.ForestOptions.*;
 
 
-public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends RandomForestBuilder<PredictionMap, RandomDecisionForest, Object, I> {
+public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends RandomForestBuilder<PredictionMap, RandomDecisionForest, I> {
 
     private static final Logger logger = LoggerFactory.getLogger(RandomDecisionForestBuilder.class);
     private final DecisionTreeBuilder<I> treeBuilder;

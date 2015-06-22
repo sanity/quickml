@@ -61,6 +61,11 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return this;
     }
 
+    public DTreeContextBuilder<I> exemptAttributes(Set<String> exemptAttributes) {
+        cfg.put(EXEMPT_ATTRIBUTES.name(), exemptAttributes);
+        return this;
+    }
+
     public DTreeContextBuilder<I> attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         cfg.put(ATTRIBUTE_IGNORING_STRATEGY.name(), attributeIgnoringStrategy);
         return this;

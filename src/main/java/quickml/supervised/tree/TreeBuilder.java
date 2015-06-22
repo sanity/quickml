@@ -10,8 +10,8 @@ import java.util.Map;
  * Created by alexanderhawk on 6/20/15.
  */
 
-public interface TreeBuilder<P, L, I extends InstanceWithAttributesMap<L>> extends AttributesMapPredictiveModelBuilder<P, Tree<P>, L, I> {
+public interface TreeBuilder<P, I extends InstanceWithAttributesMap<?>> extends AttributesMapPredictiveModelBuilder<Tree<P>, I> {
 
     Tree<P> buildPredictiveModel(Iterable<I> trainingData);
-    TreeBuilder<P, L, I> copy();
+    TreeBuilder<P, I> copy();
 }

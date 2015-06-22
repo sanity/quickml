@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/20/15.
  */
-public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, Object, I> {
+public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, I> {
     private DTreeContextBuilder<I> treeContextBuilder;
 
     public DecisionTreeBuilder(DTreeContextBuilder<I> treeContextBuilder) {

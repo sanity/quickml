@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 4/16/15.
  */
-public abstract class Reducer<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>> implements AttributeStatisticsProducer<VC> {
+public abstract class Reducer<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> implements AttributeStatisticsProducer<VC> {
 
   protected List<I> trainingData;
 
