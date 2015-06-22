@@ -50,27 +50,27 @@ public class Utils {
         return weight;
     }
 
-    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends InstanceWithAttributesMap> validationSet) {
+    public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends InstanceWithAttributesMap<?>> validationSet) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
-        for (InstanceWithAttributesMap instance : validationSet) {
+        for (InstanceWithAttributesMap<?> instance : validationSet) {
             results.add(new PredictionMapResult(predictiveModel.predict(instance.getAttributes()), instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
     }
 
-    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<? extends InstanceWithAttributesMap> validationSet, Set<String> attributesToIgnore) {
+    public static PredictionMapResults calcResultpredictionsWithoutAttrs(Classifier predictiveModel, List<? extends InstanceWithAttributesMap<?>> validationSet, Set<String> attributesToIgnore) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
-        for (InstanceWithAttributesMap instance : validationSet) {
+        for (InstanceWithAttributesMap<?> instance : validationSet) {
             PredictionMap prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);
             results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
     }
 
-    public static void sortTrainingInstancesByTime(List<? extends InstanceWithAttributesMap> trainingData, final DateTimeExtractor<InstanceWithAttributesMap> dateTimeExtractor) {
-        Collections.sort(trainingData, new Comparator<InstanceWithAttributesMap>() {
+    public static <T extends InstanceWithAttributesMap<?>>void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {
+        Collections.sort(trainingData, new Comparator<T>() {
             @Override
-            public int compare(InstanceWithAttributesMap o1, InstanceWithAttributesMap o2) {
+            public int compare(T o1, T o2) {
                 DateTime dateTime1 = dateTimeExtractor.extractDateTime(o1);
                 DateTime dateTime2 = dateTimeExtractor.extractDateTime(o2);
                 return dateTime1.compareTo(dateTime2);
@@ -88,7 +88,7 @@ public class Utils {
         return trainingDataList;
     }
 
-    public static  <T extends InstanceWithAttributesMap> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
+    public static  <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
        /**fly weight pattern */
         int firstIndexOfFalseSet = trainingData.size();
         int trialFirstIndexOfFalseSet = firstIndexOfFalseSet - 1;
@@ -123,13 +123,13 @@ public class Utils {
         return firstIndexOfFalseSet;
     }
 
-    private static <T extends InstanceWithAttributesMap> void swap(int i, int trialFirstIndexOfFalseSet, List<T> trainingData) {
+    private static <T extends InstanceWithAttributesMap<?>> void swap(int i, int trialFirstIndexOfFalseSet, List<T> trainingData) {
         T temp = trainingData.get(trialFirstIndexOfFalseSet);
         trainingData.set(trialFirstIndexOfFalseSet, trainingData.get(i));
         trainingData.set(i, temp);
     }
 
-    public static class TrueFalsePair<T extends InstanceWithAttributesMap>  {
+    public static class TrueFalsePair<T extends InstanceWithAttributesMap<?>>  {
         public List<T> trueTrainingSet;
         public List<T> falseTrainingSet;
 

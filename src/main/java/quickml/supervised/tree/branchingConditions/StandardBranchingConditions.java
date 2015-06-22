@@ -1,5 +1,6 @@
 package quickml.supervised.tree.branchingConditions;
 
+import com.google.common.collect.Sets;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.decisionTree.nodes.DTNode;
 import quickml.supervised.tree.nodes.Node;
@@ -7,6 +8,7 @@ import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -17,31 +19,22 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends 
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
     private double minSplitFraction = 0;
+    private Set<String> exemptAttributes = Sets.newHashSet();
+
 
     public StandardBranchingConditions(double minScore, int maxDepth, int minLeafInstances, double minSplitFraction) {
+        this(minScore, maxDepth, minLeafInstances, minSplitFraction, Sets.<String>newHashSet());
+    }
+
+    public StandardBranchingConditions(double minScore, int maxDepth, int minLeafInstances, double minSplitFraction, Set<String> exemptAttributes) {
         this.minScore = minScore;
         this.maxDepth = maxDepth;
         this.minLeafInstances = minLeafInstances;
         this.minSplitFraction = minSplitFraction;
+        this.exemptAttributes = exemptAttributes;
     }
 
     public StandardBranchingConditions() {}
-
-    public double getMinScore() {
-        return minScore;
-    }
-
-    public int getMaxDepth() {
-        return maxDepth;
-    }
-
-    public int getMinLeafInstances() {
-        return minLeafInstances;
-    }
-
-    public double getMinSplitFraction() {
-        return minSplitFraction;
-    }
 
     public StandardBranchingConditions minScore(double minScore) {
         this.minScore = minScore;
@@ -59,13 +52,38 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends 
         return this;
     }
 
+    public StandardBranchingConditions minSplitFraction(double minSplitFraction) {
+        this.minSplitFraction = minSplitFraction;
+        return this;
+    }
+
+    public StandardBranchingConditions exemptAttributes(Set<String> exemptAttributes) {
+        this.exemptAttributes = exemptAttributes;
+        return this;
+    }
+
+    @Override
+    public boolean isInvalidSplit(VC trueSet, VC falseSet, String attribute) {
+        return ( getSplitFraction(trueSet, falseSet) < minSplitFraction && !exemptAttributes.contains(attribute)) || violatesMinLeafInstances(trueSet, falseSet);
+    }
 
     @Override
     public boolean isInvalidSplit(VC trueSet, VC falseSet) {
-        double splitFraction = Math.min(trueSet.getTotal(), falseSet.getTotal())/ (trueSet.getTotal() + falseSet.getTotal());
-        return splitFraction < minSplitFraction || trueSet.getTotal() < minLeafInstances
+        return (getSplitFraction(trueSet, falseSet) < minSplitFraction) || violatesMinLeafInstances(trueSet, falseSet);
+    }
+
+    private double getSplitFraction(VC trueSet, VC falseSet) {
+        return Math.min(trueSet.getTotal(), falseSet.getTotal())/ (trueSet.getTotal() + falseSet.getTotal());
+    }
+
+    private boolean violatesMinLeafInstances(VC trueSet, VC falseSet) {
+        return trueSet.getTotal() < minLeafInstances
                 || falseSet.getTotal() < minLeafInstances;
     }
+
+
+
+
 
     public boolean isInvalidSplit(double score) {
         return score <= minScore;
@@ -86,6 +104,8 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends 
             minLeafInstances = (Integer) cfg.get(MIN_LEAF_INSTANCES.name());
         if (cfg.containsKey(MIN_SLPIT_FRACTION.name()))
             minSplitFraction = (Double) cfg.get(MIN_SLPIT_FRACTION.name());
+        if (cfg.containsKey(EXEMPT_ATTRIBUTES.name()))
+            exemptAttributes = (Set<String>) cfg.get(EXEMPT_ATTRIBUTES.name());
     }
 
     @Override

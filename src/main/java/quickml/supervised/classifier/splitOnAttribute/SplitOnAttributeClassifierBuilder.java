@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
@@ -15,16 +16,16 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder<SplitOnAttributeClassifier, InstanceWithAttributesMap> {
+public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesMap<?>> implements PredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier, I> {
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
     private final String attributeKey;
-    private final PredictiveModelBuilder<? extends Classifier, InstanceWithAttributesMap> wrappedBuilder;
-    private Map<? extends Serializable, Integer> splitValToGroupIdMap;
+    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> wrappedBuilder;
+    private Map<? extends Object, Integer> splitValToGroupIdMap;
     private Map<Integer, SplitModelGroup> splitModelGroups;
     private final Integer defaultGroup;
 
     //TODO:  this method should not have any parameters.
-    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<? extends Classifier, InstanceWithAttributesMap> wrappedBuilder) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> wrappedBuilder) {
 
         this.attributeKey = attributeKey;
         this.defaultGroup = defaultGroup;
@@ -34,12 +35,12 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
     }
 
     @Override
-    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<InstanceWithAttributesMap> trainingData) {
+    public SplitOnAttributeClassifier buildPredictiveModel(final Iterable<I> trainingData) {
 
         //split by groupId
-        Map<Integer, List<InstanceWithAttributesMap>> splitTrainingData = splitTrainingData(trainingData);
+        Map<Integer, List<I>> splitTrainingData = splitTrainingData(trainingData);
         Map<Integer, Classifier> splitModels = Maps.newHashMap();
-        for (Map.Entry<Integer, List<InstanceWithAttributesMap>> trainingDataEntry : splitTrainingData.entrySet()) {
+        for (Map.Entry<Integer, List<I>> trainingDataEntry : splitTrainingData.entrySet()) {
             logger.info("Building predictive model for group" + attributeKey + "=" + trainingDataEntry.getKey());
             splitModels.put(trainingDataEntry.getKey(), wrappedBuilder.buildPredictiveModel(trainingDataEntry.getValue()));
         }
@@ -54,7 +55,7 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         wrappedBuilder.updateBuilderConfig(config);
     }
 
-    public int getGroupFromSplitVal(Serializable val) {
+    public int getGroupFromSplitVal(Object val) {
         return splitValToGroupIdMap.get(val);
     }
 
@@ -66,11 +67,11 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         return splitModelGroupMap;
     }
 
-    private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
+    private Map<Object, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
         SplitValTGroupIdMap splitValToGroupIdMap = new SplitValTGroupIdMap(defaultGroup);
         for (Integer groupId : splitModelGroups.keySet()) {
-            Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
-            for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {
+            Set<? extends Object> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
+            for (Object splitVal : valuesOfSplitVariableInTheGroup) {
                 splitValToGroupIdMap.put(splitVal, groupId);
             }
         }
@@ -78,12 +79,12 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
     }
 
 
-    private Map<Integer, List<InstanceWithAttributesMap>> splitTrainingData(Iterable<InstanceWithAttributesMap> trainingData) {
+    private Map<Integer, List<I>> splitTrainingData(Iterable<I> trainingData) {
 
         //create lists of data for each split attribute val
-        Map<Integer, List<InstanceWithAttributesMap>> splitTrainingData = Maps.newHashMap();
-        for (InstanceWithAttributesMap instance : trainingData) {
-            Serializable value = instance.getAttributes().get(attributeKey);
+        Map<Integer, List<I>> splitTrainingData = Maps.newHashMap();
+        for (I instance : trainingData) {
+            Object value = instance.getAttributes().get(attributeKey);
             Integer groupId;
             if (value != null) {
                 groupId = splitValToGroupIdMap.get(value);
@@ -91,7 +92,7 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
                 continue;
             }
 
-            List<InstanceWithAttributesMap> trainingDataForGroup = splitTrainingData.get(groupId);
+            List<I> trainingDataForGroup = splitTrainingData.get(groupId);
             if (trainingDataForGroup == null) {
                 trainingDataForGroup = Lists.newArrayList();
                 splitTrainingData.put(groupId, trainingDataForGroup);
@@ -108,7 +109,7 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
     * Add data to each split data set based on the desired cross data values. Maintain the same ratio of classifications in the split set by
     * selecting that ratio from outside sets. Only keep the attributes in the supporting instances that are in the white list
     * */
-    private void crossPollinateData(Map<Integer, List<InstanceWithAttributesMap>> splitTrainingData) {
+    private void crossPollinateData(Map<Integer, List<I>> splitTrainingData) {
 
         Map<Integer, Long> groupIdToSamplesInTheGroup = new HashMap<>();
 
@@ -118,27 +119,27 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
 
         for (Integer presentGroup : splitModelGroups.keySet()) {
 
-            List<InstanceWithAttributesMap> dataForPresentGroup = splitTrainingData.get(presentGroup);
+            List<I> dataForPresentGroup = splitTrainingData.get(presentGroup);
             SplitModelGroup splitModelGroup = splitModelGroups.get(presentGroup);
             Map<Integer, Long> numSamplesFromOtherGroupsMap = splitModelGroup.computeIdealNumberOfSamplesToCollectFromOtherGroups(groupIdToSamplesInTheGroup);
             //for each
             for (Integer crossGroupId : numSamplesFromOtherGroupsMap.keySet()) {
-                List<InstanceWithAttributesMap> instancesFromCrossGroup = splitTrainingData.get(crossGroupId);
+                List<I> instancesFromCrossGroup = splitTrainingData.get(crossGroupId);
                 long requestedNumInstances = numSamplesFromOtherGroupsMap.get(crossGroupId);
-                List<InstanceWithAttributesMap> listWithRequestedNumberOfInstancesFromThisCrossGroup = filterToRequestedNumber(instancesFromCrossGroup, requestedNumInstances);
+                List<I> listWithRequestedNumberOfInstancesFromThisCrossGroup = filterToRequestedNumber(instancesFromCrossGroup, requestedNumInstances);
                 dataForPresentGroup.addAll(listWithRequestedNumberOfInstancesFromThisCrossGroup);
             }
         }
     }
 
-    private List<InstanceWithAttributesMap> filterToRequestedNumber(List<InstanceWithAttributesMap> input, long requestedNumInstances) {
+    private List<I> filterToRequestedNumber(List<I> input, long requestedNumInstances) {
         //TODO: consider allowing it to get the most recently dated instances.
 
         /**
          * this method obtains a random sublist of approximately m elements from a list of n elements in order m time.
          */
 
-        List<InstanceWithAttributesMap> output = new ArrayList<>((int) requestedNumInstances);
+        List<I> output = new ArrayList<>((int) requestedNumInstances);
         double currentSizeToReducedSizeRatio = (1.0 * input.size()) / requestedNumInstances;
         int baseIncrement = (int) Math.floor(currentSizeToReducedSizeRatio);
         double randomIncrementProbability = currentSizeToReducedSizeRatio - baseIncrement;
@@ -154,7 +155,7 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         return output;
     }
 
-    private boolean shouldAddInstance(Serializable attributeValue, InstanceWithAttributesMap instance, ClassificationCounter crossDataCount, double targetCount) {
+    private boolean shouldAddInstance(Object attributeValue, I instance, ClassificationCounter crossDataCount, double targetCount) {
         //if the model's split valaue is not the same as the instance's split value (avoids redundancy)
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             //if we still need instances of a particular classification
@@ -170,9 +171,9 @@ public class SplitOnAttributeClassifierBuilder implements PredictiveModelBuilder
         public final long minTotalSamples;
         public double percentageOfTrainingDataThatIsFromOtherGroups;
         public final Map<Integer, Double> groupIdToPercentageOfCrossDataProvidedMap;
-        public final Set<? extends Serializable> valuesOfSplitVariableInTheGroup;
+        public final Set<? extends Object> valuesOfSplitVariableInTheGroup;
 
-        public SplitModelGroup(int groupId, Set<? extends Serializable> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
+        public SplitModelGroup(int groupId, Set<? extends Object> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
             this.groupId = groupId;
             this.valuesOfSplitVariableInTheGroup = valuesOfSplitVariableInTheGroup;
             this.minTotalSamples = minTotalSamples;

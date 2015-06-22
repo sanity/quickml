@@ -61,7 +61,7 @@ public class DTreeNClassCatBranchFinder extends BranchFinder<ClassificationCount
                 break;
             }
         }
-        if (branchingConditions.isInvalidSplit(trueClassificationCounts, falseClassificationCounts) || branchingConditions.isInvalidSplit(scoreWithCurrentTrueSet)) {
+        if (branchingConditions.isInvalidSplit(trueClassificationCounts, falseClassificationCounts, attributeStats.getAttribute()) || branchingConditions.isInvalidSplit(scoreWithCurrentTrueSet)) {
             return Optional.absent();
         }
         //because trueClassificationCounts is only mutated to better insets during the for loop...it corresponds to the actual inset here.

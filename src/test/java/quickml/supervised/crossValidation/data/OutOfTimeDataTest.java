@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation.data;
 
 import org.junit.Before;
 import org.junit.Test;
+import quickml.data.ClassifierInstance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 
@@ -14,8 +15,8 @@ import static quickml.TestUtils.createClassifierInstance;
 
 public class OutOfTimeDataTest {
 
-    private OutOfTimeData<InstanceWithAttributesMap> outOfTimeData;
-    private OnespotDateTimeExtractor dateTimeExtractor;
+    private OutOfTimeData<ClassifierInstance> outOfTimeData;
+    private OnespotDateTimeExtractor<ClassifierInstance> dateTimeExtractor;
 
     @Before
     public void setUp() throws Exception {

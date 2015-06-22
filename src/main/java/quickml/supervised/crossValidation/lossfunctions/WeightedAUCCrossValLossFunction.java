@@ -3,19 +3,17 @@ package quickml.supervised.crossValidation.lossfunctions;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * AUCCrossValLoss calculates the ROC area over the curve to determine loss.
- * <p/>
  * Created by Chris on 5/5/2014.
  */
 public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
 
-    private final Serializable positiveClassification;
+    private final Object positiveClassification;
 
-    public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
+    public WeightedAUCCrossValLossFunction(Object positiveClassification) {
         this.positiveClassification = positiveClassification;
     }
 
@@ -47,7 +45,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     }
 
     private void ensureBinaryClassifications(PredictionMapResults results) {
-        Set<Serializable> classifications = new HashSet<>();
+        Set<Object> classifications = new HashSet<>();
         for (PredictionMapResult result : results) {
             classifications.add(result.getLabel());
             if (classifications.size() > 2) {
@@ -147,17 +145,17 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     }
 
     protected static class AUCData implements Comparable<AUCData> {
-        private final Serializable classification;
+        private final Object classification;
         private final double weight;
         private final double probability;
 
-        public AUCData(Serializable classification, double weight, double probability) {
+        public AUCData(Object classification, double weight, double probability) {
             this.classification = classification;
             this.weight = weight;
             this.probability = probability;
         }
 
-        public Serializable getClassification() {
+        public Object getClassification() {
             return classification;
         }
 

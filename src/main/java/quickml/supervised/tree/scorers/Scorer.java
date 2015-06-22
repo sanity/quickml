@@ -18,10 +18,7 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
     protected double intrinsicValue;
     protected double unSplitScore;
 
-    /**
-     * @return A score, where a higher value indicates a better split. A value
-     * of 0 being the lowest, and indicating no value.
-     */
+
     public Scorer() {
     }
 
@@ -49,7 +46,10 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
     public double getPenaltyFactorForImabalance(VC a, VC b) {
         return 1/Math.pow(Math.max(a.getTotal(), b.getTotal()), imbalancePenaltyPower);
     }
-
+    /**
+     * @return A score, where a higher value indicates a better split. A value
+     * of 0 being the lowest, and indicating no value.
+     */
     public abstract double scoreSplit(VC a, VC b);
 
     public abstract void setUnSplitScore(VC a);

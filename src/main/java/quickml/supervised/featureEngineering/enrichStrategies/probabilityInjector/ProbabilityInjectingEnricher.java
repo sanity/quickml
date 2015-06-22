@@ -3,7 +3,6 @@ package quickml.supervised.featureEngineering.enrichStrategies.probabilityInject
 import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -16,9 +15,9 @@ public class ProbabilityInjectingEnricher implements AttributesEnricher {
     private static final int MISSING_VALUE_PLACEHOLDER = Integer.MIN_VALUE;
     private static final double MISSING_PROBABILITY_PLACEHOLDER = Double.MIN_VALUE;
 
-    private final Map<String, Map<Serializable, Double>> valueProbabilitiesByAttribute;
+    private final Map<String, Map<Object, Double>> valueProbabilitiesByAttribute;
 
-    public ProbabilityInjectingEnricher(Map<String, Map<Serializable, Double>> valueProbabilitiesByAttribute) {
+    public ProbabilityInjectingEnricher(Map<String, Map<Object, Double>> valueProbabilitiesByAttribute) {
         this.valueProbabilitiesByAttribute = valueProbabilitiesByAttribute;
     }
 
@@ -28,8 +27,8 @@ public class ProbabilityInjectingEnricher implements AttributesEnricher {
         AttributesMap enrichedAttributes = AttributesMap.newHashMap();
         enrichedAttributes.putAll(attributes);
 
-        for (Map.Entry<String, Map<Serializable, Double>> attributeValueProbEntry : valueProbabilitiesByAttribute.entrySet()) {
-            Serializable value = attributes.get(attributeValueProbEntry.getKey());
+        for (Map.Entry<String, Map<Object, Double>> attributeValueProbEntry : valueProbabilitiesByAttribute.entrySet()) {
+            Object value = attributes.get(attributeValueProbEntry.getKey());
             if (value == null) {
                 value = MISSING_VALUE_PLACEHOLDER;
             }

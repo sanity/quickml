@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/20/15.
  */
-public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeContextBuilder<Object, I, ClassificationCounter, DTNode> {
+public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeContextBuilder<I, ClassificationCounter, DTNode> {
 
     public static final int DEFAULT_MAX_DEPTH = 7;
     public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
@@ -219,11 +219,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     protected Map<BranchType, DTreeReducer<I>> getReducers(Object minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
-        reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducerReducer(minorityClassification));
-        reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<>());
-        reducers.put(BranchType.NUMERIC, new DTNumBranchReducer<>());
-        reducers.put(BranchType.BOOLEAN, new DTCatBranchReducer<>());
-
+        reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducerReducer<I>(minorityClassification));
+        reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
+        reducers.put(BranchType.NUMERIC, new DTNumBranchReducer<I>());
+        reducers.put(BranchType.BOOLEAN, new DTCatBranchReducer<I>());
         return reducers;
     }
 

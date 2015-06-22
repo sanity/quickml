@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/20/15.
  */
-public class DecisionTreeBuilderHelper<I extends ClassifierInstance> extends TreeBuilderHelper<Object, I, ClassificationCounter, DTNode> {
+public class DecisionTreeBuilderHelper<I extends ClassifierInstance> extends TreeBuilderHelper<I, ClassificationCounter, DTNode> {
 
     DTreeContextBuilder<I> treeBuildContext;
     public DecisionTreeBuilderHelper(DTreeContextBuilder<I> treeBuildContext) {

@@ -4,12 +4,11 @@ package quickml.data;
 import org.joda.time.DateTime;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
-import java.io.Serializable;
 
-public class OnespotDateTimeExtractor implements DateTimeExtractor<InstanceWithAttributesMap> {
+public class OnespotDateTimeExtractor<T extends ClassifierInstance> implements DateTimeExtractor<T> {
 
     @Override
-    public DateTime extractDateTime(InstanceWithAttributesMap instance) {
+    public DateTime extractDateTime(T instance) {
         int year = attrVal(instance, "timeOfArrival-year");
         int month = attrVal(instance,"timeOfArrival-monthOfYear");
         int day = attrVal(instance,"timeOfArrival-dayOfMonth");
@@ -18,7 +17,7 @@ public class OnespotDateTimeExtractor implements DateTimeExtractor<InstanceWithA
         return new DateTime(year, month, day, hour, minute, 0, 0);
     }
 
-    private int attrVal(Instance<AttributesMap, Serializable> instance, String attrName) {
+    private int attrVal(T instance, String attrName) {
         return instance.getAttributes().containsKey(attrName) ?
                 ((Number) instance.getAttributes().get(attrName)).intValue() : 1 ;
     }

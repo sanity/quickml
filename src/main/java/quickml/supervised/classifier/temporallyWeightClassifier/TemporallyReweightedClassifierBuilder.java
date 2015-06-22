@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
+import quickml.data.AttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
@@ -17,7 +19,7 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<TemporallyReweightedClassifier, InstanceWithAttributesMap> {
+public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<AttributesMap, TemporallyReweightedClassifier, ClassifierInstance> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
@@ -25,11 +27,11 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private final PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedBuilder;
+    private final PredictiveModelBuilder<AttributesMap, Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
     private final DateTimeExtractor dateTimeExtractor;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, InstanceWithAttributesMap> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
         this.positiveClassification = positiveClassification;
         this.dateTimeExtractor = dateTimeExtractor;
@@ -60,47 +62,47 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     }
 
     @Override
-    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<InstanceWithAttributesMap> trainingData) {
+    public TemporallyReweightedClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
         validateData(trainingData);
         DateTime mostRecent = getMostRecentInstance(trainingData);
-        List<InstanceWithAttributesMap> trainingDataList = sortAndReweightTrainingData(trainingData, mostRecent);
+        List<ClassifierInstance> trainingDataList = sortAndReweightTrainingData(trainingData, mostRecent);
         final Classifier predictiveModel = wrappedBuilder.buildPredictiveModel(trainingDataList);
         return new TemporallyReweightedClassifier(predictiveModel);
     }
 
 
-    private List<InstanceWithAttributesMap> sortAndReweightTrainingData(Iterable<InstanceWithAttributesMap> trainingData, DateTime mostRecentInstance) {
-        ArrayList<InstanceWithAttributesMap> sortedData = Lists.newArrayList();
-        for (InstanceWithAttributesMap inst : trainingData) {
+    private List<ClassifierInstance> sortAndReweightTrainingData(Iterable<ClassifierInstance> trainingData, DateTime mostRecentInstance) {
+        ArrayList<ClassifierInstance> sortedData = Lists.newArrayList();
+        for (ClassifierInstance inst : trainingData) {
             sortedData.add(inst);
         }
-        Collections.sort(sortedData, new Comparator<InstanceWithAttributesMap>() {
+        Collections.sort(sortedData, new Comparator<ClassifierInstance>() {
             @Override
-            public int compare(InstanceWithAttributesMap o1, InstanceWithAttributesMap o2) {
+            public int compare(ClassifierInstance o1, ClassifierInstance o2) {
                 DateTime d1 = dateTimeExtractor.extractDateTime(o1);
                 DateTime d2 = dateTimeExtractor.extractDateTime(o2);
                 return -d1.compareTo(d2); //later times shoudl be sorted ahead of earlier times
             }
         });
-        ArrayList<InstanceWithAttributesMap> trainingDataList = Lists.newArrayList();
-        for (InstanceWithAttributesMap instance : sortedData) {
+        ArrayList<ClassifierInstance> trainingDataList = Lists.newArrayList();
+        for (ClassifierInstance instance : sortedData) {
             double decayConstant = (instance.getLabel().equals(positiveClassification)) ? decayConstantOfPositive : decayConstantOfNegative;
             double hoursBack = Hours.hoursBetween(mostRecentInstance, dateTimeExtractor.extractDateTime(instance)).getHours();
             double newWeight = Math.exp(-1.0 * hoursBack / decayConstant);
             //TODO[mk] Reweight needs to be moved / removed
-            trainingDataList.add(new InstanceWithAttributesMap(instance.getAttributes(), instance.getLabel(), newWeight));
+            trainingDataList.add(new ClassifierInstance(instance.getAttributes(), instance.getLabel(), newWeight));
         }
         return trainingDataList;
     }
 
-    private void validateData(Iterable<InstanceWithAttributesMap> trainingData) {
+    private void validateData(Iterable<ClassifierInstance> trainingData) {
         ClassificationCounter classificationCounter = ClassificationCounter.countAll(trainingData);
         Preconditions.checkArgument(classificationCounter.getCounts().keySet().size() <= 2, "trainingData must contain only 2 classifications, but it had %s", classificationCounter.getCounts().keySet().size());
     }
 
-    private DateTime getMostRecentInstance(Iterable<InstanceWithAttributesMap> newData) {
+    private DateTime getMostRecentInstance(Iterable<ClassifierInstance> newData) {
         DateTime mostRecent = null;
-        for (InstanceWithAttributesMap instance : newData) {
+        for (ClassifierInstance instance : newData) {
             if (mostRecent == null || dateTimeExtractor.extractDateTime(instance).isAfter(mostRecent)) {
                 mostRecent = dateTimeExtractor.extractDateTime(instance);
             }

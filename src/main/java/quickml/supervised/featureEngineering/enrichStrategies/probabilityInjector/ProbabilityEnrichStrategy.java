@@ -6,7 +6,6 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
     private static final int DEFAULT_MAX_VALUE_COUNT = 20000;
 
     private final Set<String> attributeKeysToInject;
-    private final Serializable classification;
+    private final Object classification;
     private final int maxValueCount;
 
     /**
@@ -33,7 +32,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
      *                       are more than two you might wish to create multiple enrich strategies, each
      *                       looking at a different classification.
      */
-    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Serializable classification) {
+    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Object classification) {
         this(attributeKeysToInject, classification, DEFAULT_MAX_VALUE_COUNT);
     }
 
@@ -46,15 +45,15 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
      * @param maxValueCount This is the maximum number of values an attribute can have before it will be
      *                      ignored by ProbabilityEnrichStrategy.  If unspecified the default is 20,000.
      */
-    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Serializable classification, final int maxValueCount) {
+    public ProbabilityEnrichStrategy(Set<String> attributeKeysToInject, Object classification, final int maxValueCount) {
         this.attributeKeysToInject = attributeKeysToInject;
         this.classification = classification;
         this.maxValueCount = maxValueCount;
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<InstanceWithAttributesMap> trainingData) {
-        Map<String, Map<Serializable, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
+    public AttributesEnricher build(final Iterable<InstanceWithAttributesMap<?>> trainingData) {
+        Map<String, Map<Object, ProbCounter>> valueProbCountersByAttribute = Maps.newHashMap();
 
         Set<String> attributesWithTooManyValues = Sets.newHashSet();
 
@@ -65,7 +64,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
                     continue;
                 }
 
-                Map<Serializable, ProbCounter> attributeValueProbabilities = valueProbCountersByAttribute.get(attributeKey);
+                Map<Object, ProbCounter> attributeValueProbabilities = valueProbCountersByAttribute.get(attributeKey);
                 if (attributeValueProbabilities == null) {
                     attributeValueProbabilities = Maps.newHashMap();
                     valueProbCountersByAttribute.put(attributeKey, attributeValueProbabilities);
@@ -75,7 +74,7 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
                     valueProbCountersByAttribute.remove(attributeKey);
                     continue;
                 }
-                Serializable value = instance.getAttributes().get(attributeKey);
+                Object value = instance.getAttributes().get(attributeKey);
                 if (value == null) {
                     value = Integer.MIN_VALUE;
                 }
@@ -88,12 +87,12 @@ public class ProbabilityEnrichStrategy implements AttributesEnrichStrategy {
             }
         }
 
-        Map<String, Map<Serializable, Double>> attributeValueProbabilitiesByAttribute = Maps.newHashMap();
+        Map<String, Map<Object, Double>> attributeValueProbabilitiesByAttribute = Maps.newHashMap();
 
-        for (Map.Entry<String, Map<Serializable, ProbCounter>> attributeValueProbEntry : valueProbCountersByAttribute.entrySet()) {
-            Map<Serializable, Double> probabilitiesByValue = Maps.newHashMap();
+        for (Map.Entry<String, Map<Object, ProbCounter>> attributeValueProbEntry : valueProbCountersByAttribute.entrySet()) {
+            Map<Object, Double> probabilitiesByValue = Maps.newHashMap();
 
-            for (Map.Entry<Serializable, ProbCounter> valueProbEntry : attributeValueProbEntry.getValue().entrySet()) {
+            for (Map.Entry<Object, ProbCounter> valueProbEntry : attributeValueProbEntry.getValue().entrySet()) {
                 probabilitiesByValue.put(valueProbEntry.getKey(), valueProbEntry.getValue().getProb());
             }
             attributeValueProbabilitiesByAttribute.put(attributeValueProbEntry.getKey(), probabilitiesByValue);

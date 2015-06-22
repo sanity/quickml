@@ -12,7 +12,6 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.tree.decisionTree.tree.Node;
 
 import java.io.IOException;
 import java.util.List;

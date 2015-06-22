@@ -1,6 +1,7 @@
 package quickml.supervised.predictiveModelOptimizer;
 
 import com.google.common.base.Preconditions;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
@@ -11,7 +12,7 @@ import quickml.supervised.crossValidation.data.TrainingDataCycler;
 
 import java.util.Map;
 
-public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel, L, T extends InstanceWithAttributesMap<L>> {
+public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel<AttributesMap, ?>, T extends InstanceWithAttributesMap<?>> {
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
     private PredictiveModelBuilder modelBuilder;
@@ -20,27 +21,27 @@ public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel, L, T ex
     private int iterations = 5;
 
 
-    public PredictiveModelOptimizerBuilder<PM, L, T> valuesToTest(Map<String, ? extends FieldValueRecommender> valuesToTest) {
+    public PredictiveModelOptimizerBuilder<PM, T> valuesToTest(Map<String, ? extends FieldValueRecommender> valuesToTest) {
         this.valuesToTest = valuesToTest;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, L, T> lossChecker(LossChecker<PM, T> lossChecker) {
+    public PredictiveModelOptimizerBuilder<PM, T> lossChecker(LossChecker<PM, T> lossChecker) {
         this.lossChecker = lossChecker;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, L, T> dataCycler(TrainingDataCycler<T> dataCycler) {
+    public PredictiveModelOptimizerBuilder<PM, T> dataCycler(TrainingDataCycler<T> dataCycler) {
         this.dataCycler = dataCycler;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, L, T> modelBuilder(PredictiveModelBuilder modelBuilder) {
+    public PredictiveModelOptimizerBuilder<PM, T> modelBuilder(PredictiveModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, L, T> iterations(int iterations) {
+    public PredictiveModelOptimizerBuilder<PM, T> iterations(int iterations) {
         this.iterations = iterations;
         return this;
     }

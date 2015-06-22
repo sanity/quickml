@@ -1,9 +1,11 @@
 package quickml.supervised.inspection;
 
+import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
+import quickml.supervised.tree.decisionTree.nodes.DTNode;
+import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
 import quickml.utlities.SerializationUtility;
 import quickml.supervised.tree.decisionTree.DecisionTree;
-import quickml.supervised.tree.nodes.CategoricalBranch;
-import quickml.supervised.tree.decisionTree.tree.Node;
+
 import quickml.supervised.tree.nodes.NumBranch;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 
@@ -69,12 +71,12 @@ public class RandomForestDumper {
         private int splits;
         private Map<String, AttributeSummary> attributes = new HashMap<>();
 
-        private void summarizeNode(Node node, int currentDepth) {
-            if (node instanceof CategoricalBranch) {
-                summarizeCategoricalNode((CategoricalBranch)node, currentDepth);
+        private void summarizeNode(DTNode node, int currentDepth) {
+            if (node instanceof DTCatBranch) {
+                summarizeCategoricalNode((DTCatBranch)node, currentDepth);
             }
             else if (node instanceof NumBranch) {
-                summarizeNumericNode((NumBranch) node, currentDepth);
+                summarizeNumericNode((DTNumBranch) node, currentDepth);
             }
         }
 
@@ -90,14 +92,14 @@ public class RandomForestDumper {
             attrSummary.depths[depth]++;
         }
 
-        private void summarizeCategoricalNode(CategoricalBranch node, int currentDepth) {
+        private void summarizeCategoricalNode(DTCatBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
             summarizeNode(node.trueChild, currentDepth+1);
             summarizeNode(node.falseChild, currentDepth+1);
         }
 
-        private void summarizeNumericNode(NumBranch node, int currentDepth) {
+        private void summarizeNumericNode(DTNumBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
             summarizeNode(node.trueChild, currentDepth+1);

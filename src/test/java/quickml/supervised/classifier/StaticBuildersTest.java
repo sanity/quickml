@@ -24,7 +24,7 @@ public class StaticBuildersTest {
         List<InstanceWithAttributesMap> trainingData = getAdvertisingInstances().subList(0, 3000);
         OnespotDateTimeExtractor dateTimeExtractor = new OnespotDateTimeExtractor();
         Pair<Map<String, Object>, DownsamplingClassifier> downsamplingClassifierPair =
-                StaticBuilders.getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
+                Classifiers.getOptimizedDownsampledRandomForest(trainingData, rebuildsPerValidation, fractionOfDataForValidation, new WeightedAUCCrossValLossFunction(1.0), dateTimeExtractor);
         logger.info("logged weighted auc loss should be between 0.25 and 0.28");
     }
 }

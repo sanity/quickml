@@ -1,22 +1,24 @@
 package quickml.supervised.crossValidation.data;
 
 import com.google.common.collect.Lists;
+import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class FoldedData<T> implements TrainingDataCycler<T> {
+public class FoldedData<I extends InstanceWithAttributesMap<?>> implements TrainingDataCycler<I> {
 
 
     private final int numFolds;
     private final int foldsUsed;
-    private final List<T> allData;
+    private final List<I> allData;
     private int currentFold;
-    private List<T> trainingSet;
-    private List<T> validationSet;
+    private List<I> trainingSet;
+    private List<I> validationSet;
 
-    public FoldedData(List<T> allData, int numFolds, int foldsUsed) {
+    public FoldedData(List<I> allData, int numFolds, int foldsUsed) {
         checkArguments(allData, numFolds, foldsUsed);
         this.allData = allData;
         this.numFolds = numFolds;
@@ -32,17 +34,17 @@ public class FoldedData<T> implements TrainingDataCycler<T> {
     }
 
     @Override
-    public List<T> getTrainingSet() {
+    public List<I> getTrainingSet() {
         return trainingSet;
     }
 
     @Override
-    public List<T> getValidationSet() {
+    public List<I> getValidationSet() {
         return validationSet;
     }
 
     @Override
-    public List<T> getAllData() {
+    public List<I> getAllData() {
         return allData;
     }
 
@@ -59,7 +61,7 @@ public class FoldedData<T> implements TrainingDataCycler<T> {
         return currentFold < foldsUsed;
     }
 
-    private void checkArguments(List<T> allData, int numFolds, int foldsUsed) {
+    private void checkArguments(List<I> allData, int numFolds, int foldsUsed) {
         checkArgument(allData.size() > 0, "Training set cannot be empty");
         checkArgument(numFolds <= allData.size(), "Num Folds must be less than or equal to the data getSize");
         checkArgument(foldsUsed <= numFolds, "Folds used must be less then or equal to the number of folds");

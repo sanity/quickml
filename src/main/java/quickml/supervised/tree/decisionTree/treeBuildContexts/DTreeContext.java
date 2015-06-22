@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/21/15.
  */
-public class DTreeContext<I extends ClassifierInstance> extends TreeContext<Object, I, ClassificationCounter, DTNode> {
+public class DTreeContext<I extends ClassifierInstance> extends TreeContext<I, ClassificationCounter, DTNode> {
     Set<Object> classifications;
 
     public DTreeContext(Set<Object> classifications,
@@ -24,7 +24,7 @@ public class DTreeContext<I extends ClassifierInstance> extends TreeContext<Obje
                         Scorer scorer,
                         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers,
                         LeafBuilder<ClassificationCounter, DTNode> leafBuilder,
-                        ValueCounterProducer<Object, I, ClassificationCounter> valueCounterProducer
+                        ValueCounterProducer<I, ClassificationCounter> valueCounterProducer
     ) {
         super(branchingConditions, scorer, branchFindersAndReducers, leafBuilder, valueCounterProducer);
         this.classifications = classifications;

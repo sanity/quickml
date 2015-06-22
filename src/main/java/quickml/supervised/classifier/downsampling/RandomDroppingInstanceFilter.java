@@ -4,23 +4,23 @@ import com.google.common.base.Predicate;
 import quickml.collections.MapUtils;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 
-import java.io.Serializable;
 
 /**
  * Created by ian on 4/23/14.
  */
-class RandomDroppingInstanceFilter implements Predicate<Instance<AttributesMap, Serializable>> {
-    private final Serializable classificationToDrop;
+class RandomDroppingInstanceFilter implements Predicate<InstanceWithAttributesMap<Object>> {
+    private final Object classificationToDrop;
     private final double dropProbability;
 
-    public RandomDroppingInstanceFilter(Serializable classificationToDrop, double dropProbability) {
+    public RandomDroppingInstanceFilter(Object classificationToDrop, double dropProbability) {
         this.classificationToDrop = classificationToDrop;
         this.dropProbability = dropProbability;
     }
 
     @Override
-    public boolean apply(final Instance<AttributesMap, Serializable> Instance) {
+    public boolean apply(final InstanceWithAttributesMap<Object> Instance) {
         if (Instance.getLabel().equals(classificationToDrop)) {
             final double rand = MapUtils.random.nextDouble();
 

@@ -4,16 +4,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
+import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.crossValidation.CrossValidator;
 
 import java.util.*;
 
-public class PredictiveModelOptimizer {
+public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, ?>, I extends InstanceWithAttributesMap<?>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
-    private CrossValidator crossValidator;
+    private CrossValidator<PM, I> crossValidator;
     private HashMap<String, Object> bestConfig;
     private final int iterations;
 
@@ -23,7 +26,7 @@ public class PredictiveModelOptimizer {
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator<PM, I> crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
         this.iterations = iterations;

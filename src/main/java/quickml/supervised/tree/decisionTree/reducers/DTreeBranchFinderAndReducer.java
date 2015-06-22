@@ -10,7 +10,7 @@ import quickml.supervised.tree.reducers.Reducer;
 /**
  * Created by alexanderhawk on 6/21/15.
  */
-public class DTreeBranchFinderAndReducer<I extends ClassifierInstance> extends BranchFinderAndReducer<Object, I, ClassificationCounter, DTNode>{
+public class DTreeBranchFinderAndReducer<I extends ClassifierInstance> extends BranchFinderAndReducer<I, ClassificationCounter, DTNode>{
     protected DTreeReducer<I> reducer;
 
     public DTreeBranchFinderAndReducer(BranchFinder<ClassificationCounter, DTNode> branchFinder, DTreeReducer<I> reducer) {

@@ -39,7 +39,7 @@ public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore sp
 
         trueSet = trueSet.add(valueCounterForAttrVal);
         falseSet = falseSet.subtract(valueCounterForAttrVal);
-        if (branchingConditions.isInvalidSplit(trueSet, falseSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {
+        if (branchingConditions.isInvalidSplit(trueSet, falseSet, attributeStats.getAttribute()) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet) || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {
             continue;
         }
 

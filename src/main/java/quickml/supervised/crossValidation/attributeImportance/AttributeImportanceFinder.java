@@ -1,6 +1,7 @@
 package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
+import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
@@ -16,9 +17,9 @@ import static java.lang.Math.max;
 import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
-public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
-    private final PredictiveModelBuilder<Classifier, T> modelBuilder;
-    private final TrainingDataCycler<T> dataCycler;
+public class AttributeImportanceFinder <I extends InstanceWithAttributesMap<?>> {
+    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> modelBuilder;
+    private final TrainingDataCycler<I> dataCycler;
     private final int numAttributesToRemovePerIteration;
     private final int numberOfIterations;
     private Set<String> attributesToNotRemove;
@@ -29,8 +30,8 @@ public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
     /**
      * Protected, use AttributeImportanceFinderBuilder to create a new instance
      */
-    protected AttributeImportanceFinder(PredictiveModelBuilder<Classifier, T> modelBuilder,
-                                     TrainingDataCycler<T> dataCycler, double percentToRemovePerIteration,
+    protected AttributeImportanceFinder(PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> modelBuilder,
+                                     TrainingDataCycler< I> dataCycler, double percentToRemovePerIteration,
                                      int numberOfIterations, Set<String> attributesToNotRemove,
                                      List<ClassifierLossFunction> lossFunctions, ClassifierLossFunction primaryLossFunction) {
         this.modelBuilder = modelBuilder;
@@ -97,10 +98,10 @@ public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
         }
     }
 
-    private Set<String> getAllAttributes(TrainingDataCycler<T> dataCycler) {
+    private Set<String> getAllAttributes(TrainingDataCycler<I> dataCycler) {
         Set<String> attributes = newHashSet();
 
-        for (T instance : dataCycler.getAllData()) {
+        for (I instance : dataCycler.getAllData()) {
             attributes.addAll(instance.getAttributes().keySet());
         }
         return attributes;

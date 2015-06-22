@@ -19,7 +19,7 @@ public class AttributeCombiningEnrichStrategy implements AttributesEnrichStrateg
     }
 
     @Override
-    public AttributesEnricher build(final Iterable<InstanceWithAttributesMap> trainingData) {
+    public AttributesEnricher build(final Iterable<InstanceWithAttributesMap<?>> trainingData) {
         return new AttributeCombiningEnricher(attributesToCombine);
     }
 }

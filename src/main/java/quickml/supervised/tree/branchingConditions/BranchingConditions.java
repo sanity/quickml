@@ -12,14 +12,15 @@ import java.util.Map;
 
 
 public interface BranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
-    public abstract boolean isInvalidSplit(VC trueValueStats, VC falseValueStats);  //needs a classification counter, and minLeafInstances.  SplitProperties can be whatever
+    boolean isInvalidSplit(VC trueValueStats, VC falseValueStats);
 
-    public abstract boolean isInvalidSplit(double score);
+    boolean isInvalidSplit(double score);
 
-    public abstract boolean canTryAddingChildren(Branch<VC, N> branch, VC VC);//Branch has score and depth info in itg
+    boolean isInvalidSplit(VC trueSet, VC falseSet, String attribute);
 
+    boolean canTryAddingChildren(Branch<VC, N> branch, VC VC);
 
-    public abstract void update(Map<String, Object> cfg);
+    void update(Map<String, Object> cfg);
 
-    public abstract BranchingConditions copy();
+    BranchingConditions copy();
 }

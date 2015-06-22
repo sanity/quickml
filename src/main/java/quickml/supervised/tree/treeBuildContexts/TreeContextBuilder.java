@@ -23,14 +23,14 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<L>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
     protected Scorer<VC> scorer;
     protected LeafBuilder<VC, N> leafBuilder;
     protected BranchingConditions<VC, N> branchingConditions;
     protected List<? extends BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
 
 
-    public abstract ValueCounterProducer<L, I, VC> getValueCounterProducer();
+    public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
     public List<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilders() {
         return branchFinderBuilders;
@@ -50,8 +50,8 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
     }
 
 
-    public TreeContextBuilder<L, I, VC, N> copy() {
-        TreeContextBuilder<L, I, VC, N> copy = createTreeBuildContext();
+    public TreeContextBuilder<I, VC, N> copy() {
+        TreeContextBuilder<I, VC, N> copy = createTreeBuildContext();
         List<BranchFinderBuilder<VC, N>> copiedBranchFinderBuilders = Lists.newArrayList();
         for (BranchFinderBuilder<VC, N> branchFinderBuilder : this.branchFinderBuilders) {
             copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
@@ -67,8 +67,8 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
         return getBranchFinderBuilder(branchType).isPresent();
     }
 
-    public Optional<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilder(BranchType branchType) {
-        for (BranchFinderBuilder branchFinderBuilder : branchFinderBuilders) {
+    public Optional<BranchFinderBuilder<VC, N>> getBranchFinderBuilder(BranchType branchType) {
+        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
             if (branchFinderBuilder.getBranchType().equals(branchType)) {
                 return Optional.of(branchFinderBuilder);
             }
@@ -76,9 +76,9 @@ public abstract class TreeContextBuilder<L, I extends InstanceWithAttributesMap<
         return Optional.absent();
     }
 
-    public abstract TreeContextBuilder<L, I, VC, N> createTreeBuildContext();
+    public abstract TreeContextBuilder<I, VC, N> createTreeBuildContext();
 
-    public abstract TreeContext<L, I, VC, N> buildContext(List<I> trainingData);
+    public abstract TreeContext<I, VC, N> buildContext(List<I> trainingData);
 
     public void update(final Map<String, Object> cfg) {
         if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))

@@ -2,7 +2,9 @@ package quickml.supervised.crossValidation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
@@ -13,16 +15,16 @@ import java.util.Map;
 
 import static quickml.supervised.Utils.getInstanceWeights;
 
-public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
+public class CrossValidator<PM extends PredictiveModel<AttributesMap, ?>, I extends InstanceWithAttributesMap<?>>  {
 
     private static final Logger logger = LoggerFactory.getLogger(CrossValidator.class);
 
 
-    private LossChecker<PM, T> lossChecker;
-    private TrainingDataCycler<T> dataCycler;
-    private final PredictiveModelBuilder<PM, T> modelBuilder;
+    private LossChecker<PM, I> lossChecker;
+    private TrainingDataCycler<I> dataCycler;
+    private final PredictiveModelBuilder<AttributesMap, PM, I> modelBuilder;
 
-    public CrossValidator(PredictiveModelBuilder<PM, T> modelBuilder, LossChecker<PM, T> lossChecker, TrainingDataCycler<T> dataCycler) {
+    public CrossValidator(PredictiveModelBuilder<AttributesMap, PM, I> modelBuilder, LossChecker<PM, I> lossChecker, TrainingDataCycler<I> dataCycler) {
         this.lossChecker = lossChecker;
         this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
@@ -52,7 +54,7 @@ public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
         double runningWeightOfValidationSet = 0;
 
         do {
-            List<T> validationSet = dataCycler.getValidationSet();
+            List<I> validationSet = dataCycler.getValidationSet();
             double validationSetWeight = getInstanceWeights(validationSet);
             PM predictiveModel = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
             runningLoss += lossChecker.calculateLoss(predictiveModel, validationSet) * validationSetWeight;
