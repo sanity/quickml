@@ -2,6 +2,7 @@ package quickml.supervised.tree;
 
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.AttributesMapPredictiveModelBuilder;
+import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 
 import java.util.Map;
 
@@ -11,6 +12,6 @@ import java.util.Map;
 
 public interface TreeBuilder<P, L, I extends InstanceWithAttributesMap<L>> extends AttributesMapPredictiveModelBuilder<P, Tree<P>, L, I> {
 
-    public abstract Tree<P> buildPredictiveModel(Iterable<I> trainingData);
-
+    Tree<P> buildPredictiveModel(Iterable<I> trainingData);
+    TreeBuilder<P, L, I> copy();
 }

@@ -5,7 +5,7 @@ import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.nodes.CategoricalBranch;
 import quickml.supervised.tree.decisionTree.tree.Node;
 import quickml.supervised.tree.nodes.NumBranch;
-import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 
 import java.io.*;
 import java.util.*;

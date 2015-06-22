@@ -1,27 +1,36 @@
-package quickml.supervised.tree.scorers;
+package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.scorers.Scorer;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by chrisreeves on 6/24/14.
  */
-public class InformationGainScorer implements Scorer {
+public class InformationGainScorer extends Scorer<ClassificationCounter> {
+
+    @Override
+    public void setUnSplitScore(ClassificationCounter a) {
+        unSplitScore = calculateEntropy(a);
+    }
+
+    @Override
+    public Scorer<ClassificationCounter> createScorer() {
+        return new InformationGainScorer();
+    }
 
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
-        double parentEntropy = calculateEntropy(ClassificationCounter.merge(a, b));
         double aEntropy = calculateEntropy(a);
         double bEntropy = calculateEntropy(b);
-        return calculateGain(parentEntropy, aEntropy, bEntropy, a.getTotal(), b.getTotal());
+        return calculateGain(unSplitScore, aEntropy, bEntropy, a.getTotal(), b.getTotal());
     }
 
     private double calculateEntropy(ClassificationCounter cc) {
         double entropy = 0;
 
-        for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
+        for (Map.Entry<Object, Double> e : cc.getCounts().entrySet()) {
             double error = (cc.getTotal() > 0) ? e.getValue() / cc.getTotal() : 0;
             entropy += -error * (Math.log(error) / Math.log(2));
         }

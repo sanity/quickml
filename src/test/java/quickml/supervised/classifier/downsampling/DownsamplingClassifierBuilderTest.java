@@ -16,9 +16,9 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.TreeBuilderHelper;
-import quickml.supervised.tree.scorers.SplitDiffScorer;
-import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -70,7 +70,7 @@ public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleBmiTest() throws IOException, ClassNotFoundException {
         final TreeBuilderHelper tb = new TreeBuilderHelper(new SplitDiffScorer());
-        final RandomForestBuilder urfb = new RandomForestBuilder(tb);
+        final RandomDecisionForestBuilder urfb = new RandomDecisionForestBuilder(tb);
         final DownsamplingClassifierBuilder dpmb = new DownsamplingClassifierBuilder(urfb, 0.1);
 
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getIntegerInstances(1000);

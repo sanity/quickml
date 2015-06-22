@@ -1,4 +1,4 @@
-package quickml.supervised.ensembles.randomForest;
+package quickml.supervised.ensembles.randomForest.randomDecisionForest;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -7,10 +7,11 @@ import com.google.common.util.concurrent.AtomicDouble;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
+import quickml.supervised.ensembles.randomForest.RandomForest;
+import quickml.supervised.tree.Tree;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -20,15 +21,15 @@ import java.util.*;
  * Time: 4:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class RandomDecisionForest extends AbstractClassifier {
+public class RandomDecisionForest  extends AbstractClassifier implements RandomForest<PredictionMap, DecisionTree> {
 
     static final long serialVersionUID = 56394564395638954L;
 
     public final List<DecisionTree> decisionTrees;
-    private Set<Serializable> classifications = new HashSet<>();
+    private Set<Object> classifications = new HashSet<>();
     private boolean binaryClassification = true;
 
-    protected RandomDecisionForest(List<DecisionTree> decisionTrees, Set<Serializable> classifications) {
+    protected RandomDecisionForest(List<DecisionTree> decisionTrees, Set<Object> classifications) {
         Preconditions.checkArgument(decisionTrees.size() > 0, "We must have at least one tree");
         this.decisionTrees = decisionTrees;
         this.classifications = classifications;
@@ -40,7 +41,7 @@ public class RandomDecisionForest extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(AttributesMap attributes, Serializable classification) {
+    public double getProbability(AttributesMap attributes, Object classification) {
         double total = 0;
         for (DecisionTree decisionTree : decisionTrees) {
             final double probability = decisionTree.getProbability(attributes, classification);
@@ -52,7 +53,7 @@ public class RandomDecisionForest extends AbstractClassifier {
         return total / decisionTrees.size();
     }
 
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
         double total = 0;
         for (DecisionTree decisionTree : decisionTrees) {
             final double probability = decisionTree.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
@@ -75,18 +76,18 @@ public class RandomDecisionForest extends AbstractClassifier {
     }
 
     private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
-        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Object, Double>());
         for (DecisionTree decisionTree : decisionTrees) {
             final PredictionMap treeProbs = decisionTree.predict(attributes);
-            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
+            for (Map.Entry<Object, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
                 sum += tpe.getValue();
                 sumsByClassification.put(tpe.getKey(), sum);
             }
         }
-        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
-        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Object, Double>());
+        for (Map.Entry<Object, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
@@ -94,18 +95,18 @@ public class RandomDecisionForest extends AbstractClassifier {
 
     @Override
     public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
-        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Object, Double>());
         for (DecisionTree decisionTree : decisionTrees) {
             final PredictionMap treeProbs = decisionTree.predictWithoutAttributes(attributes, attributesToIgnore);
-            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
+            for (Map.Entry<Object, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
                 sum += tpe.getValue();
                 sumsByClassification.put(tpe.getKey(), sum);
             }
         }
-        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
-        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Object, Double>());
+        for (Map.Entry<Object, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
@@ -113,26 +114,26 @@ public class RandomDecisionForest extends AbstractClassifier {
 
     private PredictionMap getPredictionForTwoClasses(AttributesMap attributes) {
         PredictionMap probsByClassification = PredictionMap.newMap();
-        Iterator<Serializable> classIterator = classifications.iterator();
+        Iterator<Object> classIterator = classifications.iterator();
         if (!classIterator.hasNext()) {
             throw new RuntimeException("no class labels present in classification set");
         }
-        Serializable firstClassification = classIterator.next();
+        Object firstClassification = classIterator.next();
         double firstProbability = getProbability(attributes, firstClassification);
         probsByClassification.put(firstClassification, firstProbability);
         if (classIterator.hasNext()) {
-            Serializable secondClassification = classIterator.next();
+            Object secondClassification = classIterator.next();
             probsByClassification.put(secondClassification, 1.0 - firstProbability);
         }
         return probsByClassification;
     }
 
     @Override
-    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
-        Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
+    public Object getClassificationByMaxProb(AttributesMap attributes) {
+        Map<Object, AtomicDouble> probTotals = Maps.newHashMap();
         for (DecisionTree decisionTree : decisionTrees) {
             DTLeaf DTLeaf = decisionTree.root.getLeaf(attributes);
-            for (Serializable classification : DTLeaf.getClassifications()) {
+            for (Object classification : DTLeaf.getClassifications()) {
                 AtomicDouble ttlProb = probTotals.get(classification);
                 if (ttlProb == null) {
                     ttlProb = new AtomicDouble(0);
@@ -141,9 +142,9 @@ public class RandomDecisionForest extends AbstractClassifier {
                 ttlProb.addAndGet(DTLeaf.getProbability(classification));
             }
         }
-        Serializable bestClassification = null;
+        Object bestClassification = null;
         double bestClassificationTtlProb = 0;
-        for (Map.Entry<Serializable, AtomicDouble> classificationProb : probTotals.entrySet()) {
+        for (Map.Entry<Object, AtomicDouble> classificationProb : probTotals.entrySet()) {
             if (bestClassification == null || classificationProb.getValue().get() > bestClassificationTtlProb) {
                 bestClassification = classificationProb.getKey();
                 bestClassificationTtlProb = classificationProb.getValue().get();

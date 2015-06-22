@@ -10,7 +10,7 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.TreeBuilderHelper;
-import quickml.supervised.tree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 
 import java.util.LinkedList;
 import java.util.List;

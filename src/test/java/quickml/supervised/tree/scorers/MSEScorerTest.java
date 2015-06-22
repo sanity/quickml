@@ -2,6 +2,7 @@ package quickml.supervised.tree.scorers;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import quickml.supervised.tree.decisionTree.scorers.MSEScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 /**

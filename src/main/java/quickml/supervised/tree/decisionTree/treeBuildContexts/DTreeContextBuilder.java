@@ -18,7 +18,7 @@ import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.D
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.*;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
@@ -127,6 +127,21 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public ClassificationCounterProducer<I> getValueCounterProducer() {
         return new ClassificationCounterProducer<>();
     }
+
+    @Override
+    public DTreeContextBuilder<I> copy() {
+        DTreeContextBuilder<I> copy = createTreeBuildContext();
+        List<BranchFinderBuilder<ClassificationCounter, DTNode>> copiedBranchFinderBuilders = Lists.newArrayList();
+        for (BranchFinderBuilder<ClassificationCounter, DTNode> branchFinderBuilder : this.branchFinderBuilders) {
+            copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
+        }
+        copy.branchFinderBuilders = copiedBranchFinderBuilders;
+        copy.branchingConditions = branchingConditions.copy();
+        copy.scorer = scorer.copy();
+        copy.leafBuilder = leafBuilder;
+        return copy;
+    }
+
 
     private void setDefaults() {
         if (!cfg.containsKey(BRANCH_FINDER_BUILDERS.name())) {

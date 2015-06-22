@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Lists;
 import junit.framework.TestCase;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.InstanceLoader;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 
 import java.util.List;
 

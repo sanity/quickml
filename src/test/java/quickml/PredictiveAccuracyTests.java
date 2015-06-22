@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
@@ -32,7 +32,7 @@ public class PredictiveAccuracyTests {
 
         final FoldedData<InstanceWithAttributesMap> data = new FoldedData<>(loadIrisDataset(), 4, 4);
 
-        final CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(new RandomForestBuilder<>(), new ClassifierLossChecker<>(new ClassifierRMSELossFunction()), data);
+        final CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(new RandomDecisionForestBuilder<>(), new ClassifierLossChecker<>(new ClassifierRMSELossFunction()), data);
 
         final double crossValidatedLoss = validator.getLossForModel();
         double previousLoss = 0.673;

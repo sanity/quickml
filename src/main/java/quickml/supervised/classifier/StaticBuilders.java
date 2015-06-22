@@ -12,7 +12,7 @@ import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
@@ -42,15 +42,15 @@ public class StaticBuilders {
         int timeSliceHours = getTimeSliceHours(trainingData, rebuildsPerValidation, dateTimeExtractor);
         double crossValidationFraction = 0.2;
         PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<Classifier, InstanceWithAttributesMap>()
-                        .modelBuilder(new RandomForestBuilder<>())
+                        .modelBuilder(new RandomDecisionForestBuilder<>())
                         .dataCycler(new OutOfTimeData<>(trainingData, crossValidationFraction, timeSliceHours,dateTimeExtractor))
                         .lossChecker(new ClassifierLossChecker<>(lossFunction))
                         .valuesToTest(config)
                         .iterations(3).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
-        RandomForestBuilder<InstanceWithAttributesMap> randomForestBuilder = new RandomForestBuilder<>(new TreeBuilderHelper<>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
-        DownsamplingClassifierBuilder<InstanceWithAttributesMap> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<>(randomForestBuilder,0.1);
+        RandomDecisionForestBuilder<InstanceWithAttributesMap> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new TreeBuilderHelper<>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
+        DownsamplingClassifierBuilder<InstanceWithAttributesMap> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<>(randomDecisionForestBuilder,0.1);
         downsamplingClassifierBuilder.updateBuilderConfig(bestParams);
 
         DownsamplingClassifier downsamplingClassifier = downsamplingClassifierBuilder.buildPredictiveModel(trainingData);

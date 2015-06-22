@@ -15,16 +15,15 @@ import java.util.Set;
  * Created by alexanderhawk on 6/20/15.
  */
 public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, Object, I> {
-    private DTreeContextBuilder<I> treeBuildContext;
+    private DTreeContextBuilder<I> treeContextBuilder;
 
-    public DecisionTreeBuilder<I> treeConfig(DTreeContextBuilder<I> treeBuildContext) {
-        this.treeBuildContext = treeBuildContext;
-        return this;
+    public DecisionTreeBuilder(DTreeContextBuilder<I> treeContextBuilder) {
+        this.treeContextBuilder = treeContextBuilder;
     }
 
     @Override
     public DecisionTree buildPredictiveModel(Iterable<I> trainingData) {
-        DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(treeBuildContext);
+        DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(treeContextBuilder);
         Pair<DTNode, Set<Object>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(Lists.newArrayList(trainingData));
         DTNode root = rootAndClassifications.getValue0();
         Set<Object> classifications = rootAndClassifications.getValue1();
@@ -33,6 +32,11 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
 
     @Override
     public void updateBuilderConfig(Map<String, Object> config) {
-        treeBuildContext.update(config);
+        treeContextBuilder.update(config);
+    }
+
+    @Override
+    public DecisionTreeBuilder<I> copy() {
+        return new DecisionTreeBuilder<>(treeContextBuilder.copy());
     }
 }

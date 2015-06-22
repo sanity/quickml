@@ -8,12 +8,12 @@ import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.Classifier;
 import static quickml.supervised.tree.constants.ForestOptions.*;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.scorers.InformationGainScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
@@ -24,7 +24,7 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
-import static quickml.supervised.ensembles.randomForest.RandomForestBuilder.NUM_TREES;
+import static quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder.NUM_TREES;
 
 public class PredictiveModelOptimizerIntegrationTest {
 
@@ -36,7 +36,7 @@ public class PredictiveModelOptimizerIntegrationTest {
         List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
         advertisingInstances = advertisingInstances.subList(0, 3000);
         optimizer = new PredictiveModelOptimizerBuilder<Classifier, Object, ClassifierInstance>()
-                .modelBuilder(new RandomForestBuilder<>())
+                .modelBuilder(new RandomDecisionForestBuilder<>())
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
                 .lossChecker(new ClassifierLossChecker<>(new WeightedAUCCrossValLossFunction(1.0)))
                 .valuesToTest(createConfig())

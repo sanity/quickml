@@ -1,20 +1,26 @@
-package quickml.supervised.tree.scorers;
+package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.scorers.Scorer;
 
 import java.util.Map;
 
 /**
  * Created by chrisreeves on 6/24/14.
  */
-public class GiniImpurityScorer implements Scorer<ClassificationCounter>{
+public class GiniImpurityScorer extends Scorer<ClassificationCounter> {
+
+    @Override
+    public Scorer<ClassificationCounter> createScorer() {
+        return new GiniImpurityScorer();
+    }
+
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
         ClassificationCounter parent = ClassificationCounter.merge(a, b);
         double aGiniIndex = getGiniIndex(a) * a.getTotal() / parent.getTotal() ;
         double bGiniIndex = getGiniIndex(b) * b.getTotal() / parent.getTotal();
         double score =  unSplitScore - aGiniIndex - bGiniIndex;
-        //TODO: make this call only when the best split for a particular attribute is found...as it is redundant.
         return correctScoreForGainRatioPenalty(score);
     }
 

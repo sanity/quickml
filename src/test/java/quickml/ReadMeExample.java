@@ -6,8 +6,8 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -74,9 +74,9 @@ public class ReadMeExample {
         
             TreeBuilderHelper treeBuilder = new TreeBuilderHelper()
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
-            RandomForestBuilder randomForestBuilder = new RandomForestBuilder(treeBuilder)
+            RandomDecisionForestBuilder randomDecisionForestBuilder = new RandomDecisionForestBuilder(treeBuilder)
                 .numTrees(50);
-            RandomDecisionForest randomDecisionForest = randomForestBuilder.buildPredictiveModel(instances);
+            RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
 
             attributes = AttributesMap.newHashMap() ;
             attributes.put("height",62);

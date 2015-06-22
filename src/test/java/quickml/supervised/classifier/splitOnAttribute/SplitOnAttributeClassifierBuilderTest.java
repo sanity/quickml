@@ -13,9 +13,9 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.predictiveModelOptimizer.MultiLossModelTester;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedForDownsampling;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
@@ -42,8 +42,8 @@ public class SplitOnAttributeClassifierBuilderTest {
         splitModelGroupCollection.add(createSplitModelGroup(1, newHashSet("_792"), 0.4, 100));
         int defaultGroup = 0;
 
-        RandomForestBuilder randomForestBuilder = new RandomForestBuilder();
-        DownsamplingClassifierBuilder downsamplingBuilder = new DownsamplingClassifierBuilder(randomForestBuilder, 0.30D);
+        RandomDecisionForestBuilder randomDecisionForestBuilder = new RandomDecisionForestBuilder();
+        DownsamplingClassifierBuilder downsamplingBuilder = new DownsamplingClassifierBuilder(randomDecisionForestBuilder, 0.30D);
         SplitOnAttributeClassifierBuilder splitOnAttributeClassifierBuilder = new SplitOnAttributeClassifierBuilder("campaignId", splitModelGroupCollection, defaultGroup, downsamplingBuilder);
         splitOnAttributeClassifierBuilder.updateBuilderConfig(createModelConfig());
 

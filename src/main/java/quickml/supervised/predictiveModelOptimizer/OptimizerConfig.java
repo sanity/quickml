@@ -1,10 +1,10 @@
 package quickml.supervised.predictiveModelOptimizer;
 
 import com.google.common.collect.Sets;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.scorers.InformationGainScorer;
-import quickml.supervised.tree.scorers.MSEScorer;
-import quickml.supervised.tree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
+import quickml.supervised.tree.decisionTree.scorers.MSEScorer;
+import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.CompositeAttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesInSet;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION;
-import static quickml.supervised.ensembles.randomForest.RandomForestBuilder.NUM_TREES;
+import static quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder.NUM_TREES;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_NEGATIVE;
 import static quickml.supervised.classifier.temporallyWeightClassifier.TemporallyReweightedClassifierBuilder.HALF_LIFE_OF_POSITIVE;
 

@@ -7,13 +7,13 @@ import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.ensembles.randomForest.RandomDecisionForest;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.CategoricalBranch;
@@ -27,12 +27,12 @@ import java.util.Set;
 
 import static quickml.supervised.InstanceLoader.getAdvertisingInstances;
 
-public class RandomForestBuilderTest {
+public class RandomDecisionForestBuilderTest {
     @Test
     public void simpleBmiTest() throws Exception {
         final List<InstanceWithAttributesMap> instances = TreeBuilderTestUtils.getInstances(10000);
         final TreeBuilderHelper tb = new TreeBuilderHelper(new SplitDiffScorer());
-        final RandomForestBuilder rfb = new RandomForestBuilder(tb);
+        final RandomDecisionForestBuilder rfb = new RandomDecisionForestBuilder(tb);
         final long startTime = System.currentTimeMillis();
         final RandomDecisionForest randomDecisionForest = rfb.buildPredictiveModel(instances);
 
@@ -58,7 +58,7 @@ public class RandomForestBuilderTest {
         TreeBuilderHelper treeBuilder = new TreeBuilderHelper(new GiniImpurityScorer())
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
                 .maxDepth(10).numSamplesForComputingNumericSplitPoints(instancesTrain.size());
-        final RandomForestBuilder<InstanceWithAttributesMap> urfb = new RandomForestBuilder<>(treeBuilder).numTrees(2);
+        final RandomDecisionForestBuilder<InstanceWithAttributesMap> urfb = new RandomDecisionForestBuilder<>(treeBuilder).numTrees(2);
         MapUtils.random.setSeed(1l);
         final RandomDecisionForest randomDecisionForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
 
@@ -114,7 +114,7 @@ public class RandomForestBuilderTest {
     @Test
     public void twoDeterministicRandomForestsAreEqual() throws IOException, ClassNotFoundException {
         final List<InstanceWithAttributesMap> instancesTrain = TreeBuilderTestUtils.getInstances(10000);
-        final RandomForestBuilder urfb = new RandomForestBuilder(new TreeBuilderHelper(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(instancesTrain.size()));
+        final RandomDecisionForestBuilder urfb = new RandomDecisionForestBuilder(new TreeBuilderHelper(new SplitDiffScorer()).numSamplesForComputingNumericSplitPoints(instancesTrain.size()));
         MapUtils.random.setSeed(1l);
         final RandomDecisionForest randomDecisionForest1 = urfb.executorThreadCount(1).buildPredictiveModel(instancesTrain);
         MapUtils.random.setSeed(1l);

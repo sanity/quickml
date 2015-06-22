@@ -1,4 +1,4 @@
-package quickml.supervised.tree.scorers;
+package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
@@ -9,8 +9,8 @@ import java.io.Serializable;
  * of a branch existing versus not existing.  The value returned is the MSE
  * without the branch minus the MSE with the branch (so higher is better, as
  * is required by the scoreSplit() interface.
- */
-public class MSEScorerWithCrossValidationCorrection implements Scorer {
+ *//*
+public class MSEScorerWithCrossValidationCorrection extends Scorer<ClassificationCounter> {
 
     private double normalizedParentMSE = 0;
     private ClassificationCounter trainingInsetCC;
@@ -47,3 +47,4 @@ public class MSEScorerWithCrossValidationCorrection implements Scorer {
 
 
 }
+*/

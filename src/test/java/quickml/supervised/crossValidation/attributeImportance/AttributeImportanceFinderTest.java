@@ -8,9 +8,9 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
 import quickml.supervised.tree.TreeBuilderHelper;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 
@@ -31,7 +31,7 @@ public class AttributeImportanceFinderTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         AttributeImportanceFinder<InstanceWithAttributesMap> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
-                .modelBuilder(new RandomForestBuilder(new TreeBuilderHelper(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5))
+                .modelBuilder(new RandomDecisionForestBuilder(new TreeBuilderHelper(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5))
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)

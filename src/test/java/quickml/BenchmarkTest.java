@@ -11,11 +11,11 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.TreeBuilderHelper;
-import quickml.supervised.tree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.scorers.MSEScorer;
-import quickml.supervised.tree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.MSEScorer;
+import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
@@ -37,7 +37,7 @@ public class BenchmarkTest {
     private ClassifierLossChecker<InstanceWithAttributesMap> classifierLossChecker;
     private ArrayList<Scorer> scorers;
     private TreeBuilderHelper treeBuilder;
-    private RandomForestBuilder randomForestBuilder;
+    private RandomDecisionForestBuilder randomDecisionForestBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +47,7 @@ public class BenchmarkTest {
                 new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE),
                 new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
         treeBuilder = createTreeBuilder();
-        randomForestBuilder = createRandomForestBuilder();
+        randomDecisionForestBuilder = createRandomForestBuilder();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class BenchmarkTest {
             cfg.put(TreeBuilderHelper.SCORER, scorer);
             CrossValidator<Classifier, InstanceWithAttributesMap> validator = new CrossValidator<>(treeBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", single-tree, " + scorer + ", " + validator.getLossForModel(cfg));
-            validator = new CrossValidator<>(randomForestBuilder, classifierLossChecker, data);
+            validator = new CrossValidator<>(randomDecisionForestBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", random-forest, " + scorer + ", " + validator.getLossForModel(cfg));
         }
     }
@@ -137,8 +137,8 @@ public class BenchmarkTest {
         return new TreeBuilderHelper();
     }
 
-    private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilderHelper().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5);
+    private RandomDecisionForestBuilder createRandomForestBuilder() {
+        return new RandomDecisionForestBuilder(new TreeBuilderHelper().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5);
     }
 }
 
