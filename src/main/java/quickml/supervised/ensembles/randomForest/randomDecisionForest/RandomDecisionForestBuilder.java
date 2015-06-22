@@ -46,6 +46,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     }
 
     public RandomDecisionForestBuilder<I> numTrees(int numTrees) {
+        super.numTrees = numTrees;
         config.put(NUM_TREES.name(), numTrees);
         return this;
     }
