@@ -52,7 +52,7 @@ public class Classifiers {
                         .iterations(3).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
-        RandomDecisionForestBuilder<I> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<I>(new DTreeContextBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)))).numTrees(24);
+        RandomDecisionForestBuilder<I> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
         DownsamplingClassifierBuilder<I> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<I>(randomDecisionForestBuilder,0.1);
         downsamplingClassifierBuilder.updateBuilderConfig(bestParams);
 

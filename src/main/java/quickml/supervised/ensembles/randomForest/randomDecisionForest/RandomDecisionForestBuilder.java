@@ -31,7 +31,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     Map<String, Object> config;
 
     public RandomDecisionForestBuilder() {
-        this(new DecisionTreeBuilder<I>(new DTreeContextBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(5)));
+        this(new DecisionTreeBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(5));
     }
 
     public RandomDecisionForestBuilder(DecisionTreeBuilder<I> treeBuilder) {

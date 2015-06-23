@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static quickml.supervised.tree.constants.ForestOptions.*;
-
 /**
  * Created by alexanderhawk on 6/20/15.
  */
@@ -48,7 +46,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
 
     @Override
     public DecisionTree buildPredictiveModel(Iterable<I> trainingData) {
-        tcb.setDefaults();
+        tcb.setDefaultsAsNeeded();
         DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(tcb);
         Pair<DTNode, Set<Object>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(Lists.newArrayList(trainingData));
         DTNode root = rootAndClassifications.getValue0();

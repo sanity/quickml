@@ -12,7 +12,7 @@ import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBu
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
-import quickml.supervised.tree.completeDataSetSummaries.DTreeTrainingDataSurveyor;
+import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.*;
@@ -123,7 +123,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return branchFinderBuilders;
     }
 
-    public void setDefaults() {
+    public void setDefaultsAsNeeded() {
         if (!config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             branchFinderBuilders(DTreeContextBuilder.getDefaultBranchFinderBuilders());
         }

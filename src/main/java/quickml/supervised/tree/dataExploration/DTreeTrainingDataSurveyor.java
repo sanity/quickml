@@ -1,8 +1,7 @@
-package quickml.supervised.tree.completeDataSetSummaries;
+package quickml.supervised.tree.dataExploration;
 
 import com.google.common.collect.Maps;
 import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.constants.BranchType;
 
 import java.util.*;
