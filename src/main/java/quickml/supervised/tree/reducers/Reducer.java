@@ -13,13 +13,13 @@ public abstract class Reducer<I extends InstanceWithAttributesMap<?>, VC extends
 
   protected List<I> trainingData;
 
-  //TODO: don't use setter...make new copy of the class.
+  //TODO: find way to eventually to not use setter (maybe have create a reducer factory that I pass around).
   public void setTrainingData(List<I> trainingData) {
     this.trainingData = trainingData;
   }
 
   public abstract AttributeStats<VC> getAttributeStats(String attribute);
 
-  public abstract void update(Map<String, Object> cfg);
+  public abstract void updateBuilderConfig(Map<String, Object> cfg);
 
 }

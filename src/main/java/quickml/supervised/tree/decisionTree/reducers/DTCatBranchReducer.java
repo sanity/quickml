@@ -56,7 +56,7 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     }
 
     @Override
-    public void update(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Object> cfg) {
 
     }
 }

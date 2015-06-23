@@ -1,10 +1,9 @@
 package quickml.supervised.tree.treeBuildContexts;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
@@ -18,7 +17,6 @@ import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by alexanderhawk on 3/20/15.
@@ -28,7 +26,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     protected LeafBuilder<VC, N> leafBuilder;
     protected BranchingConditions<VC, N> branchingConditions;
     protected List<? extends BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
-
+    protected Map<String, Object> config = Maps.newHashMap();
 
     public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
@@ -80,7 +78,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
 
     public abstract TreeContext<I, VC, N> buildContext(List<I> trainingData);
 
-    public void update(final Map<String, Object> cfg) {
+    public void updateBuilderConfig(final Map<String, Object> cfg) {
         if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))
             branchFinderBuilders = (List<? extends BranchFinderBuilder<VC, N>>)cfg.get(BRANCH_FINDER_BUILDERS.name());
         if (cfg.containsKey(LEAF_BUILDER.name()))
@@ -94,6 +92,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
             branchFinderBuilder.update(cfg);
         }
+        this.config = cfg;
     }
 }
 

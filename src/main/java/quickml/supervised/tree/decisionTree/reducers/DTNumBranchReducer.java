@@ -26,7 +26,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     int numNumericBins = 6;
 
     @Override
-    public void update(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Object> cfg) {
         if (cfg.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
             numSamplesPerBin = (int) cfg.get(NUM_SAMPLES_PER_NUMERIC_BIN.name());
         }

@@ -1,6 +1,8 @@
 package quickml.supervised.tree.summaryStatistics;
 
 
+import java.io.Serializable;
+
 /**
  * Created by alexanderhawk on 4/23/15.
  */

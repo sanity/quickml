@@ -30,7 +30,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     }
 
     public void updateBuilderConfig(Map<String, Object> cfg) {
-        treeContextBuilder.update(cfg);
+        treeContextBuilder.updateBuilderConfig(cfg);
     }
 
     public N computeNodes(List<I> trainingData) {

@@ -8,7 +8,6 @@ import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithC
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
-import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBranchFinderBuilder;
@@ -18,7 +17,6 @@ import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.D
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.*;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
@@ -28,88 +26,14 @@ import quickml.supervised.tree.decisionTree.nodes.DTNode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static quickml.supervised.tree.decisionTree.DecisionTreeBuilder.*;
+
+import static quickml.supervised.tree.constants.ForestOptions.*;
 
 /**
  * Created by alexanderhawk on 6/20/15.
  */
 public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeContextBuilder<I, ClassificationCounter, DTNode> {
-
-    public static final int DEFAULT_MAX_DEPTH = 7;
-    public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
-    public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);
-    public static final int DEFAULT_NUM_NUMERIC_BINS = 6;
-    public static final GiniImpurityScorer DEFAULT_SCORER = new GiniImpurityScorer();
-    public static final DTBranchingConditions DEFAULT_BRANCHING_CONDITIONS = new DTBranchingConditions();
-    public static final double DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY = 1.0;
-    public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
-    public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.01;
-    private Map<String, Object> cfg = Maps.newHashMap();
-
-    //check that haven't missed any settings.
-    public DTreeContextBuilder<I> maxDepth(int maxDepth) {
-        cfg.put(MAX_DEPTH.name(), maxDepth);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> ignoreAttributeProbability(int ignoreAttributeProbability) {
-        cfg.put(ATTRIBUTE_IGNORING_STRATEGY.name(), new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability));
-        return this;
-    }
-
-    public DTreeContextBuilder<I> minSplitFraction(double minSplitFraction) {
-        cfg.put(MIN_SLPIT_FRACTION.name(), minSplitFraction);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> exemptAttributes(Set<String> exemptAttributes) {
-        cfg.put(EXEMPT_ATTRIBUTES.name(), exemptAttributes);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        cfg.put(ATTRIBUTE_IGNORING_STRATEGY.name(), attributeIgnoringStrategy);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> attributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<ClassificationCounter> attributeValueIgnoringStrategyBuilder) {
-        cfg.put(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name(), attributeValueIgnoringStrategyBuilder);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> numSamplesPerNumericBin(int numSamplesPerNumericBin) {
-        cfg.put(NUM_SAMPLES_PER_NUMERIC_BIN.name(), numSamplesPerNumericBin);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> numNumericBins(int numNumericBins) {
-        cfg.put(NUM_NUMERIC_BINS.name(), numNumericBins);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> branchingConditions(DTBranchingConditions branchingConditions) {
-        cfg.put(BRANCHING_CONDITIONS.name(), branchingConditions);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> scorer(Scorer<ClassificationCounter> scorer) {
-        cfg.put(SCORER.name(), scorer);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
-        cfg.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), degreeOfGainRatioPenalty);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> imbalancePenaltyPower(double imbalancePenaltyPower) {
-        cfg.put(IMBALANCE_PENALTY_POWER.name(), imbalancePenaltyPower);
-        return this;
-    }
-
-    public DTreeContextBuilder<I> branchFinderBuilders(List<? extends BranchFinderBuilder<ClassificationCounter, DTNode>> branchFinderBuilders) {
-        cfg.put(BRANCH_FINDER_BUILDERS.name(), branchFinderBuilders);
-        return this;
-    }
 
     @Override
     public DTreeContextBuilder<I> createTreeBuildContext() {
@@ -118,7 +42,6 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     @Override
     public DTreeContext<I> buildContext(List<I> trainingData) {
-        setDefaults();
         boolean considerBooleanAttributes = hasBranchFinderBuilder(BranchType.BOOLEAN);
         DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
         Map<BranchType, Set<String>> candidateAttributesByBranchType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
@@ -144,49 +67,15 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         copy.branchingConditions = branchingConditions.copy();
         copy.scorer = scorer.copy();
         copy.leafBuilder = leafBuilder;
+        //do not copy the context because it has state.
         return copy;
     }
 
-
-    private void setDefaults() {
-        if (!cfg.containsKey(BRANCH_FINDER_BUILDERS.name())) {
-            branchFinderBuilders(getDefaultBranchFinderBuilders());
-        }
-        if (!cfg.containsKey(MAX_DEPTH.name())){
-            maxDepth(DEFAULT_MAX_DEPTH);
-        }
-        if (!cfg.containsKey(MIN_SLPIT_FRACTION.name())){
-            minSplitFraction(DEFAULT_MIN_SPLIT_FRACTION);
-        }
-        if (!cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())){
-            attributeIgnoringStrategy(DEFAULT_ATTRIBUTE_IGNORING_STRATEGY);
-        }
-        if (!cfg.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())){
-            numSamplesPerNumericBin(DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN);
-        }
-        if (!cfg.containsKey(NUM_NUMERIC_BINS.name())){
-            numNumericBins(DEFAULT_NUM_NUMERIC_BINS);
-        }
-        if (!cfg.containsKey(BRANCHING_CONDITIONS.name())){
-            branchingConditions(DEFAULT_BRANCHING_CONDITIONS);
-        }
-        if (!cfg.containsKey(SCORER.name())) {
-            scorer(DEFAULT_SCORER);
-        }
-        if (!cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())){
-            degreeOfGainRatioPenalty(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY);
-        }
-        if (!cfg.containsKey(IMBALANCE_PENALTY_POWER.name())){
-            imbalancePenaltyPower(DEFAULT_IMBALANCE_PENALTY_POWER);
-        }
-    }
-
     private void updateAll(List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers) {
-        //TODO: consider making reducers exist is fields in the parent class.
         for (DTreeBranchFinderAndReducer<I> branchFinderAndReducer : branchFinderAndReducers) {
-            branchFinderAndReducer.getReducer().update(cfg);
+            branchFinderAndReducer.getReducer().updateBuilderConfig(config);
         }
-        update(cfg);
+        updateBuilderConfig(config);
     }
 
     private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts,  Map<BranchType, Set<String>> candidateAttributesByBranchType) {
@@ -195,7 +84,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
         int numClasses = classificationCounts.allClassifications().size();
         Object minorityClassification = ClassificationCounter.getLeastPopularClass(classificationCounts);
-        Map<BranchType, DTreeReducer<I>> reducerMap = getReducers(minorityClassification);
+        Map<BranchType, DTreeReducer<I>> reducerMap = getDefaultReducers(minorityClassification);
         for (BranchFinderBuilder<ClassificationCounter, DTNode> branchFinderBuilder : getBranchFinderBuilders()) {
             if (useBranchFinder(branchFinderBuilder, numClasses)) {
                 BranchFinder<ClassificationCounter, DTNode> branchFinder = branchFinderBuilder.buildBranchFinder(classificationCounts, candidateAttributesByBranchType.get(BranchType.BINARY_CATEGORICAL));
@@ -217,7 +106,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return true;
     }
 
-    protected Map<BranchType, DTreeReducer<I>> getReducers(Object minorityClassification) {
+    public static <I extends ClassifierInstance>  Map<BranchType, DTreeReducer<I>> getDefaultReducers(Object minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
         reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducerReducer<I>(minorityClassification));
         reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
@@ -226,12 +115,97 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return reducers;
     }
 
-    protected List<DTBranchFinderBuilder> getDefaultBranchFinderBuilders() {
+    public static <I extends ClassifierInstance> List<DTBranchFinderBuilder> getDefaultBranchFinderBuilders() {
         List<DTBranchFinderBuilder> branchFinderBuilders = Lists.newArrayList();
         branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTNumBranchFinderBuilder());
         return branchFinderBuilders;
+    }
+
+    public void setDefaults() {
+        if (!config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
+            branchFinderBuilders(DTreeContextBuilder.getDefaultBranchFinderBuilders());
+        }
+        if (!config.containsKey(MAX_DEPTH.name())){
+            maxDepth(DEFAULT_MAX_DEPTH);
+        }
+        if (!config.containsKey(MIN_SLPIT_FRACTION.name())){
+            minSplitFraction(DEFAULT_MIN_SPLIT_FRACTION);
+        }
+        if (!config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())){
+            attributeIgnoringStrategy(DEFAULT_ATTRIBUTE_IGNORING_STRATEGY);
+        }
+        if (!config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())){
+            numSamplesPerNumericBin(DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN);
+        }
+        if (!config.containsKey(NUM_NUMERIC_BINS.name())){
+            numNumericBins(DEFAULT_NUM_NUMERIC_BINS);
+        }
+        if (!config.containsKey(BRANCHING_CONDITIONS.name())){
+            branchingConditions(DEFAULT_BRANCHING_CONDITIONS);
+        }
+        if (!config.containsKey(SCORER.name())) {
+            scorer(DEFAULT_SCORER);
+        }
+        if (!config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())){
+            degreeOfGainRatioPenalty(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY);
+        }
+        if (!config.containsKey(IMBALANCE_PENALTY_POWER.name())){
+            imbalancePenaltyPower(DEFAULT_IMBALANCE_PENALTY_POWER);
+        }
+    }
+    //check that haven't missed any settings.
+    public void maxDepth(int maxDepth) {
+        config.put(MAX_DEPTH.name(), maxDepth);
+    }
+
+    public void ignoreAttributeProbability(int ignoreAttributeProbability) {
+        config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability));
+    }
+
+    public void minSplitFraction(double minSplitFraction) {
+        config.put(MIN_SLPIT_FRACTION.name(), minSplitFraction);
+    }
+
+    public void exemptAttributes(Set<String> exemptAttributes) {
+        config.put(EXEMPT_ATTRIBUTES.name(), exemptAttributes);
+    }
+
+    public void attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), attributeIgnoringStrategy);
+    }
+
+    public void attributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<ClassificationCounter> attributeValueIgnoringStrategyBuilder) {
+        config.put(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name(), attributeValueIgnoringStrategyBuilder);
+    }
+
+    public void numSamplesPerNumericBin(int numSamplesPerNumericBin) {
+        config.put(NUM_SAMPLES_PER_NUMERIC_BIN.name(), numSamplesPerNumericBin);
+    }
+
+    public void numNumericBins(int numNumericBins) {
+        config.put(NUM_NUMERIC_BINS.name(), numNumericBins);
+    }
+
+    public void branchingConditions(DTBranchingConditions branchingConditions) {
+        config.put(BRANCHING_CONDITIONS.name(), branchingConditions);
+    }
+
+    public void scorer(Scorer<ClassificationCounter> scorer) {
+        config.put(SCORER.name(), scorer);
+    }
+
+    public void degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {
+        config.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), degreeOfGainRatioPenalty);
+    }
+
+    public void imbalancePenaltyPower(double imbalancePenaltyPower) {
+        config.put(IMBALANCE_PENALTY_POWER.name(), imbalancePenaltyPower);
+    }
+
+    public void branchFinderBuilders(List<? extends BranchFinderBuilder<ClassificationCounter, DTNode>> branchFinderBuilders) {
+        config.put(BRANCH_FINDER_BUILDERS.name(), branchFinderBuilders);
     }
 
 

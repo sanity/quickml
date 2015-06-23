@@ -25,7 +25,7 @@
         version.  This will trigger an automatic regeneration of the Maven repository
         using the http://jitpack.io/ service.
      
-    3)  Note that the index.html page on http://quickml.org/ should update the version
+    3)  Note that the index.html page on http://quickml.org/ should updateBuilderConfig the version
         automatically when a new release is created.
         
     4)  *ANY* change to the master branch (ie. when a feature branch is merged) must

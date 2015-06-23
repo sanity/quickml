@@ -119,7 +119,7 @@ public class NumericDistributionSampler {
                 attributeValuesAtBinBoundaries[x] = splitList[x * indexMultiplier - 1];
             }
         }
-        //update the counts for values that fall in each bin
+        //updateBuilderConfig the counts for values that fall in each bin
 
         //
         if (instances.size() < samplesToDraw / 2) {
