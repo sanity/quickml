@@ -20,8 +20,8 @@ import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContextBuilder;
+import quickml.decisionTree.DecisionTreeBuilder;
+
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class Classifiers {
                         .iterations(3).build();
         Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
 
-        RandomDecisionForestBuilder<I> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
+        RandomDecisionForestBuilder<I> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<I>().maxDepth(5).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
         DownsamplingClassifierBuilder<I> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<I>(randomDecisionForestBuilder,0.1);
         downsamplingClassifierBuilder.updateBuilderConfig(bestParams);
 

@@ -8,9 +8,8 @@ import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.decisionTree.valueCounters.ClassificationCounter;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**

@@ -5,7 +5,7 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;

@@ -42,7 +42,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         Preconditions.checkArgument(trainingData == null || trainingData.isEmpty(), "Can't build a tree with no training data");
         BranchingConditions<VC, N> branchingConditions = itbc.getBranchingConditions();
         VC aggregateStats = getAggregateStats(itbc, parent, trainingData);
-        if (branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
+        if (!branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
             return (N)getLeaf(parent, aggregateStats, itbc); //cast 100% guaranteed, as Leaf<VC,N> extends N
         }
         Optional<? extends Branch<VC, N>> bestBranchOptional = findBestBranch(parent, trainingData, itbc);

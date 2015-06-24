@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 

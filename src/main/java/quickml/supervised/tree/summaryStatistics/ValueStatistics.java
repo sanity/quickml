@@ -1,7 +1,5 @@
 package quickml.supervised.tree.summaryStatistics;
 
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-
 /**
  * Created by alexanderhawk on 4/5/15.
  */

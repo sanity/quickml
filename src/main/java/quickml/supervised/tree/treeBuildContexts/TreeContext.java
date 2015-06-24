@@ -8,7 +8,7 @@ import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.scorers.Scorer;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
 import java.util.List;

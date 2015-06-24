@@ -5,7 +5,7 @@ import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -23,10 +23,10 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder;
     protected BranchType branchType;
-    protected int minOccurencesOfAttributeValue = 0;
+    protected int minAttributeOccurences = 0;
 
-    public int getMinOccurencesOfAttributeValue() {
-        return minOccurencesOfAttributeValue;
+    public int getMinAttributeOccurences() {
+        return minAttributeOccurences;
     }
 
     public AttributeValueIgnoringStrategyBuilder<VC> getAttributeValueIgnoringStrategyBuilder() {
@@ -59,7 +59,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC, N>) cfg.get(BRANCHING_CONDITIONS.name());
         if (cfg.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name()))
-            minOccurencesOfAttributeValue = (Integer)cfg.get(MIN_ATTRIBUTE_OCCURRENCES.name());
+            minAttributeOccurences = (Integer)cfg.get(MIN_ATTRIBUTE_OCCURRENCES.name());
     }
 
     public BranchFinderBuilder<VC, N> copy() {

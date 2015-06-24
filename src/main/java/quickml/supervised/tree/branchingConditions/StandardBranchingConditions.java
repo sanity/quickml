@@ -2,7 +2,6 @@ package quickml.supervised.tree.branchingConditions;
 
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.nodes.Branch;
-import quickml.supervised.tree.decisionTree.nodes.DTNode;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 

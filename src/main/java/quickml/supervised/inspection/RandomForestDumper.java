@@ -1,10 +1,10 @@
 package quickml.supervised.inspection;
 
-import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
-import quickml.supervised.tree.decisionTree.nodes.DTNode;
-import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
+import quickml.decisionTree.nodes.DTCatBranch;
+import quickml.decisionTree.nodes.DTNode;
+import quickml.decisionTree.nodes.DTNumBranch;
 import quickml.utlities.SerializationUtility;
-import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.decisionTree.DecisionTree;
 
 import quickml.supervised.tree.nodes.NumBranch;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;

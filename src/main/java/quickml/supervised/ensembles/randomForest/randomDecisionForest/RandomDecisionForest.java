@@ -8,9 +8,8 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.ensembles.randomForest.RandomForest;
-import quickml.supervised.tree.Tree;
-import quickml.supervised.tree.decisionTree.DecisionTree;
-import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
+import quickml.decisionTree.DecisionTree;
+import quickml.decisionTree.nodes.DTLeaf;
 
 import java.util.*;
 

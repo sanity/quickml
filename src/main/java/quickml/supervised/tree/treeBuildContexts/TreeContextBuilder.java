@@ -10,7 +10,7 @@ import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.scorers.Scorer;
+import quickml.scorers.Scorer;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -49,6 +49,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
 
 
     public TreeContextBuilder<I, VC, N> copy() {
+
         TreeContextBuilder<I, VC, N> copy = createTreeBuildContext();
         List<BranchFinderBuilder<VC, N>> copiedBranchFinderBuilders = Lists.newArrayList();
         for (BranchFinderBuilder<VC, N> branchFinderBuilder : this.branchFinderBuilders) {

@@ -6,10 +6,9 @@ import org.slf4j.LoggerFactory;
 import quickml.data.ClassifierInstance;
 import quickml.data.PredictionMap;
 import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
-import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.decisionTree.DecisionTree;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContextBuilder;
+import quickml.decisionTree.DecisionTreeBuilder;
 
 import java.util.HashSet;
 import java.util.List;
