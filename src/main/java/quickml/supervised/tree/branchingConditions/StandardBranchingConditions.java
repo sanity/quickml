@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/4/15.
  */
-public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> implements BranchingConditions<VC, N> {
+public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements BranchingConditions<VC> {
     private double minScore=0;
     private int maxDepth = Integer.MAX_VALUE;
     private int minLeafInstances = 0;
@@ -89,7 +89,7 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>, N extends 
     }
 
     @Override
-    public boolean canTryAddingChildren(Branch<VC, N> parent, VC totals){
+    public boolean canTryAddingChildren(Branch<VC> parent, VC totals){
         return parent.getDepth() < maxDepth && totals.getTotal() > 2 * minLeafInstances;
     }
 

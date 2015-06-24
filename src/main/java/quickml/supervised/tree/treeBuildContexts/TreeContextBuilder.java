@@ -21,16 +21,16 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
     protected Scorer<VC> scorer;
-    protected LeafBuilder<VC, N> leafBuilder;
-    protected BranchingConditions<VC, N> branchingConditions;
-    protected List<? extends BranchFinderBuilder<VC, N>> branchFinderBuilders = Lists.newArrayList();
+    protected LeafBuilder<VC> leafBuilder;
+    protected BranchingConditions<VC> branchingConditions;
+    protected List<? extends BranchFinderBuilder<VC>> branchFinderBuilders = Lists.newArrayList();
     protected Map<String, Object> config = Maps.newHashMap();
 
     public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
-    public List<? extends BranchFinderBuilder<VC, N>> getBranchFinderBuilders() {
+    public List<? extends BranchFinderBuilder<VC>> getBranchFinderBuilders() {
         return branchFinderBuilders;
     }
 
@@ -38,21 +38,21 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         return scorer;
     }
 
-    public BranchingConditions<VC, N> getBranchingConditions() {
+    public BranchingConditions<VC> getBranchingConditions() {
         return branchingConditions;
     }
 
 
-    public LeafBuilder<VC, N> getLeafBuilder() {
+    public LeafBuilder<VC> getLeafBuilder() {
         return leafBuilder;
     }
 
 
-    public TreeContextBuilder<I, VC, N> copy() {
+    public TreeContextBuilder<I, VC> copy() {
 
-        TreeContextBuilder<I, VC, N> copy = createTreeBuildContext();
-        List<BranchFinderBuilder<VC, N>> copiedBranchFinderBuilders = Lists.newArrayList();
-        for (BranchFinderBuilder<VC, N> branchFinderBuilder : this.branchFinderBuilders) {
+        TreeContextBuilder<I, VC> copy = createTreeBuildContext();
+        List<BranchFinderBuilder<VC>> copiedBranchFinderBuilders = Lists.newArrayList();
+        for (BranchFinderBuilder<VC> branchFinderBuilder : this.branchFinderBuilders) {
             copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
         }
         copy.branchFinderBuilders = copiedBranchFinderBuilders;
@@ -66,8 +66,8 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         return getBranchFinderBuilder(branchType).isPresent();
     }
 
-    public Optional<BranchFinderBuilder<VC, N>> getBranchFinderBuilder(BranchType branchType) {
-        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
+    public Optional<BranchFinderBuilder<VC>> getBranchFinderBuilder(BranchType branchType) {
+        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
             if (branchFinderBuilder.getBranchType().equals(branchType)) {
                 return Optional.of(branchFinderBuilder);
             }
@@ -75,22 +75,22 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         return Optional.absent();
     }
 
-    public abstract TreeContextBuilder<I, VC, N> createTreeBuildContext();
+    public abstract TreeContextBuilder<I, VC> createTreeBuildContext();
 
-    public abstract TreeContext<I, VC, N> buildContext(List<I> trainingData);
+    public abstract TreeContext<I, VC> buildContext(List<I> trainingData);
 
     public void updateBuilderConfig(final Map<String, Object> cfg) {
         if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))
-            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC, N>>)cfg.get(BRANCH_FINDER_BUILDERS.name());
+            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>)cfg.get(BRANCH_FINDER_BUILDERS.name());
         if (cfg.containsKey(LEAF_BUILDER.name()))
-            leafBuilder = (LeafBuilder<VC, N>) cfg.get(LEAF_BUILDER.name());
+            leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC, N>) cfg.get(SCORER.name());
+            branchingConditions = (BranchingConditions<VC>) cfg.get(SCORER.name());
         scorer.update(cfg);
         branchingConditions.update(cfg);
-        for (BranchFinderBuilder<VC, N> branchFinderBuilder : branchFinderBuilders) {
+        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
             branchFinderBuilder.update(cfg);
         }
         this.config = cfg;

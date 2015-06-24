@@ -11,14 +11,14 @@ import java.util.Map;
  */
 
 
-public interface BranchingConditions<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public interface BranchingConditions<VC extends ValueCounter<VC>> {
     boolean isInvalidSplit(VC trueValueStats, VC falseValueStats);
 
     boolean isInvalidSplit(double score);
 
     boolean isInvalidSplit(VC trueSet, VC falseSet, String attribute);
 
-    boolean canTryAddingChildren(Branch<VC, N> branch, VC VC);
+    boolean canTryAddingChildren(Branch<VC> branch, VC VC);
 
     void update(Map<String, Object> cfg);
 

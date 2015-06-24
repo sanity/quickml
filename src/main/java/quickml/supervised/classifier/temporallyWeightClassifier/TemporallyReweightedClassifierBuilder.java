@@ -9,7 +9,7 @@ import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
-import quickml.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;

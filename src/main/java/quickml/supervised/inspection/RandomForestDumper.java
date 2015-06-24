@@ -1,10 +1,11 @@
 package quickml.supervised.inspection;
 
-import quickml.decisionTree.nodes.DTCatBranch;
-import quickml.decisionTree.nodes.DTNode;
-import quickml.decisionTree.nodes.DTNumBranch;
+import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
+import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.nodes.Node;
 import quickml.utlities.SerializationUtility;
-import quickml.decisionTree.DecisionTree;
+import quickml.supervised.tree.decisionTree.DecisionTree;
 
 import quickml.supervised.tree.nodes.NumBranch;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
@@ -71,7 +72,7 @@ public class RandomForestDumper {
         private int splits;
         private Map<String, AttributeSummary> attributes = new HashMap<>();
 
-        private void summarizeNode(DTNode node, int currentDepth) {
+        private void summarizeNode(Node<ClassificationCounter> node, int currentDepth) {
             if (node instanceof DTCatBranch) {
                 summarizeCategoricalNode((DTCatBranch)node, currentDepth);
             }
@@ -95,15 +96,15 @@ public class RandomForestDumper {
         private void summarizeCategoricalNode(DTCatBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
-            summarizeNode(node.trueChild, currentDepth+1);
-            summarizeNode(node.falseChild, currentDepth+1);
+            summarizeNode(node.getTrueChild(), currentDepth+1);
+            summarizeNode(node.getFalseChild(), currentDepth+1);
         }
 
         private void summarizeNumericNode(DTNumBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
-            summarizeNode(node.trueChild, currentDepth+1);
-            summarizeNode(node.falseChild, currentDepth + 1);
+            summarizeNode(node.getTrueChild(), currentDepth+1);
+            summarizeNode(node.getFalseChild(), currentDepth + 1);
         }
     }
 

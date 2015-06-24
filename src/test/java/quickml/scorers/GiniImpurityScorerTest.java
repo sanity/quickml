@@ -2,8 +2,8 @@ package quickml.scorers;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import quickml.decisionTree.scorers.GiniImpurityScorer;
-import quickml.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 public class GiniImpurityScorerTest {
     @Test

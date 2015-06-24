@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
+import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -13,7 +14,6 @@ import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.tree.nodes.LeafDepthStats;
-import quickml.supervised.tree.nodes.NodeBase;
 
 import java.util.*;
 
@@ -140,7 +140,7 @@ public class Utils {
     }
 
 
-    public static <TS extends ValueCounter<TS>>  double meanDepth(NodeBase<TS> node) {
+    public static <VC extends ValueCounter<VC>>  double meanDepth(Node<VC> node) {
         final LeafDepthStats stats = new LeafDepthStats();
         node.calcMeanDepth(stats);
         return (double) stats.ttlDepth / stats.ttlSamples;

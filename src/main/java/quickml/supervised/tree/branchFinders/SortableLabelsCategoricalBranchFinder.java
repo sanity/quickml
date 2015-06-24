@@ -16,9 +16,9 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 4/5/15.
  */
-public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCounter<VC>, N extends Node<VC, N>> extends BranchFinder<VC, N> {
+public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCounter<VC>> extends BranchFinder<VC> {
 
-    public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC, N> branchingConditions,
+    public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC> branchingConditions,
                                                  Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
                                                  AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
@@ -27,7 +27,7 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
 
 
     @Override
-    public Optional<? extends Branch<VC, N>> getBranch(Branch<VC, N> parent, AttributeStats<VC> attributeStats) {
+    public Optional<? extends Branch<VC>> getBranch(Branch<VC> parent, AttributeStats<VC> attributeStats) {
         if (attributeStats.getStatsOnEachValue().size()<=1) {
             return Optional.absent();
         }
@@ -39,5 +39,5 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
         return createBranch(parent, attributeStats, splitScore);
 
     }
-    protected abstract Optional<? extends Branch<VC, N>> createBranch(Branch<VC, N> parent, AttributeStats<VC> attributeStats, SplittingUtils.SplitScore splitScore);
+    protected abstract Optional<? extends Branch<VC>> createBranch(Branch<VC> parent, AttributeStats<VC> attributeStats, SplittingUtils.SplitScore splitScore);
 }

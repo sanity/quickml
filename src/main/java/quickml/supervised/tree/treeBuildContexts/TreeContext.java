@@ -16,10 +16,10 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 3/20/15.
  */
-public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
 
-    public TreeContext(BranchingConditions<VC, N> branchingConditions, Scorer scorer,
-                       List<? extends BranchFinderAndReducer<I, VC, N>> branchFindersAndReducers, LeafBuilder<VC, N> leafBuilder,
+    public TreeContext(BranchingConditions<VC> branchingConditions, Scorer scorer,
+                       List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers, LeafBuilder<VC> leafBuilder,
                        ValueCounterProducer<I, VC> valueCounterProducer) {
         this.scorer = scorer;
         this.branchFindersAndReducers = branchFindersAndReducers;
@@ -32,10 +32,10 @@ public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends Valu
     private BranchingConditions branchingConditions;
     private final ValueCounterProducer<I, VC> valueCounterProducer;
     private Optional<? extends Bagging> bagging;
-    private final List<? extends BranchFinderAndReducer<I, VC, N>> branchFindersAndReducers;
-    private LeafBuilder<VC, N> leafBuilder;
+    private final List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers;
+    private LeafBuilder<VC> leafBuilder;
 
-    public LeafBuilder<VC, N> getLeafBuilder() {
+    public LeafBuilder<VC> getLeafBuilder() {
         return leafBuilder;
     }
 
@@ -47,7 +47,7 @@ public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends Valu
         return scorer;
     }
 
-    public List<? extends BranchFinderAndReducer<I, VC, N>> getBranchFindersAndReducers() {
+    public List<? extends BranchFinderAndReducer<I, VC>> getBranchFindersAndReducers() {
         return branchFindersAndReducers;
     }
 

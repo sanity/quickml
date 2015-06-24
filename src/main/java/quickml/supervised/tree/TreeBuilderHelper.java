@@ -17,15 +17,15 @@ import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 
 import java.util.*;
 
-public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>, N extends Node<VC, N>>  {
+public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>>  {
 
-    protected TreeContextBuilder<I, VC, N> treeContextBuilder;
+    protected TreeContextBuilder<I, VC> treeContextBuilder;
 
-    public TreeBuilderHelper(TreeContextBuilder<I, VC, N> treeContextBuilder) {
+    public TreeBuilderHelper(TreeContextBuilder<I, VC> treeContextBuilder) {
         this.treeContextBuilder = treeContextBuilder.copy();
     }
 
-    public TreeBuilderHelper<I, VC, N> copy() {
+    public TreeBuilderHelper<I, VC> copy() {
         return new TreeBuilderHelper(treeContextBuilder);
     }
 
@@ -33,43 +33,43 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         treeContextBuilder.updateBuilderConfig(cfg);
     }
 
-    public N computeNodes(List<I> trainingData) {
-        TreeContext<I, VC, N> itbc = treeContextBuilder.buildContext(trainingData);
+    public Node<VC> computeNodes(List<I> trainingData) {
+        TreeContext<I, VC> itbc = treeContextBuilder.buildContext(trainingData);
         return createNode(null, trainingData, itbc);
     }
 
-    protected N createNode(Branch<VC, N> parent, List<I> trainingData, TreeContext<I, VC, N> itbc) {
+    protected Node<VC> createNode(Branch<VC> parent, List<I> trainingData, TreeContext<I, VC> itbc) {
         Preconditions.checkArgument(trainingData == null || trainingData.isEmpty(), "Can't build a tree with no training data");
-        BranchingConditions<VC, N> branchingConditions = itbc.getBranchingConditions();
+        BranchingConditions<VC> branchingConditions = itbc.getBranchingConditions();
         VC aggregateStats = getAggregateStats(itbc, parent, trainingData);
         if (!branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
-            return (N)getLeaf(parent, aggregateStats, itbc); //cast 100% guaranteed, as Leaf<VC,N> extends N
+            return getLeaf(parent, aggregateStats, itbc); //cast 100% guaranteed, as Leaf<VC,N> extends N
         }
-        Optional<? extends Branch<VC, N>> bestBranchOptional = findBestBranch(parent, trainingData, itbc);
+        Optional<? extends Branch<VC>> bestBranchOptional = findBestBranch(parent, trainingData, itbc);
         if (!bestBranchOptional.isPresent()) {
-            return (N)getLeaf(parent, aggregateStats, itbc);//cast 100% guaranteed, as Leaf<VC,N> extends N
+            return getLeaf(parent, aggregateStats, itbc);//cast 100% guaranteed, as Leaf<VC,N> extends N
         }
-        Branch<VC, N> bestBranch = bestBranchOptional.get();
+        Branch<VC> bestBranch = bestBranchOptional.get();
         Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
 
-        bestBranch.trueChild = createNode(bestBranch, trueFalsePair.trueTrainingSet, itbc);
-        bestBranch.falseChild = createNode(bestBranch, trueFalsePair.falseTrainingSet, itbc);
+        bestBranch.setTrueChild(createNode(bestBranch, trueFalsePair.trueTrainingSet, itbc));
+        bestBranch.setFalseChild(createNode(bestBranch, trueFalsePair.falseTrainingSet, itbc));
 
-        return (N)bestBranch;//cast 100% guaranteed, as Branch<VC,N> extends N.
+        return bestBranch;//cast 100% guaranteed, as Branch<VC,N> extends N.
     }
 
-    private Optional<? extends Branch<VC, N>> findBestBranch(Branch parent, List<I> instances, TreeContext<I, VC, N> itbc ) {
+    private Optional<? extends Branch<VC>> findBestBranch(Branch parent, List<I> instances, TreeContext<I, VC> itbc ) {
         double bestScore = 0;
-        Optional<? extends Branch<VC, N>> bestBranchOptional = Optional.absent();
-        List<? extends BranchFinderAndReducer<I, VC, N>> branchFindersAndReducers = itbc.getBranchFindersAndReducers();
-        for (BranchFinderAndReducer<I, VC, N> branchFinderAndReducer : branchFindersAndReducers) {
+        Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
+        List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers = itbc.getBranchFindersAndReducers();
+        for (BranchFinderAndReducer<I, VC> branchFinderAndReducer : branchFindersAndReducers) {
             //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
             Reducer<I, VC> reducer = branchFinderAndReducer.getReducer();
             reducer.setTrainingData(instances);
-            BranchFinder<VC, N> branchFinder = branchFinderAndReducer.getBranchFinder();
-            Optional<? extends Branch<VC, N>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
+            BranchFinder<VC> branchFinder = branchFinderAndReducer.getBranchFinder();
+            Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
             if (thisBranchOptional.isPresent()) {
-                Branch<VC, N> thisBranch = thisBranchOptional.get();
+                Branch<VC> thisBranch = thisBranchOptional.get();
                 if (isBestSplitSoFar(itbc, bestScore, thisBranch)) {  //minScore evaluation delegated to branchFinder
                     bestBranchOptional = thisBranchOptional;
                     bestScore = thisBranch.score;
@@ -79,15 +79,16 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         return bestBranchOptional;
     }
 
-    private boolean isBestSplitSoFar(TreeContext<I, VC, N> itbc, double bestScore, Branch<VC, N> thisBranch) {
+    private boolean isBestSplitSoFar(TreeContext<I, VC> itbc, double bestScore, Branch<VC> thisBranch) {
         return thisBranch.getScore()> bestScore && !itbc.getBranchingConditions().isInvalidSplit(thisBranch.getScore());
     }
 
-    protected  Leaf<VC, N> getLeaf(Branch<VC, N> parent, VC valueCounter, TreeContext<I, VC, N> itbc) {
-            return itbc.getLeafBuilder().buildLeaf(parent, valueCounter);
+    protected  Leaf<VC> getLeaf(Branch<VC> parent, VC valueCounter, TreeContext<I, VC> itbc) {
+        Leaf<VC> vcnLeaf = itbc.getLeafBuilder().buildLeaf(parent, valueCounter);
+        return vcnLeaf;
     }
 
-    private VC getAggregateStats(TreeContext<I, VC, N> itbc, Branch<VC, N> parent, List<I> trainingData) {
+    private VC getAggregateStats(TreeContext<I, VC> itbc, Branch<VC> parent, List<I> trainingData) {
         return !parent.isEmpty() ? parent.valueCounter : itbc.getValueCounterProducer().getValueCounter(trainingData);
     }
 }

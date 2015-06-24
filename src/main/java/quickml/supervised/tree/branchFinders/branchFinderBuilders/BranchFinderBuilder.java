@@ -17,8 +17,8 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
-    protected BranchingConditions<VC, N> branchingConditions;
+public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
+    protected BranchingConditions<VC> branchingConditions;
     protected Scorer<VC> scorer;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder;
@@ -37,7 +37,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
         return scorer;
     }
 
-    public BranchingConditions<VC, N> getBranchingConditions() {
+    public BranchingConditions<VC> getBranchingConditions() {
         return branchingConditions;
     }
 
@@ -57,13 +57,13 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC, N>) cfg.get(BRANCHING_CONDITIONS.name());
+            branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
         if (cfg.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name()))
             minAttributeOccurences = (Integer)cfg.get(MIN_ATTRIBUTE_OCCURRENCES.name());
     }
 
-    public BranchFinderBuilder<VC, N> copy() {
-        BranchFinderBuilder<VC, N> copy = createBranchFinderBuilder();
+    public BranchFinderBuilder<VC> copy() {
+        BranchFinderBuilder<VC> copy = createBranchFinderBuilder();
         copy.branchingConditions = branchingConditions.copy();
         copy.scorer = scorer.copy();
         copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
@@ -72,9 +72,9 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>, N extends
         return copy;
     }
 
-    public abstract BranchFinderBuilder<VC, N> createBranchFinderBuilder();
+    public abstract BranchFinderBuilder<VC> createBranchFinderBuilder();
 
-    public abstract BranchFinder<VC, N> buildBranchFinder(VC valueCounter, Set<String> candidateAttributes);
+    public abstract BranchFinder<VC> buildBranchFinder(VC valueCounter, Set<String> candidateAttributes);
 
 
 }

@@ -1,35 +1,5 @@
 package quickml.supervised;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.junit.Before;
-import org.junit.Test;
-import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.Classifier;
-import quickml.scorers.Scorer;
-import quickml.supervised.tree.TreeBuilderHelper;
-import quickml.decisionTree.scorers.GiniImpurityScorer;
-import quickml.decisionTree.scorers.MSEScorer;
-import quickml.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
-import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.crossValidation.data.FoldedData;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {

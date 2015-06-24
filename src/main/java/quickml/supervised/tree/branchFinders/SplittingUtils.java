@@ -16,8 +16,8 @@ import java.util.Set;
  */
 public class SplittingUtils {
 
-public static <VC extends ValueCounter<VC>, N extends Node<VC, N>> SplitScore splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
-                                                                               BranchingConditions<VC, N> branchingConditions,
+public static <VC extends ValueCounter<VC>> SplitScore splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
+                                                                               BranchingConditions<VC> branchingConditions,
                                                                                AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy) {
     double bestScore = 0;
     int indexOfLastTermStatsInTrueSet = 0;

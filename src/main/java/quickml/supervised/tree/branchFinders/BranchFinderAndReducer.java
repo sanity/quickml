@@ -8,16 +8,16 @@ import quickml.supervised.tree.nodes.Node;
 /**
  * Created by alexanderhawk on 6/18/15.
  */
-public class BranchFinderAndReducer <I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>, N extends Node<VC, N>> {
-    protected BranchFinder<VC, N> branchFinder;
+public class BranchFinderAndReducer <I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
+    protected BranchFinder<VC> branchFinder;
     protected Reducer<I, VC> reducer;
 
-    public BranchFinderAndReducer(BranchFinder<VC, N> branchFinder, Reducer<I, VC> reducer) {
+    public BranchFinderAndReducer(BranchFinder<VC> branchFinder, Reducer<I, VC> reducer) {
         this.branchFinder = branchFinder;
         this.reducer = reducer;
     }
 
-    public BranchFinder<VC, N> getBranchFinder() {
+    public BranchFinder<VC> getBranchFinder() {
         return branchFinder;
     }
 

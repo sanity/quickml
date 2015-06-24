@@ -7,7 +7,6 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.reducers.AttributeStatisticsProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Node;
 import quickml.scorers.Scorer;
 
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
@@ -23,15 +22,15 @@ import java.util.Set;
  * Created by alexanderhawk on 3/24/15.
  */
 
-public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
+public abstract class BranchFinder<VC extends ValueCounter<VC>> {
     protected Set<String> candidateAttributes;
-    protected BranchingConditions<VC, N> branchingConditions;
+    protected BranchingConditions<VC> branchingConditions;
     protected Scorer<VC> scorer;
     protected AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected BranchType branchType;
 
-    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC, N> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
         this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.branchingConditions = branchingConditions;
         this.scorer = scorer;
@@ -44,7 +43,7 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<V
         return branchType;
     }
 
-    protected List<String> getCandidateAttributesWithIgnoringApplied(Branch<VC, N> parent) {
+    protected List<String> getCandidateAttributesWithIgnoringApplied(Branch<VC> parent) {
         List<String> attributes = Lists.newArrayList();
         for (String attribute : candidateAttributes) {
             if (!attributeIgnoringStrategy.ignoreAttribute(attribute, parent)) {
@@ -54,14 +53,14 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<V
         return attributes;
     }
 
-    public Optional<? extends Branch<VC, N>> findBestBranch(Branch<VC, N> parent, AttributeStatisticsProducer<VC> attributeStatisticsProducer) {
+    public Optional<? extends Branch<VC>> findBestBranch(Branch<VC> parent, AttributeStatisticsProducer<VC> attributeStatisticsProducer) {
         double bestScore = 0;
-        Optional<? extends Branch<VC, N>> bestBranchOptional = Optional.absent();
+        Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
         for (String attribute : getCandidateAttributesWithIgnoringApplied(parent)) {
             AttributeStats<VC> attributeStats = attributeStatisticsProducer.getAttributeStats(attribute);
-            Optional<? extends Branch<VC, N>> thisBranchOptional = getBranch(parent, attributeStats);
+            Optional<? extends Branch<VC>> thisBranchOptional = getBranch(parent, attributeStats);
             if (thisBranchOptional.isPresent()) {
-                Branch<VC, N> thisBranch = thisBranchOptional.get();
+                Branch<VC> thisBranch = thisBranchOptional.get();
                 if (thisBranch.score > bestScore) {
                     bestScore = thisBranch.score;
                     bestBranchOptional = thisBranchOptional;
@@ -71,5 +70,5 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>, N extends Node<V
         return bestBranchOptional;
     }
 
-    public abstract Optional<? extends Branch<VC, N>> getBranch(Branch<VC, N> parent, AttributeStats<VC> attributeStats);
+    public abstract Optional<? extends Branch<VC>> getBranch(Branch<VC> parent, AttributeStats<VC> attributeStats);
 }

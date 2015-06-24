@@ -20,7 +20,7 @@ import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
-import quickml.decisionTree.DecisionTreeBuilder;
+import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
 

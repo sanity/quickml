@@ -8,8 +8,10 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.ensembles.randomForest.RandomForest;
-import quickml.decisionTree.DecisionTree;
-import quickml.decisionTree.nodes.DTLeaf;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.nodes.Leaf;
 
 import java.util.*;
 
@@ -131,16 +133,16 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
     public Object getClassificationByMaxProb(AttributesMap attributes) {
         Map<Object, AtomicDouble> probTotals = Maps.newHashMap();
         for (DecisionTree decisionTree : decisionTrees) {
-            DTLeaf DTLeaf = decisionTree.root.getLeaf(attributes);
-            for (Object classification : DTLeaf.getClassifications()) {
-                AtomicDouble ttlProb = probTotals.get(classification);
-                if (ttlProb == null) {
-                    ttlProb = new AtomicDouble(0);
-                    probTotals.put(classification, ttlProb);
+            PredictionMap predictionMap = decisionTree.predict(attributes);
+            for (Object key : predictionMap.keySet()) {
+                if (probTotals.containsKey(key)) {
+                    probTotals.put(key, new AtomicDouble(probTotals.get(key).getAndAdd(predictionMap.get(key))));
+                } else {
+                    probTotals.put(key, new AtomicDouble(predictionMap.get(key)));
                 }
-                ttlProb.addAndGet(DTLeaf.getProbability(classification));
             }
         }
+
         Object bestClassification = null;
         double bestClassificationTtlProb = 0;
         for (Map.Entry<Object, AtomicDouble> classificationProb : probTotals.entrySet()) {

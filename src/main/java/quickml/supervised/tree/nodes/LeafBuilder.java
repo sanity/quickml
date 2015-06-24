@@ -6,6 +6,6 @@ import quickml.supervised.tree.summaryStatistics.ValueCounter;
 /**
  * Created by alexanderhawk on 3/22/15.
  */
-public interface LeafBuilder<VC extends ValueCounter<VC>, N extends Node<VC, N>> {
-    Leaf<VC, N> buildLeaf(Branch<VC, N> parent, VC valueCounter);
+public interface LeafBuilder<VC extends ValueCounter<VC>> {
+    Leaf<VC> buildLeaf(Branch<VC> parent, VC valueCounter);
 }

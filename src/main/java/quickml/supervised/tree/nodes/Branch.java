@@ -10,18 +10,18 @@ import java.io.Serializable;
 import java.util.Map;
 
 //signature ensures that Branch<VC, N> extends N (as it extends Node<VC, N>, which has exactly one valid extension: N).
-public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>> implements Node<VC, N>, Serializable {
+public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, Serializable {
 	private static final long serialVersionUID = 8290012786245422175L;
 	public final String attribute;
-	public N trueChild, falseChild;
+	private Node<VC> trueChild, falseChild;
     public VC valueCounter;
-    protected N parent;
+    protected Node<VC> parent;
 	protected final double probabilityOfTrueChild;
 	public final double score;
 	protected final int depth;
 
-	public Branch(Branch<VC, N> parent, final String attribute, double probabilityOfTrueChild, double score, VC valueCounter) {
-        this.parent = (N)parent; //cast 100% guarenteed to work.  If java was smarter it would know this.
+	public Branch(Branch<VC> parent, final String attribute, double probabilityOfTrueChild, double score, VC valueCounter) {
+        this.parent = parent; //cast 100% guarenteed to work.  If java was smarter it would know this.
         this.attribute = attribute;
         this.depth = (parent!=null) ? parent.depth + 1 : 0;
         this.score = score;
@@ -29,11 +29,19 @@ public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>>
 		this.probabilityOfTrueChild = probabilityOfTrueChild;
 	}
 
-	public N getTrueChild(){
+    public void setTrueChild(Node<VC> trueChild) {
+        this.trueChild = trueChild;
+    }
+
+    public void setFalseChild(Node<VC> falseChild) {
+        this.falseChild = falseChild;
+    }
+
+    public Node<VC> getTrueChild(){
         return trueChild;
     }
 
-    public N getFalseChild(){
+    public Node<VC> getFalseChild(){
         return trueChild;
     }
 
@@ -53,7 +61,7 @@ public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>>
         return score;
     }
 
-    public N getParent() {
+    public Node<VC> getParent() {
         return parent;
     }
 
@@ -62,6 +70,14 @@ public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>>
     }
 
 	public abstract boolean decide(Map<String, Object> attributes);
+
+    @Override
+    public Leaf<VC> getLeaf(final AttributesMap attributes) {
+        if (decide(attributes))
+            return trueChild.getLeaf(attributes);
+        else
+            return falseChild.getLeaf(attributes);
+    }
 
 	@Override
 	public int getSize() {
@@ -89,7 +105,7 @@ public abstract class Branch<VC extends ValueCounter<VC>, N extends Node<VC, N>>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Branch<VC, N> branch = (Branch<VC, N>) o;
+        final Branch<VC> branch = (Branch<VC>) o;
 
         if (!attribute.equals(branch.attribute)) return false;
         if (!falseChild.equals(branch.falseChild)) return false;
