@@ -1,5 +1,6 @@
 package quickml.supervised.tree.branchFinders;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
@@ -16,7 +17,7 @@ import java.util.Set;
  */
 public class SplittingUtils {
 
-public static <VC extends ValueCounter<VC>> SplitScore splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
+public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
                                                                                BranchingConditions<VC> branchingConditions,
                                                                                AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy) {
     double bestScore = 0;
@@ -50,9 +51,12 @@ public static <VC extends ValueCounter<VC>> SplitScore splitSortedAttributeStats
             probabilityOfBeingInTrueSet = trueSet.getTotal() / (trueSet.getTotal() + falseSet.getTotal());
         }
     }
+    if (indexOfLastTermStatsInTrueSet == 0) {
+        return Optional.absent();
+    }
     Set<Object> trueSetVals = createTrueSetVals(indexOfLastTermStatsInTrueSet, attributeValueStatsList);
 
-    return new SplitScore(bestScore, indexOfLastTermStatsInTrueSet, probabilityOfBeingInTrueSet, trueSetVals);
+    return Optional.of(new SplitScore(bestScore, indexOfLastTermStatsInTrueSet, probabilityOfBeingInTrueSet, trueSetVals));
 }
 
     private static <TS extends ValueCounter<TS>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<TS> termStats) {

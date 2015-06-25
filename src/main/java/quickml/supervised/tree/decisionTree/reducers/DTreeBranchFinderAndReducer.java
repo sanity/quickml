@@ -13,7 +13,7 @@ public class DTreeBranchFinderAndReducer<I extends ClassifierInstance> extends B
 
     public DTreeBranchFinderAndReducer(BranchFinder<ClassificationCounter> branchFinder, DTreeReducer<I> reducer) {
         super(branchFinder, reducer);
-        reducer = reducer;
+        this.reducer = reducer;
     }
 
     @Override

@@ -25,9 +25,15 @@ import java.util.Set;
  */
 public class DTreeNClassCatBranchFinder extends BranchFinder<ClassificationCounter> {
 
-    public DTreeNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+    public DTreeNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
+
+    @Override
+    public BranchType getBranchType() {
+        return BranchType.CATEGORICAL;
+    }
+
 
     @Override
     public Optional<? extends Branch<ClassificationCounter>> getBranch(Branch<ClassificationCounter> parent,

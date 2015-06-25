@@ -19,9 +19,13 @@ import java.util.Set;
  * Created by alexanderhawk on 6/11/15.
  */
 public class DTBinaryCatBranchFinder extends SortableLabelsCategoricalBranchFinder<ClassificationCounter> {
+    @Override
+    public BranchType getBranchType() {
+        return BranchType.BINARY_CATEGORICAL;
+    }
 
-    public DTBinaryCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+    public DTBinaryCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
     @Override

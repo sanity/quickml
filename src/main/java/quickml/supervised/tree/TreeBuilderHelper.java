@@ -39,19 +39,21 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     }
 
     protected Node<VC> createNode(Branch<VC> parent, List<I> trainingData, TreeContext<I, VC> itbc) {
-        Preconditions.checkArgument(trainingData == null || trainingData.isEmpty(), "Can't build a tree with no training data");
+        Preconditions.checkArgument(trainingData != null && !trainingData.isEmpty(), "Can't build a tree with no training data");
         BranchingConditions<VC> branchingConditions = itbc.getBranchingConditions();
         VC aggregateStats = getAggregateStats(itbc, parent, trainingData);
         if (!branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
-            return getLeaf(parent, aggregateStats, itbc); //cast 100% guaranteed, as Leaf<VC,N> extends N
+            return getLeaf(parent, aggregateStats, itbc);
         }
         Optional<? extends Branch<VC>> bestBranchOptional = findBestBranch(parent, trainingData, itbc);
         if (!bestBranchOptional.isPresent()) {
-            return getLeaf(parent, aggregateStats, itbc);//cast 100% guaranteed, as Leaf<VC,N> extends N
+            return getLeaf(parent, aggregateStats, itbc);
         }
         Branch<VC> bestBranch = bestBranchOptional.get();
         Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
-
+        if (trueFalsePair.falseTrainingSet.size() ==0 || trueFalsePair.trueTrainingSet.size() ==0) {
+            return getLeaf(parent, aggregateStats, itbc);
+        }
         bestBranch.setTrueChild(createNode(bestBranch, trueFalsePair.trueTrainingSet, itbc));
         bestBranch.setFalseChild(createNode(bestBranch, trueFalsePair.falseTrainingSet, itbc));
 
@@ -89,7 +91,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     }
 
     private VC getAggregateStats(TreeContext<I, VC> itbc, Branch<VC> parent, List<I> trainingData) {
-        return !parent.isEmpty() ? parent.valueCounter : itbc.getValueCounterProducer().getValueCounter(trainingData);
+        return (parent!=null && !parent.isEmpty()) ? parent.valueCounter : itbc.getValueCounterProducer().getValueCounter(trainingData);
     }
 }
 

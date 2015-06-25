@@ -8,4 +8,5 @@ import quickml.supervised.tree.summaryStatistics.ValueCounter;
  */
 public interface LeafBuilder<VC extends ValueCounter<VC>> {
     Leaf<VC> buildLeaf(Branch<VC> parent, VC valueCounter);
+    LeafBuilder<VC> copy();
 }

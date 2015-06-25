@@ -1,6 +1,7 @@
 package quickml.supervised.tree.branchFinders;
 
 import com.google.common.base.Optional;
+import org.apache.commons.math3.geometry.spherical.oned.ArcsSet;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
@@ -20,8 +21,8 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
 
     public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC> branchingConditions,
                                                  Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
-                                                 AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+                                                 AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
 
@@ -32,10 +33,11 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
             return Optional.absent();
         }
 
-        SplittingUtils.SplitScore splitScore = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy);
-        if (branchingConditions.isInvalidSplit(splitScore.score)) {
-            Optional.absent();
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy);
+        if (!splitScoreOptional.isPresent()) {
+            return Optional.absent();
         }
+        SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         return createBranch(parent, attributeStats, splitScore);
 
     }

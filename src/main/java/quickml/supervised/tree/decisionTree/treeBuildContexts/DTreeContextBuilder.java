@@ -9,6 +9,7 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 
+import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
@@ -18,6 +19,7 @@ import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingCondi
 import quickml.supervised.tree.decisionTree.reducers.*;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
 import quickml.scorers.Scorer;
+import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
@@ -43,9 +45,9 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public DTreeContext<I> buildContext(List<I> trainingData) {
         boolean considerBooleanAttributes = hasBranchFinderBuilder(BranchType.BOOLEAN);
         DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
-        Map<BranchType, Set<String>> candidateAttributesByBranchType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
+        Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
         ClassificationCounter classificationCounts= getValueCounterProducer().getValueCounter(trainingData);
-        List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByBranchType);
+        List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
         updateAll(branchFinderAndReducers);
         return new DTreeContext<I>(classificationCounts.allClassifications(), branchingConditions, scorer, branchFinderAndReducers, leafBuilder, getValueCounterProducer());
     }
@@ -77,7 +79,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         updateBuilderConfig(config);
     }
 
-    private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts,  Map<BranchType, Set<String>> candidateAttributesByBranchType) {
+    private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts,  Map<AttributeType, Set<String>> candidateAttributesByType) {
         /**Branch finders should be paired with the correct reducers. With this method, we don't leave open the possibility for a user to make a mistake with the pairings.
          * */
         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
@@ -86,7 +88,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         Map<BranchType, DTreeReducer<I>> reducerMap = getDefaultReducers(minorityClassification);
         for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : getBranchFinderBuilders()) {
             if (useBranchFinder(branchFinderBuilder, numClasses)) {
-                BranchFinder<ClassificationCounter> branchFinder = branchFinderBuilder.buildBranchFinder(classificationCounts, candidateAttributesByBranchType.get(BranchType.BINARY_CATEGORICAL));
+                AttributeType attributeType = AttributeType.convertBranchTypeToAttributeType(branchFinderBuilder.getBranchType());
+                BranchFinder<ClassificationCounter> branchFinder = branchFinderBuilder.buildBranchFinder(classificationCounts, candidateAttributesByType.get(attributeType));
                 DTreeReducer<I> reducer = reducerMap.get(branchFinderBuilder.getBranchType());
                 branchFindersAndReducers.add(new DTreeBranchFinderAndReducer<I>(branchFinder, reducer));
             }
@@ -156,11 +159,18 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (!config.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name())){
             minAttributeOccurences(DEFAULT_MIN_ATTRIBUTE_OCCURENCES);
         }
+        if (!config.containsKey(LEAF_BUILDER.name())){
+            leafBuilder(DEFAULT_LEAF_BUILDER);
+        }
         updateBuilderConfig(this.config);
     }
     //check that haven't missed any settings.
     public void maxDepth(int maxDepth) {
         config.put(MAX_DEPTH.name(), maxDepth);
+    }
+
+    public void leafBuilder(LeafBuilder<ClassificationCounter> leafBuilder) {
+        config.put(LEAF_BUILDER.name(), leafBuilder);
     }
 
     public void ignoreAttributeProbability(int ignoreAttributeProbability) {

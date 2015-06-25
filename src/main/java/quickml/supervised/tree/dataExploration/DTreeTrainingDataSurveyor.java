@@ -2,6 +2,7 @@ package quickml.supervised.tree.dataExploration;
 
 import com.google.common.collect.Maps;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.constants.BranchType;
 
 import java.util.*;
@@ -17,9 +18,9 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
         this.considerBooleanAttributes = considerBooleanAttributes;
     }
 
-    public Map<BranchType, Set<String>> groupAttributesByType(final List<T> trainingData) {
+    public Map<AttributeType, Set<String>> groupAttributesByType(final List<T> trainingData) {
         Map<String, AttributeCharacteristics> attributeCharacteristics = getMapOfAttributesToAttributeCharacteristics(trainingData);
-        Map<BranchType, Set<String>> attributesByType = groupByType(attributeCharacteristics);
+        Map<AttributeType, Set<String>> attributesByType = groupByType(attributeCharacteristics);
         return attributesByType;
     }
 
@@ -43,20 +44,20 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
     }
 
 
-    private Map<BranchType, Set<String>> groupByType(Map<String, AttributeCharacteristics> attributeCharacteristics) {
-        Map<BranchType, Set<String>> attributesByType = Maps.newHashMap();
-        attributesByType.put(BranchType.CATEGORICAL, new HashSet<String>());
-        attributesByType.put(BranchType.NUMERIC, new HashSet<String>());
+    private Map<AttributeType, Set<String>> groupByType(Map<String, AttributeCharacteristics> attributeCharacteristics) {
+        Map<AttributeType, Set<String>> attributesByType = Maps.newHashMap();
+        attributesByType.put(AttributeType.CATEGORICAL, new HashSet<String>());
+        attributesByType.put(AttributeType.NUMERIC, new HashSet<String>());
         if (considerBooleanAttributes)
-            attributesByType.put(BranchType.BOOLEAN, new HashSet<String>());
+            attributesByType.put(AttributeType.BOOLEAN, new HashSet<String>());
 
         for(String attribute : attributeCharacteristics.keySet()) {
             if (attributeCharacteristics.get(attribute).isNumber) {
-                attributesByType.get(BranchType.NUMERIC).add(attribute);
+                attributesByType.get(AttributeType.NUMERIC).add(attribute);
             }   else if (considerBooleanAttributes && attributeCharacteristics.get(attribute).isBoolean) {
-                attributesByType.get(BranchType.BOOLEAN).add(attribute);
+                attributesByType.get(AttributeType.BOOLEAN).add(attribute);
             }   else {
-                attributesByType.get(BranchType.CATEGORICAL).add(attribute);
+                attributesByType.get(AttributeType.CATEGORICAL).add(attribute);
             }
         }
         return attributesByType;
@@ -67,13 +68,13 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
 
         public boolean isNumber = true;
         public boolean isBoolean = true;
-        private TreeSet<Object> observedVals = new TreeSet();
+        private HashSet<Object> observedVals = new HashSet();
 
         public void updateBooleanStatus(Object val) {
             if (!isBoolean || val == null) {
                 return;
             }
-            if (observedVals.size() == 2 && !observedVals.contains(val)) {
+            if (observedVals.size()>2 || (observedVals.size() == 2 && !observedVals.contains(val))) {
                 isBoolean = false;
             } else {
                 observedVals.add(val);
@@ -84,7 +85,13 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
         }
 
         private boolean bothValsAreNumbers() {
-            return observedVals.size() == 2 && observedVals.first() instanceof Number && observedVals.last() instanceof Number;
+            boolean bothValsAreNum = true;
+
+            for (Object key: observedVals) {
+                if (!(key instanceof Number))
+                    return false;
+            }
+            return true;
         }
     }
 }

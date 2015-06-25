@@ -10,12 +10,15 @@ import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithC
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
+import quickml.supervised.tree.decisionTree.nodes.DTLeafBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContextBuilder;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.scorers.Scorer;
+import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +37,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
     public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.01;
     public static final int DEFAULT_MIN_ATTRIBUTE_OCCURENCES = 8;
+    public static final LeafBuilder<ClassificationCounter> DEFAULT_LEAF_BUILDER = new DTLeafBuilder();
 
     private final DTreeContextBuilder<I> tcb;
 
@@ -49,7 +53,8 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     public DecisionTree buildPredictiveModel(Iterable<I> trainingData) {
         tcb.setDefaultsAsNeededAndUpdateBuilderConfig();
         DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(tcb);
-        Pair<Node<ClassificationCounter>, Set<Object>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(Lists.newArrayList(trainingData));
+        ArrayList<I> trainingDataList = Lists.newArrayList(trainingData);
+        Pair<Node<ClassificationCounter>, Set<Object>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(trainingDataList);
         Node<ClassificationCounter> root = rootAndClassifications.getValue0();
         Set<Object> classifications = rootAndClassifications.getValue1();
         return new DecisionTree(root, classifications);
@@ -68,6 +73,10 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     //check that haven't missed any settings.
     public DecisionTreeBuilder<I> maxDepth(int maxDepth) {
         tcb.maxDepth(maxDepth);
+        return this;
+    }
+    public DecisionTreeBuilder<I> leafBuilder(LeafBuilder<ClassificationCounter> leafBuilder) {
+        tcb.leafBuilder(leafBuilder);
         return this;
     }
 

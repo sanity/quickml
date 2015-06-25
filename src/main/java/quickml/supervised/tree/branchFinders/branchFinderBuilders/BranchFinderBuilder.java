@@ -41,9 +41,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
         return branchingConditions;
     }
 
-    public BranchType getBranchType() {
-        return branchType;
-    }
+    public abstract BranchType getBranchType();
 
     public AttributeIgnoringStrategy getAttributeIgnoringStrategy() {
         return attributeIgnoringStrategy;
@@ -64,11 +62,19 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
 
     public BranchFinderBuilder<VC> copy() {
         BranchFinderBuilder<VC> copy = createBranchFinderBuilder();
-        copy.branchingConditions = branchingConditions.copy();
-        copy.scorer = scorer.copy();
-        copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
-        copy.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder.copy();
         copy.branchType = branchType;
+        if (branchingConditions!=null) {
+            copy.branchingConditions = branchingConditions.copy();
+        }
+        if (scorer!=null) {
+            copy.scorer = scorer.copy();
+        }
+        if (attributeIgnoringStrategy!=null) {
+            copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
+        }
+        if (attributeValueIgnoringStrategyBuilder!= null) {
+            copy.attributeValueIgnoringStrategyBuilder = attributeValueIgnoringStrategyBuilder.copy();
+        }
         return copy;
     }
 

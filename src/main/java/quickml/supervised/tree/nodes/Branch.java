@@ -21,7 +21,7 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
 	protected final int depth;
 
 	public Branch(Branch<VC> parent, final String attribute, double probabilityOfTrueChild, double score, VC valueCounter) {
-        this.parent = parent; //cast 100% guarenteed to work.  If java was smarter it would know this.
+        this.parent = parent;
         this.attribute = attribute;
         this.depth = (parent!=null) ? parent.depth + 1 : 0;
         this.score = score;

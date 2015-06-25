@@ -27,7 +27,6 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     private final DecisionTreeBuilder<I> treeBuilder;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
-    Map<String, Object> config;
 
     public RandomDecisionForestBuilder() {
         this(new DecisionTreeBuilder<I>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(5));
@@ -46,7 +45,6 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
 
     public RandomDecisionForestBuilder<I> numTrees(int numTrees) {
         super.numTrees = numTrees;
-        config.put(NUM_TREES.name(), numTrees);
         return this;
     }
 
@@ -96,7 +94,6 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
         for (Future<DecisionTree> treeFuture : treeFutures) {
             collectTreeFutures(decisionTrees, treeFuture);
         }
-
         executorService.shutdown();
     }
 

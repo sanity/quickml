@@ -58,7 +58,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         copy.branchFinderBuilders = copiedBranchFinderBuilders;
         copy.branchingConditions = branchingConditions.copy();
         copy.scorer = scorer.copy();
-        copy.leafBuilder = leafBuilder;
+        copy.leafBuilder = leafBuilder.copy();
         return copy;
     }
 
@@ -87,7 +87,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC>) cfg.get(SCORER.name());
+            branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
         scorer.update(cfg);
         branchingConditions.update(cfg);
         for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {

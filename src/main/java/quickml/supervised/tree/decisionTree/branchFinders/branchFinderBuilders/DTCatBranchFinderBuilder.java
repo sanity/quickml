@@ -1,6 +1,7 @@
 package quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders;
 
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.MultiClassAttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.DTreeNClassCatBranchFinder;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
@@ -27,6 +28,11 @@ public class DTCatBranchFinderBuilder extends DTBranchFinderBuilder {
         } else {
             attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(classificationCounts);
         }
-        return new DTreeNClassCatBranchFinder(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+        return new DTreeNClassCatBranchFinder(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+    }
+
+    @Override
+    public BranchType getBranchType() {
+        return BranchType.CATEGORICAL;
     }
 }

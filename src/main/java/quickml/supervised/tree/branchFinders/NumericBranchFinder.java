@@ -17,8 +17,8 @@ import java.util.Collection;
  * Created by alexanderhawk on 4/5/15.
  */
 public abstract class NumericBranchFinder<VC extends ValueCounter<VC>> extends BranchFinder<VC> {
-    public NumericBranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy, branchType);
+    public NumericBranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
     @Override
@@ -27,10 +27,11 @@ public abstract class NumericBranchFinder<VC extends ValueCounter<VC>> extends B
             return Optional.absent();
         }
 
-        SplittingUtils.SplitScore splitScore = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy);
-        if (branchingConditions.isInvalidSplit(splitScore.score)) {
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy);
+        if (!splitScoreOptional.isPresent()) {
            return Optional.absent();
         }
+        SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         double bestThreshold = (Double)attributeStats.getStatsOnEachValue().get(splitScore.indexOfLastTermStatsInTrueSet).getAttrVal();
         return createBranch(parent, attributeStats, splitScore, bestThreshold);
     }

@@ -11,4 +11,9 @@ public class DTLeafBuilder implements LeafBuilder<ClassificationCounter> {
     public DTLeaf buildLeaf(Branch<ClassificationCounter> parent, ClassificationCounter valueCounter){
         return new DTLeaf(parent, valueCounter, parent.isEmpty() ? 0 : parent.getDepth());
     }
+
+    @Override
+    public LeafBuilder<ClassificationCounter> copy() {
+        return new DTLeafBuilder();
+    }
 }

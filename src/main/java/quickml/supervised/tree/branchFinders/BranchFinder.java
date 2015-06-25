@@ -28,20 +28,16 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>> {
     protected Scorer<VC> scorer;
     protected AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
-    protected BranchType branchType;
 
-    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy, BranchType branchType) {
+    public BranchFinder(Collection<String> candidateAttributes, BranchingConditions<VC> branchingConditions, Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
         this.candidateAttributes = Sets.newHashSet(candidateAttributes);
         this.branchingConditions = branchingConditions;
         this.scorer = scorer;
         this.attributeValueIgnoringStrategy = attributeValueIgnoringStrategy;
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
-        this.branchType = branchType;
     }
 
-    public BranchType getBranchType() {
-        return branchType;
-    }
+    public abstract BranchType getBranchType();
 
     protected List<String> getCandidateAttributesWithIgnoringApplied(Branch<VC> parent) {
         List<String> attributes = Lists.newArrayList();
