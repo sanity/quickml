@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree.valueCounters;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;
@@ -58,8 +58,9 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     public static Object getMostPopularClass(ClassificationCounter classificationCounter) {
         Object maxClass = null;
         double maxCounts = 0;
+        Object leastPopular = getLeastPopularClass(classificationCounter); //want to ensure don't have the same leastPopular as mostPopular when class ballance is 50/50
         for (Object classification : classificationCounter.allClassifications()) {
-            if (classificationCounter.getCount(classification) > maxCounts) {
+            if (classificationCounter.getCount(classification) > maxCounts || !classification.equals(leastPopular)) {
                 maxCounts = classificationCounter.getCount(classification);
                 maxClass = classification;
             }
@@ -80,9 +81,9 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     }
 
 
-    public static ClassificationCounter countAll(final Iterable<? extends InstanceWithAttributesMap> instances) {
+    public static ClassificationCounter countAll(final Iterable<? extends ClassifierInstance> instances) {
         final ClassificationCounter result = new ClassificationCounter();
-        for (InstanceWithAttributesMap instance : instances) {
+        for (ClassifierInstance instance : instances) {
             result.addClassification(instance.getLabel(), instance.getWeight());
         }
         return result;

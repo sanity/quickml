@@ -31,6 +31,9 @@ public class InformationGainScorer extends Scorer<ClassificationCounter> {
         double entropy = 0;
 
         for (Map.Entry<Object, Double> e : cc.getCounts().entrySet()) {
+            if (e.getValue().equals(0.0)) {
+                continue;
+            }
             double error = (cc.getTotal() > 0) ? e.getValue() / cc.getTotal() : 0;
             entropy += -error * (Math.log(error) / Math.log(2));
         }

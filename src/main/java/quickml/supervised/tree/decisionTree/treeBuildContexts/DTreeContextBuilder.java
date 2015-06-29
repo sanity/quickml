@@ -110,7 +110,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     public static <I extends ClassifierInstance>  Map<BranchType, DTreeReducer<I>> getDefaultReducers(Object minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
-        reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducerReducer<I>(minorityClassification));
+        reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducer<I>(minorityClassification));
         reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
         reducers.put(BranchType.NUMERIC, new DTNumBranchReducer<I>());
         reducers.put(BranchType.BOOLEAN, new DTCatBranchReducer<I>());

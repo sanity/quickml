@@ -1,5 +1,6 @@
 package quickml.supervised.tree.reducers;
 
+import com.google.common.base.Optional;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
@@ -18,7 +19,7 @@ public abstract class Reducer<I extends InstanceWithAttributesMap<?>, VC extends
     this.trainingData = trainingData;
   }
 
-  public abstract AttributeStats<VC> getAttributeStats(String attribute);
+  public abstract Optional<AttributeStats<VC>> getAttributeStats(String attribute);
 
   public abstract void updateBuilderConfig(Map<String, Object> cfg);
 

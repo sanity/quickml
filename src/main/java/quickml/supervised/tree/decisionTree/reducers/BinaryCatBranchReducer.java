@@ -1,5 +1,6 @@
 package quickml.supervised.tree.decisionTree.reducers;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
@@ -12,17 +13,21 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/22/15.
  */
-public class BinaryCatBranchReducerReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
+public class BinaryCatBranchReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
     //move to Binary ClassifierNodeBuilder.
     Object minorityClassification;
 
-    public BinaryCatBranchReducerReducer(Object minorityClassification) {
+    public BinaryCatBranchReducer(Object minorityClassification) {
         this.minorityClassification = minorityClassification;
     }
 
     @Override
-    public AttributeStats<ClassificationCounter> getAttributeStats(String attribute) {
-        AttributeStats<ClassificationCounter> attributeStats = super.getAttributeStats(attribute);
+    public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
+        Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = super.getAttributeStats(attribute);
+        if (!attributeStatsOptional.isPresent()) {
+            return Optional.absent();
+        }
+        AttributeStats<ClassificationCounter> attributeStats = attributeStatsOptional.get();
         List<ClassificationCounter> attributesWithClassificationCounters = attributeStats.getStatsOnEachValue();
         Collections.sort(attributesWithClassificationCounters, new Comparator<ClassificationCounter>() {
             @Override
@@ -32,6 +37,6 @@ public class BinaryCatBranchReducerReducer<I extends ClassifierInstance> extends
                 return Ordering.natural().reverse().compare(probOfMinority1, probOfMinority2);
             }
         });
-        return attributeStats;
+        return Optional.of(attributeStats);
     }
 }

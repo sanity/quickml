@@ -23,9 +23,9 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 6/20/15.
  */
-public class DTreeNClassCatBranchFinder extends BranchFinder<ClassificationCounter> {
+public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter> {
 
-    public DTreeNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+    public DTNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
         super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 

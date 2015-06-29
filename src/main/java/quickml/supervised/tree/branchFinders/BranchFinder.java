@@ -53,7 +53,11 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>> {
         double bestScore = 0;
         Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
         for (String attribute : getCandidateAttributesWithIgnoringApplied(parent)) {
-            AttributeStats<VC> attributeStats = attributeStatisticsProducer.getAttributeStats(attribute);
+            Optional<AttributeStats<VC>> attributeStatsOptional = attributeStatisticsProducer.getAttributeStats(attribute);
+            if (!attributeStatsOptional.isPresent()) {
+                continue;
+            }
+            AttributeStats<VC> attributeStats = attributeStatsOptional.get();
             Optional<? extends Branch<VC>> thisBranchOptional = getBranch(parent, attributeStats);
             if (thisBranchOptional.isPresent()) {
                 Branch<VC> thisBranch = thisBranchOptional.get();

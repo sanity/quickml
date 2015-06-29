@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree.nodes;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.Leaf;
@@ -43,7 +43,7 @@ public class DTLeaf implements Leaf<ClassificationCounter>, Serializable {
     private final ClassificationCounter classificationCounts;
 
 
-    public DTLeaf(Branch<ClassificationCounter> parent, final Iterable<? extends InstanceWithAttributesMap> instances, final int depth) {
+    public DTLeaf(Branch<ClassificationCounter> parent, final Iterable<? extends ClassifierInstance> instances, final int depth) {
         this(parent, ClassificationCounter.countAll(instances), depth);
         Preconditions.checkArgument(!Iterables.isEmpty(instances), "Can't create leaf with no instances");
     }

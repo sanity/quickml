@@ -1,5 +1,6 @@
 package quickml.supervised.tree.decisionTree.reducers;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
@@ -36,9 +37,18 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     }
 
     @Override
-    public AttributeStats<ClassificationCounter> getAttributeStats(String attribute) {
+    public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
         //get List of Classification counters for each bin.  First get bin locations in the data, then loop though the data and get Classification counters by bin
-        double[] splits = createNumericSplit(super.trainingData, attribute);
+        if (super.trainingData.size() < numNumericBins) {
+            return Optional.absent();
+        }
+        Optional<double[]> splitsOptional = createNumericSplit(super.trainingData, attribute);
+        if (!splitsOptional.isPresent()) {
+            return Optional.absent();
+        }
+
+        double[] splits = splitsOptional.get();
+
         List<ClassificationCounter> classificationCounters = Lists.newArrayListWithCapacity(splits.length + 1);
         ClassificationCounter aggregateStats = new ClassificationCounter();
         for (int i = 0; i < splits.length; i++) {
@@ -65,63 +75,76 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
             }
             aggregateStats.addClassification(instance.getLabel(), instance.getWeight());
         }
-        return new AttributeStats<>(classificationCounters, aggregateStats, attribute);
+        return Optional.of(new AttributeStats<>(classificationCounters, aggregateStats, attribute));
     }
 
 
-    //all numeric and categorical node
-
-
-
-    private double[] getSplit(ReservoirSampler<Double> reservoirSampler) {
+    private Optional<double[]> getSplit(ReservoirSampler<Double> reservoirSampler) {
         final ArrayList<Double> splitList = Lists.newArrayList();
         for (final Double sample : reservoirSampler.getSamples()) {
             splitList.add(sample);
         }
-        if (splitList.isEmpty()) {
-            throw new RuntimeException("Split list empty");
+        if (splitList.isEmpty() || splitList.size()<numNumericBins) {
+            return Optional.absent();
         }
-        Collections.sort(splitList);
-
-        final double[] split = new double[numNumericBins - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
-        for (int x = 0; x < split.length; x++) {
-            split[x] = splitList.get((x + 1) * indexMultiplier);
-        }
-        return split;
+        return getBinDividerPoints(numNumericBins, splitList);
     }
 
-    private double[] getDeterministicSplit(List<I> instances, String attribute) {
-
+    public static <I extends ClassifierInstance> Optional<double[]> getDeterministicSplit(List<I> instances, String attribute, int numNumericBins) {
         final ArrayList<Double> splitList = Lists.newArrayList();
         for (final I sample : instances) {
             splitList.add(((Number) (sample.getAttributes().get(attribute))).doubleValue());
         }
-        if (splitList.isEmpty()) {
-            throw new RuntimeException("Split list empty");
+        if (splitList.isEmpty() || splitList.size()<numNumericBins) {
+            return Optional.absent();
         }
-        Collections.sort(splitList);
-
-        final double[] split = new double[numNumericBins - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
-        for (int x = 0; x < split.length && (x + 1) * indexMultiplier < splitList.size(); x++) {
-            split[x] = splitList.get((x + 1) * indexMultiplier);
-        }
-        return split;
+        return getBinDividerPoints(numNumericBins, splitList);
     }
 
-    private double[] createNumericSplit(final List<I> trainingData, final String attribute) {
-        int numSamples = Math.min(numSamplesPerBin, trainingData.size());
-   /*     if (numSamples == trainingData.size()) {
-            return getDeterministicSplit(trainingData, attribute); //makes code testable, because now can be made deterministic by making numSamplesPerNumericBin < trainingData.getSize.
+    public static Optional<double[]> getBinDividerPoints(int numNumericBins, List<Double> attributeValues) {
+        /**Gets the midPoint of the first value in the upper bin and the last value in the lower bin...with values evenly distributed between bins.
+            when there is a remainder, the bins with lower index will get 1 additional value.
+         */
+        Collections.sort(attributeValues);
+        int numSplitPoints = numNumericBins-1;
+        final double[] split = new double[numSplitPoints];
+        final int indexMultiplier = attributeValues.size() / (numNumericBins);  //note indexMultiplier*numericBins < splitListSize => last bin will have more samples (the remainder) than other bins.
+        final int remainder = attributeValues.size()%numNumericBins;
+        int splitPointIndex = 0;
+        int firstIndexOf2ndBin = indexMultiplier;
+        for (int upperIndex = firstIndexOf2ndBin; upperIndex < attributeValues.size(); upperIndex+=indexMultiplier) {
+            if (splitPointIndex < remainder) {
+                upperIndex++;
+            }
+            split[splitPointIndex] = (attributeValues.get(upperIndex) + attributeValues.get(upperIndex-1))/2.0;
+            splitPointIndex++;
+
         }
-*/
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / numSamplesPerBin);
-        if (trainingData.size() / numSamplesPerBin == 1) {
-            samplesToSkipPerStep = 2;
+        boolean allValuesSame = allValuesSame(split);
+        if (allValuesSame) {
+            return Optional.absent();
         }
-        for (int i = 0; i < trainingData.size(); i += samplesToSkipPerStep) {
+        return Optional.of(split);
+    }
+
+    public static boolean allValuesSame(double[] split) {
+        boolean allValuesSame = true;
+        for (int x = 0; x<split.length-1; x++) {
+            if (split[x] != split[x+1])
+                allValuesSame = false;
+        }
+        return allValuesSame;
+    }
+
+    private Optional<double[]> createNumericSplit(final List<I> trainingData, final String attribute) {
+        int desiredSamples = numSamplesPerBin * numNumericBins;
+        if (trainingData.size() <  desiredSamples) {
+            return getDeterministicSplit(trainingData, attribute, numNumericBins); //makes code testable, because now can be made deterministic by making numSamplesPerNumericBin < trainingData.getSize.
+        }
+
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamplesPerBin, rand);
+        int incrementSize = trainingData.size() / desiredSamples;
+        for (int i = 0; i < trainingData.size(); i += incrementSize) {
             Object value = trainingData.get(i).getAttributes().get(attribute);
             if (value == null) {
                 continue;

@@ -1,5 +1,6 @@
 package quickml.supervised.tree.decisionTree.reducers;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
@@ -18,12 +19,15 @@ import static quickml.supervised.tree.constants.MissingValue.*;
 public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
 
     @Override
-    public AttributeStats<ClassificationCounter> getAttributeStats(String attribute) {
+    public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
         Pair<ClassificationCounter, Map<Object, ClassificationCounter>> aggregateAndAttributeValueClassificationCounters = getAggregateAndAttributeValueClassificationCounters(attribute);
         ClassificationCounter aggregateStats = aggregateAndAttributeValueClassificationCounters.getValue0();
         Map<Object, ClassificationCounter> result = aggregateAndAttributeValueClassificationCounters.getValue1();
         List<ClassificationCounter> attributesWithClassificationCounters = Lists.newArrayList(result.values());
-        return new AttributeStats<ClassificationCounter>(attributesWithClassificationCounters, aggregateStats, attribute);
+        if (attributesWithClassificationCounters.size() <=1) {
+            return Optional.absent();
+        }
+        return  Optional.of(new AttributeStats<>(attributesWithClassificationCounters, aggregateStats, attribute));
     }
 
 
