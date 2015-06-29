@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.nodes.Node;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
@@ -23,6 +22,7 @@ public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttr
     double bestScore = 0;
     int indexOfLastTermStatsInTrueSet = 0;
     double probabilityOfBeingInTrueSet = 0;
+    boolean trueSetExists = false;
 
     List<VC> attributeValueStatsList = attributeStats.getStatsOnEachValue();
     VC falseSet = attributeStats.getAggregateStats();
@@ -49,9 +49,10 @@ public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttr
             bestScore = thisScore;
             indexOfLastTermStatsInTrueSet = i;
             probabilityOfBeingInTrueSet = trueSet.getTotal() / (trueSet.getTotal() + falseSet.getTotal());
+            trueSetExists = true;
         }
     }
-    if (indexOfLastTermStatsInTrueSet == 0) {
+    if (!trueSetExists) {
         return Optional.absent();
     }
     Set<Object> trueSetVals = createTrueSetVals(indexOfLastTermStatsInTrueSet, attributeValueStatsList);
@@ -59,10 +60,10 @@ public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttr
     return Optional.of(new SplitScore(bestScore, indexOfLastTermStatsInTrueSet, probabilityOfBeingInTrueSet, trueSetVals));
 }
 
-    private static <TS extends ValueCounter<TS>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<TS> termStats) {
+    private static <VC extends ValueCounter<VC>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<VC> valueCounters) {
         Set<Object> trueSetVals = Sets.newHashSet();
         for(int j =0; j<=indexOfLastTermStatsInTrueSet; j++) {
-            trueSetVals.add(termStats.get(j).getAttrVal());
+            trueSetVals.add(valueCounters.get(j).getAttrVal());
         }
         return trueSetVals;
     }

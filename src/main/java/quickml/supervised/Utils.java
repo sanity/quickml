@@ -99,17 +99,17 @@ public class Utils {
         return new TrueFalsePair(trueTrainingSet, falseTrainingSet);
     }
 
-    private static <T extends InstanceWithAttributesMap<?>> int repartitionTrainingData(List<T> trainingData, Branch bestNode, int firstIndexOfFalseSet, int trialFirstIndexOfFalseSet) {
+    public static <T extends InstanceWithAttributesMap<?>> int repartitionTrainingData(List<T> trainingData, Branch bestNode, int firstIndexOfFalseSet, int trialFirstIndexOfFalseSet) {
         for (int i = 0; i < trainingData.size() && firstIndexOfFalseSet > i; i++) {
             T instance = trainingData.get(i);
             if (bestNode.decide(instance.getAttributes())) {
                 continue; //the above condition ensures the instance at position i is in the trueSet
             } else {
-                //now swap with whatever instance sits just before the the firstIndexOfTheFalseSet.  If the new instance at i is in the trueSet,
+                //Since we now know the instance is not in true set, we swap with whatever instance sits just before the the firstIndexOfTheFalseSet.  If the new instance at i is in the trueSet,
                 //we return to the loop over i.  If not, we decrement firstnIndexOfTheFalseSet, and try swapping again.  We repeat until we either get
                 // a trueInstance at position i or we find that the firstIndexOfFalseSet is actually i.
                 while (!bestNode.decide(trainingData.get(i).getAttributes()) && (trialFirstIndexOfFalseSet >= i)) {
-                    if (i == trialFirstIndexOfFalseSet) {
+                    if (i == trialFirstIndexOfFalseSet) { //edge case
                         firstIndexOfFalseSet = trialFirstIndexOfFalseSet; //we have verified the instance is in the false set by virtue of being in the else block
                         break;
                     }

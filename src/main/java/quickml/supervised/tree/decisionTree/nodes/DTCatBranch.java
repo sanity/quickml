@@ -12,23 +12,23 @@ import java.util.Set;
  */
 public class DTCatBranch extends Branch<ClassificationCounter>  {
     private static final long serialVersionUID = -1723969623146234761L;
-    public final Set<Object> inSet;
+    public final Set<Object> trueSet;
 
-    public DTCatBranch(Branch<ClassificationCounter> parent, final String attribute, final Set<Object> inSet, double probabilityOfTrueChild, double score, ClassificationCounter aggregateStats ) {
+    public DTCatBranch(Branch<ClassificationCounter> parent, final String attribute, final Set<Object> trueSet, double probabilityOfTrueChild, double score, ClassificationCounter aggregateStats ) {
         super(parent, attribute, probabilityOfTrueChild, score, aggregateStats);
-        this.inSet = Sets.newHashSet(inSet);
+        this.trueSet = Sets.newHashSet(trueSet);
     }
 
     @Override
     public boolean decide(final Map<String, Object> attributes) {
         Object attributeVal = attributes.get(attribute);
         //missing values always go the way of the outset...which strangely seems to be most accurate
-        return inSet.contains(attributeVal);
+        return trueSet.contains(attributeVal);
     }
 
     @Override
     public String toString() {
-        return attribute + " in " + inSet;
+        return attribute + " in " + trueSet;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class DTCatBranch extends Branch<ClassificationCounter>  {
 
         final DTCatBranch that = (DTCatBranch) o;
 
-        if (!inSet.equals(that.inSet)) return false;
+        if (!trueSet.equals(that.trueSet)) return false;
 
         return true;
     }
@@ -47,7 +47,7 @@ public class DTCatBranch extends Branch<ClassificationCounter>  {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + inSet.hashCode();
+        result = 31 * result + trueSet.hashCode();
         return result;
     }
 }

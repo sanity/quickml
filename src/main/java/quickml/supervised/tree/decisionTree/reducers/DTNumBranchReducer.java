@@ -47,12 +47,15 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
             return Optional.absent();
         }
 
-        double[] splits = splitsOptional.get();
+        double[] splitPoints = splitsOptional.get();
+        return getAttributeStatsOptional(attribute, splitPoints, trainingData);
+    }
 
-        List<ClassificationCounter> classificationCounters = Lists.newArrayListWithCapacity(splits.length + 1);
+    public static <I extends ClassifierInstance> Optional<AttributeStats<ClassificationCounter>> getAttributeStatsOptional(String attribute, double[] splitPoints, List<I> trainingData) {
+        List<ClassificationCounter> classificationCounters = Lists.newArrayListWithCapacity(splitPoints.length + 1);
         ClassificationCounter aggregateStats = new ClassificationCounter();
-        for (int i = 0; i < splits.length; i++) {
-            classificationCounters.add(new ClassificationCounter(splits[i]));
+        for (int i = 0; i < splitPoints.length; i++) {
+            classificationCounters.add(new ClassificationCounter(splitPoints[i]));
         }
         classificationCounters.add(new ClassificationCounter()); //no val is needed for the last cc since no split point can be greater than the values in it.
 
@@ -61,21 +64,26 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
             double attributeVal = ((Number) (instance.getAttributes().get(attribute))).doubleValue();
             double threshold = 0, previousThreshold = 0;
 
-            for (int i = 0; i < splits.length; i++) {
+            for (int i = 0; i < splitPoints.length; i++) {
                 previousThreshold = threshold;
-                threshold = splits[i];
-                if (previousThreshold == threshold && i != 0) {
+                threshold = splitPoints[i];
+                if (spitPointIsADuplicateOfLast(threshold, previousThreshold, i)) {
                     continue;
                 } else if (attributeVal < threshold) {
-                    classificationCounters.get(i).addClassification(attributeVal, instance.getWeight());
+                    classificationCounters.get(i).addClassification(instance.getLabel(), instance.getWeight());
+                    break;
                 }
             }
-            if (threshold > splits[splits.length - 1]) {
-                classificationCounters.get(splits.length).addClassification(instance.getLabel(), instance.getWeight());
+            if (attributeVal > splitPoints[splitPoints.length - 1]) {
+                classificationCounters.get(splitPoints.length).addClassification(instance.getLabel(), instance.getWeight());
             }
             aggregateStats.addClassification(instance.getLabel(), instance.getWeight());
         }
         return Optional.of(new AttributeStats<>(classificationCounters, aggregateStats, attribute));
+    }
+
+    private static boolean spitPointIsADuplicateOfLast(double threshold, double previousThreshold, int i) {
+        return previousThreshold == threshold && i != 0;
     }
 
 
@@ -142,7 +150,16 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
             return getDeterministicSplit(trainingData, attribute, numNumericBins); //makes code testable, because now can be made deterministic by making numSamplesPerNumericBin < trainingData.getSize.
         }
 
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamplesPerBin, rand);
+        final ReservoirSampler<Double> reservoirSampler = fillReservoirSampler(trainingData, attribute, desiredSamples);
+
+        return getSplit(reservoirSampler);
+    }
+
+    public static <I extends ClassifierInstance> ReservoirSampler<Double> fillReservoirSampler(List<I> trainingData, String attribute, int desiredSamples) {
+        Random rand = Random.Util.fromSystemRandom(MapUtils.random);
+
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(desiredSamples, rand);
+
         int incrementSize = trainingData.size() / desiredSamples;
         for (int i = 0; i < trainingData.size(); i += incrementSize) {
             Object value = trainingData.get(i).getAttributes().get(attribute);
@@ -151,65 +168,6 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
             }
             reservoirSampler.sample(((Number) value).doubleValue());
         }
-
-        return getSplit(reservoirSampler);
+        return reservoirSampler;
     }
-  /*  private double[] createNumericSplit(final List<T> trainingData, final String attribute) {
-        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(numSamples, rand);
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
-        for (int i=0; i<trainingData.size(); i+=samplesToSkipPerStep) {
-            Serializable value = trainingData.get(i).getAttributes().get(attribute);
-            if (value == null) {
-                continue;
-            }
-            reservoirSampler.sample(((Number) value).doubleValue());
-        }
-
-        return getSplit(reservoirSampler);
-    }
-    private Map<String, double[]> createNumericSplits(final List<T> trainingData) {
-        final Map<String, ReservoirSampler<Double>> rsm = Maps.newHashMap();
-        int numSamples = Math.min(RESERVOIR_SIZE, trainingData.size());
-        int samplesToSkipPerStep = Math.max(1, trainingData.size() / RESERVOIR_SIZE);
-
-        for (int i=0; i<numSamples; i+=samplesToSkipPerStep) {
-            for (final Entry<String, Serializable> attributeEntry : trainingData.get(i).getAttributes().entrySet()) {
-                if (attributeEntry.getValue() instanceof Number) {
-                    ReservoirSampler<Double> reservoirSampler = rsm.get(attributeEntry.getKey());
-                    if (reservoirSampler == null) {
-                        reservoirSampler = new ReservoirSampler<>(numSamples, rand);
-                        rsm.put(attributeEntry.getKey(), reservoirSampler);
-                    }
-                    reservoirSampler.sample(((Number) attributeEntry.getValue()).doubleValue());
-                }
-            }
-        }
-
-        final Map<String, double[]> splits = Maps.newHashMap();
-
-        for (final Entry<String, ReservoirSampler<Double>> e : rsm.entrySet()) {
-            final double[] split = getSplit(e.getValue());
-            splits.put(e.getKey(), split);
-        }
-        return splits;
-    }
-
-    private double[] getSplit(ReservoirSampler<Double> reservoirSampler) {
-        final ArrayList<Double> splitList = Lists.newArrayList();
-        for (final Double sample : reservoirSampler.getSamples()) {
-            splitList.add(sample);
-        }
-        if (splitList.isEmpty()) {
-            throw new RuntimeException("Split list empty");
-        }
-        Collections.sort(splitList);
-
-        final double[] split = new double[ordinalTestSpilts - 1];
-        final int indexMultiplier = splitList.size() / (split.length + 1);//num elements / num bins
-        for (int x = 0; x < split.length; x++) {
-            split[x] = splitList.get((x + 1) * indexMultiplier);
-        }
-        return split;
-*/
 }
