@@ -9,7 +9,7 @@ import quickml.supervised.tree.nodes.LeafBuilder;
  */
 public class DTLeafBuilder implements LeafBuilder<ClassificationCounter> {
     public DTLeaf buildLeaf(Branch<ClassificationCounter> parent, ClassificationCounter valueCounter){
-        return new DTLeaf(parent, valueCounter, parent.isEmpty() ? 0 : parent.getDepth());
+        return new DTLeaf(parent, valueCounter, parent==null || parent.isEmpty() ? 0 : parent.getDepth());
     }
 
     @Override

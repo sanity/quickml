@@ -33,7 +33,7 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
             return Optional.absent();
         }
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy);
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy, true);
         if (!splitScoreOptional.isPresent()) {
             return Optional.absent();
         }

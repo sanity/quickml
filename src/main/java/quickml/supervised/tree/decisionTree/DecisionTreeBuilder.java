@@ -36,13 +36,15 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     public static final double DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY = 1.0;
     public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
     public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.01;
+    public static final int DEFAULT_MIN_LEAF_INSTANCES = 10;
+
     public static final int DEFAULT_MIN_ATTRIBUTE_OCCURENCES = 8;
     public static final LeafBuilder<ClassificationCounter> DEFAULT_LEAF_BUILDER = new DTLeafBuilder();
 
     private final DTreeContextBuilder<I> tcb;
 
     private DecisionTreeBuilder(DTreeContextBuilder<I> tcb) {
-        this.tcb = tcb;
+        this.tcb = tcb.copy();
     }
 
     public DecisionTreeBuilder(){
@@ -66,8 +68,8 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     }
 
     @Override
-    public DecisionTreeBuilder<I> copy() {
-        return new DecisionTreeBuilder<>(tcb.copy());
+    public synchronized DecisionTreeBuilder<I> copy() {
+        return new DecisionTreeBuilder<>(tcb);
     }
 
     //check that haven't missed any settings.
@@ -87,6 +89,11 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
 
     public DecisionTreeBuilder<I> minSplitFraction(double minSplitFraction) {
         tcb.minSplitFraction(minSplitFraction);
+        return this;
+    }
+
+    public DecisionTreeBuilder<I> minLeafInstances(int minLeafInstances) {
+        tcb.minLeafInstances(minLeafInstances);
         return this;
     }
 

@@ -4,7 +4,6 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Node;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
@@ -56,11 +55,12 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
-        if (cfg.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name()))
-            minAttributeOccurences = (Integer)cfg.get(MIN_ATTRIBUTE_OCCURRENCES.name());
+        if (cfg.containsKey(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name()))
+            minAttributeOccurences = (Integer)cfg.get(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name());
     }
 
-    public BranchFinderBuilder<VC> copy() {
+
+    public  BranchFinderBuilder<VC> copy() {
         BranchFinderBuilder<VC> copy = createBranchFinderBuilder();
         copy.branchType = branchType;
         if (branchingConditions!=null) {

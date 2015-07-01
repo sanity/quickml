@@ -43,7 +43,7 @@ public class SplittingUtilsTest {
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
-                attributeValueIgnoringStrategy);
+                attributeValueIgnoringStrategy, true);
         Assert.assertTrue(splitScoreOptional.isPresent());
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 1);
@@ -52,7 +52,7 @@ public class SplittingUtilsTest {
         //change scorer
         splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new InformationGainScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
-                attributeValueIgnoringStrategy);
+                attributeValueIgnoringStrategy, true);
         Assert.assertTrue(splitScoreOptional.isPresent());
         splitScore = splitScoreOptional.get();
         Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 1);
@@ -72,7 +72,7 @@ public class SplittingUtilsTest {
 
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.3).minLeafInstances(0).minScore(0),
-                attributeValueIgnoringStrategy);
+                attributeValueIgnoringStrategy, true);
         Assert.assertTrue(splitScoreOptional.isPresent());
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         int subOptimalNumberOfEntriesGivenMinSplitFraction = 2;
@@ -100,7 +100,7 @@ public class SplittingUtilsTest {
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
-                attributeValueIgnoringStrategy);
+                attributeValueIgnoringStrategy, false);
         Assert.assertTrue(splitScoreOptional.isPresent());
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 0);

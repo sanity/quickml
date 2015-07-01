@@ -27,6 +27,7 @@ import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import static quickml.supervised.tree.decisionTree.DecisionTreeBuilder.*;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -46,7 +47,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         boolean considerBooleanAttributes = hasBranchFinderBuilder(BranchType.BOOLEAN);
         DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
         Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
-        ClassificationCounter classificationCounts= getValueCounterProducer().getValueCounter(trainingData);
+        ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
         List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
         updateAll(branchFinderAndReducers);
         return new DTreeContext<I>(classificationCounts.allClassifications(), branchingConditions, scorer, branchFinderAndReducers, leafBuilder, getValueCounterProducer());
@@ -58,18 +59,25 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     }
 
     @Override
-    public DTreeContextBuilder<I> copy() {
+    public synchronized DTreeContextBuilder<I> copy() {
+        //no quick solution.  Need to make a new map: config, which copies all the elements...which one by one copies / transfers the values to the new map.  like setDefaults.
         DTreeContextBuilder<I> copy = createTreeBuildContext();
+        List<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = copyBranchFinderBuilders();
+        copy.branchFinderBuilders = copiedBranchFinderBuilders;
+        copy.branchingConditions = branchingConditions.copy();
+        copy.scorer = scorer.copy();
+        copy.leafBuilder = leafBuilder.copy();
+        copy.config = copyConfig();
+        //do not copy the context because it has state.
+        return copy;
+    }
+
+    private List<BranchFinderBuilder<ClassificationCounter>> copyBranchFinderBuilders() {
         List<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = Lists.newArrayList();
         for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : this.branchFinderBuilders) {
             copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
         }
-        copy.branchFinderBuilders = copiedBranchFinderBuilders;
-        copy.branchingConditions = branchingConditions.copy();
-        copy.scorer = scorer.copy();
-        copy.leafBuilder = leafBuilder;
-        //do not copy the context because it has state.
-        return copy;
+        return copiedBranchFinderBuilders;
     }
 
     private void updateAll(List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers) {
@@ -79,7 +87,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         updateBuilderConfig(config);
     }
 
-    private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts,  Map<AttributeType, Set<String>> candidateAttributesByType) {
+    private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts, Map<AttributeType, Set<String>> candidateAttributesByType) {
         /**Branch finders should be paired with the correct reducers. With this method, we don't leave open the possibility for a user to make a mistake with the pairings.
          * */
         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
@@ -108,7 +116,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return true;
     }
 
-    public static <I extends ClassifierInstance>  Map<BranchType, DTreeReducer<I>> getDefaultReducers(Object minorityClassification) {
+    public static <I extends ClassifierInstance> Map<BranchType, DTreeReducer<I>> getDefaultReducers(Object minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
         reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducer<I>(minorityClassification));
         reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
@@ -129,41 +137,93 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (!config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             branchFinderBuilders(DTreeContextBuilder.getDefaultBranchFinderBuilders());
         }
-        if (!config.containsKey(MAX_DEPTH.name())){
+        if (!config.containsKey(MAX_DEPTH.name())) {
             maxDepth(DEFAULT_MAX_DEPTH);
         }
-        if (!config.containsKey(MIN_SLPIT_FRACTION.name())){
+        if (!config.containsKey(MIN_SLPIT_FRACTION.name())) {
             minSplitFraction(DEFAULT_MIN_SPLIT_FRACTION);
         }
-        if (!config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())){
+        if (!config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())) {
             attributeIgnoringStrategy(DEFAULT_ATTRIBUTE_IGNORING_STRATEGY);
         }
-        if (!config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())){
+        if (!config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
             numSamplesPerNumericBin(DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN);
         }
-        if (!config.containsKey(NUM_NUMERIC_BINS.name())){
+        if (!config.containsKey(NUM_NUMERIC_BINS.name())) {
             numNumericBins(DEFAULT_NUM_NUMERIC_BINS);
         }
-        if (!config.containsKey(BRANCHING_CONDITIONS.name())){
+        if (!config.containsKey(BRANCHING_CONDITIONS.name())) {
             branchingConditions(DEFAULT_BRANCHING_CONDITIONS);
         }
         if (!config.containsKey(SCORER.name())) {
             scorer(DEFAULT_SCORER);
         }
-        if (!config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())){
+        if (!config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())) {
             degreeOfGainRatioPenalty(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY);
         }
-        if (!config.containsKey(IMBALANCE_PENALTY_POWER.name())){
+        if (!config.containsKey(IMBALANCE_PENALTY_POWER.name())) {
             imbalancePenaltyPower(DEFAULT_IMBALANCE_PENALTY_POWER);
         }
-        if (!config.containsKey(MIN_ATTRIBUTE_OCCURRENCES.name())){
+        if (!config.containsKey(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name())) {
             minAttributeOccurences(DEFAULT_MIN_ATTRIBUTE_OCCURENCES);
         }
-        if (!config.containsKey(LEAF_BUILDER.name())){
+        if (!config.containsKey(LEAF_BUILDER.name())) {
             leafBuilder(DEFAULT_LEAF_BUILDER);
+        }
+
+        if (!config.containsKey(MIN_LEAF_INSTANCES.name())) {
+            minLeafInstances(DEFAULT_MIN_LEAF_INSTANCES);
         }
         updateBuilderConfig(this.config);
     }
+
+    public Map<String, Object> copyConfig() {
+        Map<String, Object> copiedConfig = Maps.newHashMap();
+        if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
+            copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders());
+        }
+
+        //finish off here
+        if (config.containsKey(MAX_DEPTH.name())) {
+            copiedConfig.put(MAX_DEPTH.name(), config.get(MAX_DEPTH.name()));
+        }
+        if (config.containsKey(MIN_SLPIT_FRACTION.name())) {
+            copiedConfig.put(MIN_SLPIT_FRACTION.name(), config.get(MIN_SLPIT_FRACTION.name()));
+        }
+        if (config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())) {
+            copiedConfig.put(ATTRIBUTE_IGNORING_STRATEGY.name(), config.get(ATTRIBUTE_IGNORING_STRATEGY.name()));
+        }
+        if (config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
+            copiedConfig.put(NUM_SAMPLES_PER_NUMERIC_BIN.name(), config.get(NUM_SAMPLES_PER_NUMERIC_BIN.name()));
+        }
+        if (config.containsKey(NUM_NUMERIC_BINS.name())) {
+            copiedConfig.put(NUM_NUMERIC_BINS.name(), config.get(NUM_NUMERIC_BINS.name()));
+        }
+        if (config.containsKey(BRANCHING_CONDITIONS.name())) {
+            copiedConfig.put(BRANCHING_CONDITIONS.name(), config.get(BRANCHING_CONDITIONS.name()));
+        }
+        if (config.containsKey(SCORER.name())) {
+            copiedConfig.put(SCORER.name(), config.get(SCORER.name()));
+        }
+        if (config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())) {
+            copiedConfig.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), config.get(DEGREE_OF_GAIN_RATIO_PENALTY.name()));
+        }
+        if (config.containsKey(IMBALANCE_PENALTY_POWER.name())) {
+            copiedConfig.put(IMBALANCE_PENALTY_POWER.name(), config.get(IMBALANCE_PENALTY_POWER.name()));
+        }
+        if (config.containsKey(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name())) {
+            copiedConfig.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), config.get(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name()));
+        }
+        if (config.containsKey(LEAF_BUILDER.name())) {
+            copiedConfig.put(LEAF_BUILDER.name(), config.get(LEAF_BUILDER.name()));
+        }
+
+        if (config.containsKey(MIN_LEAF_INSTANCES.name())) {
+            copiedConfig.put(MIN_LEAF_INSTANCES.name(), config.get(MIN_LEAF_INSTANCES.name()));
+        }
+        return copiedConfig;
+    }
+
     //check that haven't missed any settings.
     public void maxDepth(int maxDepth) {
         config.put(MAX_DEPTH.name(), maxDepth);
@@ -179,6 +239,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     public void minSplitFraction(double minSplitFraction) {
         config.put(MIN_SLPIT_FRACTION.name(), minSplitFraction);
+    }
+
+    public void minLeafInstances(int minLeafInstances) {
+        config.put(MIN_LEAF_INSTANCES.name(), minLeafInstances);
     }
 
     public void exemptAttributes(Set<String> exemptAttributes) {
@@ -221,8 +285,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(BRANCH_FINDER_BUILDERS.name(), branchFinderBuilders);
     }
 
-    public void minAttributeOccurences( int minAttributeOccurences) {
-        config.put(MIN_ATTRIBUTE_OCCURRENCES.name(), minAttributeOccurences);
+    public void minAttributeOccurences(int minAttributeOccurences) {
+        config.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), minAttributeOccurences);
     }
 
 

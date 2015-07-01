@@ -108,8 +108,8 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements
     }
 
     @Override
-    public StandardBranchingConditions copy(){
-        return new StandardBranchingConditions(this.minScore, this.maxDepth, this.minLeafInstances, this.minSplitFraction);
+    public synchronized StandardBranchingConditions copy(){
+        return new StandardBranchingConditions(this.minScore, this.maxDepth, this.minLeafInstances, this.minSplitFraction, Sets.newHashSet(this.exemptAttributes));
     }
 
 

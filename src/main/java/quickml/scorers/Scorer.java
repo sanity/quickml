@@ -66,7 +66,7 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
             imbalancePenaltyPower = (Double) cfg.get(IMBALANCE_PENALTY_POWER.name());
     }
 
-    public Scorer<VC> copy() {
+    public synchronized Scorer<VC> copy() {
         Scorer<VC> copy = createScorer();
         copy.imbalancePenaltyPower = this.imbalancePenaltyPower;
         copy.degreeOfGainRatioPenalty = this.degreeOfGainRatioPenalty;
