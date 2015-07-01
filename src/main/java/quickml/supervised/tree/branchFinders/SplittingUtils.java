@@ -88,13 +88,13 @@ public class SplittingUtils {
 
     public static class SplitScore {
         public double score;
-        public int indexOfLastTermStatsInTrueSet;
+        public int indexOfLastValueCounterInTrueSet;
         public double probabilityOfBeingInTrueSet;
         public Set<Object> trueSet;
 
-        public SplitScore(double score, int indexOfLastTermStatsInTrueSet, double probabilityOfBeingInTrueSet, Set<Object> trueSet) {
+        public SplitScore(double score, int indexOfLastValueCounterInTrueSet, double probabilityOfBeingInTrueSet, Set<Object> trueSet) {
             this.score = score;
-            this.indexOfLastTermStatsInTrueSet = indexOfLastTermStatsInTrueSet;
+            this.indexOfLastValueCounterInTrueSet = indexOfLastValueCounterInTrueSet;
             this.probabilityOfBeingInTrueSet = probabilityOfBeingInTrueSet;
             this.trueSet = trueSet;
         }

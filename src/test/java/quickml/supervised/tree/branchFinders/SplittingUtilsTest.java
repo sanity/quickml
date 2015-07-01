@@ -15,15 +15,12 @@ import quickml.supervised.tree.decisionTree.reducers.BinaryCatBranchReducer;
 import quickml.supervised.tree.decisionTree.reducers.DTNumBranchReducer;
 import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
-import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by alexanderhawk on 6/25/15.
@@ -34,28 +31,30 @@ public class SplittingUtilsTest {
     @Test
     public void findBestCategoricalSplit() throws Exception {
         List<ClassifierInstance> td = getInstances();
-
         BinaryCatBranchReducer<ClassifierInstance> reducer = new BinaryCatBranchReducer<>(0.0);
         reducer.setTrainingData(td);
         Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attributeStatsOptional.get();
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
+
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
-        Assert.assertTrue(splitScoreOptional.isPresent());
-        SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
-        Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 1);
-        Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.5, 1E-5);
+        catBranchAssertions(splitScoreOptional);
 
         //change scorer
         splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new InformationGainScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
+        catBranchAssertions(splitScoreOptional);
+    }
+
+    private void catBranchAssertions(Optional<SplittingUtils.SplitScore> splitScoreOptional) {
+        SplittingUtils.SplitScore splitScore;
         Assert.assertTrue(splitScoreOptional.isPresent());
         splitScore = splitScoreOptional.get();
-        Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 1);
+        Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 1);
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.5, 1E-5);
     }
 
@@ -76,7 +75,7 @@ public class SplittingUtilsTest {
         Assert.assertTrue(splitScoreOptional.isPresent());
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
         int subOptimalNumberOfEntriesGivenMinSplitFraction = 2;
-        Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, subOptimalNumberOfEntriesGivenMinSplitFraction);
+        Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, subOptimalNumberOfEntriesGivenMinSplitFraction);
         Set<Double> expectedTrueSet = Sets.newHashSet();
         Assert.assertTrue(splitScore.trueSet.contains(1.0) && splitScore.trueSet.contains(2.0));
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, 3.0 / 8, splitScore.probabilityOfBeingInTrueSet, 1E-5);
@@ -103,7 +102,7 @@ public class SplittingUtilsTest {
                 attributeValueIgnoringStrategy, false);
         Assert.assertTrue(splitScoreOptional.isPresent());
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
-        Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 0);
+        Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 0);
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.25, 1E-5);
 
         //change scorer
@@ -113,7 +112,7 @@ public class SplittingUtilsTest {
                 attributeValueIgnoringStrategy);
         Assert.assertTrue(splitScoreOptional.isPresent());
         splitScore = splitScoreOptional.get();
-        Assert.assertEquals("last index: " + splitScore.indexOfLastTermStatsInTrueSet, splitScore.indexOfLastTermStatsInTrueSet, 1);
+        Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 1);
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.5, 1E-5);
  */
     }

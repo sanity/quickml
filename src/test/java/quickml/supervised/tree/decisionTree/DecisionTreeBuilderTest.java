@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class DecisionTreeBuilderTest {
     @Test
-    public void firstTest() {
+    public void singleTreeTest() {
         int maxDepth = 8;
         double minSplitFraction = 0.1;
         int minLeafInstances = 20;
@@ -33,6 +33,7 @@ public class DecisionTreeBuilderTest {
                 .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
 
         List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
+
         DecisionTree decisionTree = decisionTreeBuilder.buildPredictiveModel(instances);
 
         Conditions<ClassificationCounter> conditions = new Conditions<>(maxDepth, minAttributeOccurences, minSplitFraction, minLeafInstances);
@@ -40,13 +41,62 @@ public class DecisionTreeBuilderTest {
 
         RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
         RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
-        Assert.assertTrue("hello", true);
 
         for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
             recurseTree(forestTree.root, conditions);
+         }
+    }
 
+    @Test
+    public void mockTreeTest() {
+        int maxDepth = 8;
+        double minSplitFraction = 0.1;
+        int minLeafInstances = 20;
+        int minAttributeOccurences = 11;
+
+        DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
+                .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
+
+        List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
+
+        DecisionTree decisionTree = decisionTreeBuilder.buildPredictiveModel(instances);
+
+        Conditions<ClassificationCounter> conditions = new Conditions<>(maxDepth, minAttributeOccurences, minSplitFraction, minLeafInstances);
+        recurseTree(decisionTree.root, conditions);
+
+        RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
+        RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
+
+        for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
+            recurseTree(forestTree.root, conditions);
         }
     }
+
+    @Test
+    public void randomForestTest(){
+        int maxDepth = 8;
+        double minSplitFraction = 0.1;
+        int minLeafInstances = 20;
+        int minAttributeOccurences = 11;
+
+        DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
+                .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
+
+        List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
+
+        RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
+        RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
+        Conditions<ClassificationCounter> conditions = new Conditions<>(maxDepth, minAttributeOccurences, minSplitFraction, minLeafInstances);
+
+
+        for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
+            recurseTree(forestTree.root, conditions);
+        }
+
+    }
+
 
     private static void recurseTree(Node<ClassificationCounter> node, Conditions<ClassificationCounter> conditions) {
         conditions.satisfiesConditions(node);

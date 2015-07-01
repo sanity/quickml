@@ -3,8 +3,6 @@ package quickml.supervised.tree.branchFinders;
 import com.google.common.base.Optional;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Node;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.reducers.AttributeStats;
@@ -32,7 +30,7 @@ public abstract class NumericBranchFinder<VC extends ValueCounter<VC>> extends B
            return Optional.absent();
         }
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
-        double bestThreshold = (Double)attributeStats.getStatsOnEachValue().get(splitScore.indexOfLastTermStatsInTrueSet).getAttrVal();
+        double bestThreshold = (Double)attributeStats.getStatsOnEachValue().get(splitScore.indexOfLastValueCounterInTrueSet).getAttrVal();
         return createBranch(parent, attributeStats, splitScore, bestThreshold);
     }
     protected abstract Optional<? extends Branch<VC>> createBranch(Branch<VC> parent, AttributeStats<VC> attributeStats, SplittingUtils.SplitScore splitScore, double bestThreshold);

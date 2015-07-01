@@ -60,10 +60,10 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         return bestBranch;//cast 100% guaranteed, as Branch<VC,N> extends N.
     }
 
-    private Optional<? extends Branch<VC>> findBestBranch(Branch parent, List<I> instances, TreeContext<I, VC> itbc ) {
+    private Optional<? extends Branch<VC>> findBestBranch(Branch parent, List<I> instances, TreeContext<I, VC> tc ) {
         double bestScore = 0;
         Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
-        List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers = itbc.getBranchFindersAndReducers();
+        List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers = tc.getBranchFindersAndReducers();
         for (BranchFinderAndReducer<I, VC> branchFinderAndReducer : branchFindersAndReducers) {
             //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
             Reducer<I, VC> reducer = branchFinderAndReducer.getReducer();
@@ -72,7 +72,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
             Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
             if (thisBranchOptional.isPresent()) {
                 Branch<VC> thisBranch = thisBranchOptional.get();
-                if (isBestSplitSoFar(itbc, bestScore, thisBranch)) {  //minScore evaluation delegated to branchFinder
+                if (isBestSplitSoFar(tc, bestScore, thisBranch)) {  //minScore evaluation delegated to branchFinder
                     bestBranchOptional = thisBranchOptional;
                     bestScore = thisBranch.score;
                 }

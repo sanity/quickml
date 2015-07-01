@@ -23,6 +23,8 @@ import static  quickml.supervised.tree.constants.ForestOptions.*;
 
 public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends RandomForestBuilder<PredictionMap, RandomDecisionForest, I> {
 
+
+    //TODO: copy treeBuilder before submitting
     private static final Logger logger = LoggerFactory.getLogger(RandomDecisionForestBuilder.class);
     private final DecisionTreeBuilder<I> treeBuilder;
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();

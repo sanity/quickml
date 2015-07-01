@@ -60,25 +60,28 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     @Override
     public synchronized DTreeContextBuilder<I> copy() {
-        //no quick solution.  Need to make a new map: config, which copies all the elements...which one by one copies / transfers the values to the new map.  like setDefaults.
+        //TODO: should only copy the config, and make sure the others get updated.  This is redundant.
         DTreeContextBuilder<I> copy = createTreeBuildContext();
-        List<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = copyBranchFinderBuilders();
-        copy.branchFinderBuilders = copiedBranchFinderBuilders;
-        copy.branchingConditions = branchingConditions.copy();
-        copy.scorer = scorer.copy();
-        copy.leafBuilder = leafBuilder.copy();
-        copy.config = copyConfig();
-        //do not copy the context because it has state.
+        copy.updateBuilderConfig(this.config);
         return copy;
     }
 
-    private List<BranchFinderBuilder<ClassificationCounter>> copyBranchFinderBuilders() {
+    private List<BranchFinderBuilder<ClassificationCounter>> copyBranchFinderBuilders(Map<String, Object> config) {
         List<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = Lists.newArrayList();
-        for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : this.branchFinderBuilders) {
-            copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
+        if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
+            List<BranchFinderBuilder<ClassificationCounter>> bfbs = (List<BranchFinderBuilder<ClassificationCounter>>) config.get(BRANCH_FINDER_BUILDERS.name());
+            if (bfbs != null && !bfbs.isEmpty()) {
+                for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : bfbs) {
+                    copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
+                }
+                return copiedBranchFinderBuilders;
+            } else {
+                return getDefaultBranchFinderBuilders();
+            }
         }
-        return copiedBranchFinderBuilders;
+        return getDefaultBranchFinderBuilders();
     }
+
 
     private void updateAll(List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers) {
         for (DTreeBranchFinderAndReducer<I> branchFinderAndReducer : branchFinderAndReducers) {
@@ -125,8 +128,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return reducers;
     }
 
-    public static <I extends ClassifierInstance> List<DTBranchFinderBuilder> getDefaultBranchFinderBuilders() {
-        List<DTBranchFinderBuilder> branchFinderBuilders = Lists.newArrayList();
+    public static <I extends ClassifierInstance> List<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {
+        List<BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders = Lists.newArrayList();
         branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTNumBranchFinderBuilder());
@@ -177,13 +180,12 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         updateBuilderConfig(this.config);
     }
 
-    public Map<String, Object> copyConfig() {
+    @Override
+    public Map<String, Object> copyConfig(Map<String, Object> config) {
         Map<String, Object> copiedConfig = Maps.newHashMap();
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
-            copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders());
+            copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders(config));
         }
-
-        //finish off here
         if (config.containsKey(MAX_DEPTH.name())) {
             copiedConfig.put(MAX_DEPTH.name(), config.get(MAX_DEPTH.name()));
         }

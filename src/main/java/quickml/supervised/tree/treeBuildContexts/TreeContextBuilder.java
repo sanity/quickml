@@ -81,19 +81,26 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
 
     public void updateBuilderConfig(final Map<String, Object> cfg) {
         if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))
-            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>)cfg.get(BRANCH_FINDER_BUILDERS.name());
+            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>) cfg.get(BRANCH_FINDER_BUILDERS.name());
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
             scorer = (Scorer<VC>) cfg.get(SCORER.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
-        scorer.update(cfg);
-        branchingConditions.update(cfg);
-        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
-            branchFinderBuilder.update(cfg);
+        if (scorer != null) {
+            scorer.update(cfg);
         }
-        this.config = cfg;
+        if (branchingConditions != null) {
+            branchingConditions.update(cfg);
+        }
+        if (branchFinderBuilders != null && !branchFinderBuilders.isEmpty())
+            for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+                branchFinderBuilder.update(cfg);
+            }
+        this.config = copyConfig(cfg);
     }
-}
 
+    public abstract Map<String, Object> copyConfig(Map<String, Object> config);
+
+}
