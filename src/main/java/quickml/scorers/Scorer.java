@@ -1,6 +1,8 @@
 package quickml.scorers;
 
 
+import quickml.supervised.classifier.decisionTree.tree.AttributeValueWithClassificationCounter;
+import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
@@ -43,6 +45,7 @@ public abstract class Scorer<VC extends ValueCounter<VC>>  implements Serializab
 
         this.intrinsicValue = intrinsicValue;
     }
+
 
     public double getPenaltyFactorForImabalance(VC a, VC b) {
         return 1/Math.pow(Math.max(a.getTotal(), b.getTotal()), imbalancePenaltyPower);

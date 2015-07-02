@@ -1,28 +1,30 @@
-package quickml.supervised.classifier.OldTreeBuilder;
+package quickml.supervised.classifier.decisionTree;
 
-/**
- * Created by alexanderhawk on 7/2/15.
- */
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.twitter.common.stats.ReservoirSampler;
+import com.twitter.common.util.Random;
+import org.apache.commons.lang.mutable.MutableInt;
+import org.javatuples.Pair;
+import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
+import quickml.data.ClassifierInstance;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.classifier.decisionTree.tree.*;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
+import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
-        import com.google.common.base.Preconditions;
-        import com.google.common.base.Predicate;
-        import com.google.common.collect.Iterables;
-        import com.google.common.collect.Lists;
-        import com.google.common.collect.Maps;
-        import com.google.common.collect.Sets;
-        import com.twitter.common.stats.ReservoirSampler;
-        import com.twitter.common.util.Random;
-        import org.apache.commons.lang.mutable.MutableInt;
-        import org.javatuples.Pair;
-        import quickml.collections.MapUtils;
-        import quickml.data.ClassifierInstance;
-
-        import javax.annotation.Nullable;
 import java.util.*;
-        import java.util.Map.Entry;
+import java.util.Map.Entry;
 
-public final class TreeBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Tree, T> {
+public final class TreeBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<AttributesMap, Tree, T> {
 
     public static final String MAX_DEPTH = "maxDepth";
     public static final String MIN_SCORE = "minScore";
@@ -42,15 +44,13 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private static final int HARD_MINIMUM_INSTANCES_PER_CATEGORICAL_VALUE = 10;
     public static final String MIN_SPLIT_FRACTION = "minSplitFraction";
     public static final String EXEMPT_ATTRIBUTES = "exemptAttributes";
-    public static final String IMBALANCE_PENALTY_POWER = "imbalancePenaltyPower";
 
     private Scorer scorer;
     private int maxDepth = 5;
     private double minimumScore = 0.00000000000001;
     private int minDiscreteAttributeValueOccurances = 0;
     private double minSplitFraction = .005;
-    private double imbalancePenaltyPower = 0;
-    private Set<String> exemptAttributes = Sets.newHashSet();
+    private HashSet<String> exemptAttributes = Sets.newHashSet();
 
     private int minLeafInstances = 0;
 
@@ -78,12 +78,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         this.attributeIgnoringStrategy = attributeIgnoringStrategy;
         return this;
     }
-    public TreeBuilder imbalancePenaltyPower(double imbalancePenaltyPower ) {
-        this.imbalancePenaltyPower = imbalancePenaltyPower;
-        return this;
-    }
 
-    public TreeBuilder exemptAttributes(Set<String> exemptAttributes) {
+    public TreeBuilder exemptAttributes(HashSet<String> exemptAttributes) {
         this.exemptAttributes = exemptAttributes;
         return this;
     }
@@ -99,7 +95,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         return this;
     }
 
-    public TreeBuilder copy() {
+    public synchronized TreeBuilder<T> copy() {
         TreeBuilder<T> copy = new TreeBuilder<>();
         copy.scorer = scorer;
         copy.maxDepth = maxDepth;
@@ -112,8 +108,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();
         copy.fractionOfDataToUseInHoldOutSet = fractionOfDataToUseInHoldOutSet;
         copy.minSplitFraction = minSplitFraction;
-        copy.exemptAttributes = exemptAttributes;
-        copy.imbalancePenaltyPower = imbalancePenaltyPower;
+        copy.exemptAttributes = Sets.newHashSet(exemptAttributes);
         return copy;
     }
 
@@ -121,7 +116,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         this.scorer = scorer;
     }
 
-    public void updateBuilderConfig(final Map<String, Object> cfg) {
+    public void updateBuilderConfig(final Map<String, Serializable> cfg) {
         if (cfg.containsKey(SCORER))
             scorer((Scorer) cfg.get(SCORER));
         if (cfg.containsKey(MAX_DEPTH))
@@ -137,15 +132,14 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         if (cfg.containsKey(ORDINAL_TEST_SPLITS))
             ordinalTestSplits((Integer) cfg.get(ORDINAL_TEST_SPLITS));
         if (cfg.containsKey(EXEMPT_ATTRIBUTES))
-            exemptAttributes((Set<String>) cfg.get(EXEMPT_ATTRIBUTES));
+            exemptAttributes((HashSet<String>) cfg.get(EXEMPT_ATTRIBUTES));
         if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY))
             degreeOfGainRatioPenalty((Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY));
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY))
             attributeIgnoringStrategy((AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY));
         if (cfg.containsKey(IGNORE_ATTR_PROB))
-            ignoreAttributeAtNodeProbability((Double) cfg.get(IGNORE_ATTR_PROB));
-        if (cfg.containsKey(IMBALANCE_PENALTY_POWER))
-            imbalancePenaltyPower((Double)cfg.get(IMBALANCE_PENALTY_POWER));
+            ignoreAttributeAtNodeProbability((Double)cfg.get(IGNORE_ATTR_PROB));
+
         penalizeCategoricalSplitsBySplitAttributeIntrinsicValue(cfg.containsKey(PENALIZE_CATEGORICAL_SPLITS) ? (Boolean) cfg.get(PENALIZE_CATEGORICAL_SPLITS) : true);
     }
 
@@ -217,11 +211,11 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
         for (T instance : trainingData) {
             Serializable classification = instance.getLabel();
 
-            if (classificationsAndCounts.containsKey(classification)) {
-                classificationsAndCounts.get(classification).increment();
+                if (classificationsAndCounts.containsKey(classification)) {
+                   classificationsAndCounts.get(classification).increment();
 
-            } else
-                classificationsAndCounts.put(classification, new MutableInt(1));
+                } else
+                    classificationsAndCounts.put(classification, new MutableInt(1));
 
         }
         if (classificationsAndCounts.size() > 2) {
@@ -481,11 +475,8 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             double thisScore = scorer.scoreSplit(inCounts, outCounts);
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeIntrinsicValue) {
-                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);
-            }
-            if (imbalancePenaltyPower!=0) {
-                thisScore/=Math.pow(Math.max(inCounts.getTotal(), outCounts.getTotal()), imbalancePenaltyPower);
-            }
+                thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }
+
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 lastValOfInset = valueWithClassificationCounter.attributeValue;
@@ -554,7 +545,7 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
     private double getIntrinsicValueOfNumericAttribute() {
         double informationValue = 0;
         double attributeValProb = 1.0/ordinalTestSpilts;
-        informationValue -= Math.log(attributeValProb) / Math.log(2);//factor of 1.0/ordinalTestSplits * ordinalTestSplits cancels
+            informationValue -= Math.log(attributeValProb) / Math.log(2);//factor of 1.0/ordinalTestSplits * ordinalTestSplits cancels
 
         return informationValue;
     }
@@ -722,11 +713,6 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
 
 
             double thisScore = scorer.scoreSplit(inClassificationCounts, outClassificationCounts);
-
-            if (imbalancePenaltyPower!=0) {
-                thisScore/=Math.pow(Math.min(inClassificationCounts.getTotal(), outClassificationCounts.getTotal()), imbalancePenaltyPower);
-            }
-
             if (thisScore > bestScore) {
                 bestScore = thisScore;
                 bestThreshold = threshold;

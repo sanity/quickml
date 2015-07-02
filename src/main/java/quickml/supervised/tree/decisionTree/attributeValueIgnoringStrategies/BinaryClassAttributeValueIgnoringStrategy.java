@@ -16,8 +16,8 @@ public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValue
     private final double majorityToMinorityRatio;
     public BinaryClassAttributeValueIgnoringStrategy(ClassificationCounter cc, final int minOccurancesOfAttributeValue) {
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
-        this.majorityClassification = ClassificationCounter.getLeastPopularClass(cc);
-        this.minorityClassification = ClassificationCounter.getMostPopularClass(cc);
+        this.majorityClassification = ClassificationCounter.getMostPopularClass(cc);
+        this.minorityClassification = ClassificationCounter.getLeastPopularClass(cc);
         this.majorityToMinorityRatio = cc.getCount(majorityClassification)/cc.getCount(minorityClassification);
     }
 
