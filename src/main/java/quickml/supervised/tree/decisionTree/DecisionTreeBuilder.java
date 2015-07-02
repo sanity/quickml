@@ -28,12 +28,12 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
     public static final int DEFAULT_MAX_DEPTH = 7;
     public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
     public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);
-    public static final int DEFAULT_NUM_NUMERIC_BINS = 6;
+    public static final int DEFAULT_NUM_NUMERIC_BINS = 5;
     public static final GiniImpurityScorer DEFAULT_SCORER = new GiniImpurityScorer();
     public static final DTBranchingConditions DEFAULT_BRANCHING_CONDITIONS = new DTBranchingConditions();
     public static final double DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY = 1.0;
     public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
-    public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.01;
+    public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.005;
     public static final int DEFAULT_MIN_LEAF_INSTANCES = 10;
     public static final int DEFAULT_MIN_ATTRIBUTE_OCCURENCES = 8;
     public static final LeafBuilder<ClassificationCounter> DEFAULT_LEAF_BUILDER = new DTLeafBuilder();

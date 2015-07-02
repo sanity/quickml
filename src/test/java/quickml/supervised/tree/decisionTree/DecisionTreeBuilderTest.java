@@ -94,6 +94,10 @@ public class DecisionTreeBuilderTest {
         for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
             recurseTree(forestTree.root, conditions);
         }
+        for (ClassifierInstance instance: instances) {
+            randomDecisionForest.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
+            randomDecisionForest.getProbability(instance.getAttributes(),0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
+        }
 
     }
 
@@ -131,13 +135,13 @@ public class DecisionTreeBuilderTest {
         }
 
         private void satisfiesBranchConditions(Branch<VC> branch) {
-            Assert.assertTrue("attribute: " + branch.attribute+ ".  branch.getProbabilityOfTrueChild(): "+ branch.getProbabilityOfTrueChild(), branch.getProbabilityOfTrueChild() > minSplitFraction && 1.0 - branch.getProbabilityOfTrueChild() > minSplitFraction);
+            Assert.assertTrue("attribute: " + branch.attribute+ ".  branch.getProbabilityOfTrueChild(): "+ branch.getProbabilityOfTrueChild(), branch.getProbabilityOfTrueChild() >= minSplitFraction && 1.0 - branch.getProbabilityOfTrueChild() >= minSplitFraction);
             Assert.assertTrue("branch.getValueCounter().getTotal(): " + branch.getValueCounter().getTotal(), branch.getValueCounter().getTotal()>minAttributeOccurrences);
         }
 
         private void satisfiesLeafConditions(Leaf<VC> leaf) {
-            Assert.assertTrue("instances at leaf: leaf.getValueCounter().getTotal()", leaf.getValueCounter().getTotal() > minInstancesPerLeaf && leaf.getValueCounter().getTotal() > minInstancesPerLeaf);
-            Assert.assertTrue("leafDepth: "+ leaf.getDepth(), leaf.getDepth() < maxDepth);
+            Assert.assertTrue("instances at leaf: leaf.getValueCounter().getTotal()", leaf.getValueCounter().getTotal() > minInstancesPerLeaf && leaf.getValueCounter().getTotal() >= minInstancesPerLeaf);
+            Assert.assertTrue("leafDepth: "+ leaf.getDepth(), leaf.getDepth() <= maxDepth);
         }
     }
 }
