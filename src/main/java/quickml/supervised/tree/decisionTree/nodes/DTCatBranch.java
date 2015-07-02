@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,16 +13,16 @@ import java.util.Set;
  */
 public class DTCatBranch extends Branch<ClassificationCounter>  {
     private static final long serialVersionUID = -1723969623146234761L;
-    public final Set<Object> trueSet;
+    public final Set<Serializable> trueSet;
 
-    public DTCatBranch(Branch<ClassificationCounter> parent, final String attribute, final Set<Object> trueSet, double probabilityOfTrueChild, double score, ClassificationCounter aggregateStats ) {
+    public DTCatBranch(Branch<ClassificationCounter> parent, final String attribute, final Set<Serializable> trueSet, double probabilityOfTrueChild, double score, ClassificationCounter aggregateStats ) {
         super(parent, attribute, probabilityOfTrueChild, score, aggregateStats);
         this.trueSet = Sets.newHashSet(trueSet);
     }
 
     @Override
-    public boolean decide(final Map<String, Object> attributes) {
-        Object attributeVal = attributes.get(attribute);
+    public boolean decide(final Map<String, Serializable> attributes) {
+        Serializable attributeVal = attributes.get(attribute);
         //missing values always go the way of the outset...which strangely seems to be most accurate
         return trueSet.contains(attributeVal);
     }

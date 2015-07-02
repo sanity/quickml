@@ -24,9 +24,8 @@ import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 import static quickml.supervised.tree.decisionTree.DecisionTreeBuilder.*;
 
@@ -66,8 +65,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return copy;
     }
 
-    private List<BranchFinderBuilder<ClassificationCounter>> copyBranchFinderBuilders(Map<String, Object> config) {
-        List<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = Lists.newArrayList();
+    private ArrayList<BranchFinderBuilder<ClassificationCounter>> copyBranchFinderBuilders(Map<String, Serializable> config) {
+        ArrayList<BranchFinderBuilder<ClassificationCounter>> copiedBranchFinderBuilders = Lists.newArrayList();
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             List<BranchFinderBuilder<ClassificationCounter>> bfbs = (List<BranchFinderBuilder<ClassificationCounter>>) config.get(BRANCH_FINDER_BUILDERS.name());
             if (bfbs != null && !bfbs.isEmpty()) {
@@ -95,7 +94,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
          * */
         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
         int numClasses = classificationCounts.allClassifications().size();
-        Object minorityClassification = ClassificationCounter.getLeastPopularClass(classificationCounts);
+        Serializable minorityClassification = ClassificationCounter.getLeastPopularClass(classificationCounts);
         Map<BranchType, DTreeReducer<I>> reducerMap = getDefaultReducers(minorityClassification);
         for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : getBranchFinderBuilders()) {
             if (useBranchFinder(branchFinderBuilder, numClasses)) {
@@ -119,7 +118,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return true;
     }
 
-    public static <I extends ClassifierInstance> Map<BranchType, DTreeReducer<I>> getDefaultReducers(Object minorityClassification) {
+    public static <I extends ClassifierInstance> Map<BranchType, DTreeReducer<I>> getDefaultReducers(Serializable minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
         reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducer<I>(minorityClassification));
         reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
@@ -128,8 +127,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return reducers;
     }
 
-    public static <I extends ClassifierInstance> List<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {
-        List<BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders = Lists.newArrayList();
+    public static <I extends ClassifierInstance> ArrayList<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {
+        ArrayList<BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders = Lists.newArrayList();
         branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTNumBranchFinderBuilder());
@@ -181,8 +180,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     }
 
     @Override
-    public Map<String, Object> copyConfig(Map<String, Object> config) {
-        Map<String, Object> copiedConfig = Maps.newHashMap();
+    public Map<String, Serializable> copyConfig(Map<String, Serializable> config) {
+        Map<String, Serializable> copiedConfig = Maps.newHashMap();
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders(config));
         }
@@ -247,7 +246,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(MIN_LEAF_INSTANCES.name(), minLeafInstances);
     }
 
-    public void exemptAttributes(Set<String> exemptAttributes) {
+    public void exemptAttributes(HashSet<String> exemptAttributes) {
         config.put(EXEMPT_ATTRIBUTES.name(), exemptAttributes);
     }
 
@@ -283,7 +282,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(IMBALANCE_PENALTY_POWER.name(), imbalancePenaltyPower);
     }
 
-    public void branchFinderBuilders(List<? extends BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders) {
+    public void branchFinderBuilders(ArrayList<? extends BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders) {
         config.put(BRANCH_FINDER_BUILDERS.name(), branchFinderBuilders);
     }
 

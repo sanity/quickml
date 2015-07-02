@@ -15,6 +15,7 @@ import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBu
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     protected LeafBuilder<VC> leafBuilder;
     protected BranchingConditions<VC> branchingConditions;
     protected List<? extends BranchFinderBuilder<VC>> branchFinderBuilders = Lists.newArrayList();
-    protected Map<String, Object> config = Maps.newHashMap();
+    protected Map<String, Serializable> config = Maps.newHashMap();
 
     public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
@@ -79,9 +80,14 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
 
     public abstract TreeContext<I, VC> buildContext(List<I> trainingData);
 
-    public void updateBuilderConfig(final Map<String, Object> cfg) {
-        if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name()))
+    public void updateBuilderConfig(final Map<String, Serializable> cfg) {
+        if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>) cfg.get(BRANCH_FINDER_BUILDERS.name());
+            if (branchFinderBuilders != null && !branchFinderBuilders.isEmpty())
+                for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+                    branchFinderBuilder.update(cfg);
+                }
+        }
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
         if (cfg.containsKey(SCORER.name()))
@@ -94,13 +100,10 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         if (branchingConditions != null) {
             branchingConditions.update(cfg);
         }
-        if (branchFinderBuilders != null && !branchFinderBuilders.isEmpty())
-            for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
-                branchFinderBuilder.update(cfg);
-            }
+
         this.config = copyConfig(cfg);
     }
 
-    public abstract Map<String, Object> copyConfig(Map<String, Object> config);
+    public abstract Map<String, Serializable> copyConfig(Map<String, Serializable> config);
 
 }

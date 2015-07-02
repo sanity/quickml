@@ -18,18 +18,18 @@ public class DownsamplingClassifier extends AbstractClassifier {
     private static final long serialVersionUID = -265699047882740160L;
 
     public final Classifier wrappedClassifier;
-    private final Object minorityClassification;
-    private final Object majorityClassification;
+    private final Serializable minorityClassification;
+    private final Serializable majorityClassification;
     private final double dropProbability;
 
-    public DownsamplingClassifier(final Classifier wrappedClassifier, final Object majorityClassification, final Object minorityClassification, final double dropProbability) {
+    public DownsamplingClassifier(final Classifier wrappedClassifier, final Serializable majorityClassification, final Serializable minorityClassification, final double dropProbability) {
         this.wrappedClassifier = wrappedClassifier;
         this.majorityClassification = majorityClassification;
         this.minorityClassification = minorityClassification;
         this.dropProbability = dropProbability;
     }
 
-    public double getProbability(AttributesMap attributes, Object classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         double uncorrectedProbability = wrappedClassifier.getProbability(attributes, minorityClassification);
         double probabilityOfMinorityInstance = DownsamplingUtils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
@@ -39,7 +39,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
         }
     }
     @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         double uncorrectedProbability = wrappedClassifier.getProbabilityWithoutAttributes(attributes, minorityClassification, attributesToIgnore);
         double probabilityOfMinorityInstance = DownsamplingUtils.correctProbability(dropProbability, uncorrectedProbability);
         if (classification.equals(minorityClassification)) {
@@ -51,7 +51,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
 
     @Override
     public PredictionMap predict(AttributesMap attributes) {
-        Map<Object, Double> probsByClassification = Maps.newHashMap();
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbability(attributes, minorityClassification));
         probsByClassification.put(majorityClassification, getProbability(attributes, majorityClassification));
         return new PredictionMap(probsByClassification);
@@ -59,14 +59,14 @@ public class DownsamplingClassifier extends AbstractClassifier {
 
     @Override
     public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
-        Map<Object, Double> probsByClassification = Maps.newHashMap();
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
         probsByClassification.put(minorityClassification, getProbabilityWithoutAttributes(attributes, minorityClassification, attributesToIgnore));
         probsByClassification.put(majorityClassification, getProbabilityWithoutAttributes(attributes, majorityClassification, attributesToIgnore));
         return new PredictionMap(probsByClassification);
     }
 
     @Override
-    public Object getClassificationByMaxProb(final AttributesMap attributes) {
+    public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
 
@@ -74,7 +74,7 @@ public class DownsamplingClassifier extends AbstractClassifier {
         return dropProbability;
     }
 
-    public Object getMajorityClassification() {
+    public Serializable getMajorityClassification() {
         return majorityClassification;
     }
 }

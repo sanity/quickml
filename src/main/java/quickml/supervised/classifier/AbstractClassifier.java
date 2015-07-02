@@ -14,19 +14,19 @@ public abstract class AbstractClassifier implements Classifier {
 
 
     private static final long serialVersionUID = -5052476771686106526L;
-    public double getProbability(AttributesMap attributes, Object classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         return predict(attributes).get(classification);
     }
 
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         return predictWithoutAttributes(attributes, attributesToIgnore).get(classification);
     }
 
-    public Object getClassificationByMaxProb(AttributesMap attributes) {
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         PredictionMap predictions = predict(attributes);
-        Object mostProbableClass = null;
+        Serializable mostProbableClass = null;
         double probabilityOfMostProbableClass = 0;
-        for (Object key : predictions.keySet()) {
+        for (Serializable key : predictions.keySet()) {
             if (predictions.get(key).doubleValue() > probabilityOfMostProbableClass) {
                 mostProbableClass = key;
                 probabilityOfMostProbableClass = predictions.get(key).doubleValue();

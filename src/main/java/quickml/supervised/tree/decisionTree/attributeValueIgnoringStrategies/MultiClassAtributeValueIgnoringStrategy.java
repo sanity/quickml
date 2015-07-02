@@ -3,6 +3,7 @@ package quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -15,9 +16,9 @@ public class MultiClassAtributeValueIgnoringStrategy implements AttributeValueIg
     }
 
     public boolean shouldWeIgnoreThisValue(final ClassificationCounter testValCounts) {
-        Map<Object, Double> counts = testValCounts.getCounts();
+        Map<Serializable, Double> counts = testValCounts.getCounts();
 
-        for (Object key : counts.keySet()) {
+        for (Serializable key : counts.keySet()) {
             if (counts.get(key).doubleValue() < minOccurancesOfAttributeValue) {
                 return true;
             }

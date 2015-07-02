@@ -10,7 +10,7 @@ import java.util.List;
  * validation sets.
  * @param <I>
  */
-public interface TrainingDataCycler<I extends InstanceWithAttributesMap<?>> {
+public interface TrainingDataCycler<I> {
 
     List<I> getTrainingSet();
 

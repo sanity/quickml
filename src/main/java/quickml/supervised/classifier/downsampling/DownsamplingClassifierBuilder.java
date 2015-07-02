@@ -40,14 +40,14 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
 
     @Override
     public DownsamplingClassifier buildPredictiveModel(Iterable<T> trainingData) {
-        final Map<Object, Double> classificationProportions = getClassificationProportions(trainingData);
+        final Map<Serializable, Double> classificationProportions = getClassificationProportions(trainingData);
         if (classificationProportions.size() != 2) {
             printSampleInstancesForInspection(trainingData);
         }
         checkArgument(classificationProportions.size() == 2, "trainingData must contain only 2 classifications, but it had %s. mapOfClassificationsToOutcomes: %s", classificationProportions.size(), classificationProportions.get(1.0), classificationProportions.toString());
-        final Map.Entry<Object, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
-        final Map.Entry<Object, Double> minorityEntry = MapUtils.getEntryWithLowestValue(classificationProportions).get();
-        Object majorityClassification = majorityEntry.getKey();
+        final Map.Entry<Serializable, Double> majorityEntry = MapUtils.getEntryWithHighestValue(classificationProportions).get();
+        final Map.Entry<Serializable, Double> minorityEntry = MapUtils.getEntryWithLowestValue(classificationProportions).get();
+        Serializable majorityClassification = majorityEntry.getKey();
         final double majorityProportion = majorityEntry.getValue();
         final double naturalMinorityProportion = 1.0 - majorityProportion;
         if (naturalMinorityProportion >= targetMinorityProportion) {
@@ -66,7 +66,7 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
 
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Serializable> cfg) {
         predictiveModelBuilder.updateBuilderConfig(cfg);
         if (cfg.containsKey(MINORITY_INSTANCE_PROPORTION))
             targetMinorityProportion((Double) cfg.get(MINORITY_INSTANCE_PROPORTION));
@@ -93,8 +93,8 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
         }
     }
 
-    private Map<Object, Double> getClassificationProportions(final Iterable<? extends InstanceWithAttributesMap> trainingData) {
-        Map<Object, AtomicLong> classificationCounts = Maps.newHashMap();
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends InstanceWithAttributesMap> trainingData) {
+        Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
         for (InstanceWithAttributesMap instance : trainingData) {
             AtomicLong count = classificationCounts.get(instance.getLabel());
@@ -105,8 +105,8 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
             count.getAndIncrement();
             total++;
         }
-        Map<Object, Double> classificationProportions = Maps.newHashMap();
-        for (Map.Entry<Object, AtomicLong> classCount : classificationCounts.entrySet()) {
+        Map<Serializable, Double> classificationProportions = Maps.newHashMap();
+        for (Map.Entry<Serializable, AtomicLong> classCount : classificationCounts.entrySet()) {
             classificationProportions.put(classCount.getKey(), classCount.getValue().doubleValue() / (double) total);
         }
         return classificationProportions;

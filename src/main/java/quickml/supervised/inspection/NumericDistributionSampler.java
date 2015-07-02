@@ -7,6 +7,7 @@ import com.google.common.collect.Range;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -28,34 +29,34 @@ public class NumericDistributionSampler {
     int realSizeOfSplitList = 0;
     double[] attributeValuesAtBinBoundaries;
 
-    public NumericDistributionSampler(List<Instance<AttributesMap, Object>> instances, int samplesToDraw, String attribute, int numBins) {
+    public NumericDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, int samplesToDraw, String attribute, int numBins) {
         samplesToDetermineBinWidths = instances.size();
         updateDistributionSampler(instances, samplesToDraw, attribute, numBins);
     }
 
-    public NumericDistributionSampler(List<Instance<AttributesMap, Object>> instances, double percentageOfAllSamplesToUse, String attribute, int numBins) {
+    public NumericDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, double percentageOfAllSamplesToUse, String attribute, int numBins) {
         samplesToDetermineBinWidths = instances.size();
         updateDistributionSampler(instances, percentageOfAllSamplesToUse, attribute, numBins);
     }
 
-    public NumericDistributionSampler(List<Instance<AttributesMap, Object>> instances, int samplesToDraw, String attribute, int numBins, int samplesToDetermineBinWidths) {
+    public NumericDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, int samplesToDraw, String attribute, int numBins, int samplesToDetermineBinWidths) {
         this.samplesToDetermineBinWidths = Math.min(samplesToDetermineBinWidths, instances.size());
         updateDistributionSampler(instances, samplesToDraw, attribute, numBins);
     }
 
-    public NumericDistributionSampler(List<Instance<AttributesMap, Object>> instances, double percentageOfAllSamplesToUse, String attribute, int numBins, int samplesToDetermineBinWidths) {
+    public NumericDistributionSampler(List<Instance<AttributesMap, Serializable>> instances, double percentageOfAllSamplesToUse, String attribute, int numBins, int samplesToDetermineBinWidths) {
         this.samplesToDetermineBinWidths = Math.min(samplesToDetermineBinWidths, instances.size());
         updateDistributionSampler(instances, percentageOfAllSamplesToUse, attribute, numBins);
     }
 
 
-    public void updateDistributionSampler(List<Instance<AttributesMap, Object>> newInstances, double percentageOfAllSamplesToUse, String attribute, int numBins) {
+    public void updateDistributionSampler(List<Instance<AttributesMap, Serializable>> newInstances, double percentageOfAllSamplesToUse, String attribute, int numBins) {
         int samplesToDraw = (int) (percentageOfAllSamplesToUse * newInstances.size());
         updateHistogramOfCountsForValues(newInstances, samplesToDraw, attribute, numBins);
         createAttributeValueRangeMap();
     }
 
-    public void updateDistributionSampler(List<Instance<AttributesMap, Object>> newInstances, int samplesToDraw, String attribute, int numBins) {
+    public void updateDistributionSampler(List<Instance<AttributesMap, Serializable>> newInstances, int samplesToDraw, String attribute, int numBins) {
         updateHistogramOfCountsForValues(newInstances, samplesToDraw, attribute, numBins);
         createAttributeValueRangeMap();
     }
@@ -76,7 +77,7 @@ public class NumericDistributionSampler {
         attributeValueRangeMap = valuesWithProbabilityRangeBuilder.build();
     }
 
-    private void updateSplitList(double[] splitList, List<Instance<AttributesMap, Object>> instances, String attribute, int i) {
+    private void updateSplitList(double[] splitList, List<Instance<AttributesMap, Serializable>> instances, String attribute, int i) {
         Number val = ((Number) (instances.get(i).getAttributes().get(attribute)));
         if (val == null) {
             val = Double.valueOf(0);  //consider making this (here and in the decide function) Double.MAX_VALUE
@@ -86,7 +87,7 @@ public class NumericDistributionSampler {
     }
 
 
-    private void updateHistogramOfCountsForValues(List<Instance<AttributesMap, Object>> instances, int samplesToDraw, String attribute, int numBins) {
+    private void updateHistogramOfCountsForValues(List<Instance<AttributesMap, Serializable>> instances, int samplesToDraw, String attribute, int numBins) {
         Number val;
         //when the samples to draw are less than half the length of the list
         if (histogramOfCountsForValues.size() == 0) {

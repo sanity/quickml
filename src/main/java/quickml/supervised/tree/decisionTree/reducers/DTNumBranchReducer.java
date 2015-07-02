@@ -9,6 +9,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     int numNumericBins = 6;
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Serializable> cfg) {
         if (cfg.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
             numSamplesPerBin = (int) cfg.get(NUM_SAMPLES_PER_NUMERIC_BIN.name());
         }
@@ -162,7 +163,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
 
         int incrementSize = trainingData.size() / desiredSamples;
         for (int i = 0; i < trainingData.size(); i += incrementSize) {
-            Object value = trainingData.get(i).getAttributes().get(attribute);
+            Serializable value = trainingData.get(i).getAttributes().get(attribute);
             if (value == null) {
                 continue;
             }

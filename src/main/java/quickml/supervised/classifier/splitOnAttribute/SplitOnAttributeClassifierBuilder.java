@@ -10,6 +10,7 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -19,7 +20,7 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
     private final String attributeKey;
     private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> wrappedBuilder;
-    private Map<? extends Object, Integer> splitValToGroupIdMap;
+    private Map<? extends Serializable, Integer> splitValToGroupIdMap;
     private Map<Integer, SplitModelGroup> splitModelGroups;
     private final Integer defaultGroup;
 
@@ -50,11 +51,11 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedBuilder.updateBuilderConfig(config);
     }
 
-    public int getGroupFromSplitVal(Object val) {
+    public int getGroupFromSplitVal(Serializable val) {
         return splitValToGroupIdMap.get(val);
     }
 
@@ -66,11 +67,11 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
         return splitModelGroupMap;
     }
 
-    private Map<Object, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
+    private Map<Serializable, Integer> getSplitValToGroupIdMap(Map<Integer, SplitModelGroup> splitModelGroups) {
         SplitValTGroupIdMap splitValToGroupIdMap = new SplitValTGroupIdMap(defaultGroup);
         for (Integer groupId : splitModelGroups.keySet()) {
-            Set<? extends Object> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
-            for (Object splitVal : valuesOfSplitVariableInTheGroup) {
+            Set<? extends Serializable> valuesOfSplitVariableInTheGroup = splitModelGroups.get(groupId).valuesOfSplitVariableInTheGroup;
+            for (Serializable splitVal : valuesOfSplitVariableInTheGroup) {
                 splitValToGroupIdMap.put(splitVal, groupId);
             }
         }
@@ -83,7 +84,7 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
         //create lists of data for each split attribute val
         Map<Integer, List<I>> splitTrainingData = Maps.newHashMap();
         for (I instance : trainingData) {
-            Object value = instance.getAttributes().get(attributeKey);
+            Serializable value = instance.getAttributes().get(attributeKey);
             Integer groupId;
             if (value != null) {
                 groupId = splitValToGroupIdMap.get(value);
@@ -154,7 +155,7 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
         return output;
     }
 
-    private boolean shouldAddInstance(Object attributeValue, I instance, ClassificationCounter crossDataCount, double targetCount) {
+    private boolean shouldAddInstance(Serializable attributeValue, I instance, ClassificationCounter crossDataCount, double targetCount) {
         //if the model's split valaue is not the same as the instance's split value (avoids redundancy)
         if (!attributeValue.equals(instance.getAttributes().get(attributeKey))) {
             //if we still need instances of a particular classification
@@ -170,9 +171,9 @@ public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesM
         public final long minTotalSamples;
         public double percentageOfTrainingDataThatIsFromOtherGroups;
         public final Map<Integer, Double> groupIdToPercentageOfCrossDataProvidedMap;
-        public final Set<? extends Object> valuesOfSplitVariableInTheGroup;
+        public final Set<? extends Serializable> valuesOfSplitVariableInTheGroup;
 
-        public SplitModelGroup(int groupId, Set<? extends Object> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
+        public SplitModelGroup(int groupId, Set<? extends Serializable> valuesOfSplitVariableInTheGroup, long minTotalSamples, double percentageOfTrainingDataThatIsFromOtherGroups, Map<Integer, Double> relativeImportanceOfEachGroupThatContributesCrossGroupData) {
             this.groupId = groupId;
             this.valuesOfSplitVariableInTheGroup = valuesOfSplitVariableInTheGroup;
             this.minTotalSamples = minTotalSamples;

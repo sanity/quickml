@@ -3,6 +3,7 @@ package quickml.supervised.tree.decisionTree.scorers;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.scorers.Scorer;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -32,7 +33,7 @@ public class GiniImpurityScorer extends Scorer<ClassificationCounter> {
 
     private double getGiniIndex(ClassificationCounter cc) {
         double sum = 0.0d;
-        for (Map.Entry<Object, Double> e : cc.getCounts().entrySet()) {
+        for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
             double error = (cc.getTotal() > 0) ? e.getValue() / cc.getTotal() : 0;
             sum += error * error;
         }

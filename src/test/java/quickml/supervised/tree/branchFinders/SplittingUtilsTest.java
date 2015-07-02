@@ -18,6 +18,7 @@ import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class SplittingUtilsTest {
         List<ClassifierInstance> td = getExtendedInstances();
 
         DTNumBranchReducer<ClassifierInstance> reducer = new DTNumBranchReducer<>();
-        Map<String, Object> config  = Maps.newHashMap();
+        Map<String, Serializable> config  = Maps.newHashMap();
         config.put(ForestOptions.NUM_NUMERIC_BINS.name(), 4);
         config.put(ForestOptions.NUM_SAMPLES_PER_NUMERIC_BIN.name(), 2);
         reducer.updateBuilderConfig(config);

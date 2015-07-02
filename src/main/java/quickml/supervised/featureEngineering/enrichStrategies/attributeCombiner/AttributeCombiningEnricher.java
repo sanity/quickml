@@ -5,6 +5,7 @@ import quickml.data.AttributesMap;
 import quickml.supervised.featureEngineering.AttributesEnricher;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class AttributeCombiningEnricher implements AttributesEnricher {
                 continue;
             StringBuilder values = new StringBuilder();
             for (String attributeKey : attributeKeys) {
-                Object value = inputAttributes.get(attributeKey);
+                Serializable value = inputAttributes.get(attributeKey);
                 if (value != null && value.toString().length() > 0) {
                     values.append(value.toString());
                 } else {

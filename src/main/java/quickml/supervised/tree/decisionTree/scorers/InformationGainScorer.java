@@ -3,6 +3,7 @@ package quickml.supervised.tree.decisionTree.scorers;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.scorers.Scorer;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public class InformationGainScorer extends Scorer<ClassificationCounter> {
     private double calculateEntropy(ClassificationCounter cc) {
         double entropy = 0;
 
-        for (Map.Entry<Object, Double> e : cc.getCounts().entrySet()) {
+        for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
             if (e.getValue().equals(0.0)) {
                 continue;
             }

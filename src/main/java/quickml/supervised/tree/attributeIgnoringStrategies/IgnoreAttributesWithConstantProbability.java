@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by alexanderhawk on 2/28/15.
  */
 public class IgnoreAttributesWithConstantProbability implements AttributeIgnoringStrategy {
+    private static final long serialVersionUID = 0L;
 
     private final double ignoreAttributeProbability;
     private ThreadLocalRandom random = ThreadLocalRandom.current();

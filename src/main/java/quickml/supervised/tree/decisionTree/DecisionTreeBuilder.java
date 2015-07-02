@@ -18,10 +18,8 @@ import quickml.scorers.Scorer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 6/20/15.
@@ -55,14 +53,14 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
         tcb.setDefaultsAsNeededAndUpdateBuilderConfig();
         DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(tcb);
         ArrayList<I> trainingDataList = Lists.newArrayList(trainingData);
-        Pair<Node<ClassificationCounter>, Set<Object>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(trainingDataList);
+        Pair<Node<ClassificationCounter>, Set<Serializable>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(trainingDataList);
         Node<ClassificationCounter> root = rootAndClassifications.getValue0();
-        Set<Object> classifications = rootAndClassifications.getValue1();
+        Set<Serializable> classifications = rootAndClassifications.getValue1();
         return new DecisionTree(root, classifications);
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         tcb.updateBuilderConfig(config);
     }
 
@@ -96,7 +94,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
         return this;
     }
 
-    public DecisionTreeBuilder<I> exemptAttributes(Set<String> exemptAttributes) {
+    public DecisionTreeBuilder<I> exemptAttributes(HashSet<String> exemptAttributes) {
         tcb.exemptAttributes(exemptAttributes);
         return this;
     }
@@ -141,7 +139,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
         return this;
     }
 
-    public DecisionTreeBuilder<I> branchFinderBuilders(List<? extends BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders) {
+    public DecisionTreeBuilder<I> branchFinderBuilders(ArrayList<? extends BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders) {
         tcb.branchFinderBuilders(branchFinderBuilders);
         return this;
     }

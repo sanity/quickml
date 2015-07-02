@@ -11,6 +11,7 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuild
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedBuilder.updateBuilderConfig(config);
     }
 

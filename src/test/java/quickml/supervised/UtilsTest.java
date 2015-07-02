@@ -12,6 +12,7 @@ import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class UtilsTest {
 
     @Test
     public void setTrueAndFalseTrainingSetsTestForCatBranch(){
-        Set<Object> trueSet = Sets.newHashSet();
+        Set<Serializable> trueSet = Sets.newHashSet();
 
         //check trivial case first where i give it a training list already sorted correctly
         trueSet.add("1.0");

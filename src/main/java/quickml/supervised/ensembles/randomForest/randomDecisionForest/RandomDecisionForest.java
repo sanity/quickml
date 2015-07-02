@@ -13,6 +13,7 @@ import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Leaf;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -27,10 +28,10 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
     static final long serialVersionUID = 56394564395638954L;
 
     public final List<DecisionTree> decisionTrees;
-    private Set<Object> classifications = new HashSet<>();
+    private Set<Serializable> classifications = new HashSet<>();
     private boolean binaryClassification = true;
 
-    protected RandomDecisionForest(List<DecisionTree> decisionTrees, Set<Object> classifications) {
+    protected RandomDecisionForest(List<DecisionTree> decisionTrees, Set<Serializable> classifications) {
         Preconditions.checkArgument(decisionTrees.size() > 0, "We must have at least one tree");
         this.decisionTrees = decisionTrees;
         this.classifications = classifications;
@@ -42,7 +43,7 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
     }
 
     @Override
-    public double getProbability(AttributesMap attributes, Object classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         double total = 0;
         for (DecisionTree decisionTree : decisionTrees) {
             final double probability = decisionTree.getProbability(attributes, classification);
@@ -54,7 +55,7 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
         return total / decisionTrees.size();
     }
 
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         double total = 0;
         for (DecisionTree decisionTree : decisionTrees) {
             final double probability = decisionTree.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
@@ -77,18 +78,18 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
     }
 
     private PredictionMap getPredictionForNClasses(AttributesMap attributes) {
-        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Object, Double>());
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (DecisionTree decisionTree : decisionTrees) {
             final PredictionMap treeProbs = decisionTree.predict(attributes);
-            for (Map.Entry<Object, Double> tpe : treeProbs.entrySet()) {
+            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
                 sum += tpe.getValue();
                 sumsByClassification.put(tpe.getKey(), sum);
             }
         }
-        PredictionMap probsByClassification = new PredictionMap(new HashMap<Object, Double>());
-        for (Map.Entry<Object, Double> sumEntry : sumsByClassification.entrySet()) {
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
@@ -96,18 +97,18 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
 
     @Override
     public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
-        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Object, Double>());
+        PredictionMap sumsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
         for (DecisionTree decisionTree : decisionTrees) {
             final PredictionMap treeProbs = decisionTree.predictWithoutAttributes(attributes, attributesToIgnore);
-            for (Map.Entry<Object, Double> tpe : treeProbs.entrySet()) {
+            for (Map.Entry<Serializable, Double> tpe : treeProbs.entrySet()) {
                 Double sum = sumsByClassification.get(tpe.getKey());
                 if (sum == null) sum = 0.0;
                 sum += tpe.getValue();
                 sumsByClassification.put(tpe.getKey(), sum);
             }
         }
-        PredictionMap probsByClassification = new PredictionMap(new HashMap<Object, Double>());
-        for (Map.Entry<Object, Double> sumEntry : sumsByClassification.entrySet()) {
+        PredictionMap probsByClassification = new PredictionMap(new HashMap<Serializable, Double>());
+        for (Map.Entry<Serializable, Double> sumEntry : sumsByClassification.entrySet()) {
             probsByClassification.put(sumEntry.getKey(), sumEntry.getValue() / decisionTrees.size());
         }
         return probsByClassification;
@@ -115,26 +116,26 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
 
     private PredictionMap getPredictionForTwoClasses(AttributesMap attributes) {
         PredictionMap probsByClassification = PredictionMap.newMap();
-        Iterator<Object> classIterator = classifications.iterator();
+        Iterator<Serializable> classIterator = classifications.iterator();
         if (!classIterator.hasNext()) {
             throw new RuntimeException("no class labels present in classification set");
         }
-        Object firstClassification = classIterator.next();
+        Serializable firstClassification = classIterator.next();
         double firstProbability = getProbability(attributes, firstClassification);
         probsByClassification.put(firstClassification, firstProbability);
         if (classIterator.hasNext()) {
-            Object secondClassification = classIterator.next();
+            Serializable secondClassification = classIterator.next();
             probsByClassification.put(secondClassification, 1.0 - firstProbability);
         }
         return probsByClassification;
     }
 
     @Override
-    public Object getClassificationByMaxProb(AttributesMap attributes) {
-        Map<Object, AtomicDouble> probTotals = Maps.newHashMap();
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
+        Map<Serializable, AtomicDouble> probTotals = Maps.newHashMap();
         for (DecisionTree decisionTree : decisionTrees) {
             PredictionMap predictionMap = decisionTree.predict(attributes);
-            for (Object key : predictionMap.keySet()) {
+            for (Serializable key : predictionMap.keySet()) {
                 if (probTotals.containsKey(key)) {
                     probTotals.put(key, new AtomicDouble(probTotals.get(key).getAndAdd(predictionMap.get(key))));
                 } else {
@@ -143,9 +144,9 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
             }
         }
 
-        Object bestClassification = null;
+        Serializable bestClassification = null;
         double bestClassificationTtlProb = 0;
-        for (Map.Entry<Object, AtomicDouble> classificationProb : probTotals.entrySet()) {
+        for (Map.Entry<Serializable, AtomicDouble> classificationProb : probTotals.entrySet()) {
             if (bestClassification == null || classificationProb.getValue().get() > bestClassificationTtlProb) {
                 bestClassification = classificationProb.getKey();
                 bestClassificationTtlProb = classificationProb.getValue().get();

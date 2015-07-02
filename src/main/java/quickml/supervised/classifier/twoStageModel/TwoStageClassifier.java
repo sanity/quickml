@@ -5,6 +5,7 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -44,12 +45,12 @@ public class TwoStageClassifier extends AbstractClassifier {
 
 
     @Override
-    public double getProbability(AttributesMap attributesMap, Object label) {
+    public double getProbability(AttributesMap attributesMap, Serializable label) {
         return wrappedOne.getProbability(attributesMap, label)*wrappedTwo.getProbability(attributesMap, label);
     }
 
     @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributesMap, Object label, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributesMap, Serializable label, Set<String> attributesToIgnore) {
         return wrappedOne.getProbabilityWithoutAttributes(attributesMap, label, attributesToIgnore)*wrappedTwo.getProbabilityWithoutAttributes(attributesMap, label, attributesToIgnore);
     }
 

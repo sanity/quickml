@@ -12,6 +12,6 @@ import java.util.List;
  * @param <PM>
  * @param <I>
  */
-public interface LossChecker<PM extends PredictiveModel<AttributesMap, ?>, I extends InstanceWithAttributesMap<?>> {
+public interface LossChecker<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>> {
     public double calculateLoss(PM predictiveModel, List<I> validationSet);
 }

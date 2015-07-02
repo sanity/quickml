@@ -6,6 +6,8 @@ import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
+
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,7 +96,7 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements
     }
 
     @Override
-    public void update(Map<String, Object> cfg) {
+    public void update(Map<String, Serializable> cfg) {
         if (cfg.containsKey(MAX_DEPTH.name()))
             maxDepth = (Integer) cfg.get(MAX_DEPTH.name());
         if (cfg.containsKey(MIN_SCORE.name()))

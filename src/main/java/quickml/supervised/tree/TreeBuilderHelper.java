@@ -15,6 +15,7 @@ import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.treeBuildContexts.TreeContext;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>>  {
@@ -29,7 +30,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         return new TreeBuilderHelper(treeContextBuilder);
     }
 
-    public void updateBuilderConfig(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Serializable> cfg) {
         treeContextBuilder.updateBuilderConfig(cfg);
     }
 

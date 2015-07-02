@@ -8,6 +8,7 @@ import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -58,19 +59,18 @@ public class SplittingUtils {
                 indexOfLastValueCounterInTrueSet = i;
                 probabilityOfBeingInTrueSet = trueSet.getTotal() / (trueSet.getTotal() + falseSet.getTotal());
                 trueSetExists = true;
-                branchingConditions.isInvalidSplit(trueSet, falseSet, attributeStats.getAttribute());
             }
         }
         if (!trueSetExists) {
             return Optional.absent();
         }
-        Set<Object> trueSetVals = createTrueSetVals(indexOfLastValueCounterInTrueSet, attributeValueStatsList, attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics);
+        Set<Serializable> trueSetVals = createTrueSetVals(indexOfLastValueCounterInTrueSet, attributeValueStatsList, attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics);
 
         return Optional.of(new SplitScore(bestScore, indexOfLastValueCounterInTrueSet, probabilityOfBeingInTrueSet, trueSetVals));
     }
 
-    private static <VC extends ValueCounter<VC>> Set<Object> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<VC> valueCounters, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, boolean doNotUseAttributeValuesWithInsuffientStatistics) {
-        Set<Object> trueSetVals = Sets.newHashSet();
+    private static <VC extends ValueCounter<VC>> Set<Serializable> createTrueSetVals(int indexOfLastTermStatsInTrueSet, List<VC> valueCounters, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, boolean doNotUseAttributeValuesWithInsuffientStatistics) {
+        Set<Serializable> trueSetVals = Sets.newHashSet();
         for (int j = 0; j <= indexOfLastTermStatsInTrueSet; j++) {
             VC valueCounterForAttrVal = valueCounters.get(j);
             if (shouldWeIgnoreValueCounter(attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics, valueCounterForAttrVal)) {
@@ -90,9 +90,9 @@ public class SplittingUtils {
         public double score;
         public int indexOfLastValueCounterInTrueSet;
         public double probabilityOfBeingInTrueSet;
-        public Set<Object> trueSet;
+        public Set<Serializable> trueSet;
 
-        public SplitScore(double score, int indexOfLastValueCounterInTrueSet, double probabilityOfBeingInTrueSet, Set<Object> trueSet) {
+        public SplitScore(double score, int indexOfLastValueCounterInTrueSet, double probabilityOfBeingInTrueSet, Set<Serializable> trueSet) {
             this.score = score;
             this.indexOfLastValueCounterInTrueSet = indexOfLastValueCounterInTrueSet;
             this.probabilityOfBeingInTrueSet = probabilityOfBeingInTrueSet;

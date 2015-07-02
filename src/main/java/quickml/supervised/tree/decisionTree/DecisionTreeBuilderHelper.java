@@ -9,6 +9,7 @@ import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContext;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Node;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public class DecisionTreeBuilderHelper<I extends ClassifierInstance> extends Tre
         this.treeBuildContext = treeBuildContext;
     }
 
-    public Pair<Node<ClassificationCounter>, Set<Object>> computeNodesAndClasses(List<I> trainingData) {
+    public Pair<Node<ClassificationCounter>, Set<Serializable>> computeNodesAndClasses(List<I> trainingData) {
         DTreeContext<I> itbc = treeBuildContext.buildContext(trainingData);
         Node<ClassificationCounter> root =  createNode(null, trainingData, itbc);
         return Pair.with(root, itbc.getClassifications());

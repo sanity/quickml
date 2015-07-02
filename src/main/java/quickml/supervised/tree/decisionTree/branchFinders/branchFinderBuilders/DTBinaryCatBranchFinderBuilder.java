@@ -16,6 +16,7 @@ import java.util.Set;
  */
 
 public class DTBinaryCatBranchFinderBuilder extends DTBranchFinderBuilder {
+    private static final long serialVersionUID = 0L;
 
     @Override
     public  BranchFinderBuilder<ClassificationCounter> createBranchFinderBuilder() {

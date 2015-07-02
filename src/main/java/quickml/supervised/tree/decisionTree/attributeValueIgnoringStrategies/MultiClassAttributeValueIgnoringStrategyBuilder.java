@@ -6,6 +6,7 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 public class MultiClassAttributeValueIgnoringStrategyBuilder implements AttributeValueIgnoringStrategyBuilder<ClassificationCounter> {
+    private static final long serialVersionUID = 0L;
 
     public MultiClassAttributeValueIgnoringStrategyBuilder(int minOccurancesOfAttributeValue) {
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;

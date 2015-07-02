@@ -10,7 +10,7 @@ public abstract class ValueCounter<VC extends ValueStatistics> extends ValueStat
     public ValueCounter() {
         super();
     }
-    public ValueCounter(Object attrVal) {
+    public ValueCounter(Serializable attrVal) {
         super(attrVal);
     }
 }

@@ -12,36 +12,36 @@ import quickml.supervised.crossValidation.data.TrainingDataCycler;
 
 import java.util.Map;
 
-public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel<AttributesMap, ?>, T extends InstanceWithAttributesMap<?>> {
+public class PredictiveModelOptimizerBuilder<A, PM extends PredictiveModel<A, ?>, T extends Instance<A, ?>> {
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
     private PredictiveModelBuilder modelBuilder;
     private TrainingDataCycler<T> dataCycler;
-    private LossChecker<PM, T> lossChecker;
+    private LossChecker<A, PM, T> lossChecker;
     private int iterations = 5;
 
 
-    public PredictiveModelOptimizerBuilder<PM, T> valuesToTest(Map<String, ? extends FieldValueRecommender> valuesToTest) {
+    public PredictiveModelOptimizerBuilder<A, PM, T> valuesToTest(Map<String, ? extends FieldValueRecommender> valuesToTest) {
         this.valuesToTest = valuesToTest;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, T> lossChecker(LossChecker<PM, T> lossChecker) {
+    public PredictiveModelOptimizerBuilder<A, PM, T> lossChecker(LossChecker<A, PM, T> lossChecker) {
         this.lossChecker = lossChecker;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, T> dataCycler(TrainingDataCycler<T> dataCycler) {
+    public PredictiveModelOptimizerBuilder<A, PM, T> dataCycler(TrainingDataCycler<T> dataCycler) {
         this.dataCycler = dataCycler;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, T> modelBuilder(PredictiveModelBuilder modelBuilder) {
+    public PredictiveModelOptimizerBuilder<A, PM, T> modelBuilder(PredictiveModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
         return this;
     }
 
-    public PredictiveModelOptimizerBuilder<PM, T> iterations(int iterations) {
+    public PredictiveModelOptimizerBuilder<A, PM, T> iterations(int iterations) {
         this.iterations = iterations;
         return this;
     }

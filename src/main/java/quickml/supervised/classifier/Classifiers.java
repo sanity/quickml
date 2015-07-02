@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
@@ -24,6 +25,7 @@ import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +35,7 @@ import java.util.Map;
 public class Classifiers {
     private static final Logger logger = LoggerFactory.getLogger(Classifiers.class);
 
-    public static <I extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<I> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation,
+    public static <I extends ClassifierInstance> Pair<Map<String, Serializable>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<I> trainingData, int rebuildsPerValidation, double fractionOfDataForValidation,
                                                                                                                                        ClassifierLossFunction lossFunction, DateTimeExtractor<I> dateTimeExtractor,  Map<String, FieldValueRecommender> config) {
         /**
          * @param rebuildsPerValidation is the number of times the model will be rebuilt with a new training set while estimating the loss of a model
@@ -44,22 +46,22 @@ public class Classifiers {
 
         int timeSliceHours = getTimeSliceHours(trainingData, rebuildsPerValidation, dateTimeExtractor);
         double crossValidationFraction = 0.2;
-        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<Classifier,I>()
+        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<AttributesMap, Classifier,I>()
                         .modelBuilder(new RandomDecisionForestBuilder<>())
                         .dataCycler(new OutOfTimeData<I>(trainingData, crossValidationFraction, timeSliceHours,dateTimeExtractor))
                         .lossChecker(new ClassifierLossChecker<I>(lossFunction))
                         .valuesToTest(config)
                         .iterations(3).build();
-        Map<String, Object> bestParams =  optimizer.determineOptimalConfig();
+        Map<String, Serializable> bestParams =  optimizer.determineOptimalConfig();
 
         RandomDecisionForestBuilder<I> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<I>().maxDepth(5).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(24);
         DownsamplingClassifierBuilder<I> downsamplingClassifierBuilder = new DownsamplingClassifierBuilder<I>(randomDecisionForestBuilder,0.1);
         downsamplingClassifierBuilder.updateBuilderConfig(bestParams);
 
         DownsamplingClassifier downsamplingClassifier = downsamplingClassifierBuilder.buildPredictiveModel(trainingData);
-        return new Pair<Map<String, Object>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
+        return new Pair<Map<String, Serializable>, DownsamplingClassifier>(bestParams, downsamplingClassifier);
     }
-    public static <I extends ClassifierInstance> Pair<Map<String, Object>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<I> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor) {
+    public static <I extends ClassifierInstance> Pair<Map<String, Serializable>, DownsamplingClassifier> getOptimizedDownsampledRandomForest(List<I> trainingData,  int rebuildsPerValidation, double fractionOfDataForValidation, ClassifierLossFunction lossFunction, DateTimeExtractor dateTimeExtractor) {
         Map<String, FieldValueRecommender> config = createConfig();
         return getOptimizedDownsampledRandomForest(trainingData,  rebuildsPerValidation, fractionOfDataForValidation, lossFunction, dateTimeExtractor, config);
     }

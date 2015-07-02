@@ -11,6 +11,8 @@ import java.util.Set;
  * Created by alexanderhawk on 2/28/15.
  */
 public class IgnoreAttributesInSet implements AttributeIgnoringStrategy {
+    private static final long serialVersionUID = 0L;
+
     private final HashSet<String> attributesToIgnore = Sets.newHashSet();
     private final Set<String> proposedAttributesToIgnore;
     private final double discardProbability;

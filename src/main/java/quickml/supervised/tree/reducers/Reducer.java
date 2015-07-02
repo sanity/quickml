@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,6 @@ public abstract class Reducer<I extends InstanceWithAttributesMap<?>, VC extends
 
   public abstract Optional<AttributeStats<VC>> getAttributeStats(String attribute);
 
-  public abstract void updateBuilderConfig(Map<String, Object> cfg);
+  public abstract void updateBuilderConfig(Map<String, Serializable> cfg);
 
 }

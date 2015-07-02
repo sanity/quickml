@@ -2,6 +2,7 @@ package quickml.supervised;
 
 import quickml.data.Instance;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -11,5 +12,5 @@ public interface PredictiveModelBuilder<A, PM extends PredictiveModel<A, ?>, I e
 
     public PM buildPredictiveModel(Iterable<I> trainingData);
 
-    public void updateBuilderConfig(Map<String, Object> config);
+    public void updateBuilderConfig(Map<String, Serializable> config);
 }

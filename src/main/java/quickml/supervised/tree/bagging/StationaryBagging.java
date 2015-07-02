@@ -5,6 +5,7 @@ import quickml.collections.MapUtils;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.bagging.Bagging;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class StationaryBagging implements Bagging {
     private static com.twitter.common.util.Random rand = com.twitter.common.util.Random.Util.fromSystemRandom(MapUtils.random);
 
     @Override
-    public <L ,E extends InstanceWithAttributesMap<L>> TrainingDataPair<L, E> separateTrainingDataFromOutOfBagData(List<E> trainingData) {
+    public <L extends Serializable,E extends InstanceWithAttributesMap<L>> TrainingDataPair<L, E> separateTrainingDataFromOutOfBagData(List<E> trainingData) {
         List<E> baggedTrainingData = Lists.newArrayList();
         List<E> outOfBagTrainingData = Lists.newArrayList();
 

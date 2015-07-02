@@ -1,11 +1,12 @@
 package quickml.supervised.classifier.splitOnAttribute;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by alexanderhawk on 2/11/15.
  */
-public class SplitValTGroupIdMap extends HashMap<Object, Integer> {
+public class SplitValTGroupIdMap extends HashMap<Serializable, Integer> {
     Integer groupId;
     public SplitValTGroupIdMap(Integer groupId){
         super();

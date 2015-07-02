@@ -2,15 +2,16 @@ package quickml.supervised.tree.bagging;
 
 import quickml.data.InstanceWithAttributesMap;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by alexanderhawk on 4/5/15.
  */
 public interface Bagging {
-    <L, T extends InstanceWithAttributesMap<L>> TrainingDataPair<L, T> separateTrainingDataFromOutOfBagData(List<T> trainingData);
+    <L extends Serializable, T extends InstanceWithAttributesMap<L>> TrainingDataPair<L, T> separateTrainingDataFromOutOfBagData(List<T> trainingData);
 
-    class TrainingDataPair<L, T extends InstanceWithAttributesMap<L>> {
+    class TrainingDataPair<L extends Serializable, T extends InstanceWithAttributesMap<L>> {
         public List<T> trainingData;
         public List<T> outOfBagTrainingData;
 

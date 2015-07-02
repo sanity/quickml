@@ -5,19 +5,21 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
+import quickml.data.Instance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.crossValidation.CrossValidator;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, ?>, I extends InstanceWithAttributesMap<?>> {
+public class PredictiveModelOptimizer<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
-    private CrossValidator<PM, I> crossValidator;
-    private HashMap<String, Object> bestConfig;
+    private CrossValidator<A, PM, I> crossValidator;
+    private HashMap<String, Serializable> bestConfig;
     private final int iterations;
 
     /**
@@ -26,7 +28,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator<PM, I> crossValidator, int iterations) {
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator<A, PM, I> crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
         this.iterations = iterations;
@@ -38,10 +40,10 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
      * Then repeat the process starting with the optimized configuration
      * Keep going until we are no longer improving or we have reached max_iterations
      */
-    public Map<String, Object> determineOptimalConfig() {
+    public Map<String, Serializable> determineOptimalConfig() {
         for (int i = 0; i < iterations; i++) {
             logger.info("Starting iteration - {}", i);
-            HashMap<String, Object> previousConfig = copyOf(bestConfig);
+            HashMap<String, Serializable> previousConfig = copyOf(bestConfig);
             updateBestConfig();
             if (bestConfig.equals(previousConfig))
                 break;
@@ -59,7 +61,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
         FieldLosses losses = new FieldLosses();
         FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
         //bestConfig is not actually bestConfig inth for loop
-        for (Object value : fieldValueRecommender.getValues()) {
+        for (Serializable value : fieldValueRecommender.getValues()) {
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
             if (fieldValueRecommender.shouldContinue(losses.getLosses()))
@@ -69,8 +71,8 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
         bestConfig.put(field, losses.valueWithLowestLoss());
     }
 
-    private HashMap<String, Object> setBestConfigToFirstValues(Map<String, ? extends FieldValueRecommender> config) {
-        HashMap<String, Object> map = new HashMap<>();
+    private HashMap<String, Serializable> setBestConfigToFirstValues(Map<String, ? extends FieldValueRecommender> config) {
+        HashMap<String, Serializable> map = new HashMap<>();
         for (Map.Entry<String, ? extends FieldValueRecommender> entry : config.entrySet()) {
             map.put(entry.getKey(), entry.getValue().first());
         }
@@ -78,7 +80,7 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
         return map;
     }
 
-    private HashMap<String, Object> copyOf(final HashMap<String, Object> map) {
+    private HashMap<String, Serializable> copyOf(final HashMap<String, Serializable> map) {
         return Maps.newHashMap(map);
     }
 
@@ -93,12 +95,12 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
             losses.add(fieldLoss);
         }
 
-        public Object valueWithLowestLoss() {
+        public Serializable valueWithLowestLoss() {
             Collections.sort(losses);
             return losses.get(0).fieldValue;
         }
 
-        public void addFieldLoss(Object fieldValue, double loss) {
+        public void addFieldLoss(Serializable fieldValue, double loss) {
             add(new FieldLoss(fieldValue, loss));
         }
 
@@ -112,10 +114,10 @@ public class PredictiveModelOptimizer<PM extends PredictiveModel<AttributesMap, 
     }
 
     private static class FieldLoss implements Comparable<FieldLoss> {
-        private final Object fieldValue;
+        private final Serializable fieldValue;
         private final double loss;
 
-        public FieldLoss(Object fieldValue, double loss) {
+        public FieldLoss(Serializable fieldValue, double loss) {
             this.fieldValue = fieldValue;
             this.loss = loss;
         }

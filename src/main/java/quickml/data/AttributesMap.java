@@ -10,11 +10,11 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 8/26/14.
  */
-public class AttributesMap implements Map<String, Object>, Serializable {
+public class AttributesMap implements Map<String, Serializable>, Serializable {
 
-    private final Map<String, Object> map;
+    private final Map<String, Serializable> map;
 
-    public AttributesMap(Map<String, Object> map) {
+    public AttributesMap(Map<String, Serializable> map) {
         this.map = map;
     }
 
@@ -24,7 +24,7 @@ public class AttributesMap implements Map<String, Object>, Serializable {
 
 
     public static AttributesMap newHashMap() {
-        return new AttributesMap(new HashMap<String, Object>());
+        return new AttributesMap(new HashMap<String, Serializable>());
     }
 
     @Override
@@ -48,22 +48,22 @@ public class AttributesMap implements Map<String, Object>, Serializable {
     }
 
     @Override
-    public Object get(Object key) {
+    public Serializable get(Object key) {
         return map.get(key);
     }
 
     @Override
-    public Object put(String key, Object value) {
+    public Serializable put(String key, Serializable value) {
         return map.put(key, value);
     }
 
     @Override
-    public Object remove(Object key) {
+    public Serializable remove(Object key) {
         return map.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends Object> m) {
+    public void putAll(Map<? extends String, ? extends Serializable> m) {
         map.putAll(m);
     }
 
@@ -78,13 +78,13 @@ public class AttributesMap implements Map<String, Object>, Serializable {
     }
 
     @Override
-    public Collection<Object> values() {
-        Collection<Object> values = map.values();
+    public Collection<Serializable> values() {
+        Collection<Serializable> values = map.values();
         return values;
     }
 
     @Override
-    public Set<Entry<String, Object>> entrySet() {
+    public Set<Entry<String, Serializable>> entrySet() {
         return map.entrySet();
     }
 

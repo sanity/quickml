@@ -69,7 +69,7 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
         return attribute.isEmpty();
     }
 
-	public abstract boolean decide(Map<String, Object> attributes);
+	public abstract boolean decide(Map<String, Serializable> attributes);
 
     @Override
     public Leaf<VC> getLeaf(final AttributesMap attributes) {
@@ -84,11 +84,11 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
 		return 1 + trueChild.getSize() + falseChild.getSize();
 	}
 
-	public Predicate<Instance<AttributesMap, Object>> getInPredicate() {
-		return new Predicate<Instance<AttributesMap, Object>>() {
+	public Predicate<Instance<AttributesMap, Serializable>> getInPredicate() {
+		return new Predicate<Instance<AttributesMap, Serializable>>() {
 
 			@Override
-			public boolean apply(final Instance<AttributesMap, Object> input) {
+			public boolean apply(final Instance<AttributesMap, Serializable> input) {
 				return decide(input.getAttributes());
 			}
 		};

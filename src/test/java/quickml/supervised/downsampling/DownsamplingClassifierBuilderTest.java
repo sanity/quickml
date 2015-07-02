@@ -22,6 +22,7 @@ import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,9 @@ public class DownsamplingClassifierBuilderTest {
         when(mockPredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                Iterable<Instance<AttributesMap, Object>> instances = (Iterable<Instance<AttributesMap, Object>>) invocationOnMock.getArguments()[0];
+                Iterable<Instance<AttributesMap, Serializable>> instances = (Iterable<Instance<AttributesMap, Serializable>>) invocationOnMock.getArguments()[0];
                 int total = 0, sum = 0;
-                for (Instance<AttributesMap, Object> instance : instances) {
+                for (Instance<AttributesMap, Serializable> instance : instances) {
                     total++;
                     if (instance.getLabel().equals(true)) {
                         sum++;
@@ -100,8 +101,8 @@ public class DownsamplingClassifierBuilderTest {
 
         @Override
         public PredictionMap predict(AttributesMap attributes) {
-            Map<Object, Double> map = new HashMap<>();
-            for (Object value : attributes.values()) {
+            Map<Serializable, Double> map = new HashMap<>();
+            for (Serializable value : attributes.values()) {
                 map.put(value, prediction);
             }
             return new PredictionMap(map);

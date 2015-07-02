@@ -12,12 +12,12 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 //TODO: generalize this to make object a generic
-public class OutOfTimeData<I extends InstanceWithAttributesMap<?>> implements TrainingDataCycler<I> {
+public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     private static final int MIN_INSTANCES_PER_VALIDATION_PERIOD = 5;
     private final List<I> allData;
     private final double crossValidationFraction;
     private final int timeSliceHours;
-    private DateTimeExtractor<InstanceWithAttributesMap<?>> dateTimeExtractor;
+    private DateTimeExtractor<I> dateTimeExtractor;
     private List<I> trainingSet;
     private List<I> validationSet;
 

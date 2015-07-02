@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.scorers.Scorer;
 
+import java.io.Serializable;
+
 public final class SplitDiffScorer extends Scorer<ClassificationCounter> {
 
 	/*
@@ -37,7 +39,7 @@ public final class SplitDiffScorer extends Scorer<ClassificationCounter> {
 	@Override
 	public double scoreSplit(final ClassificationCounter a, final ClassificationCounter b) {
 		double score = 0;
-		for (final Object value : Sets.union(a.allClassifications(), b.allClassifications())) {
+		for (final Serializable value : Sets.union(a.allClassifications(), b.allClassifications())) {
 			final double aProp = (double) a.getCount(value) / a.getTotal();
 			final double bProp = (double) b.getCount(value) / b.getTotal();
 

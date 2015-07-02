@@ -9,7 +9,7 @@ import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 
 import java.util.List;
 
-public class ClassifierLossChecker<I extends ClassifierInstance> implements LossChecker<Classifier, I> {
+public class ClassifierLossChecker<I extends ClassifierInstance> implements LossChecker<AttributesMap ,Classifier, I> {
 
     private ClassifierLossFunction lossFunction;
 

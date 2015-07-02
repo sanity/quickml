@@ -1,19 +1,21 @@
 package quickml.supervised.tree.summaryStatistics;
 
+import java.io.Serializable;
+
 /**
  * Created by alexanderhawk on 4/5/15.
  */
 public abstract class ValueStatistics {
 
-    public Object attrVal;
+    public Serializable attrVal;
 
-    public ValueStatistics(Object attrVal) {
+    public ValueStatistics(Serializable attrVal) {
         this.attrVal = attrVal;
     }
 
     public ValueStatistics(){}
 
-    public Object getAttrVal() {
+    public Serializable getAttrVal() {
         return attrVal;
     }
 

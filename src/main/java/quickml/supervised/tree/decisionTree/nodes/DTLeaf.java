@@ -92,7 +92,7 @@ public class DTLeaf implements Leaf<ClassificationCounter>, Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (Object key : classificationCounts.getCounts().keySet()) {
+        for (Serializable key : classificationCounts.getCounts().keySet()) {
             builder.append(key + "=" + this.classificationCounts.getCounts().get(key)/classificationCounts.getTotal() + " ");
         }
         return builder.toString();

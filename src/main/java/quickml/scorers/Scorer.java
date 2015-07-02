@@ -4,6 +4,7 @@ package quickml.scorers;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -11,7 +12,7 @@ import static quickml.supervised.tree.constants.ForestOptions.*;
 /**
  * The scorer is responsible for assessing the quality of a "split" of data.
  */
-public abstract class Scorer<VC extends ValueCounter<VC>> {
+public abstract class Scorer<VC extends ValueCounter<VC>>  implements Serializable{
     public static final double NO_SCORE = Double.MIN_VALUE;
     protected double degreeOfGainRatioPenalty;
     protected double imbalancePenaltyPower = 0;
@@ -59,7 +60,7 @@ public abstract class Scorer<VC extends ValueCounter<VC>> {
         return uncorrectedScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (uncorrectedScore / intrinsicValue);
     }
 
-    public void update(Map<String, Object> cfg) {
+    public void update(Map<String, Serializable> cfg) {
         if (cfg.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name()))
             degreeOfGainRatioPenalty = (Double) cfg.get(DEGREE_OF_GAIN_RATIO_PENALTY.name());
         if (cfg.containsKey(IMBALANCE_PENALTY_POWER.name()))

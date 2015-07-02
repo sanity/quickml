@@ -37,7 +37,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedBuilder.updateBuilderConfig(config);
         if (config.containsKey(HALF_LIFE_OF_NEGATIVE))
             halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));

@@ -9,6 +9,8 @@ import java.util.List;
  * Created by alexanderhawk on 2/28/15.
  */
 public class CompositeAttributeIgnoringStrategy implements AttributeIgnoringStrategy {
+    private static final long serialVersionUID = 0L;
+
     private List<AttributeIgnoringStrategy> attributeIgnoringStrategies = Lists.newArrayList();
 
     public CompositeAttributeIgnoringStrategy(List<AttributeIgnoringStrategy> attributeIgnoringStrategies) {

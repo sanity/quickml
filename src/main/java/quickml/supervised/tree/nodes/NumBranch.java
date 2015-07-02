@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.Serializable;
 import java.util.Map;
 
 public abstract class NumBranch<VC extends ValueCounter<VC>> extends Branch<VC> {
@@ -19,8 +20,8 @@ public abstract class NumBranch<VC extends ValueCounter<VC>> extends Branch<VC> 
     }
 
 	@Override
-	public boolean decide(final Map<String, Object> attributes) {
-        Object value = attributes.get(attribute);
+	public boolean decide(final Map<String, Serializable> attributes) {
+        Serializable value = attributes.get(attribute);
         if (value == null) value = Double.valueOf(0);
         else if (!(value instanceof Number)) {
             throw new RuntimeException("Expecting a number as the value of "+attribute+" but got "+value +" of type "+value.getClass().getSimpleName());

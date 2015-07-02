@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation.lossfunctions;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -11,9 +12,9 @@ import java.util.*;
  */
 public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
 
-    private final Object positiveClassification;
+    private final Serializable positiveClassification;
 
-    public WeightedAUCCrossValLossFunction(Object positiveClassification) {
+    public WeightedAUCCrossValLossFunction(Serializable positiveClassification) {
         this.positiveClassification = positiveClassification;
     }
 
@@ -45,7 +46,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     }
 
     private void ensureBinaryClassifications(PredictionMapResults results) {
-        Set<Object> classifications = new HashSet<>();
+        Set<Serializable> classifications = new HashSet<>();
         for (PredictionMapResult result : results) {
             classifications.add(result.getLabel());
             if (classifications.size() > 2) {
@@ -145,17 +146,17 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     }
 
     protected static class AUCData implements Comparable<AUCData> {
-        private final Object classification;
+        private final Serializable classification;
         private final double weight;
         private final double probability;
 
-        public AUCData(Object classification, double weight, double probability) {
+        public AUCData(Serializable classification, double weight, double probability) {
             this.classification = classification;
             this.weight = weight;
             this.probability = probability;
         }
 
-        public Object getClassification() {
+        public Serializable getClassification() {
             return classification;
         }
 

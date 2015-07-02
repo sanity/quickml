@@ -13,11 +13,11 @@ import java.util.Map.Entry;
 
 public class ClassificationCounter extends ValueCounter<ClassificationCounter> implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
-    private final ValueSummingMap<Object> counts = new ValueSummingMap<Object>();
+    private final ValueSummingMap<Serializable> counts = new ValueSummingMap<Serializable>();
 
     public ClassificationCounter() {}
 
-    public ClassificationCounter(Object attrVal) {
+    public ClassificationCounter(Serializable attrVal) {
         super(attrVal);
     }
     public boolean isEmpty() {
@@ -28,8 +28,8 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
         super(classificationCounter.attrVal);
         this.counts.putAll(classificationCounter.counts);
     }
-    public ClassificationCounter(HashMap<Object, ? extends Number> mapOfCounts) {
-        for (Object classification: mapOfCounts.keySet()) {
+    public ClassificationCounter(HashMap<Serializable, ? extends Number> mapOfCounts) {
+        for (Serializable classification: mapOfCounts.keySet()) {
             counts.addToValue(classification, mapOfCounts.get(classification).doubleValue());
         }
     }
@@ -37,16 +37,16 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     public static ClassificationCounter merge(ClassificationCounter a, ClassificationCounter b) {
         ClassificationCounter newCC = new ClassificationCounter();
         newCC.counts.putAll(a.counts);
-        for (Entry<Object, Number> e : b.counts.entrySet()) {
+        for (Entry<Serializable, Number> e : b.counts.entrySet()) {
             newCC.counts.addToValue(e.getKey(), e.getValue().doubleValue());
         }
         return newCC;
     }
 
-    public static Object getLeastPopularClass(ClassificationCounter classificationCounter) {
-        Object minClass = null;
+    public static Serializable getLeastPopularClass(ClassificationCounter classificationCounter) {
+        Serializable minClass = null;
         double minCounts = Double.MAX_VALUE;
-        for (Object classification : classificationCounter.allClassifications()) {
+        for (Serializable classification : classificationCounter.allClassifications()) {
             if (classificationCounter.getCount(classification) < minCounts) {
                 minCounts = classificationCounter.getCount(classification);
                 minClass = classification;
@@ -55,11 +55,11 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
         return minClass;
     }
 
-    public static Object getMostPopularClass(ClassificationCounter classificationCounter) {
-        Object maxClass = null;
+    public static Serializable getMostPopularClass(ClassificationCounter classificationCounter) {
+        Serializable maxClass = null;
         double maxCounts = 0;
-        Object leastPopular = getLeastPopularClass(classificationCounter); //want to ensure don't have the same leastPopular as mostPopular when class ballance is 50/50
-        for (Object classification : classificationCounter.allClassifications()) {
+        Serializable leastPopular = getLeastPopularClass(classificationCounter); //want to ensure don't have the same leastPopular as mostPopular when class ballance is 50/50
+        for (Serializable classification : classificationCounter.allClassifications()) {
             if (classificationCounter.getCount(classification) > maxCounts || !classification.equals(leastPopular)) {
                 maxCounts = classificationCounter.getCount(classification);
                 maxClass = classification;
@@ -72,9 +72,9 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     //should be abstracted.  Data should be in an inner class
 
 
-    public Map<Object, Double> getCounts() {
-        Map<Object, Double> ret = Maps.newHashMap();
-        for (Entry<Object, Number> serializableNumberEntry : counts.entrySet()) {
+    public Map<Serializable, Double> getCounts() {
+        Map<Serializable, Double> ret = Maps.newHashMap();
+        for (Entry<Serializable, Number> serializableNumberEntry : counts.entrySet()) {
             ret.put(serializableNumberEntry.getKey(), serializableNumberEntry.getValue().doubleValue());
         }
         return ret;
@@ -89,11 +89,11 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
         return result;
     }
 
-    public void addClassification(final Object classification, double weight) {
+    public void addClassification(final Serializable classification, double weight) {
         counts.addToValue(classification, weight);
     }
 
-    public double getCount(final Object classification) {
+    public double getCount(final Serializable classification) {
         Number count = counts.get(classification);
         if (count == null) {
             return 0;
@@ -102,14 +102,14 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
         }
     }
 
-    public Set<Object> allClassifications() {
+    public Set<Serializable> allClassifications() {
         return counts.keySet();
     }
 
     public ClassificationCounter add(final ClassificationCounter other) {
         final ClassificationCounter result = new ClassificationCounter();
         result.counts.putAll(counts);
-        for (final Entry<Object, Number> e : other.counts.entrySet()) {
+        for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
             result.counts.addToValue(e.getKey(), e.getValue().doubleValue());
         }
         return result;
@@ -118,7 +118,7 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
     public ClassificationCounter subtract(final ClassificationCounter other) {
         final ClassificationCounter result = new ClassificationCounter();
         result.counts.putAll(counts);
-        for (final Entry<Object, Number> e : other.counts.entrySet()) {
+        for (final Entry<Serializable, Number> e : other.counts.entrySet()) {
             result.counts.addToValue(e.getKey(), -other.getCount(e.getKey()));
         }
         return result;
@@ -129,9 +129,9 @@ public class ClassificationCounter extends ValueCounter<ClassificationCounter> i
         return counts.getSumOfValues();
     }
 
-    public Pair<Object, Double> mostPopular() {
-        Entry<Object, Number> best = null;
-        for (final Entry<Object, Number> e : counts.entrySet()) {
+    public Pair<Serializable, Double> mostPopular() {
+        Entry<Serializable, Number> best = null;
+        for (final Entry<Serializable, Number> e : counts.entrySet()) {
             if (best == null || e.getValue().doubleValue() > best.getValue().doubleValue()) {
                 best = e;
             }

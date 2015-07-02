@@ -15,6 +15,7 @@ import quickml.supervised.tree.nodes.*;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +40,11 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
     public Optional<? extends Branch<ClassificationCounter>> getBranch(Branch<ClassificationCounter> parent,
                                                                                AttributeStats<ClassificationCounter> attributeStats) {
 
-        final Set<Object> trueSet = Sets.newHashSet();
+        final Set<Serializable> trueSet = Sets.newHashSet();
         ClassificationCounter trueClassificationCounts = new ClassificationCounter();
         ClassificationCounter falseClassificationCounts = attributeStats.getAggregateStats();
         final List<ClassificationCounter> valueOutcomeCounts = attributeStats.getStatsOnEachValue();
-        Map<Object, ClassificationCounter> attrValToCCMap = Maps.newHashMap();
+        Map<Serializable, ClassificationCounter> attrValToCCMap = Maps.newHashMap();
         for (ClassificationCounter classificationCounter: valueOutcomeCounts) {
             attrValToCCMap.put(classificationCounter.getAttrVal(), classificationCounter);
         }
@@ -56,7 +57,7 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
 
             if (bestValueAndScore.isPresent() && bestValueAndScore.get().getScore() > scoreWithCurrentTrueSet) {
                 scoreWithCurrentTrueSet = bestValueAndScore.get().getScore();
-                final Object bestValue = bestValueAndScore.get().getValue();
+                final Serializable bestValue = bestValueAndScore.get().getValue();
                 trueSet.add(bestValue);
                 final ClassificationCounter bestValOutcomeCounts = attrValToCCMap.get(bestValue);
                 trueClassificationCounts = trueClassificationCounts.add(bestValOutcomeCounts);
@@ -74,11 +75,11 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
         return Optional.of(new DTCatBranch(parent, attributeStats.getAttribute(), trueSet, probabilityOfBeingInTrueSet, scoreWithCurrentTrueSet,attributeStats.getAggregateStats()));
     }
 
-    private Optional<ScoreValuePair> getNextBestAttributeValueToAddToTrueSet(ClassificationCounter trueClassificationCounts, ClassificationCounter falseClassificationCounts, Map<Object, ClassificationCounter> attrValToCCMap) {
+    private Optional<ScoreValuePair> getNextBestAttributeValueToAddToTrueSet(ClassificationCounter trueClassificationCounts, ClassificationCounter falseClassificationCounts, Map<Serializable, ClassificationCounter> attrValToCCMap) {
         Optional<ScoreValuePair> bestValueAndScore = Optional.absent();
         //values should be greater than 1
 
-        for (final Object attrVal : attrValToCCMap.keySet()) {
+        for (final Serializable attrVal : attrValToCCMap.keySet()) {
             ClassificationCounter cc = attrValToCCMap.get(attrVal);
             if (    attrVal== null
                     || attrVal.equals(MissingValue.MISSING_VALUE)
@@ -100,9 +101,9 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
 
     static class ScoreValuePair {
         double score;
-        Object value;
+        Serializable value;
 
-        public ScoreValuePair(double score, Object value) {
+        public ScoreValuePair(double score, Serializable value) {
             this.score = score;
             this.value = value;
         }
@@ -111,7 +112,7 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
             return score;
         }
 
-        public Object getValue() {
+        public Serializable getValue() {
             return value;
         }
     }

@@ -9,6 +9,7 @@ import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStra
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +17,9 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
+public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implements Serializable{
+    private static final long serialVersionUID = 0L;
+
     protected BranchingConditions<VC> branchingConditions;
     protected Scorer<VC> scorer;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
@@ -46,7 +49,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> {
         return attributeIgnoringStrategy;
     }
 
-    public void update(Map<String, Object> cfg) {
+    public void update(Map<String, Serializable> cfg) {
         if (cfg.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name()))
             attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY.name());
         if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name()))

@@ -9,22 +9,23 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static quickml.supervised.Utils.getInstanceWeights;
 
-public class CrossValidator<PM extends PredictiveModel<AttributesMap, ?>, I extends InstanceWithAttributesMap<?>>  {
+public class CrossValidator<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>>  {
 
     private static final Logger logger = LoggerFactory.getLogger(CrossValidator.class);
 
 
-    private LossChecker<PM, I> lossChecker;
+    private LossChecker<A, PM, I> lossChecker;
     private TrainingDataCycler<I> dataCycler;
-    private final PredictiveModelBuilder<AttributesMap, PM, I> modelBuilder;
+    private final PredictiveModelBuilder<A, PM, I> modelBuilder;
 
-    public CrossValidator(PredictiveModelBuilder<AttributesMap, PM, I> modelBuilder, LossChecker<PM, I> lossChecker, TrainingDataCycler<I> dataCycler) {
+    public CrossValidator(PredictiveModelBuilder<A, PM, I> modelBuilder, LossChecker<A, PM, I> lossChecker, TrainingDataCycler<I> dataCycler) {
         this.lossChecker = lossChecker;
         this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
@@ -35,10 +36,10 @@ public class CrossValidator<PM extends PredictiveModel<AttributesMap, ?>, I exte
      * Get the loss for a model without updating the model config
      */
     public double getLossForModel() {
-        return getLossForModel(new HashMap<String, Object>());
+        return getLossForModel(new HashMap<String, Serializable>());
     }
 
-    public double getLossForModel(Map<String, Object> config) {
+    public double getLossForModel(Map<String, Serializable> config) {
         dataCycler.reset();
         modelBuilder.updateBuilderConfig(config);
         double loss = testModel();

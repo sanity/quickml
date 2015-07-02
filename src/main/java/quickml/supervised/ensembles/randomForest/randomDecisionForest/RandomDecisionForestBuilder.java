@@ -10,6 +10,7 @@ import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         treeBuilder.updateBuilderConfig(config);
         if (config.containsKey(NUM_TREES.name()))
             this.numTrees((Integer) config.get(NUM_TREES));
@@ -70,7 +71,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
 
         // Collect all completed trees. Will block until complete
         collectTreeFutures(decisionTrees, treeFutures);
-        Set<Object> classifications = new HashSet<>();
+        Set<Serializable> classifications = new HashSet<>();
         for (DecisionTree decisionTree : decisionTrees) {
             classifications.addAll(decisionTree.getClassifications());
         }

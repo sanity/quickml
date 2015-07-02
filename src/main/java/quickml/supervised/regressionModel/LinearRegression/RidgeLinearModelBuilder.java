@@ -31,7 +31,7 @@ public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[],
 
     @Override
     public void
-    updateBuilderConfig(Map<String, Object> cfg) {
+    updateBuilderConfig(Map<String, Serializable> cfg) {
         if (cfg.containsKey(REGULARIZATION_CONSTANT))
             regularizationConstant((Double) cfg.get(REGULARIZATION_CONSTANT));
         if (cfg.containsKey(INCLUDE_BIAS_TERM))

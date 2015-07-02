@@ -19,6 +19,7 @@ import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedFor
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -82,8 +83,8 @@ public class SplitOnAttributeClassifierBuilderTest {
         return new SplitOnAttributeClassifierBuilder.SplitModelGroup(id, group0Campaigns, minTotalSamples, percentageOfCrossData, relativeImportance);
     }
 
-    private Map<String, Object> createModelConfig() {
-        Map<String, Object> predictiveModelParameters = new HashMap<>();
+    private Map<String, Serializable> createModelConfig() {
+        Map<String, Serializable> predictiveModelParameters = new HashMap<>();
         predictiveModelParameters.put("numTrees", Integer.valueOf(16));
         predictiveModelParameters.put("bagSize", Integer.valueOf(0));//need to clean the builders to not use this since baggingnot used
         predictiveModelParameters.put("ignoreAttrProb", Double.valueOf(0.7));

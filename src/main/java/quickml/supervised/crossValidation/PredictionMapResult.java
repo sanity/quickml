@@ -9,12 +9,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Double.isInfinite;
 import static java.lang.Double.isNaN;
 
-public class PredictionMapResult extends LabelPredictionWeight<Object, PredictionMap> {
+public class PredictionMapResult extends LabelPredictionWeight<Serializable, PredictionMap> {
     private PredictionMap prediction;
-    private Object label;
+    private Serializable label;
     private double weight;
 
-    public PredictionMapResult(PredictionMap prediction, Object label, double weight) {
+    public PredictionMapResult(PredictionMap prediction, Serializable label, double weight) {
         super(label, prediction, weight);
         this.prediction = prediction;
         this.label = label;
@@ -29,7 +29,7 @@ public class PredictionMapResult extends LabelPredictionWeight<Object, Predictio
         return weight;
     }
 
-    public Object getLabel() {
+    public Serializable getLabel() {
         return label;
     }
 

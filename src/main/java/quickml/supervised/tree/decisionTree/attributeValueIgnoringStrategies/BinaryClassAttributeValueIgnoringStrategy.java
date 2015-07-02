@@ -3,6 +3,7 @@ package quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -10,8 +11,8 @@ import java.util.Map;
  */
 public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValueIgnoringStrategy<ClassificationCounter> {
     private final int minOccurancesOfAttributeValue;
-    private final Object minorityClassification;
-    private final Object majorityClassification;
+    private final Serializable minorityClassification;
+    private final Serializable majorityClassification;
     private final double majorityToMinorityRatio;
     public BinaryClassAttributeValueIgnoringStrategy(ClassificationCounter cc, final int minOccurancesOfAttributeValue) {
         this.minOccurancesOfAttributeValue = minOccurancesOfAttributeValue;
@@ -21,7 +22,7 @@ public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValue
     }
 
     public boolean shouldWeIgnoreThisValue(final ClassificationCounter termStatistics) {
-        Map<Object, Double> counts = termStatistics.getCounts();
+        Map<Serializable, Double> counts = termStatistics.getCounts();
         if (counts.containsKey(minorityClassification) &&
                 counts.get(minorityClassification) > minOccurancesOfAttributeValue) {
             return false;
@@ -40,12 +41,12 @@ public class BinaryClassAttributeValueIgnoringStrategy implements AttributeValue
         return true;
     }
 
-    private boolean hasSufficientStatisticsForBothClassifications(Map<Object, Double> counts) {
+    private boolean hasSufficientStatisticsForBothClassifications(Map<Serializable, Double> counts) {
         return counts.get(majorityClassification) > 0.6 * majorityToMinorityRatio * minOccurancesOfAttributeValue
                 && counts.get(minorityClassification) > 0.6 * minOccurancesOfAttributeValue;
     }
 
-    private boolean hasBothClassifications(Map<Object, Double> counts) {
+    private boolean hasBothClassifications(Map<Serializable, Double> counts) {
         return counts.containsKey(majorityClassification) && counts.containsKey(minorityClassification);
     }
 

@@ -1,7 +1,9 @@
 package quickml.data;
 
 
-public class InstanceWithAttributesMap<L> implements Instance<AttributesMap, L> {
+import java.io.Serializable;
+
+public class InstanceWithAttributesMap<L extends Serializable> implements Instance<AttributesMap, L> {
 
     private AttributesMap attributes;
     private L label;

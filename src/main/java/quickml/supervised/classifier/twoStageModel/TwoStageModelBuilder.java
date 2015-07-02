@@ -6,6 +6,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMa
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedModelBuilder1.updateBuilderConfig(config);
         wrappedModelBuilder2.updateBuilderConfig(config);
     }

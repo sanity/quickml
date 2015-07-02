@@ -88,7 +88,7 @@ public class CSVToInstanceReader {
     private ClassifierInstance instanceConverter(String[] instanceArray) {
 
         AttributesMap attributesMap = AttributesMap.newHashMap();
-        Object label = null;
+        Serializable label = null;
         double weight = 1.0;
         for (int i = 0; i < header.size(); i++) {
             if (i >= instanceArray.length) {
@@ -122,7 +122,7 @@ public class CSVToInstanceReader {
         return new ClassifierInstance(attributesMap, label, weight);
     }
 
-    private Object convertToNumberOrCleanedString(String varName, String varValue) {
+    private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
         boolean categoricalOrNumericSelectorProvided = categoricalSelector.isPresent() || numericSelector.isPresent();
         if (!categoricalOrNumericSelectorProvided) {
             return tryToConvertToNumeric(varValue);
@@ -143,7 +143,7 @@ public class CSVToInstanceReader {
     }
 
 
-    private Object tryToConvertToNumeric(String varValue) {
+    private Serializable tryToConvertToNumeric(String varValue) {
         if ((varValue.startsWith("\"") && varValue.endsWith("\"")) || (varValue.startsWith("\'") && varValue.endsWith("\'"))) {
             varValue = varValue.substring(1, varValue.length() - 1);
         }

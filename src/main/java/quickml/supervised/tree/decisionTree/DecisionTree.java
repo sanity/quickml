@@ -1,6 +1,7 @@
 package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
@@ -10,6 +11,7 @@ import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.Leaf;
 import quickml.supervised.tree.nodes.Node;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -24,20 +26,20 @@ import java.util.Set;
 public class DecisionTree extends AbstractClassifier implements Tree<PredictionMap> {
     static final long serialVersionUID = 56394564395635672L;
     public final Node<ClassificationCounter> root;
-    private Set<Object> classifications = new HashSet<>();
+    private HashSet<Serializable> classifications = new HashSet<>();
 
-    public DecisionTree(Node<ClassificationCounter> root, Set<Object> classifications) {
+    public DecisionTree(Node<ClassificationCounter> root, Set<Serializable> classifications) {
         this.root = root;
-        this.classifications = classifications;
+        this.classifications = Sets.newHashSet(classifications);
     }
 
-    public Set<Object> getClassifications() {
+    public Set<Serializable> getClassifications() {
         return classifications;
     }
 
 
     @Override
-    public double getProbability(AttributesMap attributes, Object classification) {
+    public double getProbability(AttributesMap attributes, Serializable classification) {
         Leaf<ClassificationCounter> dtLeaf = root.getLeaf(attributes);
         ClassificationCounter valueCounter = dtLeaf.getValueCounter();
         return valueCounter.getCount(classification) / valueCounter.getTotal();
@@ -45,11 +47,11 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
 
     @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         return getProbabilityWithoutAttributesHelper(root, attributes, classification, attributesToIgnore);
     }
 
-    private double getProbabilityWithoutAttributesHelper(Node<ClassificationCounter> node, AttributesMap attributes, Object classification, Set<String> attributesToIgnore) {
+    private double getProbabilityWithoutAttributesHelper(Node<ClassificationCounter> node, AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
         if (node instanceof Branch) {
             Branch branch = (Branch) node;
             if (attributesToIgnore.contains(branch.attribute)) {
@@ -73,8 +75,8 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
     public PredictionMap predict(AttributesMap attributes) {
         Leaf<ClassificationCounter> dtLeaf = root.getLeaf(attributes);
         ClassificationCounter valueCounter = dtLeaf.getValueCounter();
-        Map<Object, Double> probsByClassification = Maps.newHashMap();
-        for (Object classification : valueCounter.allClassifications()) {
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        for (Serializable classification : valueCounter.allClassifications()) {
             double probability = valueCounter.getCount(classification) / valueCounter.getTotal();
             probsByClassification.put(classification, probability);
         }
@@ -83,15 +85,15 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
 
     @Override
     public PredictionMap predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
-        Map<Object, Double> probsByClassification = Maps.newHashMap();
-        for (Object classification : classifications) {
+        Map<Serializable, Double> probsByClassification = Maps.newHashMap();
+        for (Serializable classification : classifications) {
             probsByClassification.put(classification, getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore));
         }
         return new PredictionMap(probsByClassification);
     }
 
     @Override
-    public Object getClassificationByMaxProb(AttributesMap attributes) {
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         Leaf<ClassificationCounter> leaf = root.getLeaf(attributes);
         ClassificationCounter classificationCounter = leaf.getValueCounter();
         return classificationCounter.mostPopular().getValue0();//returns best class.
@@ -115,6 +117,6 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
     }
 
 
-    protected transient volatile Map.Entry<Object, Double> bestClassificationEntry = null;
+    protected transient volatile Map.Entry<Serializable, Double> bestClassificationEntry = null;
 
 }

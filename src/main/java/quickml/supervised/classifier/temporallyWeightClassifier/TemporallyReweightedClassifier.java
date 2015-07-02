@@ -5,6 +5,7 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public double getProbability(final AttributesMap attributes, final Object classification) {
+    public double getProbability(final AttributesMap attributes, final Serializable classification) {
         return wrappedClassifier.getProbability(attributes, classification);
     }
 
@@ -31,7 +32,7 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public double getProbabilityWithoutAttributes(final AttributesMap attributes, final Object classification, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(final AttributesMap attributes, final Serializable classification, Set<String> attributesToIgnore) {
         return wrappedClassifier.getProbabilityWithoutAttributes(attributes, classification, attributesToIgnore);
     }
 
@@ -41,7 +42,7 @@ public class TemporallyReweightedClassifier extends AbstractClassifier {
     }
 
     @Override
-    public Object getClassificationByMaxProb(final AttributesMap attributes) {
+    public Serializable getClassificationByMaxProb(final AttributesMap attributes) {
         return wrappedClassifier.getClassificationByMaxProb(attributes);
     }
 

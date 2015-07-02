@@ -9,6 +9,7 @@ import quickml.scorers.Scorer;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.treeBuildContexts.TreeContext;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -16,9 +17,9 @@ import java.util.Set;
  * Created by alexanderhawk on 6/21/15.
  */
 public class DTreeContext<I extends ClassifierInstance> extends TreeContext<I, ClassificationCounter> {
-    Set<Object> classifications;
+    Set<Serializable> classifications;
 
-    public DTreeContext(Set<Object> classifications,
+    public DTreeContext(Set<Serializable> classifications,
                         BranchingConditions<ClassificationCounter> branchingConditions,
                         Scorer scorer,
                         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers,
@@ -29,7 +30,7 @@ public class DTreeContext<I extends ClassifierInstance> extends TreeContext<I, C
         this.classifications = classifications;
     }
 
-    public Set<Object> getClassifications() {
+    public Set<Serializable> getClassifications() {
         return classifications;
     }
 }

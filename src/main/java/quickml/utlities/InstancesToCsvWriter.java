@@ -15,11 +15,11 @@ import java.util.Set;
  */
 public class InstancesToCsvWriter {
 
-    public static void writeInstances(List<? extends Instance<AttributesMap, Object>> instances, String filePath) {
+    public static void writeInstances(List<? extends Instance<AttributesMap, Serializable>> instances, String filePath) {
         List<String[]> allRows = Lists.newLinkedList();
         String[] header = getHeader(instances);
         allRows.add(header);
-        for (Instance<AttributesMap, Object> instance : instances) {
+        for (Instance<AttributesMap, Serializable> instance : instances) {
             allRows.add(instanceToRow(instance, header));
         }
         File file = new File(filePath);
@@ -36,9 +36,9 @@ public class InstancesToCsvWriter {
         }
     }
 
-    private static String[] getHeader(List<? extends Instance<AttributesMap, Object>> instances) {
+    private static String[] getHeader(List<? extends Instance<AttributesMap, Serializable>> instances) {
         Set<String> headerSet = Sets.newTreeSet();
-        for (Instance<AttributesMap, Object> instance : instances) {
+        for (Instance<AttributesMap, Serializable> instance : instances) {
             for (String key : instance.getAttributes().keySet()) {
                 headerSet.add(key);
             }
@@ -48,7 +48,7 @@ public class InstancesToCsvWriter {
         return headerSet.toArray(new String[headerSet.size()]);
     }
 
-    private static String[] instanceToRow(Instance<AttributesMap, Object> instance, String [] header) {
+    private static String[] instanceToRow(Instance<AttributesMap, Serializable> instance, String [] header) {
         String[] row = new String[header.length];
         for (int i = 0; i < header.length; i++) {
             if (((String) header[i]).equals("label")) {

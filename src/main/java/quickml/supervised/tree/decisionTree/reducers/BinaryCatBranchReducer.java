@@ -6,6 +6,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -15,9 +16,9 @@ import java.util.List;
  */
 public class BinaryCatBranchReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
     //move to Binary ClassifierNodeBuilder.
-    Object minorityClassification;
+    Serializable minorityClassification;
 
-    public BinaryCatBranchReducer(Object minorityClassification) {
+    public BinaryCatBranchReducer(Serializable minorityClassification) {
         this.minorityClassification = minorityClassification;
     }
 

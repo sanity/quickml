@@ -5,6 +5,7 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
 
+import java.io.Serializable;
 import java.util.Set;
 
 
@@ -26,13 +27,13 @@ public class CalibratedClassifier implements Classifier {
         this.pavFunction = PAVFunction;
     }
     @Override
-    public double getProbability(AttributesMap attributes, Object label) {
+    public double getProbability(AttributesMap attributes, Serializable label) {
         double rawProbability = wrappedPredictiveModel.getProbability(attributes, label);
         return pavFunction.predict(rawProbability);
     }
 
     @Override
-    public double getProbabilityWithoutAttributes(AttributesMap attributes, Object label, Set<String> attributesToIgnore) {
+    public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable label, Set<String> attributesToIgnore) {
         double rawProbability = wrappedPredictiveModel.getProbabilityWithoutAttributes(attributes, label, attributesToIgnore);
         return pavFunction.predict(rawProbability);
     }
@@ -59,11 +60,11 @@ public class CalibratedClassifier implements Classifier {
     }
 
     @Override
-    public Object getClassificationByMaxProb(AttributesMap attributes) {
+    public Serializable getClassificationByMaxProb(AttributesMap attributes) {
         PredictionMap predictionMap = predict(attributes);
         double maxProb = 0;
-        Object classification = null;
-        for (Object prediction : predictionMap.keySet()) {
+        Serializable classification = null;
+        for (Serializable prediction : predictionMap.keySet()) {
             double prob = predictionMap.get(prediction);
             if (prob > maxProb) {
                 maxProb = prob;

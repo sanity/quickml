@@ -47,7 +47,7 @@ public class LossFunctionCorrectedForDownsampling extends ClassifierLossFunction
 
     // TODO[mk] - internal class, doesn't need to be an interface
     public interface CorrectionFunction {
-        PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Object, PredictionMap> labelPredictionWeight);
+        PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight);
     }
 
     public class NegativeInstanceCorrectionFunction implements CorrectionFunction {
@@ -66,11 +66,11 @@ public class LossFunctionCorrectedForDownsampling extends ClassifierLossFunction
         }
 
         @Override
-        public PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Object, PredictionMap> labelPredictionWeight) {
+        public PredictionMapResult getCorrectedLabelPredictionWeight(LabelPredictionWeight<Serializable, PredictionMap> labelPredictionWeight) {
             PredictionMap correctedPredictionMap = PredictionMap.newMap();
             PredictionMap uncorrectedPrediction = labelPredictionWeight.getPrediction();
             double correctedProbability;
-            for (Object key : uncorrectedPrediction.keySet()) {
+            for (Serializable key : uncorrectedPrediction.keySet()) {
                 if (key.equals(negativeLabel)) {
                     correctedProbability = 1.0 - DownsamplingUtils.correctProbability(dropProbability, 1.0 - uncorrectedPrediction.get(key));
                     correctedPredictionMap.put(key, correctedProbability);

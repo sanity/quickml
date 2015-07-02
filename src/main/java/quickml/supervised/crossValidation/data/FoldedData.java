@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class FoldedData<I extends InstanceWithAttributesMap<?>> implements TrainingDataCycler<I> {
+public class FoldedData<I> implements TrainingDataCycler<I> {
 
 
     private final int numFolds;

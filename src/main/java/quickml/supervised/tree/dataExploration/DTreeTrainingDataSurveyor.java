@@ -5,6 +5,7 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.constants.BranchType;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -28,7 +29,7 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (T instance : trainingData) {
-            for (Map.Entry<String, Object> e : instance.getAttributes().entrySet()) {
+            for (Map.Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
                 AttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
                 if (attributeCharacteristic == null) {
                     attributeCharacteristic = new AttributeCharacteristics();
@@ -68,9 +69,9 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
 
         public boolean isNumber = true;
         public boolean isBoolean = true;
-        private HashSet<Object> observedVals = new HashSet();
+        private HashSet<Serializable> observedVals = new HashSet();
 
-        public void updateBooleanStatus(Object val) {
+        public void updateBooleanStatus(Serializable val) {
             if (!isBoolean || val == null) {
                 return;
             }
@@ -87,7 +88,7 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
         private boolean bothValsAreNumbers() {
             boolean bothValsAreNum = true;
 
-            for (Object key: observedVals) {
+            for (Serializable key: observedVals) {
                 if (!(key instanceof Number))
                     return false;
             }
