@@ -3,6 +3,7 @@ package quickml.supervised.tree.branchFinders;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.constants.MissingValue;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
@@ -25,6 +26,7 @@ public class SplittingUtils {
         int indexOfLastValueCounterInTrueSet = 0;
         double probabilityOfBeingInTrueSet = 0;
         boolean trueSetExists = false;
+        int valuesConsidered = 0;
 
         List<VC> attributeValueStatsList = attributeStats.getStatsOnEachValue();
         VC falseSet = attributeStats.getAggregateStats();
@@ -36,10 +38,11 @@ public class SplittingUtils {
         for (int i = 0; i < attributeValueStatsList.size() - 1; i++) {
 
             VC valueCounterForAttrVal = attributeValueStatsList.get(i);
+
             if (shouldWeIgnoreValueCounter(attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics, valueCounterForAttrVal)) {
                 continue;
             }
-
+            valuesConsidered++;
             trueSet = trueSet.add(valueCounterForAttrVal);
             falseSet = falseSet.subtract(valueCounterForAttrVal);
 
@@ -61,7 +64,7 @@ public class SplittingUtils {
                 trueSetExists = true;
             }
         }
-        if (!trueSetExists) {
+        if (!trueSetExists || valuesConsidered<=1) {
             return Optional.absent();
         }
         Set<Serializable> trueSetVals = createTrueSetVals(indexOfLastValueCounterInTrueSet, attributeValueStatsList, attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics);
@@ -82,6 +85,9 @@ public class SplittingUtils {
     }
 
     private static <VC extends ValueCounter<VC>> boolean shouldWeIgnoreValueCounter(AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, boolean doNotUseAttributeValuesWithInsuffientStatistics, VC valueCounterForAttrVal) {
+        if (valueCounterForAttrVal == null || valueCounterForAttrVal.attrVal.equals(MissingValue.MISSING_VALUE)) {
+            return true;
+        }
         return attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(valueCounterForAttrVal)
                 && doNotUseAttributeValuesWithInsuffientStatistics;
     }

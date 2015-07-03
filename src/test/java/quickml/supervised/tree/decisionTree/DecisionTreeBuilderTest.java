@@ -15,7 +15,6 @@ import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by alexanderhawk on 4/26/15.
@@ -30,7 +29,7 @@ public class DecisionTreeBuilderTest {
 
         DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
-                .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
+                .degreeOfGainRatioPenalty(1.0).minAttributeValueOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
 
         List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
 
@@ -56,7 +55,7 @@ public class DecisionTreeBuilderTest {
 
         DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
-                .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
+                .degreeOfGainRatioPenalty(1.0).minAttributeValueOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
 
         List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
 
@@ -82,7 +81,7 @@ public class DecisionTreeBuilderTest {
 
         DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
-                .degreeOfGainRatioPenalty(1.0).minAttributeOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
+                .degreeOfGainRatioPenalty(1.0).minAttributeValueOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
 
         List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
 

@@ -65,7 +65,7 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements
 
     @Override
     public boolean isInvalidSplit(VC trueSet, VC falseSet, String attribute) {
-        return ( getSplitFraction(trueSet, falseSet) < minSplitFraction && !exemptAttributes.contains(attribute)) || violatesMinLeafInstances(trueSet, falseSet);
+        return ( (getSplitFraction(trueSet, falseSet) < minSplitFraction && !exemptAttributes.contains(attribute))) || violatesMinLeafInstances(trueSet, falseSet);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements
 
     @Override
     public boolean canTryAddingChildren(Branch<VC> parent, VC totals){
-        return (parent==null || parent.getDepth() < maxDepth) && totals.getTotal() > 2 * minLeafInstances;
+        return (parent==null || parent.getDepth() < maxDepth-1);// && totals.getTotal() > 2 * minLeafInstances;
     }
 
     @Override

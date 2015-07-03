@@ -38,7 +38,7 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         for (ClassifierInstance instance : trainingData) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc;
-            boolean acceptableMissingValue = attrVal == null;
+            boolean acceptableMissingValue = attrVal == null || attrVal.equals("");//trial
 
             if (attrVal != null)
                 cc = result.get(attrVal);

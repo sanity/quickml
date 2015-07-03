@@ -23,16 +23,16 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements AttributesMapPredictiveModelBuilder<Classifier, T> {
+public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<AttributesMap, Classifier, T> {
 
     public static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
 
 
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private double targetMinorityProportion;
-    private final AttributesMapPredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder;
+    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, T> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(AttributesMapPredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<AttributesMap,? extends Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
         checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.predictiveModelBuilder = predictiveModelBuilder;
         this.targetMinorityProportion = targetMinorityProportion;

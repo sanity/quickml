@@ -2,7 +2,9 @@ package quickml.supervised.tree.decisionTree.treeBuildContexts;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.crossValidation.attributeImportance.AttributeImportanceFinderBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
@@ -11,7 +13,6 @@ import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBu
 
 import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
-import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
 import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
@@ -167,7 +168,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             imbalancePenaltyPower(DEFAULT_IMBALANCE_PENALTY_POWER);
         }
         if (!config.containsKey(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name())) {
-            minAttributeOccurences(DEFAULT_MIN_ATTRIBUTE_OCCURENCES);
+            minAttributeValueOccurences(DEFAULT_MIN_ATTRIBUTE_OCCURENCES);
         }
         if (!config.containsKey(LEAF_BUILDER.name())) {
             leafBuilder(DEFAULT_LEAF_BUILDER);
@@ -175,6 +176,9 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
         if (!config.containsKey(MIN_LEAF_INSTANCES.name())) {
             minLeafInstances(DEFAULT_MIN_LEAF_INSTANCES);
+        }
+        if (!config.containsKey(MIN_SCORE.name())) {
+            minScore(DEFAULT_MIN_SCORE);
         }
         updateBuilderConfig(this.config);
     }
@@ -222,6 +226,18 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (config.containsKey(MIN_LEAF_INSTANCES.name())) {
             copiedConfig.put(MIN_LEAF_INSTANCES.name(), config.get(MIN_LEAF_INSTANCES.name()));
         }
+
+        if (config.containsKey(MIN_SCORE.name())) {
+            copiedConfig.put(MIN_SCORE.name(), config.get(MIN_SCORE.name()));
+        }
+
+        if (config.containsKey(EXEMPT_ATTRIBUTES.name())) {
+            copiedConfig.put(EXEMPT_ATTRIBUTES.name(), Sets.newHashSet(((Set<String>) config.get(EXEMPT_ATTRIBUTES.name()))));
+        }
+
+        if (config.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name())) {
+            copiedConfig.put(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name(), ((AttributeValueIgnoringStrategyBuilder<ClassificationCounter>) config.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY.name())).copy());
+        }
         return copiedConfig;
     }
 
@@ -233,7 +249,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public void leafBuilder(LeafBuilder<ClassificationCounter> leafBuilder) {
         config.put(LEAF_BUILDER.name(), leafBuilder);
     }
-
+   //doesn't have default
     public void ignoreAttributeProbability(int ignoreAttributeProbability) {
         config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability));
     }
@@ -246,6 +262,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(MIN_LEAF_INSTANCES.name(), minLeafInstances);
     }
 
+    //doesn't have a default.
     public void exemptAttributes(HashSet<String> exemptAttributes) {
         config.put(EXEMPT_ATTRIBUTES.name(), exemptAttributes);
     }
@@ -253,7 +270,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public void attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), attributeIgnoringStrategy);
     }
-
+    //if not specified, the appropriate attrValIgnoringStrategy will be chosen when building BranchFinders
     public void attributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<ClassificationCounter> attributeValueIgnoringStrategyBuilder) {
         config.put(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name(), attributeValueIgnoringStrategyBuilder);
     }
@@ -286,9 +303,11 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(BRANCH_FINDER_BUILDERS.name(), branchFinderBuilders);
     }
 
-    public void minAttributeOccurences(int minAttributeOccurences) {
-        config.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), minAttributeOccurences);
+    public void minAttributeValueOccurences(int minAttributeValueOccurences) {
+        config.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), minAttributeValueOccurences);
     }
-
+    public void minScore(double minScore) {
+        config.put(MIN_SCORE.name(), minScore);
+    }
 
 }

@@ -24,7 +24,7 @@ import static quickml.supervised.tree.constants.ForestOptions.NUM_SAMPLES_PER_NU
 public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
    //TODO: once verify functionality is correct, remove these variables and get n classification counters which can then be further merged in the branchFinder
-    int numSamplesPerBin = 50;
+    int numSamplesPerBin = 17;
     int numNumericBins = 6;
 
     @Override
