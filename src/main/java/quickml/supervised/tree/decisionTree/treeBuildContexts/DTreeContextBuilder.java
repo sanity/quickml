@@ -12,10 +12,12 @@ import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 
 import quickml.supervised.tree.constants.AttributeType;
+import quickml.supervised.tree.decisionTree.branchFinders.OldBinCatBranchFinder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
 import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
+import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.OldBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.*;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
@@ -130,7 +132,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     public static <I extends ClassifierInstance> ArrayList<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {
         ArrayList<BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders = Lists.newArrayList();
-        branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());
+        branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());//OldBinaryCatBranchFinderBuilder());//DTBinaryCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTNumBranchFinderBuilder());
         return branchFinderBuilders;

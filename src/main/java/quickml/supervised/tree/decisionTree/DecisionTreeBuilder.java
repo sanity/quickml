@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * Created by alexanderhawk on 6/20/15.
  */
-public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, I> {
+public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, I> { //why implement TreeBuilder, why not PredictiveModelBuilder
     public static final int DEFAULT_MAX_DEPTH = 5;
     public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
     public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);

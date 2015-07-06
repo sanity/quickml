@@ -17,7 +17,6 @@ import static quickml.supervised.classifier.decisionTree.TreeBuilder.MISSING_VAL
 public class ClassificationCounter implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private final ValueSummingMap<Serializable> counts = new ValueSummingMap<Serializable>();
-    private boolean hasSufficientData = true;
 
     public ClassificationCounter() {
     }
@@ -26,6 +25,11 @@ public class ClassificationCounter implements Serializable {
         this.counts.putAll(classificationCounter.counts);
     }
 
+    public ClassificationCounter(quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter classificationCounter) {
+        this.counts.putAll(classificationCounter.getCounts());
+    }
+
+    private boolean hasSufficientData = true;
 
     public void setHasSufficientData(boolean hasSufficientData) {
         this.hasSufficientData = hasSufficientData;

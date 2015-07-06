@@ -11,13 +11,14 @@ import quickml.supervised.tree.reducers.AttributeStats;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import static quickml.supervised.tree.constants.MissingValue.*;
+
+import static quickml.supervised.tree.constants.MissingValue.MISSING_VALUE;
 
 
 /**
  * Created by alexanderhawk on 4/23/15.
  */
-public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
+public class DTOldCatBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
 
     @Override
     public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
@@ -38,7 +39,7 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         for (ClassifierInstance instance : trainingData) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc;
-            boolean acceptableMissingValue = attrVal == null; //|| attrVal.equals("");//trial
+            boolean acceptableMissingValue = attrVal == null || attrVal.equals("");//trial
 
             if (attrVal != null)
                 cc = result.get(attrVal);

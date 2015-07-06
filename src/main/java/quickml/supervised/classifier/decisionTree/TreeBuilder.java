@@ -374,9 +374,9 @@ public final class TreeBuilder<T extends ClassifierInstance> implements Predicti
             Pair<? extends Branch, Double> categoricalPair = null;
 
             if (!smallTrainingSet && attributeCharacteristicsEntry.getValue().isNumber) {
-               numericPair = createNumericBranch(parent, attributeCharacteristicsEntry.getKey(), trainingData);
+               //numericPair = createNumericBranch(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             } else if (!attributeCharacteristicsEntry.getValue().isNumber) {
-               // categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
+               categoricalPair = createCategoricalNode(parent, attributeCharacteristicsEntry.getKey(), trainingData);
             }
 
             if (numericPair != null) {

@@ -64,7 +64,7 @@ public class SplittingUtils {
                 trueSetExists = true;
             }
         }
-        if (!trueSetExists || valuesConsidered<=1) {
+        if (!trueSetExists || valuesConsidered<1) {
             return Optional.absent();
         }
         Set<Serializable> trueSetVals = createTrueSetVals(indexOfLastValueCounterInTrueSet, attributeValueStatsList, attributeValueIgnoringStrategy, doNotUseAttributeValuesWithInsuffientStatistics);

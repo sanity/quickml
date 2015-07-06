@@ -32,6 +32,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
     public List<? extends BranchFinderBuilder<VC>> getBranchFinderBuilders() {
+        //TODO consider making this getter access the config, and removing the field altogether.
         return branchFinderBuilders;
     }
 

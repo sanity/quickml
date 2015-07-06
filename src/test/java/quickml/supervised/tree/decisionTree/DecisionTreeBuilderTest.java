@@ -5,6 +5,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import quickml.data.ClassifierInstance;
 import quickml.InstanceLoader;
+import quickml.supervised.classifier.decisionTree.Tree;
+import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
@@ -26,24 +29,41 @@ public class DecisionTreeBuilderTest {
         double minSplitFraction = 0.1;
         int minLeafInstances = 20;
         int minAttributeOccurences = 11;
+        List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
 
-        DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(25).numNumericBins(6)
+        TreeBuilder modelBuilder = new TreeBuilder().scorer(new GiniImpurityScorer()).
+                maxDepth(maxDepth).
+                minSplitFraction(minSplitFraction).
+                degreeOfGainRatioPenalty(1.0).
+                minCategoricalAttributeValueOccurances(minAttributeOccurences)
+                .attributeIgnoringStrategy(new quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability(0.7));
+        Tree treeOld = modelBuilder.buildPredictiveModel(instances);
+
+        DecisionTreeBuilder<ClassifierInstance> decisionTreeBuilder = new DecisionTreeBuilder<>().numSamplesPerNumericBin(18).numNumericBins(6)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).maxDepth(maxDepth).minSplitFraction(minSplitFraction)
                 .degreeOfGainRatioPenalty(1.0).minAttributeValueOccurences(minAttributeOccurences).minLeafInstances(minLeafInstances);
 
-        List<ClassifierInstance> instances = Lists.newArrayList(InstanceLoader.getAdvertisingInstances());//.subList(0, 10000);
 
         DecisionTree decisionTree = decisionTreeBuilder.buildPredictiveModel(instances);
 
         Conditions<ClassificationCounter> conditions = new Conditions<>(maxDepth, minAttributeOccurences, minSplitFraction, minLeafInstances);
         recurseTree(decisionTree.root, conditions);
 
-        RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
-        RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
+    //    RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
+    //    RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
 
-        for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
-            recurseTree(forestTree.root, conditions);
-         }
+     //   for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
+       //     recurseTree(forestTree.root, conditions);
+        // }
+        for (ClassifierInstance instance: instances) {
+            treeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
+            treeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
+
+            decisionTree.getProbability(instance.getAttributes(), 1.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
+            decisionTree.getProbability(instance.getAttributes(), 0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
+            Assert.assertEquals(decisionTree.getProbability(instance.getAttributes(), 1.0) +decisionTree.getProbability(instance.getAttributes(), 0.0), 1.0, 1E-5);
+        }
+
     }
 
     @Test
@@ -70,6 +90,8 @@ public class DecisionTreeBuilderTest {
         for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
             recurseTree(forestTree.root, conditions);
         }
+
+
     }
 
     @Test

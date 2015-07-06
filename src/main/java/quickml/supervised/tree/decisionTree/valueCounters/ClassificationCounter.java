@@ -14,7 +14,15 @@ import java.util.Map.Entry;
 public class ClassificationCounter extends ValueCounter<ClassificationCounter> implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private final ValueSummingMap<Serializable> counts = new ValueSummingMap<Serializable>();
+    //TODO: remove hasSuffientData stuff after debugging
+    private boolean hasSufficientData = true;
+    public void setHasSufficientData(boolean hasSufficientData) {
+        this.hasSufficientData = hasSufficientData;
+    }
 
+    public boolean hasSufficientData() {
+        return hasSufficientData;
+    }
     public ClassificationCounter() {}
 
     public ClassificationCounter(Serializable attrVal) {

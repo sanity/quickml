@@ -3,6 +3,7 @@ package quickml.supervised.tree;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import quickml.data.ClassifierInstance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
@@ -46,7 +47,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     protected Node<VC> createNode(Branch<VC> parent, List<I> trainingData, TreeContext<I, VC> tc) {
         Preconditions.checkArgument(trainingData != null && !trainingData.isEmpty(), "Can't build a tree with no training data");
         BranchingConditions<VC> branchingConditions = tc.getBranchingConditions();
-        VC aggregateStats = getAggregateStats(tc,trainingData);
+        VC aggregateStats = getAggregateStats(tc, trainingData);
         if (!branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
             return getLeaf(parent, aggregateStats, tc);
         }
@@ -58,9 +59,20 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
 
         List<I> trueTrainingSet = Lists.newArrayList();
         List<I> falseTrainingSet = Lists.newArrayList();
+        Set<I>  trueSet = Sets.newHashSet();
+        Set<I>  falseSet = Sets.newHashSet();
         setTrueAndFalseTrainingSets(trainingData, bestBranch, trueTrainingSet, falseTrainingSet);
-        //Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
+        trueSet.addAll(trueTrainingSet);
+        falseSet.addAll(falseTrainingSet);
 
+        Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
+        for (I instance : trueFalsePair.trueTrainingSet) {
+            assert trueSet.contains(instance) && !falseSet.contains(instance);
+        }
+
+        for (I instance : trueFalsePair.falseTrainingSet) {
+            assert falseSet.contains(instance) && !trueSet.contains(instance);
+        }
         if (trueTrainingSet.size() ==0 || falseTrainingSet.size() ==0){//trueFalsePair.falseTrainingSet.size() ==0 || trueFalsePair.trueTrainingSet.size() ==0) {
             return getLeaf(parent, aggregateStats, tc);
         }
@@ -85,7 +97,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
             Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
             if (thisBranchOptional.isPresent()) {
                 Branch<VC> thisBranch = thisBranchOptional.get();
-                if (isBestSplitSoFar(tc, bestScore, thisBranch)) {  
+                if (isBestSplitSoFar(tc, bestScore, thisBranch)) {
                     bestBranchOptional = thisBranchOptional;
                     bestScore = thisBranch.score;
                 }
