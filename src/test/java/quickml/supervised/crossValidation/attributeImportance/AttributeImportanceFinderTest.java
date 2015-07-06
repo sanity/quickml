@@ -4,13 +4,18 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.InstanceLoader;
+import quickml.supervised.classifier.Classifier;
+import quickml.supervised.classifier.decisionTree.Tree;
 import quickml.supervised.classifier.decisionTree.TreeBuilder;
 import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.crossValidation.ClassifierLossChecker;
+import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 
@@ -30,6 +35,7 @@ public class AttributeImportanceFinderTest {
 
     @Test
     public void testAttributeImportanceFinder() throws Exception {
+
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
                 .modelBuilder(new RandomForestBuilder(new TreeBuilder(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))).numTrees(5))
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
@@ -40,6 +46,7 @@ public class AttributeImportanceFinderTest {
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());
+
     }
 
     private Set<String> attributesToKeep() {
