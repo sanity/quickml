@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.Utils;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;

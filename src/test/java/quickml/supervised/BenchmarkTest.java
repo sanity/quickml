@@ -40,7 +40,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {
 
-    private ClassifierLossChecker<ClassifierInstance> classifierLossChecker;
+    private ClassifierLossChecker<ClassifierInstance, ?> classifierLossChecker;
     private ArrayList<Scorer<ClassificationCounter>> scorers;
     private DecisionTreeBuilder<ClassifierInstance> treeBuilder;
     private RandomDecisionForestBuilder randomDecisionForestBuilder;
@@ -95,10 +95,10 @@ public class BenchmarkTest {
         for (final Scorer scorer : scorers) {
             Map<String, Serializable> cfg = Maps.newHashMap();
             cfg.put(ForestOptions.SCORER.name(), scorer);
-            CrossValidator<AttributesMap, Classifier, ClassifierInstance> validator = new CrossValidator<AttributesMap, Classifier, ClassifierInstance>(treeBuilder, classifierLossChecker, data);
+            CrossValidator<AttributesMap, DecisionTree, ClassifierInstance> validator = new CrossValidator<AttributesMap, DecisionTree, ClassifierInstance>(treeBuilder, classifierLossChecker, data);
             System.out.println(dsName + ", single-oldTree, " + scorer + ", " + validator.getLossForModel(cfg));
-            validator = new CrossValidator<AttributesMap, Classifier, ClassifierInstance>(randomDecisionForestBuilder, classifierLossChecker, data);
-            System.out.println(dsName + ", random-forest, " + scorer + ", " + validator.getLossForModel(cfg));
+            CrossValidator<AttributesMap, RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<AttributesMap, RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossChecker, data);
+            System.out.println(dsName + ", random-forest, " + scorer + ", " + validator2.getLossForModel(cfg));
         }
     }
 

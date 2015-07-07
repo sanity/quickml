@@ -2,9 +2,9 @@ package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.data.PredictionMap;
-import quickml.supervised.tree.TreeBuilder;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * Created by alexanderhawk on 6/20/15.
  */
-public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBuilder<PredictionMap, I> { //why implement TreeBuilder, why not PredictiveModelBuilder
+public class DecisionTreeBuilder<I extends ClassifierInstance> implements PredictiveModelBuilder<AttributesMap, DecisionTree, I> { //why implement TreeBuilder, why not PredictiveModelBuilder
     public static final int DEFAULT_MAX_DEPTH = 5;
     public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
     public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);
@@ -65,7 +65,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements TreeBu
         tcb.updateBuilderConfig(config);
     }
 
-    @Override
+
     public synchronized DecisionTreeBuilder<I> copy() {
         return new DecisionTreeBuilder<>(tcb);
     }
