@@ -42,7 +42,7 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
     }
 
     public Node<VC> getFalseChild(){
-        return trueChild;
+        return falseChild;
     }
 
     public int getDepth() {
@@ -95,9 +95,9 @@ public abstract class Branch<VC extends ValueCounter<VC>> implements Node<VC>, S
 	}
 
 	@Override
-	public void calcMeanDepth(final LeafDepthStats stats) {
-		trueChild.calcMeanDepth(stats);
-		falseChild.calcMeanDepth(stats);
+	public void calcLeafDepthStats(final LeafDepthStats stats) {
+		trueChild.calcLeafDepthStats(stats);
+		falseChild.calcLeafDepthStats(stats);
 	}
 
     @Override

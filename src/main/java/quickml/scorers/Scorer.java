@@ -1,8 +1,6 @@
 package quickml.scorers;
 
 
-import quickml.supervised.classifier.decisionTree.tree.AttributeValueWithClassificationCounter;
-import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
@@ -38,9 +36,11 @@ public abstract class Scorer<VC extends ValueCounter<VC>>  implements Serializab
         double intrinsicValue = 0;
         double attributeValProb = 0;
 
-        for (VC termStatistics : attributeStats.getStatsOnEachValue()) {
-            attributeValProb = termStatistics.getTotal() / attributeStats.getAggregateStats().getTotal();
-            intrinsicValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
+        for (VC valueCounter : attributeStats.getStatsOnEachValue()) {
+            if (!valueCounter.isEmpty()) {  // if it is empty, it should not be considered.
+                attributeValProb = valueCounter.getTotal() / attributeStats.getAggregateStats().getTotal();
+                intrinsicValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
+            }
         }
 
         this.intrinsicValue = intrinsicValue;
@@ -78,6 +78,4 @@ public abstract class Scorer<VC extends ValueCounter<VC>>  implements Serializab
     }
 
     public abstract Scorer<VC> createScorer();
-
-
 }

@@ -1,7 +1,7 @@
-package quickml.supervised.tree.attributeIgnoringStrategies;
+package quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.oldAttributeIgnoringStrategies;
 
 import com.google.common.collect.Lists;
-import quickml.supervised.tree.nodes.Branch;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.OldBranch;
 
 import java.util.List;
 
@@ -9,8 +9,6 @@ import java.util.List;
  * Created by alexanderhawk on 2/28/15.
  */
 public class CompositeAttributeIgnoringStrategy implements AttributeIgnoringStrategy {
-    private static final long serialVersionUID = 0L;
-
     private List<AttributeIgnoringStrategy> attributeIgnoringStrategies = Lists.newArrayList();
 
     public CompositeAttributeIgnoringStrategy(List<AttributeIgnoringStrategy> attributeIgnoringStrategies) {
@@ -27,7 +25,7 @@ public class CompositeAttributeIgnoringStrategy implements AttributeIgnoringStra
     }
 
     @Override
-    public boolean ignoreAttribute(String attribute, Branch parent) {
+    public boolean ignoreAttribute(String attribute, OldBranch parent) {
         for (AttributeIgnoringStrategy attributeIgnoringStrategy : attributeIgnoringStrategies) {
             if (attributeIgnoringStrategy.ignoreAttribute(attribute, parent)) {
                 return true;

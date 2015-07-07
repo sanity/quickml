@@ -86,7 +86,7 @@ public class DecisionTreeBuilderTest {
 
         final List<InstanceWithAttributesMap> newInstances = TreeBuilderTestUtils.getInstances(1000);
         final DecisionTree newDecisionTree = treeBuilder.buildPredictiveModel(newInstances);
-        assertTrue("Expect same tree to be updated", decisionTree == newDecisionTree);
+        assertTrue("Expect same oldTree to be updated", decisionTree == newDecisionTree);
         assertNotSame("Expected new nodes", nodeSize, newDecisionTree.root.getSize());
         assertNotSame("Expected new mean depth", nodeMeanDepth, newDecisionTree.root.meanDepth());
     }
@@ -131,7 +131,7 @@ public class DecisionTreeBuilderTest {
 
         final List<InstanceWithAttributesMap> newInstances = TreeBuilderTestUtils.getInstances(10000);
         final DecisionTree newDecisionTree = treeBuilder.buildPredictiveModel(newInstances);
-        Assert.assertFalse("Expect new tree to be built", decisionTree == newDecisionTree);
+        Assert.assertFalse("Expect new oldTree to be built", decisionTree == newDecisionTree);
     }
 
     private TreeBuilderHelper createTreeBuilder() {

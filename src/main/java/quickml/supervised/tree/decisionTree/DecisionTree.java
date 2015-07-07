@@ -9,6 +9,7 @@ import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.tree.Tree;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.Leaf;
+import quickml.supervised.tree.nodes.LeafDepthStats;
 import quickml.supervised.tree.nodes.Node;
 
 import java.io.Serializable;
@@ -45,6 +46,29 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
         return valueCounter.getCount(classification) / valueCounter.getTotal();
     }
 
+    public double calcMeanDepth(){
+        LeafDepthStats leafDepthStats = new LeafDepthStats();
+        root.calcLeafDepthStats(leafDepthStats);
+        return (1.0*leafDepthStats.ttlDepth)/leafDepthStats.ttlSamples;
+    }
+
+    public double calcMedianDepth() {
+        LeafDepthStats leafDepthStats = new LeafDepthStats();
+        root.calcLeafDepthStats(leafDepthStats);
+        long counts = 0;
+        int depth = 0;
+        while (counts < leafDepthStats.ttlSamples/2) {
+            if (leafDepthStats.depthDistribution.containsKey(depth)) {
+                counts += leafDepthStats.depthDistribution.get(depth);
+            }
+            if (counts < leafDepthStats.ttlSamples/2) {
+                depth++;
+            }
+
+        }
+        return depth;
+    }
+
 
     @Override
     public double getProbabilityWithoutAttributes(AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
@@ -52,11 +76,13 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
     }
 
     private double getProbabilityWithoutAttributesHelper(Node<ClassificationCounter> node, AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
+       //return getProbability(attributes, classification);
+
         if (node instanceof Branch) {
             Branch branch = (Branch) node;
             if (attributesToIgnore.contains(branch.attribute)) {
                 return branch.getProbabilityOfTrueChild() * getProbabilityWithoutAttributesHelper(branch.getTrueChild(), attributes, classification, attributesToIgnore) +
-                        (1 - branch.getProbabilityOfTrueChild()) * getProbabilityWithoutAttributesHelper(branch.getFalseChild(), attributes, classification, attributesToIgnore);
+                        (1.0 - branch.getProbabilityOfTrueChild()) * getProbabilityWithoutAttributesHelper(branch.getFalseChild(), attributes, classification, attributesToIgnore);
             } else {
                 if (branch.decide(attributes)) {
                     return getProbabilityWithoutAttributesHelper(branch.getTrueChild(), attributes, classification, attributesToIgnore);
@@ -64,10 +90,14 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
                     return getProbabilityWithoutAttributesHelper(branch.getFalseChild(), attributes, classification, attributesToIgnore);
                 }
             }
-        } else {
+        } else if (node instanceof Leaf) {
             Leaf<ClassificationCounter> leaf = (Leaf<ClassificationCounter>) node;
             ClassificationCounter classificationCounter = leaf.getValueCounter();
-            return classificationCounter.getCount(classification) / classificationCounter.getTotal();
+            double prob = classificationCounter.getCount(classification) / classificationCounter.getTotal();
+            return prob;
+        }
+        else {
+            throw new RuntimeException("node not a branch or a leaf");
         }
     }
 

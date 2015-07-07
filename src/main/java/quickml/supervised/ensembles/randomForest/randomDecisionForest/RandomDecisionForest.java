@@ -32,7 +32,7 @@ public class RandomDecisionForest  extends AbstractClassifier implements RandomF
     private boolean binaryClassification = true;
 
     protected RandomDecisionForest(List<DecisionTree> decisionTrees, Set<Serializable> classifications) {
-        Preconditions.checkArgument(decisionTrees.size() > 0, "We must have at least one tree");
+        Preconditions.checkArgument(decisionTrees.size() > 0, "We must have at least one oldTree");
         this.decisionTrees = decisionTrees;
         this.classifications = classifications;
         if (classifications.size() > 2) {

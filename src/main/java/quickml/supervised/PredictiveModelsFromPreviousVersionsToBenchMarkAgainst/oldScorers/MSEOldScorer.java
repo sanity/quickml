@@ -1,9 +1,7 @@
-package quickml.supervised.tree.decisionTree.scorers;
+package quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers;
 
-
-//TODO: fix oldScorers
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldScorer;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.OldClassificationCounter;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -14,20 +12,10 @@ import java.util.Map;
  * without the branch minus the MSE with the branch (so higher is better, as
  * is required by the scoreSplit() interface.
  */
-public class MSEScorer extends Scorer<ClassificationCounter> {
+public class MSEOldScorer implements OldScorer {
     private final double crossValidationInstanceCorrection;
 
-    @Override
-    public void setUnSplitScore(ClassificationCounter a) {
-        unSplitScore = getTotalError(a);   
-    }
-
-    @Override
-    public Scorer<ClassificationCounter> createScorer() {
-        return null;
-    }
-
-    public MSEScorer(CrossValidationCorrection crossValidationCorrection) {
+    public MSEOldScorer(CrossValidationCorrection crossValidationCorrection) {
         if (crossValidationCorrection.equals(CrossValidationCorrection.TRUE)) {
             crossValidationInstanceCorrection = 1.0;
         } else {
@@ -36,12 +24,14 @@ public class MSEScorer extends Scorer<ClassificationCounter> {
     }
 
     @Override
-    public double scoreSplit(final ClassificationCounter a, final ClassificationCounter b) {
+    public double scoreSplit(final OldClassificationCounter a, final OldClassificationCounter b) {
+        OldClassificationCounter parent = OldClassificationCounter.merge(a, b);
+        double parentMSE = getTotalError(parent) / parent.getTotal();
         double splitMSE = (getTotalError(a) + getTotalError(b)) / (a.getTotal() + b.getTotal());
-        return correctScoreForGainRatioPenalty(unSplitScore - splitMSE);
+        return parentMSE - splitMSE;
     }
 
-    private double getTotalError(ClassificationCounter cc) {
+    private double getTotalError(OldClassificationCounter cc) {
         double totalError = 0;
         for (Map.Entry<Serializable, Double> e : cc.getCounts().entrySet()) {
             double error = (cc.getTotal()>0) ? 1.0 - e.getValue()/cc.getTotal() : 0;

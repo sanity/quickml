@@ -3,7 +3,9 @@ package quickml.supervised;
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Sets;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import quickml.InstanceLoader;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.branchFinders.SplittingUtils;
@@ -11,8 +13,10 @@ import quickml.supervised.tree.branchFinders.SplittingUtilsTest;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.nodes.Branch;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +26,12 @@ import static org.junit.Assert.*;
  * Created by alexanderhawk on 6/29/15.
  */
 public class UtilsTest {
+
+
+    private List<ClassifierInstance>  setUpLast(){
+        return InstanceLoader.getAdvertisingInstances();
+    }
+
 
     @Test
     public void setTrueAndFalseTrainingSetsTestForCatBranch(){
@@ -63,7 +73,7 @@ public class UtilsTest {
         Assert.assertEquals(tfPair.falseTrainingSet.size(), 4);
         Assert.assertEquals(tfPair.trueTrainingSet.size(), 4);
         for(ClassifierInstance instance : tfPair.falseTrainingSet) {
-            Assert.assertTrue((Double)(instance.getAttributes().get("t")) < 4.5);
+            Assert.assertTrue((Double) (instance.getAttributes().get("t")) < 4.5);
         }
         for(ClassifierInstance instance : tfPair.trueTrainingSet) {
             Assert.assertTrue((Double) (instance.getAttributes().get("t")) > 4.5);
@@ -117,4 +127,39 @@ public class UtilsTest {
         return td;
     }
 
+    @Test
+    public void setTrueFalseOnespotInstances(){
+        Set<Serializable> splitTrueSet = Sets.<Serializable>newHashSet();
+        splitTrueSet.add(true);
+        Branch<ClassificationCounter> bestBranch =  new DTCatBranch(null, "seenPixel", splitTrueSet, 0.0, 0.0, null);
+        List<ClassifierInstance> instances =setUpLast();
+        Utils.TrueFalsePair<ClassifierInstance> trueFalsePair = Utils.setTrueAndFalseTrainingSets(instances, bestBranch);
+
+        List<ClassifierInstance> trueTrainingSet = com.google.common.collect.Lists.newArrayList();
+        List<ClassifierInstance> falseTrainingSet = com.google.common.collect.Lists.newArrayList();
+        Set<ClassifierInstance>  trueSet = com.google.common.collect.Sets.newHashSet();
+        Set<ClassifierInstance>  falseSet = com.google.common.collect.Sets.newHashSet();
+        setTrueAndFalseTrainingSets(instances, bestBranch, trueTrainingSet, falseTrainingSet);
+        trueSet.addAll(trueTrainingSet);
+        falseSet.addAll(falseTrainingSet);
+
+        for (ClassifierInstance instance : trueFalsePair.trueTrainingSet) {
+            Assert.assertTrue(trueSet.contains(instance) && !falseSet.contains(instance));
+        }
+
+        for (ClassifierInstance instance : trueFalsePair.falseTrainingSet) {
+            Assert.assertTrue(falseSet.contains(instance) && !trueSet.contains(instance));
+        }
+    }
+
+    private void setTrueAndFalseTrainingSets(Iterable<ClassifierInstance> trainingData, Branch<ClassificationCounter> bestNode, List<ClassifierInstance> trueTrainingSet, List<ClassifierInstance> falseTrainingSet) {
+        //put instances with attribute values into appropriate training sets
+        for (ClassifierInstance instance : trainingData) {
+            if (bestNode.decide(instance.getAttributes())) {
+                trueTrainingSet.add(instance);
+            } else {
+                falseTrainingSet.add(instance);
+            }
+        }
+    }
 }

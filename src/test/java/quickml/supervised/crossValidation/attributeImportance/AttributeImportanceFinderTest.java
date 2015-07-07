@@ -11,7 +11,6 @@ import quickml.InstanceLoader;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
@@ -38,22 +37,9 @@ public class AttributeImportanceFinderTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder modelBuilder = new DecisionTreeBuilder().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
-        DecisionTree decisionTree = modelBuilder.buildPredictiveModel(instances);
-        RandomDecisionForestBuilder randomDecisionForestBuilder = new RandomDecisionForestBuilder(modelBuilder).numTrees(20);
-        LeafDepthStats stats = new LeafDepthStats();
-        decisionTree.root.calcMeanDepth(stats);
-        double meanDepth = (1.0*stats.ttlDepth)/stats.ttlSamples;
-        System.out.println("weighted depth " + stats.ttlDepth + " numSamples: " + stats.ttlSamples + "mean depth " + meanDepth);
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
-        CrossValidator<AttributesMap, Classifier, ClassifierInstance> cv = new CrossValidator<>(modelBuilder,
-                new ClassifierLossChecker<ClassifierInstance>(new ClassifierLogCVLossFunction(.000001)),
-                new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor() ) );
-        for (int i =0; i<20; i++) {
-            System.out.println("Loss: " + cv.getLossForModel());
-        }
-/*
-        AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
+        AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
@@ -63,7 +49,7 @@ public class AttributeImportanceFinderTest {
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());
-        */
+
     }
 
     private Set<String> attributesToKeep() {

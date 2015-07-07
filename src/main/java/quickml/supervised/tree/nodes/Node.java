@@ -15,10 +15,10 @@ public interface Node<VC extends ValueCounter<VC>> {
     @Override
     int hashCode();
     //last 2 are optional
-    void calcMeanDepth(LeafDepthStats stats);
+    void calcLeafDepthStats(LeafDepthStats stats);
 
     /**
-     * Return the number of nodes in this decision tree.
+     * Return the number of nodes in this decision oldTree.
      *
      * @return
      */

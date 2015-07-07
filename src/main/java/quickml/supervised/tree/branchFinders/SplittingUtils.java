@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.constants.MissingValue;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
@@ -46,7 +47,7 @@ public class SplittingUtils {
             trueSet = trueSet.add(valueCounterForAttrVal);
             falseSet = falseSet.subtract(valueCounterForAttrVal);
 
-            //TODO Could optimize by knowing that all additional trial splits will fail once false set because small enough
+                          //TODO Could optimize by knowing that all additional trial splits will fail once false set because small enough
             if (branchingConditions.isInvalidSplit(trueSet, falseSet, attributeStats.getAttribute())
                     || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(trueSet)
                     || attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(falseSet)) {

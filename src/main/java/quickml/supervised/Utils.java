@@ -142,7 +142,7 @@ public class Utils {
 
     public static <VC extends ValueCounter<VC>>  double meanDepth(Node<VC> node) {
         final LeafDepthStats stats = new LeafDepthStats();
-        node.calcMeanDepth(stats);
+        node.calcLeafDepthStats(stats);
         return (double) stats.ttlDepth / stats.ttlSamples;
     }
 

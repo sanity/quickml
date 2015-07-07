@@ -27,6 +27,7 @@ public abstract class NumericBranchFinder<VC extends ValueCounter<VC>> extends B
 
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy, false);
         if (!splitScoreOptional.isPresent()) {
+            SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy, false);
            return Optional.absent();
         }
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();

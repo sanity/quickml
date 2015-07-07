@@ -37,7 +37,7 @@ public class DTNumBranchFinderBuilder extends DTBranchFinderBuilder {
                 attributeValueIgnoringStrategy = binaryClassAttributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(classificationCounts);
             }
             else {
-                throw new RuntimeException("building decision tree with less than 2 classes.  numClassesIs0 = " + classificationCounts);
+                throw new RuntimeException("building decision oldTree with less than 2 classes.  numClassesIs0 = " + classificationCounts);
             }
         } else {
             attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(classificationCounts);

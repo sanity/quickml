@@ -45,7 +45,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     }
 
     protected Node<VC> createNode(Branch<VC> parent, List<I> trainingData, TreeContext<I, VC> tc) {
-        Preconditions.checkArgument(trainingData != null && !trainingData.isEmpty(), "Can't build a tree with no training data");
+        Preconditions.checkArgument(trainingData != null && !trainingData.isEmpty(), "Can't build a oldTree with no training data");
         BranchingConditions<VC> branchingConditions = tc.getBranchingConditions();
         VC aggregateStats = getAggregateStats(tc, trainingData);
         if (!branchingConditions.canTryAddingChildren(parent, aggregateStats)) {
@@ -56,28 +56,14 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
             return getLeaf(parent, aggregateStats, tc);
         }
         Branch<VC> bestBranch = bestBranchOptional.get();
-
-        List<I> trueTrainingSet = Lists.newArrayList();
-        List<I> falseTrainingSet = Lists.newArrayList();
-        Set<I>  trueSet = Sets.newHashSet();
-        Set<I>  falseSet = Sets.newHashSet();
-        setTrueAndFalseTrainingSets(trainingData, bestBranch, trueTrainingSet, falseTrainingSet);
-        trueSet.addAll(trueTrainingSet);
-        falseSet.addAll(falseTrainingSet);
-
         Utils.TrueFalsePair<I> trueFalsePair = Utils.setTrueAndFalseTrainingSets(trainingData, bestBranch);
-        for (I instance : trueFalsePair.trueTrainingSet) {
-            assert trueSet.contains(instance) && !falseSet.contains(instance);
-        }
 
-        for (I instance : trueFalsePair.falseTrainingSet) {
-            assert falseSet.contains(instance) && !trueSet.contains(instance);
-        }
-        if (trueTrainingSet.size() ==0 || falseTrainingSet.size() ==0){//trueFalsePair.falseTrainingSet.size() ==0 || trueFalsePair.trueTrainingSet.size() ==0) {
+
+        if (trueFalsePair.trueTrainingSet.size() ==0 || trueFalsePair.falseTrainingSet.size() ==0){//trueFalsePair.falseTrainingSet.size() ==0 || trueFalsePair.trueTrainingSet.size() ==0) {
             return getLeaf(parent, aggregateStats, tc);
         }
-        bestBranch.setTrueChild(createNode(bestBranch, trueTrainingSet, tc));
-        bestBranch.setFalseChild(createNode(bestBranch, falseTrainingSet, tc));
+        bestBranch.setTrueChild(createNode(bestBranch, trueFalsePair.trueTrainingSet, tc));
+        bestBranch.setFalseChild(createNode(bestBranch, trueFalsePair.falseTrainingSet, tc));
 
         return bestBranch;
     }
@@ -91,9 +77,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
             Reducer<I, VC> reducer = branchFinderAndReducer.getReducer();
             reducer.setTrainingData(instances);
             BranchFinder<VC> branchFinder = branchFinderAndReducer.getBranchFinder();
-            if (branchFinder.getBranchType().equals(BranchType.NUMERIC)) {
-                continue;
-            }
+
             Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
             if (thisBranchOptional.isPresent()) {
                 Branch<VC> thisBranch = thisBranchOptional.get();
@@ -118,15 +102,6 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     private VC getAggregateStats(TreeContext<I, VC> itbc,List<I> trainingData) {
         return itbc.getValueCounterProducer().getValueCounter(trainingData);
     }
-    private void setTrueAndFalseTrainingSets(Iterable<I> trainingData, Branch<VC> bestNode, List<I> trueTrainingSet, List<I> falseTrainingSet) {
-        //put instances with attribute values into appropriate training sets
-        for (I instance : trainingData) {
-            if (bestNode.decide(instance.getAttributes())) {
-                trueTrainingSet.add(instance);
-            } else {
-                falseTrainingSet.add(instance);
-            }
-        }
-    }
+
 }
 

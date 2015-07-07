@@ -55,7 +55,7 @@ public class TrainingDataGenerator2 {
                 i--;
         }
         //       PrintStream treeView = new PrintStream(System.out);
-        //      bidderPredictiveModel.clickPredictor.dump(treeView); //prints a sample tree for debugging purposes
+        //      bidderPredictiveModel.clickPredictor.dump(treeView); //prints a sample oldTree for debugging purposes
 
         System.out.println("average deviation" + deviation/samples);
     }

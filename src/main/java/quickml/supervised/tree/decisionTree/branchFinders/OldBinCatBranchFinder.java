@@ -3,16 +3,12 @@ package quickml.supervised.tree.decisionTree.branchFinders;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import org.javatuples.Pair;
 import quickml.scorers.Scorer;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.tree.AttributeValueWithClassificationCounter;
-import quickml.supervised.classifier.decisionTree.tree.Branch;
-import quickml.supervised.classifier.decisionTree.tree.CategoricalBranch;
-import quickml.supervised.classifier.decisionTree.tree.Node;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldScorer;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.OldClassificationCounter;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.SortableLabelsCategoricalBranchFinder;
 import quickml.supervised.tree.branchFinders.SplittingUtils;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
@@ -21,7 +17,6 @@ import quickml.supervised.tree.constants.MissingValue;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
-import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,7 +36,7 @@ public class OldBinCatBranchFinder extends SortableLabelsCategoricalBranchFinder
     private boolean penalizeCategoricalSplitsBySplitAttributeIntrinsicValue = true;
     private double degreeOfGainRatioPenalty = 1.0;
     private double minSplitFraction = 0.005;
-    private quickml.supervised.classifier.decisionTree.Scorer scorer = new GiniImpurityScorer();
+    private OldScorer oldScorer = new GiniImpurityOldScorer();
 
 
 
@@ -124,8 +119,8 @@ public class OldBinCatBranchFinder extends SortableLabelsCategoricalBranchFinder
                 continue;
             }
 
-            double thisScore = this.scorer.scoreSplit(new quickml.supervised.classifier.decisionTree.tree.ClassificationCounter(inCounts),
-                    new quickml.supervised.classifier.decisionTree.tree.ClassificationCounter(outCounts));
+            double thisScore = this.oldScorer.scoreSplit(new OldClassificationCounter(inCounts),
+                    new OldClassificationCounter(outCounts));
             valuesInTheInset++;
             if (penalizeCategoricalSplitsBySplitAttributeIntrinsicValue) {
                 thisScore = thisScore * (1 - degreeOfGainRatioPenalty) + degreeOfGainRatioPenalty * (thisScore / intrinsicValueOfAttribute);            }

@@ -4,7 +4,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.twitter.common.stats.ReservoirSampler;
 import com.twitter.common.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
@@ -22,10 +25,12 @@ import static quickml.supervised.tree.constants.ForestOptions.NUM_SAMPLES_PER_NU
  * Created by alexanderhawk on 4/23/15.
  */
 public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
+    private static final Logger logger = LoggerFactory.getLogger(DTNumBranchReducer.class);
+    public static final double DOWN_FACTOR = 10E5;
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
    //TODO: once verify functionality is correct, remove these variables and get n classification counters which can then be further merged in the branchFinder
-    int numSamplesPerBin = 17;
-    int numNumericBins = 6;
+    int numSamplesPerBin = 20;
+    int numNumericBins = 5;
 
     @Override
     public void updateBuilderConfig(Map<String, Serializable> cfg) {
@@ -53,37 +58,68 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     }
 
     public static <I extends ClassifierInstance> Optional<AttributeStats<ClassificationCounter>> getAttributeStatsOptional(String attribute, double[] splitPoints, List<I> trainingData) {
+
+     //TODO: split points should not be doubles.  They should be Numbers, which can be longs for the case that numeric values are longs.
         List<ClassificationCounter> classificationCounters = Lists.newArrayListWithCapacity(splitPoints.length + 1);
         ClassificationCounter aggregateStats = new ClassificationCounter();
+        double delta = getDelta(splitPoints);
         for (int i = 0; i < splitPoints.length; i++) {
             classificationCounters.add(new ClassificationCounter(splitPoints[i]));
         }
-        classificationCounters.add(new ClassificationCounter()); //no val is needed for the last cc since no split point can be greater than the values in it.
-
+        classificationCounters.add(new ClassificationCounter(splitPoints[splitPoints.length-1] + delta)); //cc holds all vals greater than greatest split point.
+        int uncaughtMissingValues = 0;
         for (I instance : trainingData) {
+            AttributesMap attributes = instance.getAttributes();
+            double attributeVal;
+            if (!attributes.containsKey(attribute) || attributes.get(attribute)==null)
+                attributeVal=Double.MIN_VALUE; //check old quickml
+            else {
+                attributeVal = ((Number) (attributes.get(attribute))).doubleValue();
+            }
 
-            double attributeVal = ((Number) (instance.getAttributes().get(attribute))).doubleValue();
-            double threshold = 0, previousThreshold = 0;
+            double threshold = 0, previousThreshold = 0, nextThreshold = 0;
+            boolean added = false;
 
             for (int i = 0; i < splitPoints.length; i++) {
                 previousThreshold = threshold;
                 threshold = splitPoints[i];
-                if (spitPointIsADuplicateOfLast(threshold, previousThreshold, i)) {
+                if (splitPointIsADuplicateOfLast(threshold, previousThreshold, i)) {
                     continue;
-                } else if (attributeVal < threshold) {
+                } else if (attributeVal <= threshold + delta){ //total hack, and prevents quickml from working well with fine grained num attributes
                     classificationCounters.get(i).addClassification(instance.getLabel(), instance.getWeight());
-                    break;
+                    added = true;
+                    break; //break ensures the instance is added to only one bin.
                 }
+
+
             }
-            if (attributeVal > splitPoints[splitPoints.length - 1]) {
+            if (attributeVal > splitPoints[splitPoints.length - 1] + delta) {
                 classificationCounters.get(splitPoints.length).addClassification(instance.getLabel(), instance.getWeight());
+                added = true;
             }
             aggregateStats.addClassification(instance.getLabel(), instance.getWeight());
+            if (!added) {
+                uncaughtMissingValues++;
+            }
+        }
+        //remove: testCode
+        double total = 0;
+        for (ClassificationCounter cc : classificationCounters) {
+            total+=cc.getTotal();
+        }
+        assert total<=aggregateStats.getTotal() +1E-5 && total>= aggregateStats.getTotal() -1E-5;
+
+        if (uncaughtMissingValues > 0) {
+            logger.info("uncaught missing values for attribute {} : {}", attribute, uncaughtMissingValues);
         }
         return Optional.of(new AttributeStats<>(classificationCounters, aggregateStats, attribute));
     }
 
-    private static boolean spitPointIsADuplicateOfLast(double threshold, double previousThreshold, int i) {
+    private static double getDelta(double[] splitPoints) {
+        return (splitPoints.length >= 2) ? (splitPoints[1] -splitPoints[0])/DOWN_FACTOR : splitPoints[0]/DOWN_FACTOR;
+    }
+
+    private static boolean splitPointIsADuplicateOfLast(double threshold, double previousThreshold, int i) {
         return previousThreshold == threshold && i != 0;
     }
 
@@ -159,7 +195,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     public static <I extends ClassifierInstance> ReservoirSampler<Double> fillReservoirSampler(List<I> trainingData, String attribute, int desiredSamples) {
         Random rand = Random.Util.fromSystemRandom(MapUtils.random);
 
-        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(desiredSamples, rand);
+        final ReservoirSampler<Double> reservoirSampler = new ReservoirSampler<Double>(desiredSamples + trainingData.size()%desiredSamples, rand);
 
         int incrementSize = trainingData.size() / desiredSamples;
         for (int i = 0; i < trainingData.size(); i += incrementSize) {

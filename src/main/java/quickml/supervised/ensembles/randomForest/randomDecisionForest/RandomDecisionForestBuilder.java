@@ -64,7 +64,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
         List<Future<DecisionTree>> treeFutures = Lists.newArrayListWithCapacity(numTrees);
         List<DecisionTree> decisionTrees = Lists.newArrayListWithCapacity(numTrees);
 
-        // Submit all tree building jobs to the executor
+        // Submit all oldTree building jobs to the executor
         for (int treeIndex = 0; treeIndex < numTrees; treeIndex++) {
             treeFutures.add(submitTreeBuild(trainingData, treeIndex));
         }
@@ -88,7 +88,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     }
 
     private DecisionTree buildModel(Iterable<I> trainingData, int treeIndex) {
-        logger.debug("Building tree {} of {}", treeIndex, numTrees);
+        logger.debug("Building oldTree {} of {}", treeIndex, numTrees);
         return treeBuilder.copy().buildPredictiveModel(trainingData);
     }
 

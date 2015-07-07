@@ -28,7 +28,7 @@
     3)  Note that the index.html page on http://quickml.org/ should updateBuilderConfig the version
         automatically when a new release is created.
         
-    4)  *ANY* change to the master branch (ie. when a feature branch is merged) must
+    4)  *ANY* change to the master oldBranch (ie. when a feature oldBranch is merged) must
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
 

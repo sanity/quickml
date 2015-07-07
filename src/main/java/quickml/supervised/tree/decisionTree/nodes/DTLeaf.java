@@ -10,6 +10,7 @@ import quickml.supervised.tree.nodes.Leaf;
 import quickml.supervised.tree.nodes.LeafDepthStats;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -26,7 +27,7 @@ public class DTLeaf implements Leaf<ClassificationCounter>, Serializable {
     }
 
     /**
-     * How deep in the tree is this label? A lower number typically indicates a
+     * How deep in the oldTree is this label? A lower number typically indicates a
      * more confident getBestClassification.
      */
     public final int depth;
@@ -84,9 +85,15 @@ public class DTLeaf implements Leaf<ClassificationCounter>, Serializable {
 
     //TODO: move this up when Java 8 is migrated too
     @Override
-    public void calcMeanDepth(final LeafDepthStats stats) {
+    public void calcLeafDepthStats(final LeafDepthStats stats) {
         stats.ttlDepth += depth * exampleCount;
         stats.ttlSamples += exampleCount;
+        Map<Integer, Long> dist = stats.depthDistribution;
+        if (dist.containsKey(depth)) {
+            dist.put(depth, dist.get(depth) + (long)exampleCount);
+        } else {
+            dist.put(depth, (long)exampleCount);
+        }
     }
 
     @Override
