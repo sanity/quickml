@@ -1,4 +1,4 @@
-package quickml.supervised.featureEngineering;
+package quickml.supervised.featureEngineering1;
 
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;

@@ -1,8 +1,8 @@
-package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
+package quickml.supervised.featureEngineering1.enrichStrategies.attributeCombiner;
 
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
-import quickml.supervised.featureEngineering.AttributesEnricher;
+import quickml.supervised.featureEngineering1.AttributesEnrichStrategy;
+import quickml.supervised.featureEngineering1.AttributesEnricher;
 
 import java.util.List;
 import java.util.Set;

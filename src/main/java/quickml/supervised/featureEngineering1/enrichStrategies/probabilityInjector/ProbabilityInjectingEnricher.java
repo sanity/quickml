@@ -1,13 +1,13 @@
-package quickml.supervised.featureEngineering.enrichStrategies.probabilityInjector;
+package quickml.supervised.featureEngineering1.enrichStrategies.probabilityInjector;
 
 import quickml.data.AttributesMap;
-import quickml.supervised.featureEngineering.AttributesEnricher;
+import quickml.supervised.featureEngineering1.AttributesEnricher;
 
 import java.io.Serializable;
 import java.util.Map;
 
 /**
- * See {@link quickml.supervised.featureEngineering.enrichStrategies.probabilityInjector.ProbabilityEnrichStrategy}
+ * See {@link quickml.supervised.featureEngineering1.enrichStrategies.probabilityInjector.ProbabilityEnrichStrategy}
  */
 public class ProbabilityInjectingEnricher implements AttributesEnricher {
     public static final String KEY_APPEND_STRING = "-PROB";

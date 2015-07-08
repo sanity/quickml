@@ -3,6 +3,7 @@ package quickml.supervised.crossValidation.data;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.crossValidation.data.FoldedData;
 
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class FoldedDataTest {
 
     @Test
     public void testCycleThrough5Of10Folds() throws Exception {
-        FoldedData<Integer> foldedData = new FoldedData<>(instances, 10, 5);
+        FoldedData<Integer> foldedData = new FoldedData<Integer>(instances, 10, 5);
 
         assertEquals(new Integer(1), foldedData.getValidationSet().get(0));
         foldedData.nextCycle();

@@ -1,10 +1,10 @@
-package quickml.supervised.featureEngineering.enrichStrategies.probabilityInjector;
+package quickml.supervised.featureEngineering1.enrichStrategies.probabilityInjector;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.featureEngineering.AttributesEnrichStrategy;
-import quickml.supervised.featureEngineering.AttributesEnricher;
+import quickml.supervised.featureEngineering1.AttributesEnrichStrategy;
+import quickml.supervised.featureEngineering1.AttributesEnricher;
 
 import java.io.Serializable;
 import java.util.Map;

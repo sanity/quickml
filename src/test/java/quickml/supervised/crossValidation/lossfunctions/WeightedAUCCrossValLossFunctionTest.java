@@ -1,6 +1,5 @@
 package quickml.supervised.crossValidation.lossfunctions;
 
-import org.apache.mahout.classifier.evaluation.Auc;
 import org.junit.Test;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -60,8 +59,8 @@ public class WeightedAUCCrossValLossFunctionTest {
         Collections.sort(aucDataList);
         double probability = 0;
         for (WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
-            assertTrue(aucData.getProbability() >= probability);
-            probability = aucData.getProbability();
+            assertTrue(aucData.getProbabilityOfPositiveClassification() >= probability);
+            probability = aucData.getProbabilityOfPositiveClassification();
         }
     }
 
@@ -84,41 +83,6 @@ public class WeightedAUCCrossValLossFunctionTest {
         assertEquals(0.0, aucPoint.getTruePositiveRate(), 0.001);
     }
 
-    @Test
-    public void testGetAucPointsFromData() {
-        WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
-        List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = getAucDataList();
-        //order by probability ascending
-        Collections.sort(aucDataList);
-        ArrayList<WeightedAUCCrossValLossFunction.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
-        //We should have the same number of points as data plus 1 for threshold 0
-        assertEquals(aucDataList.size() + 1, aucPoints.size());
-        //0 false negative, 0 true negative, 4 true positive, 2 false positive: FPR = 2 / 2, TRP = 4 / 4 get(0)
-        //1 false negative, 0 true negative, 3 true positive, 2 false positive: FPR = 2 / 2, TRP = 3 / 4 get(1)
-        //1 false negative, 1 true negative, 3 true positive, 1 false positive: FPR = 1 / 2, TRP = 3 / 4 get(2)
-        //2 false negative, 1 true negative, 2 true positive, 1 false positive: FPR = 1 / 2, TRP = 2 / 4 get(3)
-        //2 false negative, 2 true negative, 2 true positive, 0 false positive: FPR = 0, TRP = 2 / 4 get(4)
-        //3 false negative, 2 true negative, 1 true positive, 0 false positive: FPR = 0, TRP = 1 / 4 get(5)
-        //4 false negative, 2 true negative, 0 true positive, 0 false positive: FPR = 0, TRP = 0 get(6)
-        assertEquals(1.0, aucPoints.get(0).getFalsePositiveRate(), 0.001);
-        assertEquals(1.0, aucPoints.get(0).getTruePositiveRate(), 0.001);
-        assertEquals(1.0, aucPoints.get(1).getFalsePositiveRate(), 0.001);
-        assertEquals(3.0 / 4.0, aucPoints.get(1).getTruePositiveRate(), 0.001);
-        assertEquals(0.5, aucPoints.get(2).getFalsePositiveRate(), 0.001);
-        assertEquals(3.0 / 4.0, aucPoints.get(2).getTruePositiveRate(), 0.001);
-        assertEquals(0.5, aucPoints.get(3).getFalsePositiveRate(), 0.001);
-        assertEquals(2.0 / 4.0, aucPoints.get(3).getTruePositiveRate(), 0.001);
-        assertEquals(0.0, aucPoints.get(4).getFalsePositiveRate(), 0.001);
-        assertEquals(2.0 / 4.0, aucPoints.get(4).getTruePositiveRate(), 0.001);
-        assertEquals(0.0, aucPoints.get(5).getFalsePositiveRate(), 0.001);
-        assertEquals(1.0 / 4.0, aucPoints.get(5).getTruePositiveRate(), 0.001);
-        assertEquals(0.0, aucPoints.get(6).getFalsePositiveRate(), 0.001);
-        assertEquals(0.0, aucPoints.get(6).getTruePositiveRate(), 0.001);
-        aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData("test1", 1.0, 0.8));
-        aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
-        //Added data with same probability, should not result in new number of points but will change rates
-        assertEquals(aucDataList.size(), aucPoints.size());
-    }
 
 
     private List<WeightedAUCCrossValLossFunction.AUCData> getAucDataList() {
@@ -132,8 +96,9 @@ public class WeightedAUCCrossValLossFunctionTest {
         return aucDataList;
     }
 
+
     @Test
-    public void testAgainstMahout() {
+    public void testAUCWhenAlwaysPredict0() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = new ArrayList<>();
         int dataSize = 9000; //mahout only stores 10000 data points, test against less than what they consider
@@ -142,21 +107,14 @@ public class WeightedAUCCrossValLossFunctionTest {
             if (i % 5 == 0) {
                 classification = "test1";
             }
-            aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData(classification, 1.0, Math.random()));
+            aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData(classification, 1.0, 0.0));
         }
         //order by probability ascending
         Collections.sort(aucDataList);
         ArrayList<WeightedAUCCrossValLossFunction.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
 
-        Auc auc = new Auc();
-        for (WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
-            auc.add("test1".equals(aucData.getClassification()) ? 1 : 0, aucData.getProbability());
-        }
 
-        double mahoutAucLoss = 1.0 - auc.auc();
-        //These aren't matching exactly, but the difference is minimal
-        double acceptableDifference = 0.000000000001;
-        assertEquals(mahoutAucLoss, aucCrossValLoss, acceptableDifference);
+        assertEquals(0.5, aucCrossValLoss, 1E-7);
     }
 }

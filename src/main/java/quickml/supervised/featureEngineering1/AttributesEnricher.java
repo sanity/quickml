@@ -1,10 +1,9 @@
-package quickml.supervised.featureEngineering;
+package quickml.supervised.featureEngineering1;
 
 import com.google.common.base.Function;
 import quickml.data.AttributesMap;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * A Function that will take a set of attributes, and return a set of attributes that will

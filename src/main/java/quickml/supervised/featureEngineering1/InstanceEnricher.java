@@ -1,4 +1,4 @@
-package quickml.supervised.featureEngineering;
+package quickml.supervised.featureEngineering1;
 
 import com.google.common.base.Function;
 import quickml.data.AttributesMap;

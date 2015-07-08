@@ -1,8 +1,8 @@
-package quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner;
+package quickml.supervised.featureEngineering1.enrichStrategies.attributeCombiner;
 
 import com.google.common.base.Joiner;
 import quickml.data.AttributesMap;
-import quickml.supervised.featureEngineering.AttributesEnricher;
+import quickml.supervised.featureEngineering1.AttributesEnricher;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * See {@link quickml.supervised.featureEngineering.enrichStrategies.attributeCombiner.AttributeCombiningEnrichStrategy}
+ * See {@link quickml.supervised.featureEngineering1.enrichStrategies.attributeCombiner.AttributeCombiningEnrichStrategy}
  */
 public class AttributeCombiningEnricher implements AttributesEnricher {
     private static final long serialVersionUID = -7735359633536109195L;
