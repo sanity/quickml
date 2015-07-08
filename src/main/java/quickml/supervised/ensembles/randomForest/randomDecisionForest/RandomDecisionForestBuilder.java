@@ -43,7 +43,7 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     public void updateBuilderConfig(Map<String, Serializable> config) {
         treeBuilder.updateBuilderConfig(config);
         if (config.containsKey(NUM_TREES.name()))
-            this.numTrees((Integer) config.get(NUM_TREES));
+            this.numTrees((Integer) config.get(NUM_TREES.name()));
     }
 
     public RandomDecisionForestBuilder<I> numTrees(int numTrees) {

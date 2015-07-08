@@ -28,7 +28,7 @@ public class FixedOrderRecommender implements FieldValueRecommender {
 
     @Override
     public boolean shouldContinue(List<Double> losses) {
-        return false;
+        return true;
     }
 
 

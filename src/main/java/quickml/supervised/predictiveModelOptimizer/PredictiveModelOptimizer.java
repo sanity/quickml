@@ -13,22 +13,22 @@ public class PredictiveModelOptimizer {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
-    private Map<String, ? extends FieldValueRecommender> valuesToTest;
+    private Map<String, ? extends FieldValueRecommender> fieldsToOptimize;
     private CrossValidator crossValidator;
     private HashMap<String, Serializable> bestConfig;
     private final int iterations;
 
     /**
      * Do not call directly - Use PredictiveModelOptimizerBuilder to an instance
-     * @param valuesToTest - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
+     * @param fieldsToOptimize - key is the field - e.g. maxDepth, FixedOrderRecommender is a set of values for maxDepth to try
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
-        this.valuesToTest = valuesToTest;
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> fieldsToOptimize, CrossValidator crossValidator, int iterations) {
+        this.fieldsToOptimize = fieldsToOptimize;
         this.crossValidator = crossValidator;
         this.iterations = iterations;
-        this.bestConfig = setBestConfigToFirstValues(valuesToTest);
+        this.bestConfig = setBestConfigToFirstValues(fieldsToOptimize);
     }
 
     /**
@@ -48,14 +48,14 @@ public class PredictiveModelOptimizer {
     }
 
     private void updateBestConfig() {
-        for (String field : valuesToTest.keySet()) {
+        for (String field : fieldsToOptimize.keySet()) {
             findBestValueForField(field);
         }
     }
 
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
-        FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
+        FieldValueRecommender fieldValueRecommender = fieldsToOptimize.get(field);
         if (fieldValueRecommender.getValues().size() == 1) {
             return;
         }
@@ -63,7 +63,7 @@ public class PredictiveModelOptimizer {
         for (Serializable value : fieldValueRecommender.getValues()) {
             //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
             if (bestConfig.get(field).equals(value)) {
-                continue;
+                continue;  //safe to continue bc everything else about the config is the same.
             }
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));

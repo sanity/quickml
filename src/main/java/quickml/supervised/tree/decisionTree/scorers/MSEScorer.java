@@ -24,7 +24,7 @@ public class MSEScorer extends Scorer<ClassificationCounter> {
 
     @Override
     public Scorer<ClassificationCounter> createScorer() {
-        return null;
+        return new MSEScorer(CrossValidationCorrection.TRUE);
     }
 
     public MSEScorer(CrossValidationCorrection crossValidationCorrection) {

@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation.lossfunctions;
 
+import org.apache.mahout.classifier.evaluation.Auc;
 import org.junit.Test;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -59,8 +60,8 @@ public class WeightedAUCCrossValLossFunctionTest {
         Collections.sort(aucDataList);
         double probability = 0;
         for (WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
-            assertTrue(aucData.getProbabilityOfPositiveClassification() >= probability);
-            probability = aucData.getProbabilityOfPositiveClassification();
+            assertTrue(aucData.getProbability() >= probability);
+            probability = aucData.getProbability();
         }
     }
 
@@ -131,9 +132,8 @@ public class WeightedAUCCrossValLossFunctionTest {
         return aucDataList;
     }
 
-
     @Test
-    public void testAUCWhenAlwaysPredict0() {
+    public void testAgainstMahout() {
         WeightedAUCCrossValLossFunction crossValLoss = new WeightedAUCCrossValLossFunction("test1");
         List<WeightedAUCCrossValLossFunction.AUCData> aucDataList = new ArrayList<>();
         int dataSize = 9000; //mahout only stores 10000 data points, test against less than what they consider
@@ -142,14 +142,21 @@ public class WeightedAUCCrossValLossFunctionTest {
             if (i % 5 == 0) {
                 classification = "test1";
             }
-            aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData(classification, 1.0, 0.0));
+            aucDataList.add(new WeightedAUCCrossValLossFunction.AUCData(classification, 1.0, Math.random()));
         }
         //order by probability ascending
         Collections.sort(aucDataList);
         ArrayList<WeightedAUCCrossValLossFunction.AUCPoint> aucPoints = crossValLoss.getAUCPointsFromData(aucDataList);
         double aucCrossValLoss = crossValLoss.getAUCLoss(aucPoints);
 
+        Auc auc = new Auc();
+        for (WeightedAUCCrossValLossFunction.AUCData aucData : aucDataList) {
+            auc.add("test1".equals(aucData.getClassification()) ? 1 : 0, aucData.getProbability());
+        }
 
-        assertEquals(0.5, aucCrossValLoss, 1E-7);
+        double mahoutAucLoss = 1.0 - auc.auc();
+        //These aren't matching exactly, but the difference is minimal
+        double acceptableDifference = 0.000000000001;
+        assertEquals(mahoutAucLoss, aucCrossValLoss, acceptableDifference);
     }
 }
