@@ -24,10 +24,7 @@ import quickml.supervised.tree.decisionTree.scorers.MSEScorer;
 import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +101,10 @@ public class BenchmarkTest {
     }
 
     private List<ClassifierInstance> loadDiabetesDataset() throws IOException {
+        final InputStream br1 = BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz");
+        byte[] byteArr = new byte[16];
+        br1.read(byteArr);
+
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz")))));
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 
