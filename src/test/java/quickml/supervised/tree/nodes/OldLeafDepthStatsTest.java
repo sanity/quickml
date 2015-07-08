@@ -4,6 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.InstanceLoader;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTree;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTreeBuilder;
+import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
@@ -46,7 +49,23 @@ public class OldLeafDepthStatsTest {
             }
 
         }
-        System.out.println("depth zeros " + depthZeros + "mean depth: " + meanDepthT/2.0 + " median depth: " + medianDepthT/2.0);
+
+        System.out.println("\n \n \n new  attrImportanceTest\n\n\n");
+        OldTreeBuilder oldModelBuilder = new OldTreeBuilder().scorer(new GiniImpurityOldScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.oldAttributeIgnoringStrategies.IgnoreAttributesWithConstantProbability(0.7));
+
+        depthZeros = 0;
+        meanDepthT = 0;
+        medianDepthT = 0;
+        for (int i = 0; i<2; i++) {
+            OldTree oldTree = oldModelBuilder.buildPredictiveModel(instances);
+            double meanDepthI = oldTree.oldNode.meanDepth();
+            meanDepthT +=meanDepthI;
+            medianDepthT += oldTree.oldNode.medianDepth();
+            if (meanDepthI < 1E-5) {
+                depthZeros++;
+            }
+        }
+        System.out.println("Old Model info: depth zeros " + depthZeros + "mean depth: " + meanDepthT/2.0 + " median depth: " + medianDepthT/2.0);
     }
 
 }

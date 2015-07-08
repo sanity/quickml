@@ -19,7 +19,7 @@ import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
 public class AttributeImportanceFinder <I extends InstanceWithAttributesMap<?>> {
-    private final PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder;
+    private final PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder;
     private final TrainingDataCycler<I> dataCycler;
     private final int numAttributesToRemovePerIteration;
     private final int numberOfIterations;
@@ -31,7 +31,7 @@ public class AttributeImportanceFinder <I extends InstanceWithAttributesMap<?>> 
     /**
      * Protected, use AttributeImportanceFinderBuilder to create a new instance
      */
-    protected AttributeImportanceFinder(PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder,
+    protected AttributeImportanceFinder(PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder,
                                      TrainingDataCycler< I> dataCycler, double percentToRemovePerIteration,
                                      int numberOfIterations, Set<String> attributesToNotRemove,
                                      List<ClassifierLossFunction> lossFunctions, ClassifierLossFunction primaryLossFunction) {

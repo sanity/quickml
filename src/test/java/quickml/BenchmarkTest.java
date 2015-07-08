@@ -1,4 +1,4 @@
-package quickml.supervised;
+package quickml;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
 import quickml.scorers.Scorer;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
@@ -40,14 +38,17 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {
 
-    private ClassifierLossChecker<ClassifierInstance, ?> classifierLossChecker;
+    private ClassifierLossChecker<ClassifierInstance, DecisionTree> classifierLossCheckerT;
+    private ClassifierLossChecker<ClassifierInstance, RandomDecisionForest> classifierLossCheckerF;
     private ArrayList<Scorer<ClassificationCounter>> scorers;
     private DecisionTreeBuilder<ClassifierInstance> treeBuilder;
     private RandomDecisionForestBuilder randomDecisionForestBuilder;
 
     @Before
     public void setUp() throws Exception {
-        classifierLossChecker = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
+        classifierLossCheckerT = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
+        classifierLossCheckerF = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
+
         scorers = newArrayList(
                 new SplitDiffScorer(),
                 new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE),
@@ -95,9 +96,9 @@ public class BenchmarkTest {
         for (final Scorer scorer : scorers) {
             Map<String, Serializable> cfg = Maps.newHashMap();
             cfg.put(ForestOptions.SCORER.name(), scorer);
-            CrossValidator<AttributesMap, DecisionTree, ClassifierInstance> validator = new CrossValidator<AttributesMap, DecisionTree, ClassifierInstance>(treeBuilder, classifierLossChecker, data);
+            CrossValidator< DecisionTree, ClassifierInstance> validator = new CrossValidator< DecisionTree, ClassifierInstance>(treeBuilder, classifierLossCheckerT, data);
             System.out.println(dsName + ", single-oldTree, " + scorer + ", " + validator.getLossForModel(cfg));
-            CrossValidator<AttributesMap, RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<AttributesMap, RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossChecker, data);
+            CrossValidator<RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossCheckerF, data);
             System.out.println(dsName + ", random-forest, " + scorer + ", " + validator2.getLossForModel(cfg));
         }
     }
@@ -124,7 +125,6 @@ public class BenchmarkTest {
 
     private List<ClassifierInstance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("mobo1.json.gz")))));
-
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 
         String line = br.readLine();

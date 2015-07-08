@@ -3,7 +3,6 @@ package quickml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.BenchmarkTest;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 

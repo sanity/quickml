@@ -47,10 +47,10 @@ public class Classifiers {
 
         int timeSliceHours = getTimeSliceHours(trainingData, rebuildsPerValidation, dateTimeExtractor);
         double crossValidationFraction = 0.2;
-        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<AttributesMap, Classifier,I>()
+        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<RandomDecisionForest,I>()
                         .modelBuilder(new RandomDecisionForestBuilder<>())
                         .dataCycler(new OutOfTimeData<I>(trainingData, crossValidationFraction, timeSliceHours,dateTimeExtractor))
-                        .lossChecker(new ClassifierLossChecker<I>(lossFunction))
+                        .lossChecker(new ClassifierLossChecker<I, RandomDecisionForest>(lossFunction))
                         .valuesToTest(config)
                         .iterations(3).build();
         Map<String, Serializable> bestParams =  optimizer.determineOptimalConfig();

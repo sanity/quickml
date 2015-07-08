@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class AttributeImportanceFinderBuilder<T extends InstanceWithAttributesMap<?>> {
 
 
-    private PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, ?>, T> modelBuilder;
+    private PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, T> modelBuilder;
     private TrainingDataCycler<T> dataCycler;
     private double percentAttributesToRemovePerIteration = 0.2;
     private int numberOfIterations = 5;
@@ -30,7 +30,7 @@ public class AttributeImportanceFinderBuilder<T extends InstanceWithAttributesMa
     private ClassifierLossFunction primaryLossFunction;
 
 
-    public AttributeImportanceFinderBuilder<T> modelBuilder(PredictiveModelBuilder<AttributesMap, ? extends PredictiveModel<AttributesMap, ?>, T> modelBuilder) {
+    public AttributeImportanceFinderBuilder<T> modelBuilder(PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, T> modelBuilder) {
         this.modelBuilder = modelBuilder;
         return this;
     }

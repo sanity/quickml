@@ -1,7 +1,6 @@
 package quickml.supervised.predictiveModelOptimizer;
 
-import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.attributeImportance.LossFunctionTracker;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
@@ -12,12 +11,12 @@ import java.util.List;
 
 import static quickml.supervised.Utils.calcResultPredictions;
 
-public class MultiLossModelTester<I extends InstanceWithAttributesMap<?>> {
+public class MultiLossModelTester {
 
-    private TrainingDataCycler<I> dataCycler;
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> modelBuilder;
+    private TrainingDataCycler<ClassifierInstance> dataCycler;
+    private final PredictiveModelBuilder<? extends Classifier, ClassifierInstance> modelBuilder;
 
-    public MultiLossModelTester(PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> modelBuilder, TrainingDataCycler<I> dataCycler) {
+    public MultiLossModelTester(PredictiveModelBuilder<? extends Classifier, ClassifierInstance> modelBuilder, TrainingDataCycler<ClassifierInstance> dataCycler) {
         this.dataCycler = dataCycler;
         this.modelBuilder = modelBuilder;
     }
@@ -28,7 +27,7 @@ public class MultiLossModelTester<I extends InstanceWithAttributesMap<?>> {
         LossFunctionTracker lossFunctionTracker = new LossFunctionTracker(lossFunctions);
 
         do {
-            List<? extends InstanceWithAttributesMap<?>> validationSet = dataCycler.getValidationSet();
+            List<ClassifierInstance> validationSet = dataCycler.getValidationSet();
             Classifier predictiveModel = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
             lossFunctionTracker.updateLosses(calcResultPredictions(predictiveModel, validationSet));
             dataCycler.nextCycle();

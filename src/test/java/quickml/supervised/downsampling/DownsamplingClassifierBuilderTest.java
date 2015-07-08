@@ -7,14 +7,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import quickml.collections.MapUtils;
 import quickml.data.*;
-import quickml.supervised.AttributesMapPredictiveModelBuilder;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.decisionTree.DecisionTree;
@@ -39,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class DownsamplingClassifierBuilderTest {
     @Test
     public void simpleTest() {
-        AttributesMapPredictiveModelBuilder mockPredictiveModelBuilder = mock(AttributesMapPredictiveModelBuilder.class);
+        PredictiveModelBuilder mockPredictiveModelBuilder = mock(PredictiveModelBuilder.class);
         when(mockPredictiveModelBuilder.buildPredictiveModel(Mockito.any(Iterable.class))).thenAnswer(new Answer<Classifier>() {
             @Override
             public Classifier answer(final InvocationOnMock invocationOnMock) throws Throwable {

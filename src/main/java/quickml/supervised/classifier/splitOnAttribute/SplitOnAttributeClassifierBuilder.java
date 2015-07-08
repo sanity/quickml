@@ -16,16 +16,16 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesMap<?>> implements PredictiveModelBuilder<AttributesMap, SplitOnAttributeClassifier, I> {
+public class SplitOnAttributeClassifierBuilder<I extends InstanceWithAttributesMap<?>> implements PredictiveModelBuilder<SplitOnAttributeClassifier, I> {
     private static final Logger logger = LoggerFactory.getLogger(SplitOnAttributeClassifierBuilder.class);
     private final String attributeKey;
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> wrappedBuilder;
+    private final PredictiveModelBuilder<? extends Classifier, I> wrappedBuilder;
     private Map<? extends Serializable, Integer> splitValToGroupIdMap;
     private Map<Integer, SplitModelGroup> splitModelGroups;
     private final Integer defaultGroup;
 
     //TODO:  this method should not have any parameters.
-    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<AttributesMap, ? extends Classifier, I> wrappedBuilder) {
+    public SplitOnAttributeClassifierBuilder(String attributeKey, Collection<SplitModelGroup> splitModelGroupsCollection, Integer defaultGroup, PredictiveModelBuilder<? extends Classifier, I> wrappedBuilder) {
 
         this.attributeKey = attributeKey;
         this.defaultGroup = defaultGroup;

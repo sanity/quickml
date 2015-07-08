@@ -18,13 +18,13 @@ import java.util.Map;
 /**
  * A PredictiveModelBuilder that attempts to
  */
-public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuilder<AttributesMap, FeatureEngineeredClassifier, InstanceWithAttributesMap<?>> {
+public class FeatureEngineeringClassifierBuilder implements PredictiveModelBuilder<FeatureEngineeredClassifier, InstanceWithAttributesMap<?>> {
     private static final  Logger logger =  LoggerFactory.getLogger(FeatureEngineeringClassifierBuilder.class);
 
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, InstanceWithAttributesMap<?>>  wrappedBuilder;
+    private final PredictiveModelBuilder<? extends Classifier, InstanceWithAttributesMap<?>>  wrappedBuilder;
     private final List<? extends AttributesEnrichStrategy> enrichStrategies;
 
-    public FeatureEngineeringClassifierBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier, InstanceWithAttributesMap<?>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
+    public FeatureEngineeringClassifierBuilder(PredictiveModelBuilder<? extends Classifier, InstanceWithAttributesMap<?>> wrappedBuilder, List<? extends AttributesEnrichStrategy> enrichStrategies) {
         if (enrichStrategies.isEmpty()) {
             logger.warn("Won't do anything if no AttributesEnrichStrategies are provided");
         }

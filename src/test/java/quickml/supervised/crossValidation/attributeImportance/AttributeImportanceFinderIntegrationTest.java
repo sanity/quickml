@@ -4,26 +4,20 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.InstanceLoader;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
+
+import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
-import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.nodes.LeafDepthStats;
 
 import java.util.List;
 import java.util.Set;
 
-public class AttributeImportanceFinderTest {
+public class AttributeImportanceFinderIntegrationTest {
 
 
     private List<ClassifierInstance> instances;
@@ -37,7 +31,7 @@ public class AttributeImportanceFinderTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)
@@ -45,7 +39,7 @@ public class AttributeImportanceFinderTest {
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())
-                .primaryLossFunction(new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
+                .primaryLossFunction(new WeightedAUCCrossValLossFunction(1.0))//WeightedAUCCrossValLossFunction(1.0))//new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());

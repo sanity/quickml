@@ -1,9 +1,5 @@
 package quickml.supervised.crossValidation;
 
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.PredictiveModel;
 
 import java.util.List;
 
@@ -12,6 +8,8 @@ import java.util.List;
  * @param <PM>
  * @param <I>
  */
-public interface LossChecker<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>> {
+
+public interface LossChecker<PM, I> {
     public double calculateLoss(PM predictiveModel, List<I> validationSet);
 }
+

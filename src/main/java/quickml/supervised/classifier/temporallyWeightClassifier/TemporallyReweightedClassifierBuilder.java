@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Created by ian on 5/29/14.
  */
-public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<AttributesMap, TemporallyReweightedClassifier, ClassifierInstance> {
+public class TemporallyReweightedClassifierBuilder implements PredictiveModelBuilder<TemporallyReweightedClassifier, ClassifierInstance> {
 
     public static final String HALF_LIFE_OF_NEGATIVE = "halfLifeOfNegative";
     public static final String HALF_LIFE_OF_POSITIVE = "halfLifeOfPositive";
@@ -26,11 +26,11 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     private static final double DEFAULT_DECAY_CONSTANT = 173; //approximately 5 days
     private double decayConstantOfPositive = DEFAULT_DECAY_CONSTANT;
     private double decayConstantOfNegative = DEFAULT_DECAY_CONSTANT;
-    private final PredictiveModelBuilder<AttributesMap, Classifier, ClassifierInstance> wrappedBuilder;
+    private final PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder;
     private final Serializable positiveClassification;
     private final DateTimeExtractor dateTimeExtractor;
 
-    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<AttributesMap, Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
+    public TemporallyReweightedClassifierBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedBuilder, Serializable positiveClassification, DateTimeExtractor dateTimeExtractor) {
         this.wrappedBuilder = wrappedBuilder;
         this.positiveClassification = positiveClassification;
         this.dateTimeExtractor = dateTimeExtractor;

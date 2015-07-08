@@ -60,9 +60,9 @@ public class DecisionTreeBuilderTest {
         DecisionTree decisionTree = treeBuilder.buildPredictiveModel(instances);
         AttributesMap attributes = new AttributesMap();
         attributes.put("a", true);
-        assertEquals(decisionTree.getProbability(attributes, 1.0), .5, 0.01);
+        assertEquals(decisionTree.getProbabilityOfPositiveClassification(attributes, 1.0), .5, 0.01);
         attributes.put("a", false);
-        assertEquals(decisionTree.getProbability(attributes, 0.0), 1.0, 0.01);
+        assertEquals(decisionTree.getProbabilityOfPositiveClassification(attributes, 0.0), 1.0, 0.01);
 
     }
 

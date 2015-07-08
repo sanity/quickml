@@ -5,13 +5,10 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
-import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.AttributesMapPredictiveModelBuilder;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -23,16 +20,16 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Created by ian on 4/22/14.
  */
 
-public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<AttributesMap, Classifier, T> {
+public class DownsamplingClassifierBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<Classifier, T> {
 
     public static final String MINORITY_INSTANCE_PROPORTION = "minorityInstanceProportion";
 
 
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private double targetMinorityProportion;
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier, T> predictiveModelBuilder;
+    private final PredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<AttributesMap,? extends Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
         checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.predictiveModelBuilder = predictiveModelBuilder;
         this.targetMinorityProportion = targetMinorityProportion;

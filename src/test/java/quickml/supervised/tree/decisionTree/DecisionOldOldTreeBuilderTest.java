@@ -56,11 +56,11 @@ public class DecisionOldOldTreeBuilderTest {
        //     recurseTree(forestTree.root, conditions);
         // }
         for (ClassifierInstance instance: instances) {
-            oldTreeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
-            oldTreeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
+            oldTreeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0),randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0) < 1.0);
+            oldTreeOld.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0),randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0) < 1.0);
 
-            decisionTree.getProbability(instance.getAttributes(), 1.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
-            decisionTree.getProbability(instance.getAttributes(), 0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
+            decisionTree.getProbability(instance.getAttributes(), 1.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(),0.0), randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 0.0) < 1.0);
+            decisionTree.getProbability(instance.getAttributes(), 0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(),0.0), randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 0.0) < 1.0);
             Assert.assertEquals(decisionTree.getProbability(instance.getAttributes(), 1.0) +decisionTree.getProbability(instance.getAttributes(), 0.0), 1.0, 1E-5);
         }
 
@@ -116,8 +116,8 @@ public class DecisionOldOldTreeBuilderTest {
             recurseTree(forestTree.root, conditions);
         }
         for (ClassifierInstance instance: instances) {
-            randomDecisionForest.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbability(instance.getAttributes(), 1.0),randomDecisionForest.getProbability(instance.getAttributes(), 1.0) < 1.0);
-            randomDecisionForest.getProbability(instance.getAttributes(),0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbability(instance.getAttributes(),0.0), randomDecisionForest.getProbability(instance.getAttributes(), 0.0) < 1.0);
+            randomDecisionForest.getProbability(instance.getAttributes(),1.0);// Assert.assertTrue("prob: " + randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0),randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 1.0) < 1.0);
+            randomDecisionForest.getProbability(instance.getAttributes(),0.0);//Assert.assertTrue("prob: "+ randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(),0.0), randomDecisionForest.getProbabilityOfPositiveClassification(instance.getAttributes(), 0.0) < 1.0);
         }
 
     }

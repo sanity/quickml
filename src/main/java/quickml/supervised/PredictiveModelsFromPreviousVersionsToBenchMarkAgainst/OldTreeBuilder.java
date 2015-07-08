@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public final class OldTreeBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<AttributesMap, OldTree, T> {
+public final class OldTreeBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<OldTree, T> {
 
     public static final String MAX_DEPTH = "maxDepth";
     public static final String MIN_SCORE = "minScore";

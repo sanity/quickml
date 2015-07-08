@@ -8,7 +8,7 @@ import quickml.supervised.tree.Tree;
 /**
  * Created by alexanderhawk on 6/21/15.
  */
-public abstract class RandomForestBuilder<P, PM extends RandomForest<P, ? extends Tree<P>>, I extends InstanceWithAttributesMap<?>> implements PredictiveModelBuilder<AttributesMap, PM, I> {
+public abstract class RandomForestBuilder<P, PM extends RandomForest<P, ? extends Tree<P>>, I extends InstanceWithAttributesMap<?>> implements PredictiveModelBuilder<PM, I> {
     protected int numTrees = 8;
 
 

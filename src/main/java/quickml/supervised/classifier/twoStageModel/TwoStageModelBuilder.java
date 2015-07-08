@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder implements PredictiveModelBuilder<AttributesMap,TwoStageClassifier, ClassifierInstance> {
-    PredictiveModelBuilder<AttributesMap, ? extends Classifier, ClassifierInstance> wrappedModelBuilder1;
-    PredictiveModelBuilder<AttributesMap, ? extends Classifier, ClassifierInstance> wrappedModelBuilder2;
+public class TwoStageModelBuilder implements PredictiveModelBuilder<TwoStageClassifier, ClassifierInstance> {
+    PredictiveModelBuilder< ? extends Classifier, ClassifierInstance> wrappedModelBuilder1;
+    PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedModelBuilder2;
 
-    public TwoStageModelBuilder(PredictiveModelBuilder<AttributesMap, ? extends Classifier, ClassifierInstance> wrappedModelBuilder1,
-                                PredictiveModelBuilder<AttributesMap, ? extends Classifier, ClassifierInstance> wrappedModelBuilder2) {
+    public TwoStageModelBuilder(PredictiveModelBuilder< ? extends Classifier, ClassifierInstance> wrappedModelBuilder1,
+                                PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedModelBuilder2) {
         this.wrappedModelBuilder1 = wrappedModelBuilder1;
         this.wrappedModelBuilder2 = wrappedModelBuilder2;
     }

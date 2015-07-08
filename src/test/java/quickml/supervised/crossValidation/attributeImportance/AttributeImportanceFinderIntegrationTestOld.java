@@ -6,16 +6,18 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.InstanceLoader;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTree;
+import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTreeBuilder;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.oldAttributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.crossValidation.data.OutOfTimeData;
+import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
 
 import java.util.List;
 import java.util.Set;
 
-public class AttributeImportanceFinderTestOld {
+public class AttributeImportanceFinderIntegrationTestOld {
 
 
     private List<ClassifierInstance> instances;
@@ -29,43 +31,19 @@ public class AttributeImportanceFinderTestOld {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest\n\n\n");
-        OldTreeBuilder modelBuilder = new OldTreeBuilder().scorer(new GiniImpurityOldScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
-     /*   Tree decisionTree = modelBuilder.buildPredictiveModel(instances);
-        System.out.println(decisionTree.node.medianDepth());
-//        RandomForestB randomDecisionForestBuilder = new RandomForestBuilder(modelBuilder).numTrees(20);
+        OldTreeBuilder modelBuilder = new OldTreeBuilder().scorer(new GiniImpurityOldScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
-        CrossValidator<AttributesMap, Classifier, ClassifierInstance> cv = new CrossValidator<>(modelBuilder,
-                new ClassifierLossChecker<ClassifierInstance>(new ClassifierLogCVLossFunction(.000001)),
-                new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor() ) );
-        for (int i =0; i<20; i++) {
-            System.out.println("Loss: " + cv.getLossForModel());
-        }
-*/
-        int depthZeros = 0;
-        double meanDepthT = 0;
-        double medianDepth = 0;
-        for (int i = 0; i<50; i++) {
-            OldTree oldTree = modelBuilder.buildPredictiveModel(instances);
-            double meanDepthI = oldTree.oldNode.meanDepth();
-            meanDepthT +=meanDepthI;
-            medianDepth += oldTree.oldNode.medianDepth();
-            if (meanDepthI < 1E-5) {
-                depthZeros++;
-            }
-        }
-        System.out.println("depth zeros " + depthZeros+ "mean depth: " + meanDepthT/50.0 + ". med depth: " + medianDepth/50.0);
-        /*
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
-                .modelBuilder(new TreeBuilder().scorer(new GiniImpurityScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)))
+                .modelBuilder(modelBuilder)
                 .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())
-                .primaryLossFunction(new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
-                .build();
+                .primaryLossFunction(new WeightedAUCCrossValLossFunction(1.0))//NonWeightedAUCCrossValLossFunction())//AUCCrossValLossFunction(1.0))//new ClassifierLogCVLossFunction(.000001))
+                        .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());
-        */
+
     }
 
     private Set<String> attributesToKeep() {

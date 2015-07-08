@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 8/14/14.
  */
-public class RidgeLinearModelBuilder implements PredictiveModelBuilder<double[], RidgeLinearModel, RidgeInstance> {
+public class RidgeLinearModelBuilder implements PredictiveModelBuilder< RidgeLinearModel, RidgeInstance> {
 
     public static final String REGULARIZATION_CONSTANT = "regularizationConstant";
     public static final String INCLUDE_BIAS_TERM = "includeBiasTerm";

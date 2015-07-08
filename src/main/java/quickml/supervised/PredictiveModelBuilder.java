@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * A supervised learning algorithm, which, given data, will generate a PredictiveModel.
  */
-public interface PredictiveModelBuilder<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>> {
+public interface PredictiveModelBuilder<PM extends PredictiveModel, I extends Instance> {
 
     public PM buildPredictiveModel(Iterable<I> trainingData);
 

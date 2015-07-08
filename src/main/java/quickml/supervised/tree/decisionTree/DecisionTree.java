@@ -76,7 +76,7 @@ public class DecisionTree extends AbstractClassifier implements Tree<PredictionM
     }
 
     private double getProbabilityWithoutAttributesHelper(Node<ClassificationCounter> node, AttributesMap attributes, Serializable classification, Set<String> attributesToIgnore) {
-       //return getProbability(attributes, classification);
+       //return getProbabilityOfPositiveClassification(attributes, classification);
 
         if (node instanceof Branch) {
             Branch branch = (Branch) node;

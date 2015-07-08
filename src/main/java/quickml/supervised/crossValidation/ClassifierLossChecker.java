@@ -1,15 +1,14 @@
+
 package quickml.supervised.crossValidation;
 
-import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
 import quickml.supervised.Utils;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
 
 import java.util.List;
 
-public class ClassifierLossChecker<I extends ClassifierInstance> implements LossChecker<AttributesMap, Classifier, I> {
+public class ClassifierLossChecker<T extends ClassifierInstance, PM extends Classifier> implements LossChecker<PM, T> {
 
     private ClassifierLossFunction lossFunction;
 
@@ -18,7 +17,7 @@ public class ClassifierLossChecker<I extends ClassifierInstance> implements Loss
     }
 
     @Override
-    public double calculateLoss(Classifier predictiveModel, List<I> validationSet) {
+    public double calculateLoss(PM predictiveModel, List<T> validationSet) {
         return lossFunction.getLoss(Utils.calcResultPredictions(predictiveModel, validationSet));
     }
 

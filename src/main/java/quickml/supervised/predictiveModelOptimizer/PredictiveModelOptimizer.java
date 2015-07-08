@@ -4,21 +4,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.PredictiveModel;
 import quickml.supervised.crossValidation.CrossValidator;
 
 import java.io.Serializable;
 import java.util.*;
 
-public class PredictiveModelOptimizer<A, PM extends PredictiveModel<A, ?>, I extends Instance<A, ?>> {
+public class PredictiveModelOptimizer {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
     private Map<String, ? extends FieldValueRecommender> valuesToTest;
-    private CrossValidator<A, PM, I> crossValidator;
+    private CrossValidator crossValidator;
     private HashMap<String, Serializable> bestConfig;
     private final int iterations;
 
@@ -28,7 +24,7 @@ public class PredictiveModelOptimizer<A, PM extends PredictiveModel<A, ?>, I ext
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator<A, PM, I> crossValidator, int iterations) {
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> valuesToTest, CrossValidator crossValidator, int iterations) {
         this.valuesToTest = valuesToTest;
         this.crossValidator = crossValidator;
         this.iterations = iterations;
@@ -60,11 +56,18 @@ public class PredictiveModelOptimizer<A, PM extends PredictiveModel<A, ?>, I ext
     private void findBestValueForField(String field) {
         FieldLosses losses = new FieldLosses();
         FieldValueRecommender fieldValueRecommender = valuesToTest.get(field);
+        if (fieldValueRecommender.getValues().size() == 1) {
+            return;
+        }
         //bestConfig is not actually bestConfig inth for loop
         for (Serializable value : fieldValueRecommender.getValues()) {
+            //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
+            if (bestConfig.get(field).equals(value)) {
+                continue;
+            }
             bestConfig.put(field, value);
             losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
-            if (fieldValueRecommender.shouldContinue(losses.getLosses()))
+            if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }
 
