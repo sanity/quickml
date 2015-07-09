@@ -13,8 +13,8 @@ import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.Bin
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.BinaryCatBranchReducer;
 import quickml.supervised.tree.decisionTree.reducers.DTNumBranchReducer;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
@@ -39,13 +39,13 @@ public class SplittingUtilsTest {
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         catBranchAssertions(splitScoreOptional);
 
-        //change scorer
-        splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new InformationGainScorer(),
+        //change scorerFactory
+        splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new PenalizedInformationGainScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         catBranchAssertions(splitScoreOptional);
@@ -70,7 +70,7 @@ public class SplittingUtilsTest {
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
         reducer.setTrainingData(td);
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.3).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         Assert.assertTrue(splitScoreOptional.isPresent());
@@ -98,7 +98,7 @@ public class SplittingUtilsTest {
         AttributeStats<ClassificationCounter> attStats = attStatsOptional.get();//should not be absent
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, false);
         Assert.assertTrue(splitScoreOptional.isPresent());
@@ -106,7 +106,7 @@ public class SplittingUtilsTest {
         Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 0);
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.25, 1E-5);
 
-        //change scorer
+        //change scorerFactory
         /*
         splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new InformationGainScorer(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),

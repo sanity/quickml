@@ -2,11 +2,12 @@ package quickml.supervised.tree.decisionTree.scorers;
 
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 
 import java.io.Serializable;
 
-public final class SplitDiffScorer extends Scorer<ClassificationCounter> {
+public final class PenalizedSplitDiffScorer extends GRImbalancedScorer<ClassificationCounter> {
 
 	/*
 	 * The general idea here is that a good split is one where the proportions
@@ -26,14 +27,13 @@ public final class SplitDiffScorer extends Scorer<ClassificationCounter> {
 	 * splits.
 	 */
 
-	@Override
-	public void setUnSplitScore(ClassificationCounter a) {
-		unSplitScore = 0;
+	public PenalizedSplitDiffScorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower, AttributeStats<ClassificationCounter> attributeStats) {
+		super(degreeOfGainRatioPenalty, imbalancePenaltyPower, attributeStats);
 	}
 
 	@Override
-	public Scorer<ClassificationCounter> createScorer() {
-	 	return new GiniImpurityScorer();
+	public double getUnSplitScore(ClassificationCounter a) {
+		return 0;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public final class SplitDiffScorer extends Scorer<ClassificationCounter> {
 
 			score += Math.abs(aProp - bProp) * Math.min(a.getTotal(), b.getTotal());
 		}
-		return score;
+		return correctForGainRatio(score);
 	}
 
     public String toString() {

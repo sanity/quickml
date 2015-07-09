@@ -2,7 +2,6 @@ package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
-import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
@@ -11,12 +10,11 @@ import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIg
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.nodes.DTLeafBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContextBuilder;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.scorers.ScorerFactory;
 
 import java.io.Serializable;
 import java.util.*;
@@ -29,7 +27,6 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
     public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
     public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);
     public static final int DEFAULT_NUM_NUMERIC_BINS = 5;
-    public static final GiniImpurityScorer DEFAULT_SCORER = new GiniImpurityScorer();
     public static final DTBranchingConditions DEFAULT_BRANCHING_CONDITIONS = new DTBranchingConditions();
     public static final double DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY = 1.0;
     public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
@@ -125,8 +122,8 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
         return this;
     }
 
-    public DecisionTreeBuilder<I> scorer(Scorer<ClassificationCounter> scorer) {
-        tcb.scorer(scorer);
+    public DecisionTreeBuilder<I> scorerFactory(ScorerFactory<ClassificationCounter> scorerFactory) {
+        tcb.scorerFactory(scorerFactory);
         return this;
     }
 

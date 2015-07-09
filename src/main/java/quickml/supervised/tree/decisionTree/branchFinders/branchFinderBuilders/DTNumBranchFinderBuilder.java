@@ -42,6 +42,6 @@ public class DTNumBranchFinderBuilder extends DTBranchFinderBuilder {
         } else {
             attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(classificationCounts);
         }
-        return new DTNumBranchFinder(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+        return new DTNumBranchFinder(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 }

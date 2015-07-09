@@ -10,11 +10,9 @@ import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by alexanderhawk on 7/7/15.
@@ -31,7 +29,7 @@ public class OldLeafDepthStatsTest {
     @Test
     public void calcMeanAndMedianDepth(){
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder modelBuilder = new DecisionTreeBuilder().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder modelBuilder = new DecisionTreeBuilder().scorerFactory(new GRPenalizedGiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
 
         int depthZeros = 0;

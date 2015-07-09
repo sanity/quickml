@@ -4,25 +4,25 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.crossValidation.attributeImportance.AttributeImportanceFinderBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 
+import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.constants.AttributeType;
-import quickml.supervised.tree.decisionTree.branchFinders.OldBinCatBranchFinder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
 import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
-import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.OldBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.*;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedGiniImpurityScorerFactory;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.nodes.LeafBuilder;
+import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
@@ -52,7 +52,12 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
         List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
         updateAll(branchFinderAndReducers);
-        return new DTreeContext<I>(classificationCounts.allClassifications(), branchingConditions, scorer, branchFinderAndReducers, leafBuilder, getValueCounterProducer());
+        return new DTreeContext<I>(classificationCounts.allClassifications(),
+                (BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name()),
+                (ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name()),
+                branchFinderAndReducers,
+                (LeafBuilder<ClassificationCounter>)config.get(LEAF_BUILDER.name()),
+                getValueCounterProducer());
     }
 
     @Override
@@ -160,8 +165,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (!config.containsKey(BRANCHING_CONDITIONS.name())) {
             branchingConditions(DEFAULT_BRANCHING_CONDITIONS);
         }
-        if (!config.containsKey(SCORER.name())) {
-            scorer(DEFAULT_SCORER);
+        if (!config.containsKey(SCORER_FACTORY.name())) {
+            scorerFactory(getDefaultScorerFactory());
         }
         if (!config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())) {
             degreeOfGainRatioPenalty(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY);
@@ -185,6 +190,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         updateBuilderConfig(this.config);
     }
 
+    private ScorerFactory<ClassificationCounter> getDefaultScorerFactory(){
+        return new PenalizedGiniImpurityScorerFactory(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY, DEFAULT_IMBALANCE_PENALTY_POWER);
+    }
+
     @Override
     public Map<String, Serializable> copyConfig(Map<String, Serializable> config) {
         Map<String, Serializable> copiedConfig = Maps.newHashMap();
@@ -198,7 +207,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(MIN_SLPIT_FRACTION.name(), config.get(MIN_SLPIT_FRACTION.name()));
         }
         if (config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())) {
-            copiedConfig.put(ATTRIBUTE_IGNORING_STRATEGY.name(), config.get(ATTRIBUTE_IGNORING_STRATEGY.name()));
+            copiedConfig.put(ATTRIBUTE_IGNORING_STRATEGY.name(), ((AttributeIgnoringStrategy)config.get(ATTRIBUTE_IGNORING_STRATEGY.name())).copy());
         }
         if (config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
             copiedConfig.put(NUM_SAMPLES_PER_NUMERIC_BIN.name(), config.get(NUM_SAMPLES_PER_NUMERIC_BIN.name()));
@@ -207,10 +216,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(NUM_NUMERIC_BINS.name(), config.get(NUM_NUMERIC_BINS.name()));
         }
         if (config.containsKey(BRANCHING_CONDITIONS.name())) {
-            copiedConfig.put(BRANCHING_CONDITIONS.name(), config.get(BRANCHING_CONDITIONS.name()));
+            copiedConfig.put(BRANCHING_CONDITIONS.name(), ((BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name())).copy());
         }
-        if (config.containsKey(SCORER.name())) {
-            copiedConfig.put(SCORER.name(), config.get(SCORER.name()));
+        if (config.containsKey(SCORER_FACTORY.name())) {
+            copiedConfig.put(SCORER_FACTORY.name(), ((ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name())).copy());
         }
         if (config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())) {
             copiedConfig.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), config.get(DEGREE_OF_GAIN_RATIO_PENALTY.name()));
@@ -222,7 +231,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), config.get(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name()));
         }
         if (config.containsKey(LEAF_BUILDER.name())) {
-            copiedConfig.put(LEAF_BUILDER.name(), config.get(LEAF_BUILDER.name()));
+            copiedConfig.put(LEAF_BUILDER.name(), ((LeafBuilder<ClassificationCounter>)config.get(LEAF_BUILDER.name())).copy());
         }
 
         if (config.containsKey(MIN_LEAF_INSTANCES.name())) {
@@ -243,7 +252,6 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return copiedConfig;
     }
 
-    //check that haven't missed any settings.
     public void maxDepth(int maxDepth) {
         config.put(MAX_DEPTH.name(), maxDepth);
     }
@@ -289,8 +297,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(BRANCHING_CONDITIONS.name(), branchingConditions);
     }
 
-    public void scorer(Scorer<ClassificationCounter> scorer) {
-        config.put(SCORER.name(), scorer);
+    public void scorerFactory(ScorerFactory<ClassificationCounter> scorerFactory) {
+        config.put(SCORER_FACTORY.name(), scorerFactory);
     }
 
     public void degreeOfGainRatioPenalty(double degreeOfGainRatioPenalty) {

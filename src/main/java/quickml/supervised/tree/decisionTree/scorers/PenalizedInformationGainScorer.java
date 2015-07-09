@@ -1,7 +1,8 @@
 package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -9,23 +10,23 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 6/24/14.
  */
-public class InformationGainScorer extends Scorer<ClassificationCounter> {
+public class PenalizedInformationGainScorer extends GRImbalancedScorer<ClassificationCounter> {
 
-    @Override
-    public void setUnSplitScore(ClassificationCounter a) {
-        unSplitScore = calculateEntropy(a);
+    public PenalizedInformationGainScorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower, AttributeStats<ClassificationCounter> attributeStats) {
+        super(degreeOfGainRatioPenalty, imbalancePenaltyPower, attributeStats);
     }
 
     @Override
-    public Scorer<ClassificationCounter> createScorer() {
-        return new InformationGainScorer();
+    protected double getUnSplitScore(ClassificationCounter a) {
+        return calculateEntropy(a);
     }
 
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
         double aEntropy = calculateEntropy(a);
         double bEntropy = calculateEntropy(b);
-        return calculateGain(unSplitScore, aEntropy, bEntropy, a.getTotal(), b.getTotal());
+        double ig = calculateGain(unSplitScore, aEntropy, bEntropy, a.getTotal(), b.getTotal());
+        return correctForGainRatio(ig)*getPenaltyForImabalance(a, b);
     }
 
     private double calculateEntropy(ClassificationCounter cc) {

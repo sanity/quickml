@@ -9,9 +9,10 @@ import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.*;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.ScorerFactory;
 
 import java.util.Set;
 
@@ -24,8 +25,8 @@ public class DTBinaryCatBranchFinder extends SortableLabelsCategoricalBranchFind
         return BranchType.BINARY_CATEGORICAL;
     }
 
-    public DTBinaryCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+    public DTBinaryCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, ScorerFactory<ClassificationCounter> scorerFactory, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
     @Override

@@ -4,7 +4,7 @@ package quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgains
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.OldClassificationCounter;
 
 /**
- * The scorer is responsible for assessing the quality of a "split" of data.
+ * The scorerFactory is responsible for assessing the quality of a "split" of data.
  */
 public interface OldScorer {
 	/**

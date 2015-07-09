@@ -3,7 +3,8 @@ package quickml.supervised.tree.decisionTree.scorers;
 
 //TODO: fix oldScorers
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -14,31 +15,21 @@ import java.util.Map;
  * without the branch minus the MSE with the branch (so higher is better, as
  * is required by the scoreSplit() interface.
  */
-public class MSEScorer extends Scorer<ClassificationCounter> {
-    private final double crossValidationInstanceCorrection;
+public class PenalizedMSEScorer extends GRImbalancedScorer<ClassificationCounter> {
 
     @Override
-    public void setUnSplitScore(ClassificationCounter a) {
-        unSplitScore = getTotalError(a);   
+    protected double getUnSplitScore(ClassificationCounter a) {
+        return getTotalError(a);
     }
 
-    @Override
-    public Scorer<ClassificationCounter> createScorer() {
-        return new MSEScorer(CrossValidationCorrection.TRUE);
-    }
-
-    public MSEScorer(CrossValidationCorrection crossValidationCorrection) {
-        if (crossValidationCorrection.equals(CrossValidationCorrection.TRUE)) {
-            crossValidationInstanceCorrection = 1.0;
-        } else {
-            crossValidationInstanceCorrection = 0.0;
-        }
+    public PenalizedMSEScorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower, AttributeStats<ClassificationCounter> attributeStats) {
+        super(degreeOfGainRatioPenalty, imbalancePenaltyPower, attributeStats);
     }
 
     @Override
     public double scoreSplit(final ClassificationCounter a, final ClassificationCounter b) {
         double splitMSE = (getTotalError(a) + getTotalError(b)) / (a.getTotal() + b.getTotal());
-        return correctScoreForGainRatioPenalty(unSplitScore - splitMSE);
+        return correctForGainRatio(unSplitScore - splitMSE) * getPenaltyForImabalance(a, b);
     }
 
     private double getTotalError(ClassificationCounter cc) {
@@ -58,7 +49,6 @@ public class MSEScorer extends Scorer<ClassificationCounter> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MSEScorer{");
-        sb.append("cvic=").append(crossValidationInstanceCorrection);
         sb.append('}');
         return sb.toString();
     }

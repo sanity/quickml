@@ -7,7 +7,7 @@ public enum ForestOptions {
     BAGGING(),
     DOWNSAMPLING_TARGET_MINORITY_PROPORTION(),
     PRUNING_STRATEGY(),
-    SCORER(),
+    SCORER_FACTORY(),
     MAX_DEPTH(),
     MIN_SCORE(),
     MIN_LEAF_INSTANCES(),

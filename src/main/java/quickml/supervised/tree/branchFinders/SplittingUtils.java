@@ -4,9 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.constants.MissingValue;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.scorers.Scorer;
+import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.scorers.Scorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 
@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class SplittingUtils {
 
-    public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttributeStats(AttributeStats<VC> attributeStats, Scorer<VC> scorer,
+    public static <VC extends ValueCounter<VC>> Optional<SplitScore> splitSortedAttributeStats(AttributeStats<VC> attributeStats, ScorerFactory<VC> scorerFactory,
                                                                                                BranchingConditions<VC> branchingConditions,
                                                                                                AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
                                                                                                boolean doNotUseAttributeValuesWithInsuffientStatistics) {
@@ -33,8 +33,7 @@ public class SplittingUtils {
         VC falseSet = attributeStats.getAggregateStats();
         VC trueSet = falseSet.subtract(falseSet); //empty true Set
 
-        scorer.setIntrinsicValue(attributeStats);
-        scorer.setUnSplitScore(attributeStats.getAggregateStats());
+        Scorer<VC> scorer = scorerFactory.getScorer(attributeStats);
 
         for (int i = 0; i < attributeValueStatsList.size() - 1; i++) {
 

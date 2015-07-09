@@ -1,7 +1,9 @@
 package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
+import quickml.supervised.tree.scorers.GRScorer;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -9,25 +11,24 @@ import java.util.Map;
 /**
  * Created by chrisreeves on 6/24/14.
  */
-public class GiniImpurityScorer extends Scorer<ClassificationCounter> {
+public class PenalizedGiniImpurityScorer extends GRImbalancedScorer<ClassificationCounter> {
 
-    @Override
-    public Scorer<ClassificationCounter> createScorer() {
-        return new GiniImpurityScorer();
+    public PenalizedGiniImpurityScorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower, AttributeStats<ClassificationCounter> attributeStats) {
+        super(degreeOfGainRatioPenalty, imbalancePenaltyPower, attributeStats);
     }
 
     @Override
     public double scoreSplit(ClassificationCounter a, ClassificationCounter b) {
         ClassificationCounter parent = ClassificationCounter.merge(a, b);
-        double aGiniIndex = getGiniIndex(a) * a.getTotal() / parent.getTotal() ;
+        double aGiniIndex = getGiniIndex(a) * a.getTotal() / parent.getTotal();
         double bGiniIndex = getGiniIndex(b) * b.getTotal() / parent.getTotal();
-        double score =  unSplitScore - aGiniIndex - bGiniIndex;
-        return correctScoreForGainRatioPenalty(score);
+        double score = unSplitScore - aGiniIndex - bGiniIndex;
+        return correctForGainRatio(score)*getPenaltyForImabalance(a, b);
     }
 
     @Override
-    public void setUnSplitScore(ClassificationCounter a) {
-        unSplitScore = getGiniIndex(a);
+    public double getUnSplitScore(ClassificationCounter a) {
+        return getGiniIndex(a);
 
     }
 
@@ -44,4 +45,5 @@ public class GiniImpurityScorer extends Scorer<ClassificationCounter> {
     public String toString() {
         return "GiniImpurity";
     }
+
 }

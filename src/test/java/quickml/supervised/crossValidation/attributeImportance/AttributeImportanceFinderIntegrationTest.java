@@ -12,7 +12,7 @@ import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossF
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 
 import java.util.List;
 import java.util.Set;
@@ -31,7 +31,7 @@ public class AttributeImportanceFinderIntegrationTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorer(new GiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)

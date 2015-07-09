@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
-import quickml.supervised.classifier.Classifier;
+
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
@@ -19,8 +19,8 @@ import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.decisionTree.scorers.InformationGainScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 
 import java.util.*;
 
@@ -65,7 +65,7 @@ public class PredictiveModelOptimizerIntegrationTest {
         config.put(MIN_SCORE.name(), new FixedOrderRecommender(0.00000000000001));//, Double.MIN_VALUE, 0.0, 0.000001, 0.0001, 0.001, 0.01, 0.1));
         config.put(ATTRIBUTE_VALUE_THRESHOLD_OBSERVATIONS.name(), new FixedOrderRecommender(2, 11, 16, 30 ));
         config.put(MIN_LEAF_INSTANCES.name(), new FixedOrderRecommender(0, 20, 40));
-        config.put(SCORER.name(), new FixedOrderRecommender(new InformationGainScorer(), new GiniImpurityScorer()));
+        config.put(SCORER_FACTORY.name(), new FixedOrderRecommender(new PenalizedInformationGainScorer(), new GRPenalizedGiniImpurityScorer()));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), new FixedOrderRecommender(1.0, 0.75, .5 ));
         return config;
     }

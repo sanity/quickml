@@ -40,7 +40,7 @@ public class DTBinaryCatBranchFinderBuilder extends DTBranchFinderBuilder {
 
         }
         return new DTBinaryCatBranchFinder(candidateAttributes, branchingConditions,
-                scorer, attributeValueIgnoringStrategy,
+                scorerFactory, attributeValueIgnoringStrategy,
                 attributeIgnoringStrategy);
     }
 

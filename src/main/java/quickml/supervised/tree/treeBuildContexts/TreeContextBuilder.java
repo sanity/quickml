@@ -5,12 +5,11 @@ import com.google.common.collect.Lists;
 
 import com.google.common.collect.Maps;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.LeafBuilder;
-import quickml.supervised.tree.nodes.Node;
-import quickml.scorers.Scorer;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -23,7 +22,7 @@ import java.util.Map;
  * Created by alexanderhawk on 3/20/15.
  */
 public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
-    protected Scorer<VC> scorer;
+    protected ScorerFactory<VC> scorerFactory;
     protected LeafBuilder<VC> leafBuilder;
     protected BranchingConditions<VC> branchingConditions;
     protected List<? extends BranchFinderBuilder<VC>> branchFinderBuilders = Lists.newArrayList();
@@ -36,8 +35,8 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         return branchFinderBuilders;
     }
 
-    public Scorer getScorer() {
-        return scorer;
+    public ScorerFactory<VC> getScorerFactory() {
+        return scorerFactory;
     }
 
     public BranchingConditions<VC> getBranchingConditions() {
@@ -59,7 +58,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         }
         copy.branchFinderBuilders = copiedBranchFinderBuilders;
         copy.branchingConditions = branchingConditions.copy();
-        copy.scorer = scorer.copy();
+        copy.scorerFactory = scorerFactory.copy();
         copy.leafBuilder = leafBuilder.copy();
         return copy;
     }
@@ -91,12 +90,12 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         }
         if (cfg.containsKey(LEAF_BUILDER.name()))
             leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
-        if (cfg.containsKey(SCORER.name()))
-            scorer = (Scorer<VC>) cfg.get(SCORER.name());
+        if (cfg.containsKey(SCORER_FACTORY.name()))
+            scorerFactory = (ScorerFactory<VC>) cfg.get(SCORER_FACTORY.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
-        if (scorer != null) {
-            scorer.update(cfg);
+        if (scorerFactory != null) {
+            scorerFactory.update(cfg);
         }
         if (branchingConditions != null) {
             branchingConditions.update(cfg);

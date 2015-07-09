@@ -9,9 +9,8 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +37,7 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Test
     public void simpleAdTest() throws Exception {
         final List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
-        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorer(new SplitDiffScorer());
+        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorerFactory(new PenalizedSplitDiffScorer());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
         final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);

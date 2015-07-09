@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree.branchFinders;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldScorer;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.OldClassificationCounter;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
@@ -17,6 +17,7 @@ import quickml.supervised.tree.constants.MissingValue;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.ScorerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,9 +42,9 @@ public class OldBinCatBranchFinder extends SortableLabelsCategoricalBranchFinder
 
 
     public OldBinCatBranchFinder(Set<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions,
-                                                     Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy,
+                                                     ScorerFactory<ClassificationCounter> scorerFactory, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy,
                                                      AttributeIgnoringStrategy attributeIgnoringStrategy) {
-            super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+            super(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
         }
 
 
@@ -74,7 +75,7 @@ public class OldBinCatBranchFinder extends SortableLabelsCategoricalBranchFinder
                 attributeStats.getAggregateStats()));
     }
 
-    public  Optional<SplittingUtils.SplitScore> oldCreateTwoClassCategoricalNode(AttributeStats<ClassificationCounter> attributeStats, Scorer<ClassificationCounter> scorer,
+    public  Optional<SplittingUtils.SplitScore> oldCreateTwoClassCategoricalNode(AttributeStats<ClassificationCounter> attributeStats, GRImbalancedScorer<ClassificationCounter> scorer,
                                                                                   BranchingConditions<ClassificationCounter> branchingConditions,
                                                                                   AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy,
                                                                                   boolean doNotUseAttributeValuesWithInsuffientStatistics) {  //Node parent, final String attribute, final Iterable<T> instances) {

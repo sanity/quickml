@@ -5,7 +5,6 @@ import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.BinaryClassAttributeValueIgnoringStrategyBuilder;
-import quickml.supervised.tree.decisionTree.branchFinders.DTBinaryCatBranchFinder;
 import quickml.supervised.tree.decisionTree.branchFinders.OldBinCatBranchFinder;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
@@ -41,7 +40,7 @@ public class OldBinaryCatBranchFinderBuilder extends DTBranchFinderBuilder {
 
         }
         return new OldBinCatBranchFinder(candidateAttributes, branchingConditions,
-                scorer, attributeValueIgnoringStrategy,
+                scorerFactory, attributeValueIgnoringStrategy,
                 attributeIgnoringStrategy);
     }
 

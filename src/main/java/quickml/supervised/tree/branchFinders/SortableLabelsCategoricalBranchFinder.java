@@ -1,12 +1,10 @@
 package quickml.supervised.tree.branchFinders;
 
 import com.google.common.base.Optional;
-import org.apache.commons.math3.geometry.spherical.oned.ArcsSet;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
+import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.nodes.Node;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.nodes.Branch;
@@ -20,9 +18,9 @@ import java.util.Set;
 public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCounter<VC>> extends BranchFinder<VC> {
 
     public SortableLabelsCategoricalBranchFinder(Set<String> candidateAttributes, BranchingConditions<VC> branchingConditions,
-                                                 Scorer<VC> scorer, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
+                                                 ScorerFactory<VC> scorerFactory, AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy,
                                                  AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+        super(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
 
@@ -33,7 +31,7 @@ public abstract class SortableLabelsCategoricalBranchFinder<VC extends ValueCoun
             return Optional.absent();
         }
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorer, branchingConditions, attributeValueIgnoringStrategy, true);
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attributeStats, scorerFactory, branchingConditions, attributeValueIgnoringStrategy, true);
         if (!splitScoreOptional.isPresent()) {
             return Optional.absent();
         }

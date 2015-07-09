@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
@@ -19,9 +19,9 @@ import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithC
 import quickml.supervised.tree.constants.ForestOptions;
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.tree.decisionTree.scorers.MSEScorer;
-import quickml.supervised.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedMSEScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.io.*;
@@ -37,7 +37,7 @@ public class BenchmarkTest {
 
     private ClassifierLossChecker<ClassifierInstance, DecisionTree> classifierLossCheckerT;
     private ClassifierLossChecker<ClassifierInstance, RandomDecisionForest> classifierLossCheckerF;
-    private ArrayList<Scorer<ClassificationCounter>> scorers;
+    private ArrayList<GRImbalancedScorer<ClassificationCounter>> scorers;
     private DecisionTreeBuilder<ClassifierInstance> treeBuilder;
     private RandomDecisionForestBuilder randomDecisionForestBuilder;
 
@@ -47,9 +47,9 @@ public class BenchmarkTest {
         classifierLossCheckerF = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
 
         scorers = newArrayList(
-                new SplitDiffScorer(),
-                new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE),
-                new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
+                new PenalizedSplitDiffScorer(),
+                new PenalizedMSEScorer(PenalizedMSEScorer.CrossValidationCorrection.FALSE),
+                new PenalizedMSEScorer(PenalizedMSEScorer.CrossValidationCorrection.TRUE));
         treeBuilder = createTreeBuilder();
         randomDecisionForestBuilder = createRandomForestBuilder();
     }
@@ -72,7 +72,7 @@ public class BenchmarkTest {
             instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
         }
         double time0 = System.currentTimeMillis();
-        DecisionTreeBuilder<ClassifierInstance> treeBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorer(new GiniImpurityScorer())
+        DecisionTreeBuilder<ClassifierInstance> treeBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorer())
                 .numSamplesPerNumericBin(20)
                 .numNumericBins(5)
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
@@ -90,9 +90,9 @@ public class BenchmarkTest {
     private void testWithInstances(String dsName, final List<ClassifierInstance> instances) {
         FoldedData<ClassifierInstance> data = new FoldedData<>(instances, 4, 4);
 
-        for (final Scorer scorer : scorers) {
+        for (final GRImbalancedScorer scorer : scorers) {
             Map<String, Serializable> cfg = Maps.newHashMap();
-            cfg.put(ForestOptions.SCORER.name(), scorer);
+            cfg.put(ForestOptions.SCORER_FACTORY.name(), scorer);
             CrossValidator< DecisionTree, ClassifierInstance> validator = new CrossValidator< DecisionTree, ClassifierInstance>(treeBuilder, classifierLossCheckerT, data);
             System.out.println(dsName + ", single-oldTree, " + scorer + ", " + validator.getLossForModel(cfg));
             CrossValidator<RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossCheckerF, data);

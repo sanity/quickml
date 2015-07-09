@@ -32,7 +32,7 @@ public final class OldTreeBuilder<T extends ClassifierInstance> implements Predi
     //also the minimimum number of times a numeric attribute must be observed to fall inside a closed interval for that interval to be considered in a split decision
     public static final String MIN_OCCURRENCES_OF_ATTRIBUTE_VALUE = "minOccurrencesOfAttributeValue";
     public static final String MIN_LEAF_INSTANCES = "minLeafInstances";
-    public static final String SCORER = "scorer";
+    public static final String SCORER = "scorerFactory";
     public static final String PENALIZE_CATEGORICAL_SPLITS = "penalizeCategoricalSplitsBySplitAttributeIntrinsicValue";
     public static final String ATTRIBUTE_IGNORING_STRATEGY = "attributeIgnoringStrategy";
     public static final String DEGREE_OF_GAIN_RATIO_PENALTY = "degreeOfGainRatioPenalty";

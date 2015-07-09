@@ -28,7 +28,7 @@ public class DTCatBranchFinderBuilder extends DTBranchFinderBuilder {
         } else {
             attributeValueIgnoringStrategy = attributeValueIgnoringStrategyBuilder.createAttributeValueIgnoringStrategy(classificationCounts);
         }
-        return new DTNClassCatBranchFinder(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+        return new DTNClassCatBranchFinder(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
     @Override

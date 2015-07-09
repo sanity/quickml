@@ -2,9 +2,10 @@ package quickml.supervised.tree.branchFinders.branchFinderBuilders;
 
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
+import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import static quickml.supervised.tree.constants.ForestOptions.*;
@@ -21,7 +22,7 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implement
     private static final long serialVersionUID = 0L;
 
     protected BranchingConditions<VC> branchingConditions;
-    protected Scorer<VC> scorer;
+    protected ScorerFactory<VC> scorerFactory;
     protected AttributeIgnoringStrategy attributeIgnoringStrategy;
     protected AttributeValueIgnoringStrategyBuilder<VC> attributeValueIgnoringStrategyBuilder;
     protected BranchType branchType;
@@ -35,8 +36,8 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implement
         return attributeValueIgnoringStrategyBuilder;
     }
 
-    public Scorer<VC> getScorer() {
-        return scorer;
+    public ScorerFactory<VC> getScorerFactory() {
+        return scorerFactory;
     }
 
     public BranchingConditions<VC> getBranchingConditions() {
@@ -54,8 +55,8 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implement
             attributeIgnoringStrategy= (AttributeIgnoringStrategy) cfg.get(ATTRIBUTE_IGNORING_STRATEGY.name());
         if (cfg.containsKey(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name()))
             attributeValueIgnoringStrategyBuilder= (AttributeValueIgnoringStrategyBuilder<VC>) cfg.get(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name());
-        if (cfg.containsKey(SCORER.name()))
-            scorer = (Scorer<VC>) cfg.get(SCORER.name());
+        if (cfg.containsKey(SCORER_FACTORY.name()))
+            scorerFactory = (ScorerFactory<VC>) cfg.get(SCORER_FACTORY.name());
         if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
             branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
         if (cfg.containsKey(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name()))
@@ -69,8 +70,8 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implement
         if (branchingConditions!=null) {
             copy.branchingConditions = branchingConditions.copy();
         }
-        if (scorer!=null) {
-            copy.scorer = scorer.copy();
+        if (scorerFactory !=null) {
+            copy.scorerFactory = scorerFactory.copy();
         }
         if (attributeIgnoringStrategy!=null) {
             copy.attributeIgnoringStrategy = attributeIgnoringStrategy.copy();

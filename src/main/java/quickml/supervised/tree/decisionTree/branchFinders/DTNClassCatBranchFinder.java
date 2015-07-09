@@ -12,8 +12,10 @@ import quickml.supervised.tree.constants.MissingValue;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.*;
-import quickml.scorers.Scorer;
+import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.reducers.AttributeStats;
+import quickml.supervised.tree.scorers.Scorer;
+import quickml.supervised.tree.scorers.ScorerFactory;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -26,8 +28,8 @@ import java.util.Set;
  */
 public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter> {
 
-    public DTNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, Scorer<ClassificationCounter> scorer, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
-        super(candidateAttributes, branchingConditions, scorer, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
+    public DTNClassCatBranchFinder(Collection<String> candidateAttributes, BranchingConditions<ClassificationCounter> branchingConditions, ScorerFactory<ClassificationCounter> scorerFactory, AttributeValueIgnoringStrategy<ClassificationCounter> attributeValueIgnoringStrategy, AttributeIgnoringStrategy attributeIgnoringStrategy) {
+        super(candidateAttributes, branchingConditions, scorerFactory, attributeValueIgnoringStrategy, attributeIgnoringStrategy);
     }
 
     @Override
@@ -49,11 +51,10 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
             attrValToCCMap.put(classificationCounter.getAttrVal(), classificationCounter);
         }
 
-        scorer.setIntrinsicValue(attributeStats);
-        scorer.setUnSplitScore(attributeStats.getAggregateStats());
+        Scorer<ClassificationCounter> scorer = scorerFactory.getScorer(attributeStats);
         double scoreWithCurrentTrueSet = 0;
         while (true) {
-            Optional<ScoreValuePair> bestValueAndScore = getNextBestAttributeValueToAddToTrueSet(trueClassificationCounts, falseClassificationCounts, attrValToCCMap);
+            Optional<ScoreValuePair> bestValueAndScore = getNextBestAttributeValueToAddToTrueSet(trueClassificationCounts, falseClassificationCounts, attrValToCCMap, scorer);
 
             if (bestValueAndScore.isPresent() && bestValueAndScore.get().getScore() > scoreWithCurrentTrueSet) {
                 scoreWithCurrentTrueSet = bestValueAndScore.get().getScore();
@@ -75,7 +76,7 @@ public class DTNClassCatBranchFinder extends BranchFinder<ClassificationCounter>
         return Optional.of(new DTCatBranch(parent, attributeStats.getAttribute(), trueSet, probabilityOfBeingInTrueSet, scoreWithCurrentTrueSet,attributeStats.getAggregateStats()));
     }
 
-    private Optional<ScoreValuePair> getNextBestAttributeValueToAddToTrueSet(ClassificationCounter trueClassificationCounts, ClassificationCounter falseClassificationCounts, Map<Serializable, ClassificationCounter> attrValToCCMap) {
+    private Optional<ScoreValuePair> getNextBestAttributeValueToAddToTrueSet(ClassificationCounter trueClassificationCounts, ClassificationCounter falseClassificationCounts, Map<Serializable, ClassificationCounter> attrValToCCMap, Scorer<ClassificationCounter> scorer) {
         Optional<ScoreValuePair> bestValueAndScore = Optional.absent();
         //values should be greater than 1
 

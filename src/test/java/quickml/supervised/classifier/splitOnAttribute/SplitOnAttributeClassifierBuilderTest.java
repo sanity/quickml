@@ -17,7 +17,7 @@ import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedForDownsampling;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
-import quickml.supervised.tree.decisionTree.scorers.GiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 
 import java.io.Serializable;
 import java.util.*;
@@ -92,7 +92,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         predictiveModelParameters.put("maxDepth", Integer.valueOf(16));
         predictiveModelParameters.put("minCatAttrOcc", Integer.valueOf(29));
         predictiveModelParameters.put("minLeafInstances", Integer.valueOf(0));
-        predictiveModelParameters.put("scorer", new GiniImpurityScorer());
+        predictiveModelParameters.put("scorerFactory", new GRPenalizedGiniImpurityScorer());
         predictiveModelParameters.put("rebuildThreshold", Integer.valueOf(1));
         predictiveModelParameters.put("splitNodeThreshold", Integer.valueOf(1));
         predictiveModelParameters.put("minorityInstanceProportion", Double.valueOf(0.30));
