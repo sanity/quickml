@@ -18,6 +18,9 @@ import static quickml.supervised.tree.constants.MissingValue.*;
  * Created by alexanderhawk on 4/23/15.
  */
 public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReducer<I> {
+    public DTCatBranchReducer(List<I> trainingData) {
+        super(trainingData);
+    }
 
     @Override
     public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
@@ -35,7 +38,7 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     protected Pair<ClassificationCounter, Map<Serializable, ClassificationCounter>> getAggregateAndAttributeValueClassificationCounters(String attribute) {
         final Map<Serializable, ClassificationCounter> result = Maps.newHashMap();
         final ClassificationCounter totals = new ClassificationCounter();
-        for (ClassifierInstance instance : trainingData) {
+        for (ClassifierInstance instance : getTrainingData()) {
             final Serializable attrVal = instance.getAttributes().get(attribute);
             ClassificationCounter cc;
             boolean acceptableMissingValue = attrVal == null; //|| attrVal.equals("");//trial
@@ -59,8 +62,4 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         return Pair.with(totals, result);
     }
 
-    @Override
-    public void updateBuilderConfig(Map<String, Serializable> cfg) {
-
-    }
 }

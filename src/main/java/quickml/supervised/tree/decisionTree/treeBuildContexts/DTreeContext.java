@@ -1,11 +1,10 @@
 package quickml.supervised.tree.decisionTree.treeBuildContexts;
 
 import quickml.data.ClassifierInstance;
+import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
-import quickml.supervised.tree.decisionTree.reducers.DTreeBranchFinderAndReducer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.LeafBuilder;
-import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.treeBuildContexts.TreeContext;
@@ -23,7 +22,7 @@ public class DTreeContext<I extends ClassifierInstance> extends TreeContext<I, C
     public DTreeContext(Set<Serializable> classifications,
                         BranchingConditions<ClassificationCounter> branchingConditions,
                         ScorerFactory<ClassificationCounter> scorerFactory,
-                        List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers,
+                        List<BranchFinderAndReducerFactory<I, ClassificationCounter>> branchFindersAndReducers,
                         LeafBuilder<ClassificationCounter> leafBuilder,
                         ValueCounterProducer<I, ClassificationCounter> valueCounterProducer
     ) {

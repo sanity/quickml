@@ -2,15 +2,11 @@ package quickml.supervised.tree;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import quickml.data.ClassifierInstance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
-import quickml.supervised.tree.branchFinders.BranchFinderAndReducer;
-import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.decisionTree.branchFinders.DTBinaryCatBranchFinder;
+import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.reducers.Reducer;
+import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.nodes.Branch;
@@ -71,12 +67,12 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     private Optional<? extends Branch<VC>> findBestBranch(Branch parent, List<I> instances, TreeContext<I, VC> tc ) {
         double bestScore = 0;
         Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
-        List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers = tc.getBranchFindersAndReducers();
-        for (BranchFinderAndReducer<I, VC> branchFinderAndReducer : branchFindersAndReducers) {
+        List<? extends BranchFinderAndReducerFactory<I, VC>> branchFindersAndReducers = tc.getBranchFindersAndReducers();
+        for (BranchFinderAndReducerFactory<I, VC> branchFinderAndReducerFactory : branchFindersAndReducers) {
             //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
-            Reducer<I, VC> reducer = branchFinderAndReducer.getReducer();
-            reducer.setTrainingData(instances);
-            BranchFinder<VC> branchFinder = branchFinderAndReducer.getBranchFinder();
+            ReducerFactory<I, VC> reducerFactory = branchFinderAndReducerFactory.getReducerFactory();
+            Reducer<I, VC> reducer = reducerFactory.getReducer(instances);
+            BranchFinder<VC> branchFinder = branchFinderAndReducerFactory.getBranchFinder();
 
             Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer
             if (thisBranchOptional.isPresent()) {

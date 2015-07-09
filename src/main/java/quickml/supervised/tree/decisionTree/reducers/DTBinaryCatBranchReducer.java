@@ -15,10 +15,10 @@ import java.util.List;
  * Created by alexanderhawk on 4/22/15.
  */
 public class DTBinaryCatBranchReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
-    //move to Binary ClassifierNodeBuilder.
-    Serializable minorityClassification;
+    final Serializable minorityClassification;
 
-    public DTBinaryCatBranchReducer(Serializable minorityClassification) {
+    public DTBinaryCatBranchReducer(List<I> trainingData, Serializable minorityClassification) {
+        super(trainingData);
         this.minorityClassification = minorityClassification;
     }
 

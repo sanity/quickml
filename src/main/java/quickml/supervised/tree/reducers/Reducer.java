@@ -12,16 +12,17 @@ import java.util.Map;
  * Created by alexanderhawk on 4/16/15.
  */
 public abstract class Reducer<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> implements AttributeStatisticsProducer<VC> {
+  private final List<I> trainingData;
 
-  protected List<I> trainingData;
-
-  //TODO: find way to eventually to not use setter (maybe have create a reducer factory that I pass around).
-  public void setTrainingData(List<I> trainingData) {
+  public Reducer(List<I> trainingData) {
     this.trainingData = trainingData;
+  }
+
+  public List<I> getTrainingData() {
+    return trainingData;
   }
 
   public abstract Optional<AttributeStats<VC>> getAttributeStats(String attribute);
 
-  public abstract void updateBuilderConfig(Map<String, Serializable> cfg);
 
 }

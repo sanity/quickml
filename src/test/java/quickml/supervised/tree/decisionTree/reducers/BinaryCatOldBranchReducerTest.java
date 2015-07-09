@@ -17,8 +17,7 @@ public class BinaryCatOldBranchReducerTest {
     @Test
     public void binCatReducerGetAttributeStatsTest() {
         List<ClassifierInstance> instances = DTCatOldBranchReducerTest.<ClassifierInstance>getInstances();
-        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(0.0);
-        reducer.setTrainingData(instances);
+        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(instances, 0.0);
         Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attributeStats = attributeStatsOptional.get();
         Assert.assertEquals(attributeStats.getStatsOnEachValue().size(), 2);

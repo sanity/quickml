@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class DecisionTreeBuilder<I extends ClassifierInstance> implements PredictiveModelBuilder< DecisionTree, I> { //why implement TreeBuilder, why not PredictiveModelBuilder
     public static final int DEFAULT_MAX_DEPTH = 5;
-    public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 50;
+    public static final int DEFAULT_NUM_SAMPLES_PER_NUMERIC_BIN = 20;
     public static final IgnoreAttributesWithConstantProbability DEFAULT_ATTRIBUTE_IGNORING_STRATEGY = new IgnoreAttributesWithConstantProbability(0.7);
     public static final int DEFAULT_NUM_NUMERIC_BINS = 5;
     public static final DTBranchingConditions DEFAULT_BRANCHING_CONDITIONS = new DTBranchingConditions();

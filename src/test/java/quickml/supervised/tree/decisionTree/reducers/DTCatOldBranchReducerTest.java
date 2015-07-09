@@ -23,8 +23,7 @@ public class DTCatOldBranchReducerTest {
     @Test
     public void getAttributeStatsTest() {
         List<ClassifierInstance> instances = getInstances();
-        DTCatBranchReducer<ClassifierInstance> reducer = new DTCatBranchReducer<>();
-        reducer.setTrainingData(instances);
+        DTCatBranchReducer<ClassifierInstance> reducer = new DTCatBranchReducer<>(instances);
         Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attributeStats = attributeStatsOptional.get();
         Assert.assertEquals(attributeStats.getStatsOnEachValue().size(), 2);

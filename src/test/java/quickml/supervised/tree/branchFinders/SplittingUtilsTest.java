@@ -33,8 +33,7 @@ public class SplittingUtilsTest {
     @Test
     public void findBestCategoricalSplit() throws Exception {
         List<ClassifierInstance> td = getInstances();
-        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(0.0);
-        reducer.setTrainingData(td);
+        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(td, 0.0);
         Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attributeStatsOptional.get();
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
@@ -63,13 +62,11 @@ public class SplittingUtilsTest {
     @Test
     public void testMinSplitFractionEffect () {
         List<ClassifierInstance> td = getExtendedInstances();
-        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(0.0);
-        reducer.setTrainingData(td);
+        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(td, 0.0);
         Optional<AttributeStats<ClassificationCounter>> attStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attStatsOptional.get();
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
-        reducer.setTrainingData(td);
 
         Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorerFactory(),
                 new DTBranchingConditions().minSplitFraction(.3).minLeafInstances(0).minScore(0),
@@ -87,14 +84,11 @@ public class SplittingUtilsTest {
     @Test
     public void findBestNumericSplit() throws Exception {
         List<ClassifierInstance> td = getExtendedInstances();
+        int numSamplesPerBin = 2;
+        int numNumericBins = 4;
 
-        DTNumBranchReducer<ClassifierInstance> reducer = new DTNumBranchReducer<>();
-        Map<String, Serializable> config  = Maps.newHashMap();
-        config.put(ForestOptions.NUM_NUMERIC_BINS.name(), 4);
-        config.put(ForestOptions.NUM_SAMPLES_PER_NUMERIC_BIN.name(), 2);
-        reducer.updateBuilderConfig(config);
+        DTNumBranchReducer<ClassifierInstance> reducer = new DTNumBranchReducer<>(td, numSamplesPerBin, numNumericBins);
 
-        reducer.setTrainingData(td);
         Optional<AttributeStats<ClassificationCounter>> attStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attStatsOptional.get();//should not be absent
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
@@ -107,16 +101,6 @@ public class SplittingUtilsTest {
         Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 0);
         Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.25, 1E-5);
 
-        //change scorerFactory
-        /*
-        splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new InformationGainScorer(),
-                new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
-                attributeValueIgnoringStrategy);
-        Assert.assertTrue(splitScoreOptional.isPresent());
-        splitScore = splitScoreOptional.get();
-        Assert.assertEquals("last index: " + splitScore.indexOfLastValueCounterInTrueSet, splitScore.indexOfLastValueCounterInTrueSet, 1);
-        Assert.assertEquals("probOfTrueSet: " + splitScore.probabilityOfBeingInTrueSet, splitScore.probabilityOfBeingInTrueSet, 0.5, 1E-5);
- */
     }
 
 

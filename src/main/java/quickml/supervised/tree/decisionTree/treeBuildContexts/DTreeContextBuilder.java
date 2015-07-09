@@ -8,6 +8,7 @@ import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStra
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
+import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
@@ -17,10 +18,13 @@ import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.D
 import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
-import quickml.supervised.tree.decisionTree.reducers.*;
+import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTBinaryCatBranchReducerFactory;
+import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTCatBranchReducerFactory;
+import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTNumBranchReducerFactory;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedGiniImpurityScorerFactory;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
 import quickml.supervised.tree.nodes.LeafBuilder;
+import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
 import quickml.supervised.tree.constants.BranchType;
@@ -49,7 +53,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
         Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
         ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
-        List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
+        List<BranchFinderAndReducerFactory<I, ClassificationCounter>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
         return new DTreeContext<I>(classificationCounts.allClassifications(),
                 (BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name()),
                 (ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name()),
@@ -87,21 +91,21 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return getDefaultBranchFinderBuilders();
     }
 
-    private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts, Map<AttributeType, Set<String>> candidateAttributesByType) {
+    private List<BranchFinderAndReducerFactory<I, ClassificationCounter>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts, Map<AttributeType, Set<String>> candidateAttributesByType) {
         /**Branch finders should be paired with the correct reducers. With this method, we don't leave open the possibility for a user to make a mistake with the pairings.
          * */
         //
-        List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
+        List<BranchFinderAndReducerFactory<I, ClassificationCounter>> branchFindersAndReducers = Lists.newArrayList();
         int numClasses = classificationCounts.allClassifications().size();
         Serializable minorityClassification = ClassificationCounter.getLeastPopularClass(classificationCounts);
-        Map<BranchType, DTreeReducer<I>> reducerMap = getDefaultReducers(minorityClassification);
+        Map<BranchType, ReducerFactory<I, ClassificationCounter>> reducerMap = getDefaultReducerFactories(minorityClassification);
         for (BranchFinderBuilder<ClassificationCounter> branchFinderBuilder : getBranchFinderBuilders()) {
             if (useBranchFinder(branchFinderBuilder, numClasses)) {
                 AttributeType attributeType = AttributeType.convertBranchTypeToAttributeType(branchFinderBuilder.getBranchType());
                 BranchFinder<ClassificationCounter> branchFinder = branchFinderBuilder.buildBranchFinder(classificationCounts, candidateAttributesByType.get(attributeType));
-                DTreeReducer<I> reducer = reducerMap.get(branchFinderBuilder.getBranchType());
-                reducer.updateBuilderConfig(config);
-                branchFindersAndReducers.add(new DTreeBranchFinderAndReducer<I>(branchFinder, reducer));
+                ReducerFactory<I, ClassificationCounter> reducerFactory = reducerMap.get(branchFinderBuilder.getBranchType());
+                reducerFactory.updateBuilderConfig(config);
+                branchFindersAndReducers.add(new BranchFinderAndReducerFactory<I, ClassificationCounter>(branchFinder, reducerFactory));
             }
         }
         return branchFindersAndReducers;
@@ -118,13 +122,13 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return true;
     }
 
-    public static <I extends ClassifierInstance> Map<BranchType, DTreeReducer<I>> getDefaultReducers(Serializable minorityClassification) {
-        Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
-        reducers.put(BranchType.BINARY_CATEGORICAL, new DTBinaryCatBranchReducer<I>(minorityClassification));
-        reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
-        reducers.put(BranchType.NUMERIC, new DTNumBranchReducer<I>());
-        reducers.put(BranchType.BOOLEAN, new DTCatBranchReducer<I>());
-        return reducers;
+    public static <I extends ClassifierInstance> Map<BranchType, ReducerFactory<I, ClassificationCounter>>  getDefaultReducerFactories(Serializable minorityClassification) {
+        Map<BranchType,  ReducerFactory<I, ClassificationCounter>> reducerFactories = Maps.newHashMap();
+        reducerFactories.put(BranchType.BINARY_CATEGORICAL, new DTBinaryCatBranchReducerFactory<I>(minorityClassification));
+        reducerFactories.put(BranchType.CATEGORICAL, new DTCatBranchReducerFactory<I>());
+        reducerFactories.put(BranchType.NUMERIC, new DTNumBranchReducerFactory<I>());
+        reducerFactories.put(BranchType.BOOLEAN, new DTCatBranchReducerFactory<I>());
+        return reducerFactories;
     }
 
     public static <I extends ClassifierInstance> ArrayList<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {

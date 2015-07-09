@@ -29,32 +29,30 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     public static final double DOWN_FACTOR = 10E5;
     private Random rand = Random.Util.fromSystemRandom(MapUtils.random);
    //TODO: once verify functionality is correct, remove these variables and get n classification counters which can then be further merged in the branchFinder
-    int numSamplesPerBin = 20;
-    int numNumericBins = 5;
+    final int numSamplesPerBin;
+    final int numNumericBins;
 
-    @Override
-    public void updateBuilderConfig(Map<String, Serializable> cfg) {
-        if (cfg.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
-            numSamplesPerBin = (int) cfg.get(NUM_SAMPLES_PER_NUMERIC_BIN.name());
-        }
-        if (cfg.containsKey(NUM_NUMERIC_BINS.name())) {
-            numNumericBins = (int) cfg.get(NUM_NUMERIC_BINS.name());
-        }
+    public DTNumBranchReducer(List<I> trainingData, int numSamplesPerBin, int numNumericBins) {
+        super(trainingData);
+        this.numSamplesPerBin = numSamplesPerBin;
+        this.numNumericBins = numNumericBins;
     }
+
+
 
     @Override
     public Optional<AttributeStats<ClassificationCounter>> getAttributeStats(String attribute) {
         //get List of Classification counters for each bin.  First get bin locations in the data, then loop though the data and get Classification counters by bin
-        if (super.trainingData.size() < numNumericBins) {
+        if (getTrainingData().size() < numNumericBins) {
             return Optional.absent();
         }
-        Optional<double[]> splitsOptional = createNumericSplit(super.trainingData, attribute);
+        Optional<double[]> splitsOptional = createNumericSplit(getTrainingData(), attribute);
         if (!splitsOptional.isPresent()) {
             return Optional.absent();
         }
 
         double[] splitPoints = splitsOptional.get();
-        return getAttributeStatsOptional(attribute, splitPoints, trainingData);
+        return getAttributeStatsOptional(attribute, splitPoints, getTrainingData());
     }
 
     public static <I extends ClassifierInstance> Optional<AttributeStats<ClassificationCounter>> getAttributeStatsOptional(String attribute, double[] splitPoints, List<I> trainingData) {

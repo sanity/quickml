@@ -27,7 +27,8 @@ public class OldLeafDepthStatsTest {
     public void setUp() throws Exception {
         instances = InstanceLoader.getAdvertisingInstances();
     }
-
+    
+@Ignore
 @Test
     public void calcMeanAndMedianDepth(){
         System.out.println("\n \n \n new  attrImportanceTest");

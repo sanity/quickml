@@ -3,7 +3,7 @@ package quickml.supervised.tree.treeBuildContexts;
 import com.google.common.base.Optional;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.bagging.Bagging;
-import quickml.supervised.tree.branchFinders.BranchFinderAndReducer;
+import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
@@ -18,7 +18,7 @@ import java.util.List;
 public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
 
     public TreeContext(BranchingConditions<VC> branchingConditions, ScorerFactory<VC> scorerFactory,
-                       List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers, LeafBuilder<VC> leafBuilder,
+                       List<? extends BranchFinderAndReducerFactory<I, VC>> branchFindersAndReducers, LeafBuilder<VC> leafBuilder,
                        ValueCounterProducer<I, VC> valueCounterProducer) {
         this.scorerFactory = scorerFactory;
         this.branchFindersAndReducers = branchFindersAndReducers;
@@ -31,7 +31,7 @@ public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends Valu
     private BranchingConditions branchingConditions;
     private final ValueCounterProducer<I, VC> valueCounterProducer;
     private Optional<? extends Bagging> bagging;
-    private final List<? extends BranchFinderAndReducer<I, VC>> branchFindersAndReducers;
+    private final List<? extends BranchFinderAndReducerFactory<I, VC>> branchFindersAndReducers;
     private LeafBuilder<VC> leafBuilder;
 
     public LeafBuilder<VC> getLeafBuilder() {
@@ -46,7 +46,7 @@ public class TreeContext<I extends InstanceWithAttributesMap<?>, VC extends Valu
         return scorerFactory;
     }
 
-    public List<? extends BranchFinderAndReducer<I, VC>> getBranchFindersAndReducers() {
+    public List<? extends BranchFinderAndReducerFactory<I, VC>> getBranchFindersAndReducers() {
         return branchFindersAndReducers;
     }
 
