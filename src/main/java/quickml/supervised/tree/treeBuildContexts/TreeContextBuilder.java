@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 
 import com.google.common.collect.Maps;
 import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
@@ -22,44 +23,38 @@ import java.util.Map;
  * Created by alexanderhawk on 3/20/15.
  */
 public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>, VC extends ValueCounter<VC>> {
-    protected ScorerFactory<VC> scorerFactory;
-    protected LeafBuilder<VC> leafBuilder;
-    protected BranchingConditions<VC> branchingConditions;
-    protected List<? extends BranchFinderBuilder<VC>> branchFinderBuilders = Lists.newArrayList();
+
     protected Map<String, Serializable> config = Maps.newHashMap();
 
     public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
 
     public List<? extends BranchFinderBuilder<VC>> getBranchFinderBuilders() {
         //TODO consider making this getter access the config, and removing the field altogether.
-        return branchFinderBuilders;
+        if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
+            return (List<? extends BranchFinderBuilder<VC>>) config.get(BRANCH_FINDER_BUILDERS.name());
+        } else {
+            List<? extends BranchFinderBuilder<VC>> emptyList = Lists.newArrayList();
+            return emptyList;
+        }
     }
 
     public ScorerFactory<VC> getScorerFactory() {
-        return scorerFactory;
+            return (ScorerFactory<VC>) config.get(SCORER_FACTORY.name());
     }
 
     public BranchingConditions<VC> getBranchingConditions() {
-        return branchingConditions;
+            return (BranchingConditions<VC>) config.get(BRANCHING_CONDITIONS.name());
     }
 
 
     public LeafBuilder<VC> getLeafBuilder() {
-        return leafBuilder;
+            return (LeafBuilder<VC>) config.get(LEAF_BUILDER.name());
     }
 
 
     public TreeContextBuilder<I, VC> copy() {
-
         TreeContextBuilder<I, VC> copy = createTreeBuildContext();
-        List<BranchFinderBuilder<VC>> copiedBranchFinderBuilders = Lists.newArrayList();
-        for (BranchFinderBuilder<VC> branchFinderBuilder : this.branchFinderBuilders) {
-            copiedBranchFinderBuilders.add(branchFinderBuilder.copy());
-        }
-        copy.branchFinderBuilders = copiedBranchFinderBuilders;
-        copy.branchingConditions = branchingConditions.copy();
-        copy.scorerFactory = scorerFactory.copy();
-        copy.leafBuilder = leafBuilder.copy();
+        copy.config = copyConfig(this.config);
         return copy;
     }
 
@@ -68,7 +63,7 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     }
 
     public Optional<BranchFinderBuilder<VC>> getBranchFinderBuilder(BranchType branchType) {
-        for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+        for (BranchFinderBuilder<VC> branchFinderBuilder : getBranchFinderBuilders()) {
             if (branchFinderBuilder.getBranchType().equals(branchType)) {
                 return Optional.of(branchFinderBuilder);
             }
@@ -81,26 +76,6 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     public abstract TreeContext<I, VC> buildContext(List<I> trainingData);
 
     public void updateBuilderConfig(final Map<String, Serializable> cfg) {
-        if (cfg.containsKey(BRANCH_FINDER_BUILDERS.name())) {
-            branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>) cfg.get(BRANCH_FINDER_BUILDERS.name());
-            if (branchFinderBuilders != null && !branchFinderBuilders.isEmpty())
-                for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
-                    branchFinderBuilder.update(cfg);
-                }
-        }
-        if (cfg.containsKey(LEAF_BUILDER.name()))
-            leafBuilder = (LeafBuilder<VC>) cfg.get(LEAF_BUILDER.name());
-        if (cfg.containsKey(SCORER_FACTORY.name()))
-            scorerFactory = (ScorerFactory<VC>) cfg.get(SCORER_FACTORY.name());
-        if (cfg.containsKey(BRANCHING_CONDITIONS.name()))
-            branchingConditions = (BranchingConditions<VC>) cfg.get(BRANCHING_CONDITIONS.name());
-        if (scorerFactory != null) {
-            scorerFactory.update(cfg);
-        }
-        if (branchingConditions != null) {
-            branchingConditions.update(cfg);
-        }
-
         this.config = copyConfig(cfg);
     }
 

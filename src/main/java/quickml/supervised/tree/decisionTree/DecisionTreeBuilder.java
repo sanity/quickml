@@ -48,7 +48,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
 
     @Override
     public DecisionTree buildPredictiveModel(Iterable<I> trainingData) {
-        tcb.setDefaultsAsNeededAndUpdateBuilderConfig();
+        tcb.setDefaultsAsNeeded();
         DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(tcb);
         ArrayList<I> trainingDataList = Lists.newArrayList(trainingData);
         Pair<Node<ClassificationCounter>, Set<Serializable>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(trainingDataList);

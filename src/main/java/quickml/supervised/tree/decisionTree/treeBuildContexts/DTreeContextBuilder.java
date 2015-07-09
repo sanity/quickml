@@ -69,7 +69,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public synchronized DTreeContextBuilder<I> copy() {
         //TODO: should only copy the config, and make sure the others get updated.  This is redundant.
         DTreeContextBuilder<I> copy = createTreeBuildContext();
-        copy.updateBuilderConfig(this.config);
+        copy.config = copyConfig(this.config);
         return copy;
     }
 
@@ -137,13 +137,13 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     public static <I extends ClassifierInstance> ArrayList<BranchFinderBuilder<ClassificationCounter>> getDefaultBranchFinderBuilders() {
         ArrayList<BranchFinderBuilder<ClassificationCounter>> branchFinderBuilders = Lists.newArrayList();
-        branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());//OldBinaryCatBranchFinderBuilder());//DTBinaryCatBranchFinderBuilder());
+        branchFinderBuilders.add(new DTBinaryCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTCatBranchFinderBuilder());
         branchFinderBuilders.add(new DTNumBranchFinderBuilder());
         return branchFinderBuilders;
     }
 
-    public void setDefaultsAsNeededAndUpdateBuilderConfig() {
+    public void setDefaultsAsNeeded() {
         if (!config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             branchFinderBuilders(DTreeContextBuilder.getDefaultBranchFinderBuilders());
         }
@@ -187,6 +187,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (!config.containsKey(MIN_SCORE.name())) {
             minScore(DEFAULT_MIN_SCORE);
         }
+        //set hyper-params appropriately
         updateBuilderConfig(this.config);
     }
 
@@ -195,7 +196,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     }
 
     @Override
-    public Map<String, Serializable> copyConfig(Map<String, Serializable> config) {
+    public synchronized Map<String, Serializable> copyConfig(Map<String, Serializable> config) {
         Map<String, Serializable> copiedConfig = Maps.newHashMap();
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders(config));
