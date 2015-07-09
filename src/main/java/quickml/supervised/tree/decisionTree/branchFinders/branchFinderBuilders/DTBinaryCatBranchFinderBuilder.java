@@ -43,8 +43,6 @@ public class DTBinaryCatBranchFinderBuilder extends DTBranchFinderBuilder {
                 scorerFactory, attributeValueIgnoringStrategy,
                 attributeIgnoringStrategy);
     }
-
-
 }
 
 

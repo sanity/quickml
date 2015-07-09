@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 
 import com.google.common.collect.Maps;
 import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
@@ -13,6 +12,7 @@ import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
+
 import static quickml.supervised.tree.constants.ForestOptions.*;
 
 import java.io.Serializable;
@@ -26,8 +26,6 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
 
     protected Map<String, Serializable> config = Maps.newHashMap();
 
-    public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
-
     public List<? extends BranchFinderBuilder<VC>> getBranchFinderBuilders() {
         //TODO consider making this getter access the config, and removing the field altogether.
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
@@ -39,22 +37,22 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
     }
 
     public ScorerFactory<VC> getScorerFactory() {
-            return (ScorerFactory<VC>) config.get(SCORER_FACTORY.name());
+        return (ScorerFactory<VC>) config.get(SCORER_FACTORY.name());
     }
 
     public BranchingConditions<VC> getBranchingConditions() {
-            return (BranchingConditions<VC>) config.get(BRANCHING_CONDITIONS.name());
+        return (BranchingConditions<VC>) config.get(BRANCHING_CONDITIONS.name());
     }
 
 
     public LeafBuilder<VC> getLeafBuilder() {
-            return (LeafBuilder<VC>) config.get(LEAF_BUILDER.name());
+        return (LeafBuilder<VC>) config.get(LEAF_BUILDER.name());
     }
 
 
     public TreeContextBuilder<I, VC> copy() {
         TreeContextBuilder<I, VC> copy = createTreeBuildContext();
-        copy.config = copyConfig(this.config);
+        copy.config = deepCopyConfig(this.config);
         return copy;
     }
 
@@ -71,14 +69,41 @@ public abstract class TreeContextBuilder<I extends InstanceWithAttributesMap<?>,
         return Optional.absent();
     }
 
+    public void updateEachConfigElement() {
+
+        if (config.containsKey(SCORER_FACTORY.name())) {
+            ((ScorerFactory<VC>) config.get(SCORER_FACTORY.name())).update(config);
+        }
+        if (config.containsKey(BRANCHING_CONDITIONS.name())) {
+            ((BranchingConditions<VC>) config.get(BRANCHING_CONDITIONS.name())).update(config);
+        }
+        //setting branchFinderBuilders must occur after the branching conditions and scorers are updated.
+        if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
+            List<? extends BranchFinderBuilder<VC>> branchFinderBuilders = (List<? extends BranchFinderBuilder<VC>>) config.get(BRANCH_FINDER_BUILDERS.name());
+            if (branchFinderBuilders != null && !branchFinderBuilders.isEmpty())
+                for (BranchFinderBuilder<VC> branchFinderBuilder : branchFinderBuilders) {
+                    branchFinderBuilder.update(config);
+                }
+        }
+    }
+
+    public void setConfig(Map<String, Serializable> config) {
+        this.config = deepCopyConfig(config);
+    }
+
+    public void initializeConfig(){
+        setDefaultsAsNeeded();
+        updateEachConfigElement();
+    }
+
+    public abstract ValueCounterProducer<I, VC> getValueCounterProducer();
+
     public abstract TreeContextBuilder<I, VC> createTreeBuildContext();
 
     public abstract TreeContext<I, VC> buildContext(List<I> trainingData);
 
-    public void updateBuilderConfig(final Map<String, Serializable> cfg) {
-        this.config = copyConfig(cfg);
-    }
+    public abstract void setDefaultsAsNeeded();
 
-    public abstract Map<String, Serializable> copyConfig(Map<String, Serializable> config);
+    public abstract Map<String, Serializable> deepCopyConfig(Map<String, Serializable> config);
 
 }

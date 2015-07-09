@@ -11,6 +11,7 @@ import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Test
     public void simpleAdTest() throws Exception {
         final List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
-        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorerFactory(new PenalizedSplitDiffScorer());
+        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorerFactory(new PenalizedSplitDiffScorerFactory());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
         final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);

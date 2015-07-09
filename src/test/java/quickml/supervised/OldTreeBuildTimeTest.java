@@ -2,6 +2,7 @@ package quickml.supervised;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import quickml.InstanceLoader;
 import quickml.data.ClassifierInstance;
@@ -10,6 +11,7 @@ import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
 import java.util.List;
 
@@ -26,9 +28,10 @@ public class OldTreeBuildTimeTest {
             newInstances.addAll(instances);
         }
     }
+    @Ignore
     @Test
      public void timeTest(){
-        DecisionTreeBuilder modelBuilder = new DecisionTreeBuilder().scorerFactory(new GRPenalizedGiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder modelBuilder = new DecisionTreeBuilder().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
         double start  = System.currentTimeMillis();
         for (int i = 0; i<15; i++) {
             modelBuilder.buildPredictiveModel(newInstances);

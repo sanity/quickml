@@ -1,5 +1,4 @@
-package quickml.supervised.poolAdjacentViolatorsModelTest;
-
+package quickml.supervised.regressionModel;
 import com.google.common.collect.Lists;
 import junit.framework.Assert;
 import org.junit.Test;

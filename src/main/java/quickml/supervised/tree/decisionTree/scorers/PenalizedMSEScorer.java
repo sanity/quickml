@@ -19,7 +19,7 @@ public class PenalizedMSEScorer extends GRImbalancedScorer<ClassificationCounter
 
     @Override
     protected double getUnSplitScore(ClassificationCounter a) {
-        return getTotalError(a);
+        return getTotalError(a)/a.getTotal();
     }
 
     public PenalizedMSEScorer(double degreeOfGainRatioPenalty, double imbalancePenaltyPower, AttributeStats<ClassificationCounter> attributeStats) {

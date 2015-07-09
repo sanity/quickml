@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * The scorerFactory is responsible for assessing the quality of a "split" of data.
  */
-public abstract class GRScorer<VC extends ValueCounter<VC>>  implements Scorer<VC>, Serializable{
+public abstract class GRScorer<VC extends ValueCounter<VC>> implements Scorer<VC>, Serializable {
     protected final double degreeOfGainRatioPenalty;
     protected final double intrinsicValue;
     protected final double unSplitScore;
@@ -20,18 +20,22 @@ public abstract class GRScorer<VC extends ValueCounter<VC>>  implements Scorer<V
         this.unSplitScore = getUnSplitScore(attributeStats.getAggregateStats());
     }
 
-    private double  getIntrinsicValue(AttributeStats<VC> attributeStats) {
+    private double getIntrinsicValue(AttributeStats<VC> attributeStats) {
         double intrinsicValue = 0;
         double attributeValProb = 0;
-
-        for (VC valueCounter : attributeStats.getStatsOnEachValue()) {
-            if (!valueCounter.isEmpty()) {  // if it is empty, it should not be considered.
-                attributeValProb = valueCounter.getTotal() / attributeStats.getAggregateStats().getTotal();
-                intrinsicValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
+        if (attributeStats.getStatsOnEachValue() != null && !attributeStats.getStatsOnEachValue().isEmpty()) {
+            for (VC valueCounter : attributeStats.getStatsOnEachValue()) {
+                if (!valueCounter.isEmpty()) {  // if it is empty, it should not be considered.
+                    attributeValProb = valueCounter.getTotal() / attributeStats.getAggregateStats().getTotal();
+                    intrinsicValue -= attributeValProb * Math.log(attributeValProb) / Math.log(2);
+                }
             }
+        } else {
+            intrinsicValue = 1.0;
         }
 
-        return intrinsicValue;
+
+        return intrinsicValue==0.0 ? 1.0 : intrinsicValue;
     }
 
     /**

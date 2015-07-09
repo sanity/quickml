@@ -36,7 +36,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
     }
 
     public void updateBuilderConfig(Map<String, Serializable> cfg) {
-        treeContextBuilder.updateBuilderConfig(cfg);
+        treeContextBuilder.setConfig(cfg);
     }
 
     public Node<VC> computeNodes(List<I> trainingData) {

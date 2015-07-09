@@ -11,9 +11,10 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.tree.constants.ForestOptions;
 import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.BinaryClassAttributeValueIgnoringStrategy;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
-import quickml.supervised.tree.decisionTree.reducers.BinaryCatBranchReducer;
+import quickml.supervised.tree.decisionTree.reducers.DTBinaryCatBranchReducer;
 import quickml.supervised.tree.decisionTree.reducers.DTNumBranchReducer;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
@@ -32,20 +33,20 @@ public class SplittingUtilsTest {
     @Test
     public void findBestCategoricalSplit() throws Exception {
         List<ClassifierInstance> td = getInstances();
-        BinaryCatBranchReducer<ClassifierInstance> reducer = new BinaryCatBranchReducer<>(0.0);
+        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(0.0);
         reducer.setTrainingData(td);
         Optional<AttributeStats<ClassificationCounter>> attributeStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attributeStatsOptional.get();
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorerFactory(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         catBranchAssertions(splitScoreOptional);
 
         //change scorerFactory
-        splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new PenalizedInformationGainScorer(),
+        splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorerFactory(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         catBranchAssertions(splitScoreOptional);
@@ -62,7 +63,7 @@ public class SplittingUtilsTest {
     @Test
     public void testMinSplitFractionEffect () {
         List<ClassifierInstance> td = getExtendedInstances();
-        BinaryCatBranchReducer<ClassifierInstance> reducer = new BinaryCatBranchReducer<>(0.0);
+        DTBinaryCatBranchReducer<ClassifierInstance> reducer = new DTBinaryCatBranchReducer<>(0.0);
         reducer.setTrainingData(td);
         Optional<AttributeStats<ClassificationCounter>> attStatsOptional = reducer.getAttributeStats("t");
         AttributeStats<ClassificationCounter> attStats = attStatsOptional.get();
@@ -70,7 +71,7 @@ public class SplittingUtilsTest {
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
         reducer.setTrainingData(td);
 
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorerFactory(),
                 new DTBranchingConditions().minSplitFraction(.3).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, true);
         Assert.assertTrue(splitScoreOptional.isPresent());
@@ -98,7 +99,7 @@ public class SplittingUtilsTest {
         AttributeStats<ClassificationCounter> attStats = attStatsOptional.get();//should not be absent
         ClassificationCounter aggregateData = ClassificationCounter.countAll(td);
         BinaryClassAttributeValueIgnoringStrategy attributeValueIgnoringStrategy = new BinaryClassAttributeValueIgnoringStrategy(aggregateData, 0);
-        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorer(),
+        Optional<SplittingUtils.SplitScore> splitScoreOptional = SplittingUtils.splitSortedAttributeStats(attStats, new GRPenalizedGiniImpurityScorerFactory(),
                 new DTBranchingConditions().minSplitFraction(.25).minLeafInstances(0).minScore(0),
                 attributeValueIgnoringStrategy, false);
         Assert.assertTrue(splitScoreOptional.isPresent());

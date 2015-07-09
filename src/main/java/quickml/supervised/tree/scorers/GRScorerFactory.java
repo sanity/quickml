@@ -12,7 +12,7 @@ import static quickml.supervised.tree.constants.ForestOptions.IMBALANCE_PENALTY_
  * Created by alexanderhawk on 7/8/15.
  */
 public abstract class GRScorerFactory<VC extends ValueCounter<VC>> implements ScorerFactory<VC>{
-    protected double degreeOfGainRatioPenalty;
+    protected double degreeOfGainRatioPenalty = 0.0;
 
 
     public GRScorerFactory(){}

@@ -20,7 +20,6 @@ import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingCondi
 import quickml.supervised.tree.decisionTree.reducers.*;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedGiniImpurityScorerFactory;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
-import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
@@ -51,7 +50,6 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
         ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
         List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
-        updateAll(branchFinderAndReducers);
         return new DTreeContext<I>(classificationCounts.allClassifications(),
                 (BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name()),
                 (ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name()),
@@ -69,7 +67,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public synchronized DTreeContextBuilder<I> copy() {
         //TODO: should only copy the config, and make sure the others get updated.  This is redundant.
         DTreeContextBuilder<I> copy = createTreeBuildContext();
-        copy.config = copyConfig(this.config);
+        copy.config = deepCopyConfig(this.config);
         return copy;
     }
 
@@ -89,17 +87,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return getDefaultBranchFinderBuilders();
     }
 
-
-    private void updateAll(List<DTreeBranchFinderAndReducer<I>> branchFinderAndReducers) {
-        for (DTreeBranchFinderAndReducer<I> branchFinderAndReducer : branchFinderAndReducers) {
-            branchFinderAndReducer.getReducer().updateBuilderConfig(config);
-        }
-        updateBuilderConfig(config);
-    }
-
     private List<DTreeBranchFinderAndReducer<I>> intializeBranchFindersAndReducers(ClassificationCounter classificationCounts, Map<AttributeType, Set<String>> candidateAttributesByType) {
         /**Branch finders should be paired with the correct reducers. With this method, we don't leave open the possibility for a user to make a mistake with the pairings.
          * */
+        //
         List<DTreeBranchFinderAndReducer<I>> branchFindersAndReducers = Lists.newArrayList();
         int numClasses = classificationCounts.allClassifications().size();
         Serializable minorityClassification = ClassificationCounter.getLeastPopularClass(classificationCounts);
@@ -109,6 +100,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
                 AttributeType attributeType = AttributeType.convertBranchTypeToAttributeType(branchFinderBuilder.getBranchType());
                 BranchFinder<ClassificationCounter> branchFinder = branchFinderBuilder.buildBranchFinder(classificationCounts, candidateAttributesByType.get(attributeType));
                 DTreeReducer<I> reducer = reducerMap.get(branchFinderBuilder.getBranchType());
+                reducer.updateBuilderConfig(config);
                 branchFindersAndReducers.add(new DTreeBranchFinderAndReducer<I>(branchFinder, reducer));
             }
         }
@@ -128,7 +120,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
 
     public static <I extends ClassifierInstance> Map<BranchType, DTreeReducer<I>> getDefaultReducers(Serializable minorityClassification) {
         Map<BranchType, DTreeReducer<I>> reducers = Maps.newHashMap();
-        reducers.put(BranchType.BINARY_CATEGORICAL, new BinaryCatBranchReducer<I>(minorityClassification));
+        reducers.put(BranchType.BINARY_CATEGORICAL, new DTBinaryCatBranchReducer<I>(minorityClassification));
         reducers.put(BranchType.CATEGORICAL, new DTCatBranchReducer<I>());
         reducers.put(BranchType.NUMERIC, new DTNumBranchReducer<I>());
         reducers.put(BranchType.BOOLEAN, new DTCatBranchReducer<I>());
@@ -143,6 +135,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return branchFinderBuilders;
     }
 
+    @Override
     public void setDefaultsAsNeeded() {
         if (!config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             branchFinderBuilders(DTreeContextBuilder.getDefaultBranchFinderBuilders());
@@ -187,16 +180,15 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         if (!config.containsKey(MIN_SCORE.name())) {
             minScore(DEFAULT_MIN_SCORE);
         }
-        //set hyper-params appropriately
-        updateBuilderConfig(this.config);
     }
 
     private ScorerFactory<ClassificationCounter> getDefaultScorerFactory(){
         return new PenalizedGiniImpurityScorerFactory(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY, DEFAULT_IMBALANCE_PENALTY_POWER);
     }
 
+
     @Override
-    public synchronized Map<String, Serializable> copyConfig(Map<String, Serializable> config) {
+    public synchronized Map<String, Serializable> deepCopyConfig(Map<String, Serializable> config) {
         Map<String, Serializable> copiedConfig = Maps.newHashMap();
         if (config.containsKey(BRANCH_FINDER_BUILDERS.name())) {
             copiedConfig.put(BRANCH_FINDER_BUILDERS.name(), copyBranchFinderBuilders(config));

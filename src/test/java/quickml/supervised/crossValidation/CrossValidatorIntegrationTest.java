@@ -10,6 +10,7 @@ import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunct
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class CrossValidatorIntegrationTest {
     @Test
     public void testCrossValidation() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability(0.7));
 
         CrossValidator<DecisionTree, ClassifierInstance> cv = new CrossValidator<>(modelBuilder,
                 new ClassifierLossChecker<ClassifierInstance, DecisionTree>(new ClassifierLogCVLossFunction(.000001)),

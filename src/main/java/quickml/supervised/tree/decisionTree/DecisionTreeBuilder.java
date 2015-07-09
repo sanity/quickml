@@ -48,7 +48,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
 
     @Override
     public DecisionTree buildPredictiveModel(Iterable<I> trainingData) {
-        tcb.setDefaultsAsNeeded();
+        tcb.initializeConfig();
         DecisionTreeBuilderHelper<I> treeBuilderHelper = new DecisionTreeBuilderHelper<>(tcb);
         ArrayList<I> trainingDataList = Lists.newArrayList(trainingData);
         Pair<Node<ClassificationCounter>, Set<Serializable>> rootAndClassifications = treeBuilderHelper.computeNodesAndClasses(trainingDataList);
@@ -59,7 +59,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
 
     @Override
     public void updateBuilderConfig(Map<String, Serializable> config) {
-        tcb.updateBuilderConfig(config);
+        tcb.setConfig(config);
     }
 
 
@@ -67,7 +67,6 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
         return new DecisionTreeBuilder<>(tcb);
     }
 
-    //check that haven't missed any settings.
     public DecisionTreeBuilder<I> maxDepth(int maxDepth) {
         tcb.maxDepth(maxDepth);
         return this;

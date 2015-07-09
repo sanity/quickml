@@ -14,11 +14,11 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 4/22/15.
  */
-public class BinaryCatBranchReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
+public class DTBinaryCatBranchReducer<I extends ClassifierInstance> extends DTCatBranchReducer<I> {
     //move to Binary ClassifierNodeBuilder.
     Serializable minorityClassification;
 
-    public BinaryCatBranchReducer(Serializable minorityClassification) {
+    public DTBinaryCatBranchReducer(Serializable minorityClassification) {
         this.minorityClassification = minorityClassification;
     }
 

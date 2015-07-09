@@ -8,11 +8,13 @@ import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.InstanceLoader;
 
+import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -31,7 +33,7 @@ public class AttributeImportanceFinderIntegrationTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorer()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(2).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)
@@ -39,7 +41,7 @@ public class AttributeImportanceFinderIntegrationTest {
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())
-                .primaryLossFunction(new WeightedAUCCrossValLossFunction(1.0))//WeightedAUCCrossValLossFunction(1.0))//new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
+                .primaryLossFunction(new ClassifierLogCVLossFunction(.000001))//WeightedAUCCrossValLossFunction(1.0))//new ClassifierLogCVLossFunction(.000001))//ClassifierLogCVLossFunction(0.000001))
                 .build();
 
         System.out.println(attributeImportanceFinder.determineAttributeImportance());

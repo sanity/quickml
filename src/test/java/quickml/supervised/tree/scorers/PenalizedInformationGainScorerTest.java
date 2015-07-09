@@ -1,24 +1,17 @@
 package quickml.supervised.tree.scorers;
 
+import org.junit.Assert;
 import org.junit.Before;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+
+import org.junit.Test;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
-public class PenalizedInformationGainScorerTest {
-    Scorer<ClassificationCounter> scorer;
+import java.util.Arrays;
 
-    @Before
-    public void setUp(){
-        ClassificationCounter a = new ClassificationCounter();
-        a.addClassification("a", 4);
-        ClassificationCounter b = new ClassificationCounter();
-        b.addClassification("a", 4);
-        scorer = new PenalizedInformationGainScorer(0, 0, new AttributeStats<>(null, a.add(b), "a"));
-    }
+public class PenalizedInformationGainScorerTest {
 
     @Test
     public void sameClassificationTest() {
@@ -26,7 +19,9 @@ public class PenalizedInformationGainScorerTest {
         a.addClassification("a", 4);
         ClassificationCounter b = new ClassificationCounter();
         b.addClassification("a", 4);
-        Assert.assertEquals(scorer.scoreSplit(a, b), 0.0);
+        PenalizedInformationGainScorer scorer = new PenalizedInformationGainScorer(0, 0.0, new AttributeStats<>(Arrays.asList(a, b), a.add(b), "a"));
+
+        Assert.assertEquals(scorer.scoreSplit(a, b), 0.0, 1E-7);
     }
 
     @Test
@@ -35,6 +30,8 @@ public class PenalizedInformationGainScorerTest {
         a.addClassification("a", 4);
         ClassificationCounter b = new ClassificationCounter();
         b.addClassification("b", 4);
-        Assert.assertEquals(scorer.scoreSplit(a, b), 1.0);
+        PenalizedInformationGainScorer scorer = new PenalizedInformationGainScorer(0, 0.0, new AttributeStats<>(Arrays.asList(a, b), a.add(b), "a"));
+
+        Assert.assertEquals(scorer.scoreSplit(a, b), 1.0, 1E-7);
     }
 }

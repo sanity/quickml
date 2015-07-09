@@ -86,6 +86,5 @@ public abstract class BranchFinderBuilder<VC extends ValueCounter<VC>> implement
 
     public abstract BranchFinder<VC> buildBranchFinder(VC valueCounter, Set<String> candidateAttributes);
 
-
 }
 
