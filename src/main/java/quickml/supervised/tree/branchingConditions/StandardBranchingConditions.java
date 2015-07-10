@@ -92,7 +92,7 @@ public class StandardBranchingConditions<VC extends ValueCounter<VC>> implements
 
     @Override
     public boolean canTryAddingChildren(Branch<VC> parent, VC totals){
-        return (parent==null || parent.getDepth() < maxDepth-1);// && totals.getTotal() > 2 * minLeafInstances;
+        return (parent==null || parent.getDepth() < maxDepth-1 && totals.getTotal() >= 2 * minLeafInstances);
     }
 
     @Override
