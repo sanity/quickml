@@ -33,9 +33,9 @@ public class AttributeImportanceFinderIntegrationTestOld {
         System.out.println("\n \n \n new  attrImportanceTest\n\n\n");
         OldTreeBuilder modelBuilder = new OldTreeBuilder().scorer(new GiniImpurityOldScorer()).maxDepth(16).minCategoricalAttributeValueOccurances(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
-        AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<>()
+        AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)
-                .dataCycler(new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor()))
+                .dataCycler(new OutOfTimeData<ClassifierInstance>(instances, .25, 12, new OnespotDateTimeExtractor()))
                 .percentAttributesToRemovePerIteration(0.3)
                 .numOfIterations(3)
                 .attributesToKeep(attributesToKeep())

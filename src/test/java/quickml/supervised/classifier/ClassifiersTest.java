@@ -1,23 +1,24 @@
+
 package quickml.supervised.classifier;
 
-import org.javatuples.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.data.OnespotDateTimeExtractor;
-import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+        import org.javatuples.Pair;
+        import org.slf4j.Logger;
+        import org.slf4j.LoggerFactory;
+        import quickml.data.ClassifierInstance;
+        import quickml.data.InstanceWithAttributesMap;
+        import quickml.data.OnespotDateTimeExtractor;
+        import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
+        import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+        import java.io.Serializable;
+        import java.util.List;
+        import java.util.Map;
 
-import static quickml.InstanceLoader.getAdvertisingInstances;
+        import static quickml.InstanceLoader.getAdvertisingInstances;
 
 
-public class StaticBuildersTest {
-    private static final Logger logger = LoggerFactory.getLogger(StaticBuildersTest.class);
+public class ClassifiersTest {
+    private static final Logger logger = LoggerFactory.getLogger(ClassifiersTest.class);
 
 
     public void getOptimizedDownsampledRandomForestIntegrationTest() throws Exception {

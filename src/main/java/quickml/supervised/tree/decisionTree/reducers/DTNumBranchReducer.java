@@ -136,7 +136,9 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     public static <I extends ClassifierInstance> Optional<double[]> getDeterministicSplit(List<I> instances, String attribute, int numNumericBins) {
         final ArrayList<Double> splitList = Lists.newArrayList();
         for (final I sample : instances) {
-            splitList.add(((Number) (sample.getAttributes().get(attribute))).doubleValue());
+            if (sample.getAttributes().containsKey(attribute)) {
+                splitList.add(((Number) (sample.getAttributes().get(attribute))).doubleValue());
+            }
         }
         if (splitList.isEmpty() || splitList.size()<numNumericBins) {
             return Optional.absent();
