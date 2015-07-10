@@ -53,10 +53,4 @@ public class PredictiveModelOptimizerBuilder<PM extends PredictiveModel, T exten
         return new PredictiveModelOptimizer(valuesToTest, new CrossValidator<>(modelBuilder, lossChecker, dataCycler), iterations);
     }
 
-
-
-
-
-
-
 }

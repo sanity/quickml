@@ -4,13 +4,14 @@ import org.junit.Ignore;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
-import quickml.supervised.InstanceLoader;
+import quickml.InstanceLoader;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class TemporallyReweightedClassifierBuilderTest {
         instances.add(new ClassifierInstance(map, "1"));
         instances.add(new ClassifierInstance(map, "2"));
         instances.add(new ClassifierInstance(map, "3"));
-        PredictiveModelBuilder predictiveModelBuilder = new TreeBuilder();
+        PredictiveModelBuilder predictiveModelBuilder = new DecisionTreeBuilder();
         final TemporallyReweightedClassifierBuilder cpmb = new TemporallyReweightedClassifierBuilder(predictiveModelBuilder, 1.0, new OnespotDateTimeExtractor());
         cpmb.buildPredictiveModel(instances);
     }
@@ -37,7 +38,7 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Test
     public void simpleAdTest() throws Exception {
         final List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
-        final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorerFactory(new PenalizedSplitDiffScorerFactory());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
         final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);

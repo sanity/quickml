@@ -12,13 +12,13 @@ import java.util.Map;
 
 public class TrainingInstance implements Instance<AttributesMap, Serializable> {
 
-    private HashMap<String, Object> attributes;
+    private HashMap<String, Serializable> attributes;
     private AttributesMap attributesMap;
     private Double label;
     private double weight;
     private long auctionId;
 
-    public TrainingInstance(long auctionId, HashMap<String, Object> attributes, Double classification, double weight) {
+    public TrainingInstance(long auctionId, HashMap<String, Serializable> attributes, Double classification, double weight) {
         this.auctionId = auctionId;
         this.attributes = attributes;
         this.label = classification;
@@ -36,7 +36,7 @@ public class TrainingInstance implements Instance<AttributesMap, Serializable> {
     //TODO problems deserializing
     public void convertAttributes() {
         attributesMap = new AttributesMap();
-        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+        for (Map.Entry<String, Serializable> entry : attributes.entrySet()) {
             attributesMap.put(entry.getKey(), (Serializable) entry.getValue());
         }
     }

@@ -1,17 +1,16 @@
 package quickml.supervised.classifier.downsampling;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.collections.MapUtils;
-import quickml.supervised.PredictiveModelBuilder;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,9 +27,9 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
 
     private static final Logger logger = LoggerFactory.getLogger(DownsamplingClassifierBuilder.class);
     private double targetMinorityProportion;
-    private final PredictiveModelBuilder<Classifier, T> predictiveModelBuilder;
+    private final PredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder;
 
-    public DownsamplingClassifierBuilder(PredictiveModelBuilder<Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
+    public DownsamplingClassifierBuilder(PredictiveModelBuilder<? extends Classifier, T> predictiveModelBuilder, double targetMinorityProportion) {
         checkArgument(targetMinorityProportion > 0 && targetMinorityProportion < 1, "targetMinorityProportion must be between 0 and 1 (was %s)", targetMinorityProportion);
         this.predictiveModelBuilder = predictiveModelBuilder;
         this.targetMinorityProportion = targetMinorityProportion;
@@ -64,7 +63,7 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
 
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> cfg) {
+    public void updateBuilderConfig(Map<String, Serializable> cfg) {
         predictiveModelBuilder.updateBuilderConfig(cfg);
         if (cfg.containsKey(MINORITY_INSTANCE_PROPORTION))
             targetMinorityProportion((Double) cfg.get(MINORITY_INSTANCE_PROPORTION));
@@ -75,10 +74,10 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
         return this;
     }
 
-    private void printSampleInstancesForInspection(Iterable<? extends ClassifierInstance> trainingData) {
+    private void printSampleInstancesForInspection(Iterable<? extends InstanceWithAttributesMap> trainingData) {
         logger.info("length of training data" + Iterables.size(trainingData));
         int counter = 0;
-        for (ClassifierInstance instance : trainingData) {
+        for (InstanceWithAttributesMap instance : trainingData) {
             if (counter++ % 100 == 0) {
                 if (instance.getLabel().equals(Double.valueOf(1.0))) {
                     logger.info("instance " + counter);
@@ -91,10 +90,10 @@ public class DownsamplingClassifierBuilder<T extends ClassifierInstance> impleme
         }
     }
 
-    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends ClassifierInstance> trainingData) {
+    private Map<Serializable, Double> getClassificationProportions(final Iterable<? extends InstanceWithAttributesMap> trainingData) {
         Map<Serializable, AtomicLong> classificationCounts = Maps.newHashMap();
         long total = 0;
-        for (ClassifierInstance instance : trainingData) {
+        for (InstanceWithAttributesMap instance : trainingData) {
             AtomicLong count = classificationCounts.get(instance.getLabel());
             if (count == null) {
                 count = new AtomicLong(0);

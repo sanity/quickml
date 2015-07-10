@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
 
 import java.io.Serializable;
 import java.util.*;
@@ -96,7 +95,7 @@ public class NumericDistributionSampler {
                 samplesToDetermineBinWidths = instances.size();
             }
 
-            //put samples in a list of appropriate size and sort it.
+            //put samples in a list of appropriate getSize and sort it.
             double[] splitList = new double[samplesToDetermineBinWidths];
             if (instances.size() < samplesToDetermineBinWidths / 2) {
                 int folds = instances.size() / samplesToDraw;
@@ -121,7 +120,7 @@ public class NumericDistributionSampler {
                 attributeValuesAtBinBoundaries[x] = splitList[x * indexMultiplier - 1];
             }
         }
-        //update the counts for values that fall in each bin
+        //updateBuilderConfig the counts for values that fall in each bin
 
         //
         if (instances.size() < samplesToDraw / 2) {

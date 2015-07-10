@@ -2,6 +2,7 @@ package quickml;
 
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;

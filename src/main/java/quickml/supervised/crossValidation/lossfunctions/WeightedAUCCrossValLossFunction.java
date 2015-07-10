@@ -8,7 +8,6 @@ import java.util.*;
 
 /**
  * AUCCrossValLoss calculates the ROC area over the curve to determine loss.
- * <p/>
  * Created by Chris on 5/5/2014.
  */
 public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
@@ -23,7 +22,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     public Double getLoss(PredictionMapResults results) {
         List<AUCData> aucDataList = getAucDataList(results);
 
-        //order by probability ascending
+        //order by probabilityOfPositiveClassification ascending
         Collections.sort(aucDataList);
 
         ArrayList<AUCPoint> aucPoints = getAUCPointsFromData(aucDataList);
@@ -71,14 +70,37 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
                 falsePositives += aucData.getWeight();
             }
         }
-
+        //add 0,0 since we won't get it if we always predict 0.0
+        aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
         //iterate through each data point updating all points that are changed by the threshold
-        for (AUCData aucData : aucDataList) {
-            if (threshold != aucData.getProbability()) {
-                aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
-                threshold = aucData.getProbability();
+        int startIndex = 0;
+        double probabilityOfNext = aucDataList.get(0).getProbabilityOfPositiveClassification();
+        while (probabilityOfNext <=0.0 && startIndex<aucDataList.size()) {
+            AUCData aucData = aucDataList.get(startIndex);
+            if (aucData.getClassification().equals(positiveClassification)) {
+                //add a false negative
+                falseNegatives += aucData.getWeight();
+                //remove true positive from previous threshold
+                truePositives -= aucData.getWeight();
+            } else {//we are negative and guessing negative
+                //add a true negative
+                trueNegatives += aucData.getWeight();
+                //remove a false positive from previous threshold
+                falsePositives -= aucData.getWeight();
             }
-            //we are positive but guessing negative
+            startIndex++;
+            probabilityOfNext = aucData.getProbabilityOfPositiveClassification();
+        }
+
+        //now compute the non 0,0 ROC curve points
+        for (int i = startIndex; i< aucDataList.size(); i++) {
+            AUCData aucData = aucDataList.get(i);
+             double probability = aucData.getProbabilityOfPositiveClassification();
+            if (threshold != probability && probability!=0.0) {
+                aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+                threshold = probability;
+            }
+            //point is a positive but with the new threshold, we predict it is negative
             if (aucData.getClassification().equals(positiveClassification)) {
                 //add a false negative
                 falseNegatives += aucData.getWeight();
@@ -92,8 +114,12 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
             }
 
         }
-        //add last point
-        aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+        //adds last non (0, 0) point in roc space.
+        if (truePositives !=0 && falsePositives !=0) {
+            aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
+        }
+        // (0,0)
+        aucPoints.add(getAUCPoint(0, 0, trueNegatives, falseNegatives));
         return aucPoints;
     }
 
@@ -149,12 +175,12 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
     protected static class AUCData implements Comparable<AUCData> {
         private final Serializable classification;
         private final double weight;
-        private final double probability;
+        private final double probabilityOfPositiveClassification;
 
-        public AUCData(Serializable classification, double weight, double probability) {
+        public AUCData(Serializable classification, double weight, double probabilityOfPositiveClassification) {
             this.classification = classification;
             this.weight = weight;
-            this.probability = probability;
+            this.probabilityOfPositiveClassification = probabilityOfPositiveClassification;
         }
 
         public Serializable getClassification() {
@@ -165,13 +191,13 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
             return weight;
         }
 
-        public double getProbability() {
-            return probability;
+        public double getProbabilityOfPositiveClassification() {
+            return probabilityOfPositiveClassification;
         }
 
         @Override
         public int compareTo(AUCData o) {
-            return Double.compare(probability, o.probability);
+            return Double.compare(probabilityOfPositiveClassification, o.probabilityOfPositiveClassification);
         }
     }
 }

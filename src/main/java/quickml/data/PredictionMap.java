@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Created by chrisreeves on 8/12/14.
  */
-public class PredictionMap implements Map<Serializable, Double>, Serializable{
+public class PredictionMap implements Map<Serializable, Double>{
 
     private final Map<Serializable, Double> map;
     private final Double defaultValue = Double.valueOf(0);

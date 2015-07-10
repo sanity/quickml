@@ -2,6 +2,7 @@ package quickml.supervised.crossValidation.data;
 
 import org.joda.time.DateTime;
 import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.util.ArrayList;
@@ -10,17 +11,17 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-
-public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> {
+//TODO: generalize this to make object a generic
+public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     private static final int MIN_INSTANCES_PER_VALIDATION_PERIOD = 5;
-    private final List<T> allData;
+    private final List<I> allData;
     private final double crossValidationFraction;
     private final int timeSliceHours;
-    private DateTimeExtractor dateTimeExtractor;
-    private List<T> trainingSet;
-    private List<T> validationSet;
+    private DateTimeExtractor<I> dateTimeExtractor;
+    private List<I> trainingSet;
+    private List<I> validationSet;
 
-    public OutOfTimeData(List<T> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor) {
+    public OutOfTimeData(List<I> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.allData = allData;
         this.crossValidationFraction = crossValidationFraction;
         this.timeSliceHours = timeSliceHours;
@@ -36,17 +37,17 @@ public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> 
     }
 
     @Override
-    public List<T> getTrainingSet() {
+    public List<I> getTrainingSet() {
         return trainingSet;
     }
 
     @Override
-    public List<T> getValidationSet() {
+    public List<I> getValidationSet() {
         return validationSet;
     }
 
     @Override
-    public List<T> getAllData() {
+    public List<I> getAllData() {
         return allData;
     }
 
@@ -65,11 +66,11 @@ public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> 
 
 
     private void updateValidationSet() {
-        List<T> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
+        List<I> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
         DateTime endValidationPeriod = dateTimeExtractor.extractDateTime(potentialValidationSet.get(0)).plusHours(timeSliceHours);
 
         validationSet = newArrayList();
-        for (T instance : potentialValidationSet) {
+        for (I instance : potentialValidationSet) {
             if (dateTimeExtractor.extractDateTime(instance).isBefore(endValidationPeriod))
                 validationSet.add(instance);
             else if (validationSet.isEmpty()) {
@@ -82,9 +83,9 @@ public class OutOfTimeData<T extends Instance> implements TrainingDataCycler<T> 
 
 
     private void sortData() {
-        Collections.sort(allData, new Comparator<T>() {
+        Collections.sort(allData, new Comparator<I>() {
             @Override
-            public int compare(T o1, T o2) {
+            public int compare(I o1, I o2) {
                 return dateTimeExtractor.extractDateTime(o1).compareTo(dateTimeExtractor.extractDateTime(o2));
             }
         });

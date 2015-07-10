@@ -1,33 +1,35 @@
 package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 10/7/14.
  */
-public class TwoStageModelBuilder<T extends ClassifierInstance> implements PredictiveModelBuilder<TwoStageClassifier, T> {
-    PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1;
-    PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2;
+public class TwoStageModelBuilder implements PredictiveModelBuilder<TwoStageClassifier, ClassifierInstance> {
+    PredictiveModelBuilder< ? extends Classifier, ClassifierInstance> wrappedModelBuilder1;
+    PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedModelBuilder2;
 
-    public TwoStageModelBuilder(PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder1,
-                                PredictiveModelBuilder<Classifier, ClassifierInstance> wrappedModelBuilder2) {
+    public TwoStageModelBuilder(PredictiveModelBuilder< ? extends Classifier, ClassifierInstance> wrappedModelBuilder1,
+                                PredictiveModelBuilder<? extends Classifier, ClassifierInstance> wrappedModelBuilder2) {
         this.wrappedModelBuilder1 = wrappedModelBuilder1;
         this.wrappedModelBuilder2 = wrappedModelBuilder2;
     }
 
     @Override
-    public TwoStageClassifier buildPredictiveModel(Iterable<T> trainingData) {
+    public TwoStageClassifier buildPredictiveModel(Iterable<ClassifierInstance> trainingData) {
         List<ClassifierInstance> stage1Data = Lists.newArrayList();
         List<ClassifierInstance> stage2Data = Lists.newArrayList();
         List<ClassifierInstance> validationData = Lists.newArrayList();
 
-        for (T instance : trainingData) {
+        for (ClassifierInstance instance : trainingData) {
             if (instance.getLabel().equals("positive-both")) {
                 stage1Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
                 stage2Data.add(new ClassifierInstance(instance.getAttributes(), 1.0));
@@ -51,7 +53,7 @@ public class TwoStageModelBuilder<T extends ClassifierInstance> implements Predi
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedModelBuilder1.updateBuilderConfig(config);
         wrappedModelBuilder2.updateBuilderConfig(config);
     }

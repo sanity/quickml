@@ -65,7 +65,7 @@ public class RidgeRegressionBuilderTest {
     }
 
     @Test
-    //TODO[mk] update this test
+    //TODO[mk] updateBuilderConfig this test
     public void ridgePMOTest() {
 //        CrossValidator<double[] , Serializable, Double> crossValidator = new StationaryCrossValidatorBuilder().setFolds(4).setLossFunction(new SingleVariableRealValuedFunctionMSECVLossFunction()).createCrossValidator();
 //        RidgeLinearModelBuilderFactory ridgeLinearModelBuilderFactory = new RidgeLinearModelBuilderFactory().header(header).includeBiasTerm(true).regularizationConstants(new FixedOrderRecommender(0.001, 0.01, 0.1));

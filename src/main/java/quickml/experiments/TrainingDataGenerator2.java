@@ -2,12 +2,10 @@ package quickml.experiments;
 
 import com.google.common.collect.Lists;
 import quickml.data.*;
-import quickml.supervised.classifier.randomForest.RandomForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 
@@ -37,7 +35,7 @@ public class TrainingDataGenerator2 {
         initializeClickProbabilityDistribution();
     }
 
-    public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, RandomForest randomForest)  {
+    public void getAverageDeviationInPredictedProbabilities(int samples, double onlyConsiderSamplesAboveThisProbability, RandomDecisionForest randomDecisionForest)  {
         AttributesMap attributes;
         double predictedProb;
         double rawPredictedProb;
@@ -48,7 +46,7 @@ public class TrainingDataGenerator2 {
             attributes = getAttributesForAnInstance();
             actualClickProbability = getClickProbabilityFromLatentVariableValue();
             if (actualClickProbability > onlyConsiderSamplesAboveThisProbability)  {
-                predictedProb = randomForest.getProbability(attributes, 1.0);
+                predictedProb = randomDecisionForest.getProbability(attributes, 1.0);
 //                predictedProb  = randomForest.calibrator.predict(rawPredictedProb);
                 deviation += Math.abs(actualClickProbability - predictedProb) / actualClickProbability;
                 //    System.out.println("actualClickProbability : predictedProb : rawProb" + actualClickProbability + " : " + predictedProb + " " + rawPredictedProb);
@@ -57,7 +55,7 @@ public class TrainingDataGenerator2 {
                 i--;
         }
         //       PrintStream treeView = new PrintStream(System.out);
-        //      bidderPredictiveModel.clickPredictor.dump(treeView); //prints a sample tree for debugging purposes
+        //      bidderPredictiveModel.clickPredictor.dump(treeView); //prints a sample oldTree for debugging purposes
 
         System.out.println("average deviation" + deviation/samples);
     }

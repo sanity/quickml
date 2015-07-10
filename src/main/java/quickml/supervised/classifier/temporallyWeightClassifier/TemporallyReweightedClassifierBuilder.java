@@ -5,10 +5,11 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Hours;
-import quickml.supervised.PredictiveModelBuilder;
+import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
+import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.tree.ClassificationCounter;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 import java.io.Serializable;
@@ -36,7 +37,7 @@ public class TemporallyReweightedClassifierBuilder implements PredictiveModelBui
     }
 
     @Override
-    public void updateBuilderConfig(Map<String, Object> config) {
+    public void updateBuilderConfig(Map<String, Serializable> config) {
         wrappedBuilder.updateBuilderConfig(config);
         if (config.containsKey(HALF_LIFE_OF_NEGATIVE))
             halfLifeOfNegative((Double) config.get(HALF_LIFE_OF_NEGATIVE));

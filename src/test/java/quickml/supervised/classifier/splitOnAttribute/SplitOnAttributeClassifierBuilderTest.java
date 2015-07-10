@@ -4,7 +4,7 @@ package quickml.supervised.classifier.splitOnAttribute;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.supervised.InstanceLoader;
+import quickml.InstanceLoader;
 import quickml.supervised.crossValidation.attributeImportance.LossFunctionTracker;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
@@ -13,12 +13,14 @@ import quickml.data.ClassifierInstance;
 import quickml.supervised.predictiveModelOptimizer.MultiLossModelTester;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
 import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.lossfunctions.LossFunctionCorrectedForDownsampling;
 import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
+import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -42,8 +44,8 @@ public class SplitOnAttributeClassifierBuilderTest {
         splitModelGroupCollection.add(createSplitModelGroup(1, newHashSet("_792"), 0.4, 100));
         int defaultGroup = 0;
 
-        RandomForestBuilder randomForestBuilder = new RandomForestBuilder();
-        DownsamplingClassifierBuilder downsamplingBuilder = new DownsamplingClassifierBuilder(randomForestBuilder, 0.30D);
+        RandomDecisionForestBuilder randomDecisionForestBuilder = new RandomDecisionForestBuilder();
+        DownsamplingClassifierBuilder downsamplingBuilder = new DownsamplingClassifierBuilder(randomDecisionForestBuilder, 0.30D);
         SplitOnAttributeClassifierBuilder splitOnAttributeClassifierBuilder = new SplitOnAttributeClassifierBuilder("campaignId", splitModelGroupCollection, defaultGroup, downsamplingBuilder);
         splitOnAttributeClassifierBuilder.updateBuilderConfig(createModelConfig());
 
@@ -82,8 +84,8 @@ public class SplitOnAttributeClassifierBuilderTest {
         return new SplitOnAttributeClassifierBuilder.SplitModelGroup(id, group0Campaigns, minTotalSamples, percentageOfCrossData, relativeImportance);
     }
 
-    private Map<String, Object> createModelConfig() {
-        Map<String, Object> predictiveModelParameters = new HashMap<>();
+    private Map<String, Serializable> createModelConfig() {
+        Map<String, Serializable> predictiveModelParameters = new HashMap<>();
         predictiveModelParameters.put("numTrees", Integer.valueOf(16));
         predictiveModelParameters.put("bagSize", Integer.valueOf(0));//need to clean the builders to not use this since baggingnot used
         predictiveModelParameters.put("ignoreAttrProb", Double.valueOf(0.7));
@@ -91,7 +93,7 @@ public class SplitOnAttributeClassifierBuilderTest {
         predictiveModelParameters.put("maxDepth", Integer.valueOf(16));
         predictiveModelParameters.put("minCatAttrOcc", Integer.valueOf(29));
         predictiveModelParameters.put("minLeafInstances", Integer.valueOf(0));
-        predictiveModelParameters.put("scorer", new GiniImpurityScorer());
+        predictiveModelParameters.put("scorerFactory", new GRPenalizedGiniImpurityScorerFactory());
         predictiveModelParameters.put("rebuildThreshold", Integer.valueOf(1));
         predictiveModelParameters.put("splitNodeThreshold", Integer.valueOf(1));
         predictiveModelParameters.put("minorityInstanceProportion", Double.valueOf(0.30));

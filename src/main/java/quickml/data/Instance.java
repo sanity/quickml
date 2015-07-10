@@ -12,9 +12,9 @@ import java.io.Serializable;
  * Time: 1:22 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface Instance<R, L> {
+public interface Instance<A, L> {
 
-    public R getAttributes(); // TODO rename to getInput
+    public A getAttributes(); // TODO rename to getInput
 
     public L getLabel(); // TODO rename to getOuput
 

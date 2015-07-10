@@ -3,8 +3,8 @@ package quickml.supervised.crossValidation.data;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.OnespotDateTimeExtractor;
-import quickml.supervised.crossValidation.data.OutOfTimeData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import static quickml.TestUtils.createClassifierInstance;
 public class OutOfTimeDataTest {
 
     private OutOfTimeData<ClassifierInstance> outOfTimeData;
-    private OnespotDateTimeExtractor dateTimeExtractor;
+    private OnespotDateTimeExtractor<ClassifierInstance> dateTimeExtractor;
 
     @Before
     public void setUp() throws Exception {
@@ -51,14 +51,14 @@ public class OutOfTimeDataTest {
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 4);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(4, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 5);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(5, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();

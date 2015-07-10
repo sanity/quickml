@@ -40,14 +40,14 @@ public class PredictiveModelOptimizerTest {
         Map<String, FixedOrderRecommender> fields = new TreeMap<>();
         fields.put("treeDepth", new FixedOrderRecommender(1, 2, 3, 4, 5));
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
-        fields.put("scorer", new FixedOrderRecommender("A", "B", "C"));
+        fields.put("scorerFactory", new FixedOrderRecommender("A", "B", "C"));
 
         modelOptimizer = new PredictiveModelOptimizer(fields, mockCrossValidator, 10);
     }
 
     @Test
     public void testFindSimpleBestConfig() throws Exception {
-        // Fields are checked in the following order - penalize_splits, scorer, treeDepth
+        // Fields are checked in the following order - penalize_splits, scorerFactory, treeDepth
         thirdBestConfig = createMap(1, false, "A");
         secondBestConfig = createMap(1, false, "C");
         bestConfig = createMap(5, false, "C");
@@ -65,7 +65,7 @@ public class PredictiveModelOptimizerTest {
         HashMap<String, Object> map = new HashMap<>();
         map.put("treeDepth", treeDepth);
         map.put("penalize_splits", penalizeSplits);
-        map.put("scorer", scorer);
+        map.put("scorerFactory", scorer);
         return map;
     }
 }

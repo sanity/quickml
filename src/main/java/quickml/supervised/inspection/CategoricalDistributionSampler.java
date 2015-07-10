@@ -3,12 +3,14 @@ package quickml.supervised.inspection;
 import com.google.common.collect.*;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
+import quickml.supervised.tree.TreeBuilderHelper;
+import quickml.supervised.tree.constants.MissingValue;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 
 /**
  * Created by alexanderhawk on 11/14/14.
@@ -66,7 +68,7 @@ public class CategoricalDistributionSampler {
             for (int i = 0; i < instances.size(); i += folds) {
                 val = instances.get(i).getAttributes().get(attribute);
                 if (val == null)
-                    val = TreeBuilder.MISSING_VALUE;
+                    val = MissingValue.MISSING_VALUE.name();
                 updateHistogram(val, histogramOfCountsForValues);
                 actualSamples++;
             }

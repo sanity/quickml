@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.supervised.classifier.downsampling.Utils;
+import quickml.supervised.classifier.downsampling.DownsamplingUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -72,10 +72,10 @@ public class LossFunctionCorrectedForDownsampling extends ClassifierLossFunction
             double correctedProbability;
             for (Serializable key : uncorrectedPrediction.keySet()) {
                 if (key.equals(negativeLabel)) {
-                    correctedProbability = 1.0 - Utils.correctProbability(dropProbability, 1.0-uncorrectedPrediction.get(key));
+                    correctedProbability = 1.0 - DownsamplingUtils.correctProbability(dropProbability, 1.0 - uncorrectedPrediction.get(key));
                     correctedPredictionMap.put(key, correctedProbability);
                 } else {
-                    correctedProbability = Utils.correctProbability(dropProbability, uncorrectedPrediction.get(key));
+                    correctedProbability = DownsamplingUtils.correctProbability(dropProbability, uncorrectedPrediction.get(key));
                     correctedPredictionMap.put(key, correctedProbability);
                 }
             }

@@ -8,22 +8,21 @@ import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.Scorer;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.decisionTree.scorers.GiniImpurityScorer;
-import quickml.supervised.classifier.decisionTree.scorers.MSEScorer;
-import quickml.supervised.classifier.decisionTree.scorers.SplitDiffScorer;
-import quickml.supervised.classifier.decisionTree.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.tree.decisionTree.scorers.*;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
+import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.tree.constants.ForestOptions;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.scorers.GRImbalancedScorerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +33,22 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class BenchmarkTest {
 
-    private ClassifierLossChecker<ClassifierInstance> classifierLossChecker;
-    private ArrayList<Scorer> scorers;
-    private TreeBuilder treeBuilder;
-    private RandomForestBuilder randomForestBuilder;
+    private ClassifierLossChecker<ClassifierInstance, DecisionTree> classifierLossCheckerT;
+    private ClassifierLossChecker<ClassifierInstance, RandomDecisionForest> classifierLossCheckerF;
+    private ArrayList<GRImbalancedScorerFactory<ClassificationCounter>> scorerFactories;
+    private DecisionTreeBuilder<ClassifierInstance> treeBuilder;
+    private RandomDecisionForestBuilder randomDecisionForestBuilder;
 
     @Before
     public void setUp() throws Exception {
-        classifierLossChecker = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
-        scorers = newArrayList(
-                new SplitDiffScorer(),
-                new MSEScorer(MSEScorer.CrossValidationCorrection.FALSE),
-                new MSEScorer(MSEScorer.CrossValidationCorrection.TRUE));
+        classifierLossCheckerT = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
+        classifierLossCheckerF = new ClassifierLossChecker<>(new ClassifierLogCVLossFunction(0.000001));
+
+        scorerFactories = newArrayList(
+                new PenalizedSplitDiffScorerFactory(),
+                new PenalizedMSEScorerFactory());
         treeBuilder = createTreeBuilder();
-        randomForestBuilder = createRandomForestBuilder();
+        randomDecisionForestBuilder = createRandomForestBuilder();
     }
 
     @Test
@@ -60,21 +61,47 @@ public class BenchmarkTest {
         testWithInstances("mobo", loadMoboDataset());
     }
 
+    @Test
+    public void performanceTest() throws Exception {
+        Random random = new Random();
+        List<ClassifierInstance> instances = loadDiabetesDataset();
+        for (int i =1; i<60000; i++) {
+            instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
+        }
+        double time0 = System.currentTimeMillis();
+        DecisionTreeBuilder<ClassifierInstance> treeBuilder = new DecisionTreeBuilder<>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory())
+                .numSamplesPerNumericBin(20)
+                .numNumericBins(5)
+                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
+                .maxDepth(16)
+                .minLeafInstances(5);
+
+        treeBuilder.buildPredictiveModel(instances);
+
+        double time1 = System.currentTimeMillis();
+        System.out.println("run time in seconds on numeric data set: " + (time1-time0)/1000);
+
+    }
+
 
     private void testWithInstances(String dsName, final List<ClassifierInstance> instances) {
         FoldedData<ClassifierInstance> data = new FoldedData<>(instances, 4, 4);
 
-        for (final Scorer scorer : scorers) {
-            Map<String, Object> cfg = Maps.newHashMap();
-            cfg.put(TreeBuilder.SCORER, scorer);
-            CrossValidator<Classifier, ClassifierInstance> validator = new CrossValidator<>(treeBuilder, classifierLossChecker, data);
-            System.out.println(dsName + ", single-tree, " + scorer + ", " + validator.getLossForModel(cfg));
-            validator = new CrossValidator<>(randomForestBuilder, classifierLossChecker, data);
-            System.out.println(dsName + ", random-forest, " + scorer + ", " + validator.getLossForModel(cfg));
+        for (final GRImbalancedScorerFactory<ClassificationCounter> scorerFactory : scorerFactories) {
+            Map<String, Serializable> cfg = Maps.newHashMap();
+            cfg.put(ForestOptions.SCORER_FACTORY.name(), scorerFactory);
+            CrossValidator< DecisionTree, ClassifierInstance> validator = new CrossValidator< DecisionTree, ClassifierInstance>(treeBuilder, classifierLossCheckerT, data);
+            System.out.println(dsName + ", single-oldTree, " + scorerFactory + ", " + validator.getLossForModel(cfg));
+            CrossValidator<RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossCheckerF, data);
+            System.out.println(dsName + ", random-forest, " + scorerFactory + ", " + validator2.getLossForModel(cfg));
         }
     }
 
     private List<ClassifierInstance> loadDiabetesDataset() throws IOException {
+        final InputStream br1 = BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz");
+        byte[] byteArr = new byte[16];
+        br1.read(byteArr);
+
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz")))));
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 
@@ -93,30 +120,9 @@ public class BenchmarkTest {
         return instances;
     }
 
-    @Test
-    public void performanceTest() throws Exception {
-        Random random = new Random();
-        List<ClassifierInstance> instances = loadDiabetesDataset();
-        for (int i =1; i<300000; i++) {
-            instances.add(instances.size(), instances.get(random.nextInt(instances.size()-1)));
-        }
-        double time0 = System.currentTimeMillis();
-        TreeBuilder<ClassifierInstance> treeBuilder = new TreeBuilder<>(new GiniImpurityScorer())
-                .ordinalTestSplits(10)
-                .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
-                .maxDepth(16)
-                .minLeafInstances(5)
-                .binaryClassification(true);
-        treeBuilder.buildPredictiveModel(instances);
-
-        double time1 = System.currentTimeMillis();
-        System.out.println("run time in seconds on numeric data set: " + (time1-time0)/1000);
-
-    }
 
     private List<ClassifierInstance> loadMoboDataset() throws IOException {
         final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("mobo1.json.gz")))));
-
         final List<ClassifierInstance> instances = Lists.newLinkedList();
 
         String line = br.readLine();
@@ -131,12 +137,14 @@ public class BenchmarkTest {
         return instances;
     }
 
-    private TreeBuilder createTreeBuilder() {
-        return new TreeBuilder().binaryClassification(true);
+    private DecisionTreeBuilder<ClassifierInstance> createTreeBuilder() {
+        return new DecisionTreeBuilder<>().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7))
+                .maxDepth(12).minAttributeValueOccurences(8).minLeafInstances(10);
     }
 
-    private RandomForestBuilder createRandomForestBuilder() {
-        return new RandomForestBuilder(new TreeBuilder().attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7)).binaryClassification(true)).numTrees(5);
+    private RandomDecisionForestBuilder createRandomForestBuilder() {
+        return new RandomDecisionForestBuilder(createTreeBuilder()).numTrees(5);
     }
+
 }
 

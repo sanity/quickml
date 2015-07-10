@@ -20,8 +20,8 @@ public class AttributeLossSummary {
 
 
     /**
-     * Return the list that is closest in size to the desired size
-     * If two sets are equidistant from the desired size, return the one with the lowest loss
+     * Return the list that is closest in getSize to the desired getSize
+     * If two sets are equidistant from the desired getSize, return the one with the lowest loss
      * @param n
      * @return
      */

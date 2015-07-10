@@ -23,10 +23,8 @@ public class MonotonicConvergenceRecommenderTest {
     @Test
     public void testWeStopIfThresholdIsNotReached() throws Exception {
         List<Double> losses = Lists.newArrayList();
-        double[] lossValue = new double[]{0.006, 0.005, 0.004, 0.003, 0.002};
-
         for (int i = 0; i < recommender.getValues().size(); i++) {
-            losses.add(lossValue[i]);
+            losses.add(Math.random());
             if (!recommender.shouldContinue(losses))
                 break;
         }
