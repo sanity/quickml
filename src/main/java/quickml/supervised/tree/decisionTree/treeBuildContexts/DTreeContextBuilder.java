@@ -257,7 +257,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         config.put(LEAF_BUILDER.name(), leafBuilder);
     }
    //doesn't have default
-    public void ignoreAttributeProbability(int ignoreAttributeProbability) {
+    public void ignoreAttributeProbability(double ignoreAttributeProbability) {
         config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability));
     }
 

@@ -76,7 +76,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
         return this;
     }
 
-    public DecisionTreeBuilder<I> ignoreAttributeProbability(int ignoreAttributeProbability) {
+    public DecisionTreeBuilder<I> ignoreAttributeProbability(double ignoreAttributeProbability) {
         tcb.ignoreAttributeProbability(ignoreAttributeProbability);
         return this;
     }
