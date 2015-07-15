@@ -48,7 +48,7 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         }
         Optional<double[]> splitsOptional = createNumericSplit(getTrainingData(), attribute);
         if (!splitsOptional.isPresent()) {
-            createNumericSplit(getTrainingData(), attribute);
+          //  createNumericSplit(getTrainingData(), attribute);
             return Optional.absent();
 
         }
