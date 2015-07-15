@@ -33,7 +33,7 @@ public class AttributeImportanceFinderIntegrationTest {
     @Test
     public void testAttributeImportanceFinder() throws Exception {
         System.out.println("\n \n \n new  attrImportanceTest");
-        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
+        DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).numNumericBins(2).minAttributeValueOccurences(1).attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.7));
 
         AttributeImportanceFinder<ClassifierInstance> attributeImportanceFinder = new AttributeImportanceFinderBuilder<ClassifierInstance>()
                 .modelBuilder(modelBuilder)

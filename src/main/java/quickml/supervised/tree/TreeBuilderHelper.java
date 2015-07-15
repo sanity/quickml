@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
+import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTBinaryCatBranchReducerFactory;
 import quickml.supervised.tree.reducers.Reducer;
 import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
@@ -71,7 +72,10 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         for (BranchFinderAndReducerFactory<I, VC> branchFinderAndReducerFactory : branchFindersAndReducers) {
             //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
             ReducerFactory<I, VC> reducerFactory = branchFinderAndReducerFactory.getReducerFactory();
+            if (reducerFactory instanceof DTBinaryCatBranchReducerFactory)
+                continue;
             Reducer<I, VC> reducer = reducerFactory.getReducer(instances);
+
             BranchFinder<VC> branchFinder = branchFinderAndReducerFactory.getBranchFinder();
 
             Optional<? extends Branch<VC>> thisBranchOptional = branchFinder.findBestBranch(parent, reducer); //decoupling occurs bc trainingDataReducer implements a simpler interface than TraingDataReducer

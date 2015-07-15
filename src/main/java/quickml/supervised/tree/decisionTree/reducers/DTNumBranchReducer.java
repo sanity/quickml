@@ -48,7 +48,9 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
         }
         Optional<double[]> splitsOptional = createNumericSplit(getTrainingData(), attribute);
         if (!splitsOptional.isPresent()) {
+            createNumericSplit(getTrainingData(), attribute);
             return Optional.absent();
+
         }
 
         double[] splitPoints = splitsOptional.get();
@@ -173,6 +175,9 @@ public class DTNumBranchReducer<I extends ClassifierInstance> extends DTreeReduc
     }
 
     public static boolean allValuesSame(double[] split) {
+        if (split.length==1) {
+            return false;
+        }
         boolean allValuesSame = true;
         for (int x = 0; x<split.length-1; x++) {
             if (split[x] != split[x+1])
