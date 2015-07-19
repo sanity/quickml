@@ -68,7 +68,7 @@ public class RandomForestDumper {
 
     }
 
-    private static class TreeSummary {
+    public static class TreeSummary {
         private int splits;
         private Map<String, AttributeSummary> attributes = new HashMap<>();
 
