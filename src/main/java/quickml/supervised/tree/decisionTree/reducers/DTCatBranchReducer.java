@@ -51,7 +51,7 @@ public class DTCatBranchReducer<I extends ClassifierInstance> extends DTreeReduc
                 continue;
 
             if (cc == null) {
-                cc = new ClassificationCounter(attrVal);
+                cc = new ClassificationCounter(attrVal != null ? attrVal : MISSING_VALUE);
                 Serializable newKey = (attrVal != null) ? attrVal : MISSING_VALUE;
                 result.put(newKey, cc);
             }
