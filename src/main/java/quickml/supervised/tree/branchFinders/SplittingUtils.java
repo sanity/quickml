@@ -85,7 +85,7 @@ public class SplittingUtils {
     }
 
     private static <VC extends ValueCounter<VC>> boolean shouldWeIgnoreValueCounter(AttributeValueIgnoringStrategy<VC> attributeValueIgnoringStrategy, boolean doNotUseAttributeValuesWithInsuffientStatistics, VC valueCounterForAttrVal) {
-        if (valueCounterForAttrVal == null || valueCounterForAttrVal.attrVal==null || valueCounterForAttrVal.attrVal.equals(MissingValue.MISSING_VALUE)) {
+        if (valueCounterForAttrVal == null || valueCounterForAttrVal.attrVal.equals(MissingValue.MISSING_VALUE)) {
             return true;
         }
         return attributeValueIgnoringStrategy.shouldWeIgnoreThisValue(valueCounterForAttrVal)
