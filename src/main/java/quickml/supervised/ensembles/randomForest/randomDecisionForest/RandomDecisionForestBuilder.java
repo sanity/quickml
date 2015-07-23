@@ -88,7 +88,6 @@ public class RandomDecisionForestBuilder<I extends ClassifierInstance> extends R
     }
 
     private DecisionTree buildModel(Iterable<I> trainingData, int treeIndex) {
-        logger.debug("Building oldTree {} of {}", treeIndex, numTrees);
         return treeBuilder.copy().buildPredictiveModel(trainingData);
     }
 
