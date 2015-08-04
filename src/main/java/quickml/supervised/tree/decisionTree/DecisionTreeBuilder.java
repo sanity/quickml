@@ -32,7 +32,7 @@ public class DecisionTreeBuilder<I extends ClassifierInstance> implements Predic
     public static final double DEFAULT_IMBALANCE_PENALTY_POWER = 0.0;
     public static final double DEFAULT_MIN_SPLIT_FRACTION = 0.005;
     public static final int DEFAULT_MIN_LEAF_INSTANCES = 0;
-    public static final int DEFAULT_MIN_ATTRIBUTE_OCCURENCES = 8;
+    public static final int DEFAULT_MIN_ATTRIBUTE_OCCURENCES = 0;
     public static final LeafBuilder<ClassificationCounter> DEFAULT_LEAF_BUILDER = new DTLeafBuilder();
     public static final double DEFAULT_MIN_SCORE = 0.00000000000001;
 
