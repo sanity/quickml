@@ -5,7 +5,7 @@ package quickml.supervised.crossValidation;
         import quickml.data.ClassifierInstance;
         import quickml.supervised.Utils;
         import quickml.supervised.classifier.Classifier;
-        import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+        import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 
         import java.util.List;
 

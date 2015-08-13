@@ -1,7 +1,8 @@
-package quickml.supervised.crossValidation.lossfunctions;
+package quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions;
 
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 
 import java.io.Serializable;
 import java.util.*;
@@ -55,7 +56,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         }
     }
 
-    protected ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {
+    public ArrayList<AUCPoint> getAUCPointsFromData(List<AUCData> aucDataList) {
         double truePositives = 0;
         double trueNegatives = 0;
         double falsePositives = 0;
@@ -123,13 +124,13 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         return aucPoints;
     }
 
-    protected AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
+    public AUCPoint getAUCPoint(double truePositives, double falsePositives, double trueNegatives, double falseNegatives) {
         double truePositiveRate = (truePositives + falseNegatives == 0) ? 0 : (truePositives / (truePositives + falseNegatives));
         double falsePositiveRate = (falsePositives + trueNegatives == 0) ? 0 : (falsePositives / (falsePositives + trueNegatives));
         return new AUCPoint(falsePositiveRate, truePositiveRate);
     }
 
-    protected double getAUCLoss(ArrayList<AUCPoint> aucPoints) {
+    public double getAUCLoss(ArrayList<AUCPoint> aucPoints) {
         Collections.sort(aucPoints);
 
         double sumXY = 0.0;
@@ -142,7 +143,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         return (2.0 - sumXY) / 2.0;
     }
 
-    protected static class AUCPoint implements Comparable<AUCPoint> {
+    public static class AUCPoint implements Comparable<AUCPoint> {
         private final double truePositiveRate;
         private final double falsePositiveRate;
 
@@ -172,7 +173,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         }
     }
 
-    protected static class AUCData implements Comparable<AUCData> {
+    public static class AUCData implements Comparable<AUCData> {
         private final Serializable classification;
         private final double weight;
         private final double probabilityOfPositiveClassification;

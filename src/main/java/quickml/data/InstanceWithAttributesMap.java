@@ -38,4 +38,40 @@ public class InstanceWithAttributesMap<L extends Serializable> implements Instan
         return weight;
     }
 
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final InstanceWithAttributesMap<L> instance = (InstanceWithAttributesMap) o;
+
+        if (Double.compare(instance.weight, weight) != 0) return false;
+        if (!attributes.equals(instance.attributes)) return false;
+        if (!label.equals(instance.label)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        long temp;
+        result = attributes.hashCode();
+        result = 31 * result + label.hashCode();
+        temp = Double.doubleToLongBits(weight);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("[attributes=");
+        builder.append(attributes);
+        builder.append(", label=");
+        builder.append(label);
+        if (weight != 1.0) {
+            builder.append(", weight=");
+            builder.append(weight);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 }

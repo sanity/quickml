@@ -7,7 +7,7 @@ import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 
 import java.util.ArrayList;
 import java.util.List;

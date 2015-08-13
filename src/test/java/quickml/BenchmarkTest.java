@@ -12,7 +12,7 @@ import quickml.supervised.tree.decisionTree.scorers.*;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;

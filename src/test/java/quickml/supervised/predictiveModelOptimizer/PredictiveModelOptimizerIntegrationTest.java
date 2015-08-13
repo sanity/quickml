@@ -16,12 +16,10 @@ import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithC
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.MonotonicConvergenceRecommender;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
-import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorerFactory;
 
 import java.util.*;
