@@ -1,7 +1,6 @@
 package quickml.supervised.rankingModels;
 
 import com.google.common.collect.Lists;
-import javafx.util.Pair;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
