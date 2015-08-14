@@ -13,17 +13,17 @@ import java.util.Map;
  * Created by alexanderhawk on 8/13/15.
  */
 public class RankingPrediction {
-    private List<Serializable> rankedItems = Lists.newArrayList();
+    private List<? extends Serializable> rankedItems = Lists.newArrayList();
     private Map<Serializable, Integer> itemsToRanks = Maps.newHashMap();
 
-    public RankingPrediction(List<Serializable> rankedItems) {
+    public RankingPrediction(List<? extends Serializable> rankedItems) {
         this.rankedItems = rankedItems;
         for (int i = 0; i<rankedItems.size(); i++) {
             Serializable item = rankedItems.get(i);
             itemsToRanks.put(item, i+1);
         }
     }
-    public List<Serializable> getRankOrder(){
+    public List<? extends Serializable> getRankOrder(){
         return rankedItems;
     }
 
