@@ -2,6 +2,7 @@ package quickml.supervised;
 
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
+import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
 import quickml.supervised.tree.nodes.Node;
@@ -21,6 +22,7 @@ import java.util.*;
  * Created by alexanderhawk on 7/31/14.
  */
 public class Utils {
+
 
     public static <R, L, P> List<LabelPredictionWeight<L, P>> createLabelPredictionWeights(List<? extends Instance> instances, PredictiveModel<R, P> predictiveModel) {
         List<LabelPredictionWeight<L, P>> labelPredictionWeights = Lists.newArrayList();
@@ -48,6 +50,15 @@ public class Utils {
             weight += instance.getWeight();
         }
         return weight;
+    }
+
+
+    public static List<LabelPredictionWeight<Double, Double>> getRegLabelsPredictionsWeights(PredictiveModel<AttributesMap, Double> predictiveModel, List<? extends Instance<AttributesMap, Double>> validationSet) {
+        ArrayList<LabelPredictionWeight<Double, Double>> results = new ArrayList<>();
+        for (Instance<AttributesMap, Double> instance : validationSet) {
+            results.add(new LabelPredictionWeight<Double, Double>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight()));
+        }
+        return results;
     }
 
     public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends InstanceWithAttributesMap<?>> validationSet) {

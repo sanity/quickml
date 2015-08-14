@@ -7,14 +7,12 @@ import org.slf4j.LoggerFactory;
 import quickml.BenchmarkTest;
 import quickml.data.AttributesMap;
 import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 
 import java.io.BufferedReader;

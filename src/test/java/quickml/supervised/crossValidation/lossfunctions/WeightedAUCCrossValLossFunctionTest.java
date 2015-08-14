@@ -4,6 +4,7 @@ import org.junit.Test;
 import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 
 import java.util.ArrayList;
 import java.util.Collections;

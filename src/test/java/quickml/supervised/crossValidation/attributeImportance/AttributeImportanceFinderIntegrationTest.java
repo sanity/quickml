@@ -8,12 +8,10 @@ import quickml.data.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.InstanceLoader;
 
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
 import java.util.List;

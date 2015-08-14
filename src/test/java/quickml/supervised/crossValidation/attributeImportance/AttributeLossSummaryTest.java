@@ -3,8 +3,8 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 
 import java.util.List;
 import java.util.Set;

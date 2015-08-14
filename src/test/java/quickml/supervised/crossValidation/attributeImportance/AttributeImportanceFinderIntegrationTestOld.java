@@ -11,7 +11,7 @@ import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldTree.oldAttributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
-import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 
 
 import java.util.List;

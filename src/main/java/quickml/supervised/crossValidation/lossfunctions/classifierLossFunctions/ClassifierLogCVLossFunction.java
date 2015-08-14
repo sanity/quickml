@@ -1,4 +1,4 @@
-package quickml.supervised.crossValidation.lossfunctions;
+package quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions;
 
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;

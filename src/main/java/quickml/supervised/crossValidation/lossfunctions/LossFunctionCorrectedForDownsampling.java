@@ -5,6 +5,7 @@ import quickml.data.PredictionMap;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.classifier.downsampling.DownsamplingUtils;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 
 import java.io.Serializable;
 import java.util.List;

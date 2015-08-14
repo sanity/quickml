@@ -2,13 +2,12 @@
 package quickml.supervised.classifier;
 
         import org.javatuples.Pair;
-        import org.junit.Test;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
         import quickml.data.ClassifierInstance;
         import quickml.data.OnespotDateTimeExtractor;
         import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
-        import quickml.supervised.crossValidation.lossfunctions.WeightedAUCCrossValLossFunction;
+        import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 
         import java.io.Serializable;
         import java.util.List;
