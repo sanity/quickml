@@ -8,7 +8,6 @@ import quickml.supervised.*;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.*;
 import quickml.supervised.tree.attributeIgnoringStrategies.*;
 import quickml.supervised.tree.decisionTree.*;
-import quickml.supervised.tree.decisionTree.scorers.*;
 
 import java.io.*;
 import java.util.*;
@@ -17,11 +16,8 @@ public class TestIrisAccuracy {
     public static void main(String[] args) throws IOException {
         List<ClassifierInstance> irisDataset = PredictiveAccuracyTests.loadIrisDataset();
         final RandomDecisionForest randomForest = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<>()
-                .scorerFactory(new GRPenalizedGiniImpurityScorerFactory(1.0))
-                .maxDepth(8)
-                .minAttributeValueOccurences(0)
+                // The default isn't desirable here because this dataset has so few attributes
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.2)))
-                .numTrees(2)
                 .buildPredictiveModel(irisDataset);
 
         AttributesMap attributes = new AttributesMap();
