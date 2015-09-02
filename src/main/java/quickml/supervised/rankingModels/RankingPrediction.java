@@ -28,6 +28,6 @@ public class RankingPrediction {
     }
 
     public int getRankOfItem(Serializable item){
-        return itemsToRanks.get(item);
+        return itemsToRanks.containsKey(item) ? itemsToRanks.get(item) : Integer.MAX_VALUE;
     }
 }
