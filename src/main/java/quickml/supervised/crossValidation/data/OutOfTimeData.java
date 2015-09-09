@@ -1,6 +1,9 @@
 package quickml.supervised.crossValidation.data;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
 import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
@@ -20,6 +23,9 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     private DateTimeExtractor<I> dateTimeExtractor;
     private List<I> trainingSet;
     private List<I> validationSet;
+    private int validationPeriods;
+    private static Logger logger = LoggerFactory.getLogger(OutOfTimeData.class);
+    private DateTime endValidationPeriod;
 
     public OutOfTimeData(List<I> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.allData = allData;
@@ -30,8 +36,10 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         reset();
     }
 
+
     @Override
     public void reset() {
+        endValidationPeriod = null;
         setTrainingSetBasedOnFraction();
         updateValidationSet();
     }
@@ -67,8 +75,13 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
 
     private void updateValidationSet() {
         List<I> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
-        DateTime endValidationPeriod = dateTimeExtractor.extractDateTime(potentialValidationSet.get(0)).plusHours(timeSliceHours);
-
+        if (endValidationPeriod==null) {
+             endValidationPeriod = dateTimeExtractor.extractDateTime(potentialValidationSet.get(0)).plusHours(timeSliceHours);
+        } else {
+            DateTime lastValidationPeriodEnd = endValidationPeriod;
+            endValidationPeriod = lastValidationPeriodEnd.plusHours(timeSliceHours);
+            logger.info("endValidationPeriod: {}", endValidationPeriod.toString());
+        }
         validationSet = newArrayList();
         for (I instance : potentialValidationSet) {
             if (dateTimeExtractor.extractDateTime(instance).isBefore(endValidationPeriod))
@@ -77,8 +90,14 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
                 // If the set is empty and we are at the end of the validation period
                 // so we increase the validation period
                 endValidationPeriod = endValidationPeriod.plusHours(timeSliceHours);
+                logger.info("no data in time window, pushing endValidationPeriod: {}", endValidationPeriod.toString());
+
+            }
+            else {
+                break; //because the list is sorted, once the first if fails, and else if fails, the loop should end.
             }
         }
+        logger.info("num instances in validation period: {}, with last entry at {}", validationSet.size(), dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size()-1)));
     }
 
 

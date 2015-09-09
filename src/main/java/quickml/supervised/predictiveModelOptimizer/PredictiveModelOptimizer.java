@@ -17,6 +17,7 @@ public class PredictiveModelOptimizer {
     private CrossValidator crossValidator;
     private HashMap<String, Serializable> bestConfig;
     private final int iterations;
+    private int iteration;
 
     /**
      * Do not call directly - Use PredictiveModelOptimizerBuilder to an instance
@@ -37,8 +38,8 @@ public class PredictiveModelOptimizer {
      * Keep going until we are no longer improving or we have reached max_iterations
      */
     public Map<String, Serializable> determineOptimalConfig() {
-        for (int i = 0; i < iterations; i++) {
-            logger.info("Starting iteration - {}", i);
+        for (iteration = 0; iteration < iterations; iteration++) {
+            logger.info("Starting iteration - {}", iteration);
             HashMap<String, Serializable> previousConfig = copyOf(bestConfig);
             updateBestConfig();
             if (bestConfig.equals(previousConfig))
@@ -49,6 +50,7 @@ public class PredictiveModelOptimizer {
 
     private void updateBestConfig() {
         for (String field : fieldsToOptimize.keySet()) {
+            logger.info("optimizing {}", field);
             findBestValueForField(field);
         }
     }
@@ -60,13 +62,17 @@ public class PredictiveModelOptimizer {
             return;
         }
         //bestConfig is not actually bestConfig inth for loop
+        logger.info("values to try: {} ", fieldValueRecommender.getValues().toString());
         for (Serializable value : fieldValueRecommender.getValues()) {
             //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
-            if (bestConfig.get(field).equals(value)) {
+            if (bestConfig.get(field).equals(value) && iteration > 0) {
+                logger.info("skipping field value {} bc value {} already tried ", field, value );
                 continue;  //safe to continue bc everything else about the config is the same.
             }
             bestConfig.put(field, value);
-            losses.addFieldLoss(value, crossValidator.getLossForModel(bestConfig));
+            double lossForModel = crossValidator.getLossForModel(bestConfig);
+            logger.info("loss: {}, for field {}, config {}", lossForModel, field, bestConfig );
+            losses.addFieldLoss(value, lossForModel);
             if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }

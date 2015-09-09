@@ -29,7 +29,7 @@ public class NDCG implements RankingLossFunction {
         for (LabelPredictionWeightForRanking lpw : results) {
             loss+=nDCGForInstance(lpw);
         }
-        return loss;
+        return -loss; //need to change this to be negative NDCG
     }
 
     @Override
