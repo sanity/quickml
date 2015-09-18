@@ -41,7 +41,7 @@ public class PredictiveModelOptimizerIntegrationTest {
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
                 .lossChecker(new ClassifierLossChecker<ClassifierInstance, RandomDecisionForest>(new WeightedAUCCrossValLossFunction(1.0)))
                 .valuesToTest(createConfig())
-                .iterations(3)
+                .iterations(2)
                 .build();
     }
 

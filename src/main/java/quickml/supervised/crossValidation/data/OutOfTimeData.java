@@ -73,6 +73,14 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     }
 
 
+    public DateTime firstTimeOfValidationSet() {
+        if (validationSet == null || validationSet.size() ==0) {
+            return null;
+        } else {
+            return dateTimeExtractor.extractDateTime(validationSet.get(0));
+        }
+    }
+
     private void updateValidationSet() {
         List<I> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
         if (endValidationPeriod==null) {
@@ -86,6 +94,9 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         for (I instance : potentialValidationSet) {
             if (dateTimeExtractor.extractDateTime(instance).isBefore(endValidationPeriod))
                 validationSet.add(instance);
+            else if (validationSet.size() == potentialValidationSet.size()) {
+                break;
+            }
             else if (validationSet.isEmpty()) {
                 // If the set is empty and we are at the end of the validation period
                 // so we increase the validation period
