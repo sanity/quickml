@@ -1,5 +1,7 @@
 package quickml.supervised.rankingModels;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -21,8 +23,22 @@ public class ItemToOutcomeMap implements Serializable {
         return itemToOutcome.get(item);
     }
 
-    public Set<Serializable> getItemsWithOutcomes() {
-        return itemToOutcome.keySet();
+    public List<Serializable> getItems() {
+        return Lists.newArrayList(itemToOutcome.keySet());
+    }
+
+    public Serializable getFirstItem(){
+        Iterator<Serializable> items = itemToOutcome.keySet().iterator();
+        if (items.hasNext()) {
+            return items.next();
+        }
+        else{
+            return null;
+        }
+    }
+
+    public int size() {
+        return itemToOutcome.size();
     }
 
     public Collection<Double> getOutcomes() {

@@ -13,11 +13,13 @@ public class PredictiveModelOptimizer {
 
     private static final Logger logger = LoggerFactory.getLogger(PredictiveModelOptimizer.class);
 
-    private Map<String, ? extends FieldValueRecommender> fieldsToOptimize;
-    private CrossValidator crossValidator;
-    private HashMap<String, Serializable> bestConfig;
-    private final int iterations;
-    private int iteration;
+    private Map<String, ? extends FieldValueRecommender> fieldsToOptimize; //should pass in
+    private final CrossValidator crossValidator;
+    private HashMap<String, Serializable> bestConfig;  //should be a param: not be stateful
+    private final int iterations;//should be param
+    private int iteration; //should not be a field
+    private List<ConfigWithLoss> configsWithLosses;
+
 
     /**
      * Do not call directly - Use PredictiveModelOptimizerBuilder to an instance
@@ -31,6 +33,7 @@ public class PredictiveModelOptimizer {
         this.iterations = iterations;
         this.bestConfig = setBestConfigToFirstValues(fieldsToOptimize);
     }
+
 
     /**
      * We find the value for each field that results in the lowest loss
@@ -46,6 +49,18 @@ public class PredictiveModelOptimizer {
                 break;
         }
         return bestConfig;
+    }
+
+    public List<ConfigWithLoss> exploreConfigs() {
+        configsWithLosses = Lists.newArrayList();
+        for (iteration = 0; iteration < iterations; iteration++) {
+            logger.info("Starting iteration - {}", iteration);
+            HashMap<String, Serializable> previousConfig = copyOf(bestConfig);
+            updateBestConfig();
+            if (bestConfig.equals(previousConfig))
+                break;
+        }
+        return configsWithLosses;
     }
 
     private void updateBestConfig() {
@@ -73,6 +88,10 @@ public class PredictiveModelOptimizer {
             double lossForModel = crossValidator.getLossForModel(bestConfig);
             logger.info("loss: {}, for field {}, config {}", lossForModel, field, bestConfig );
             losses.addFieldLoss(value, lossForModel);
+            if (configsWithLosses!=null) {
+                configsWithLosses.add(new ConfigWithLoss(lossForModel, copyOf(bestConfig)));
+            }
+
             if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }

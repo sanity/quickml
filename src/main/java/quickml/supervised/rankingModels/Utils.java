@@ -1,3 +1,4 @@
+
 package quickml.supervised.rankingModels;
 
 import com.google.common.collect.Lists;
@@ -25,8 +26,11 @@ public class Utils {
             RankingPrediction prediction = predictiveModel.predict(instance.getAttributes());
             LabelPredictionWeightForRanking labelPredictionWeightForRanking = new LabelPredictionWeightForRanking(instance.getLabel(), prediction, instance.getWeight());
             results.add(labelPredictionWeightForRanking);
-            if (prediction.getRankOfItem(instance.getLabel())!= Integer.MAX_VALUE)
+            if (prediction.getRankOfItem(instance.getFirstItem())!= Integer.MAX_VALUE) {
                 resultsContainingValue++;
+            } else {
+       //         logger.info("predictions {}, label {}", prediction.getRankOrder().toString(), instance.getFirstItem());
+            }
         }
         logger.info("results containing non zero value {}, out n examples {} ",resultsContainingValue, validationSet.size());
         return results;

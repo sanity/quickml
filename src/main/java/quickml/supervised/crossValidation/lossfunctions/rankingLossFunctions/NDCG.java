@@ -51,7 +51,7 @@ public class NDCG implements RankingLossFunction {
         ItemToOutcomeMap ito = lpw.getLabel();
         RankingPrediction rp = lpw.getPrediction();
         double dcg = 0;
-        for (Serializable item : ito.getItemsWithOutcomes()) {
+        for (Serializable item : ito.getItems()) {
             double outcome = ito.getOutcome(item);
             int rank = rp.getRankOfItem(item);
             if (rank < k) {
