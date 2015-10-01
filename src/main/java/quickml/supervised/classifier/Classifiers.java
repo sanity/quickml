@@ -121,7 +121,7 @@ public class Classifiers {
     private static  Map<String, FieldValueRecommender> createConfig() {
         Map<String, FieldValueRecommender> config = Maps.newHashMap();
         config.put(MAX_DEPTH.name(), new FixedOrderRecommender(4, 8, 16));//Integer.MAX_VALUE, 2, 3, 5, 6, 9));
-        config.put(ATTRIBUTE_VALUE_THRESHOLD_OBSERVATIONS.name(), new FixedOrderRecommender(7, 14));
+        config.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), new FixedOrderRecommender(7, 14));
         config.put(MIN_LEAF_INSTANCES.name(), new FixedOrderRecommender(0, 15));
         config.put(DownsamplingClassifierBuilder.MINORITY_INSTANCE_PROPORTION, new FixedOrderRecommender(.1, .2));
         config.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), new FixedOrderRecommender(1.0, 0.75));
