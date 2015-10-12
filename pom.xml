@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
 
-    <version>SNAPSHOT</version> <!--0.9.8-->
+    <version>0.9.10</version>
 
     <repositories>
         <repository>

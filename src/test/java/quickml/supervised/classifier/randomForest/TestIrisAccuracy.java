@@ -3,30 +3,21 @@ package quickml.supervised.classifier.randomForest;
 /**
  * Created by alexanderhawk on 4/7/15.
  */
-import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.PredictiveAccuracyTests;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
-import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
-import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
-import quickml.supervised.tree.scorers.GRScorerFactory;
+import quickml.data.*;
+import quickml.supervised.*;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.*;
+import quickml.supervised.tree.attributeIgnoringStrategies.*;
+import quickml.supervised.tree.decisionTree.*;
 
-
-import java.io.IOException;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class TestIrisAccuracy {
     public static void main(String[] args) throws IOException {
         List<ClassifierInstance> irisDataset = PredictiveAccuracyTests.loadIrisDataset();
-        //final RandomForest randomForest = new RandomForestBuilder().buildPredictiveModel(irisDataset);
-        final RandomDecisionForest randomForest = new RandomDecisionForestBuilder<ClassifierInstance>(new DecisionTreeBuilder<ClassifierInstance>()
-                .scorerFactory(new GRPenalizedGiniImpurityScorerFactory(1.0))
-                .maxDepth(8)
-                .minAttributeValueOccurences(0)
+        final RandomDecisionForest randomForest = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<>()
+                // The default isn't desirable here because this dataset has so few attributes
                 .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.2)))
-                .numTrees(2)
                 .buildPredictiveModel(irisDataset);
 
         AttributesMap attributes = new AttributesMap();
