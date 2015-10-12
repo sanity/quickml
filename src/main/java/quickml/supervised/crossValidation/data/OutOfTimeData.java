@@ -86,7 +86,8 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         }
         validationSet = newArrayList();
         int instancesAddedToTheValidationSet = 0;
-        for (I instance : potentialValidationSet) {
+        for (int i =0; i< potentialValidationSet.size(); i++) {
+            I instance = potentialValidationSet.get(i);
             if (dateTimeExtractor.extractDateTime(instance).isBefore(endValidationPeriod)) {
                 validationSet.add(instance);
                 instancesAddedToTheValidationSet++;
@@ -96,6 +97,7 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
                 // If the set is empty and we are at the end of the validation period
                 // so we increase the validation period
                 endValidationPeriod = endValidationPeriod.plusHours(timeSliceHours);
+                i =-1; //the post incremente in the for loop will reset i to 0, allowing a complete re-run of the enclosing for loop.
                 logger.info("no data in time window, pushing endValidationPeriod: {}", endValidationPeriod.toString());
 
             } else {
@@ -104,7 +106,9 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         }
         addRemainderOfPotentialValidationSetIfNecessary(potentialValidationSet, instancesAddedToTheValidationSet);
 
-        logger.info("num instances in validation period: {}, with first entry at {}, and last entry at {}", validationSet.size(), dateTimeExtractor.extractDateTime(validationSet.get(0)), dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size() - 1)));
+        DateTime dateTimeOfFirstInstance = dateTimeExtractor.extractDateTime(validationSet.get(0));
+        DateTime dateTimeOfLastInstance = dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size() - 1));
+        logger.info("num instances in validation period: {}, with first entry at {}, and last entry at {}", validationSet.size(), dateTimeOfFirstInstance, dateTimeOfLastInstance);
         if (instancesAddedToTheValidationSet < potentialValidationSet.size()) {
             logger.info("num instances in potential validation set {}, with first entry not added in first pass at {}, and last entry at {}",
                     potentialValidationSet.size(),
@@ -119,11 +123,13 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         /**this method adds prevents situations where the last validation period consists of very little data, by adding the data from the last
          * validation period to the period before it.
         */
-        DateTime lastTimeOfValidationSet = dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size()-1));
-        DateTime lastTimeOfPotentialValidationSet = dateTimeExtractor.extractDateTime(potentialValidationSet.get(potentialValidationSet.size()-1));
-        Duration durationRemaining = new Duration(lastTimeOfValidationSet, lastTimeOfPotentialValidationSet);
-        if (instancesAddedToTheValidationSet < potentialValidationSet.size() && durationRemaining.getStandardHours() < (long)(timeSliceHours* ACCEPTABLE_EXTRA_TAIL_TIME)) {
-              validationSet.addAll(potentialValidationSet.subList(instancesAddedToTheValidationSet, potentialValidationSet.size()));
+        if (validationSet.size()>0) {
+            DateTime lastTimeOfValidationSet = dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size() - 1));
+            DateTime lastTimeOfPotentialValidationSet = dateTimeExtractor.extractDateTime(potentialValidationSet.get(potentialValidationSet.size() - 1));
+            Duration durationRemaining = new Duration(lastTimeOfValidationSet, lastTimeOfPotentialValidationSet);
+            if (instancesAddedToTheValidationSet < potentialValidationSet.size() && durationRemaining.getStandardHours() < (long) (timeSliceHours * ACCEPTABLE_EXTRA_TAIL_TIME)) {
+                validationSet.addAll(potentialValidationSet.subList(instancesAddedToTheValidationSet, potentialValidationSet.size()));
+            }
         }
     }
 
