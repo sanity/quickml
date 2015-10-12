@@ -3,6 +3,7 @@ package quickml.supervised.rankingModels;
 import quickml.data.AttributesMap;
 import quickml.data.InstanceWithAttributesMap;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -17,6 +18,9 @@ public class RankingInstance extends InstanceWithAttributesMap<ItemToOutcomeMap>
 
     public RankingInstance(AttributesMap attributes, ItemToOutcomeMap label, double weight) {
         super(attributes, label, weight);
+    }
+    public Serializable getFirstItem(){
+        return getLabel().getFirstItem();
     }
 
 }

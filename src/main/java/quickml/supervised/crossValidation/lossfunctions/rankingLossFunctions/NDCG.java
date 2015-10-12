@@ -1,6 +1,8 @@
 package quickml.supervised.crossValidation.lossfunctions.rankingLossFunctions;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.supervised.rankingModels.ItemToOutcomeMap;
 import quickml.supervised.rankingModels.LabelPredictionWeightForRanking;
 import quickml.supervised.rankingModels.RankingPrediction;
@@ -14,6 +16,7 @@ import java.util.List;
  * Created by alexanderhawk on 8/13/15.
  */
 public class NDCG implements RankingLossFunction {
+    private static final Logger logger = LoggerFactory.getLogger(RankingLossFunction.class);
     int k = Integer.MAX_VALUE;
     public NDCG(int k) {
         this.k = k;
@@ -28,8 +31,9 @@ public class NDCG implements RankingLossFunction {
         double loss = 0;
         for (LabelPredictionWeightForRanking lpw : results) {
             loss+=nDCGForInstance(lpw);
+          //  logger.info("ndcg for instance {}", nDCGForInstance(lpw));
         }
-        return loss;
+        return -loss; //need to change this to be negative NDCG
     }
 
     @Override
@@ -47,11 +51,15 @@ public class NDCG implements RankingLossFunction {
         ItemToOutcomeMap ito = lpw.getLabel();
         RankingPrediction rp = lpw.getPrediction();
         double dcg = 0;
-        for (Serializable item : ito.getItemsWithOutcomes()) {
+        for (Serializable item : ito.getItems()) {
             double outcome = ito.getOutcome(item);
             int rank = rp.getRankOfItem(item);
             if (rank < k) {
                 dcg += dcgSummand(outcome, rank);
+  //              logger.info("ranked + " +rank);
+            }
+            else{
+//                System.out.println("not ranked");
             }
         }
         return dcg;

@@ -1,5 +1,6 @@
 package quickml.supervised.crossValidation;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.Instance;
@@ -48,6 +49,7 @@ public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
     /**
      * We keep cycling through the test data, updating the running losses for each run.
      */
+
     private double testModel() {
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
