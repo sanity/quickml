@@ -25,7 +25,6 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     private DateTimeExtractor<I> dateTimeExtractor;
     private List<I> trainingSet;
     private List<I> validationSet;
-    private int validationPeriods;
     private static Logger logger = LoggerFactory.getLogger(OutOfTimeData.class);
     private DateTime endValidationPeriod;
 
@@ -75,14 +74,6 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     }
 
 
-    public DateTime firstTimeOfValidationSet() {
-        if (validationSet == null || validationSet.size() ==0) {
-            return null;
-        } else {
-            return dateTimeExtractor.extractDateTime(validationSet.get(0));
-        }
-    }
-
     private void updateValidationSet() {
         logger.info("re-entering update validation set");
         List<I> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
@@ -125,6 +116,9 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     }
 
     private void addRemainderOfPotentialValidationSetIfNecessary(List<I> potentialValidationSet, int instancesAddedToTheValidationSet) {
+        /**this method adds prevents situations where the last validation period consists of very little data, by adding the data from the last
+         * validation period to the period before it.
+        */
         DateTime lastTimeOfValidationSet = dateTimeExtractor.extractDateTime(validationSet.get(validationSet.size()-1));
         DateTime lastTimeOfPotentialValidationSet = dateTimeExtractor.extractDateTime(potentialValidationSet.get(potentialValidationSet.size()-1));
         Duration durationRemaining = new Duration(lastTimeOfValidationSet, lastTimeOfPotentialValidationSet);
