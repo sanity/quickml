@@ -92,11 +92,10 @@ public class Utils {
 
 
     public static  <T> List<T> iterableToList(Iterable<T> trainingData) {
-        List<T> trainingDataList = Lists.newArrayList();
-        for (T instance : trainingData) {
-            trainingDataList.add(instance);
+        if (trainingData instanceof List) {
+            return (List<T>) trainingData;
         }
-        return trainingDataList;
+        return Lists.newArrayList(trainingData);
     }
 
     public static  <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {

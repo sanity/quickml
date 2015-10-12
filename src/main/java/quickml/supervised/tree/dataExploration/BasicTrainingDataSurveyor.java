@@ -2,6 +2,7 @@ package quickml.supervised.tree.dataExploration;
 
 import com.google.common.collect.Maps;
 import quickml.data.ClassifierInstance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.constants.BranchType;
 
@@ -11,11 +12,11 @@ import java.util.*;
 /**
  * Created by alexanderhawk on 3/19/15.
  */
-public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
+public class BasicTrainingDataSurveyor<T extends InstanceWithAttributesMap<?>> {
 
     private boolean considerBooleanAttributes = false;
 
-    public DTreeTrainingDataSurveyor(boolean considerBooleanAttributes) {
+    public BasicTrainingDataSurveyor(boolean considerBooleanAttributes) {
         this.considerBooleanAttributes = considerBooleanAttributes;
     }
 
@@ -25,7 +26,7 @@ public class DTreeTrainingDataSurveyor<T extends ClassifierInstance> {
         return attributesByType;
     }
 
-    private Map<String, AttributeCharacteristics> getMapOfAttributesToAttributeCharacteristics(List<T> trainingData) {
+    public Map<String, AttributeCharacteristics> getMapOfAttributesToAttributeCharacteristics(List<T> trainingData) {
         Map<String, AttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
 
         for (T instance : trainingData) {

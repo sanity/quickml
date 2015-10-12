@@ -15,7 +15,7 @@ import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
-import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
+import quickml.supervised.tree.dataExploration.BasicTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTBinaryCatBranchReducerFactory;
@@ -50,7 +50,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     @Override
     public DTreeContext<I> buildContext(List<I> trainingData) {
         boolean considerBooleanAttributes = hasBranchFinderBuilder(BranchType.BOOLEAN);
-        DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
+        BasicTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new BasicTrainingDataSurveyor<>(considerBooleanAttributes);
         Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
         ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
         List<BranchFinderAndReducerFactory<I, ClassificationCounter>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
