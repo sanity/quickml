@@ -2,6 +2,7 @@ package quickml.supervised.classifier.logRegression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.MathUtils;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
@@ -22,10 +23,10 @@ public class LogisticRegression extends AbstractClassifier {
     private static final Logger logger = LoggerFactory.getLogger(LogisticRegression.class);
     private final Map<Serializable, Double> classifications;
 
-    public LogisticRegression(double [] weights, final HashMap<String, Integer> nameToIndexMap,  Map<Serializable, Double> classifications) {
+    public LogisticRegression(double[] weights, final HashMap<String, Integer> nameToIndexMap, Map<Serializable, Double> classifications) {
         this.weights = weights;
         this.nameToIndexMap = nameToIndexMap;
-        this.classifications= classifications;
+        this.classifications = classifications;
     }
 
     @Override
@@ -33,12 +34,10 @@ public class LogisticRegression extends AbstractClassifier {
         double dotProduct = 0;
         for (String attribute : attributes.keySet()) {
             int index = nameToIndexMap.get(attribute);
-            dotProduct += weights[index] * (double)attributes.get(attribute);
+            dotProduct += weights[index] * (double) attributes.get(attribute);
         }
-        return  quickml.math.Utils.sigmoid(dotProduct);
+        return MathUtils.sigmoid(dotProduct);
     }
-
-
 
 
     @Override
@@ -49,6 +48,7 @@ public class LogisticRegression extends AbstractClassifier {
         }
         return predictionMap;
     }
+
     @Override
     public PredictionMap predictWithoutAttributes(final AttributesMap attributes, final Set<String> attributesToIgnore) {
         throw new RuntimeException("not implemented");
