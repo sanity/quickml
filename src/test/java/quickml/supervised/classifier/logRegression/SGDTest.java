@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.classifier.logRegression;
 
 import org.junit.Test;
 import quickml.data.AttributesMap;
@@ -25,7 +25,13 @@ public class SGDTest {
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
 
-        SGD sgd = new SGD(10E-10, 4, 100000);
+        SGD sgd = new SGD()
+                .maxEpochs(100)
+                .minEpochs(80)
+                .costConvergenceThreshold(0.001)
+                .weightConvergenceThreshold(0.0001)
+                .learningRate(0.01)
+                .minibatchSize(4);
 
         double[] result = sgd.minimize(instances, 1);
         //TODO: verify results
@@ -44,19 +50,19 @@ public class SGDTest {
 
         double newWeights[] = Arrays.copyOf(weights, 3);
 
-        assertTrue(SGD.isConverged(weights, newWeights, convergenceThreshold));
+        assertTrue(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
 
         newWeights[0] = weights[0]-convergenceThreshold;
         newWeights[1] = weights[1]-convergenceThreshold;
         newWeights[2] = weights[2]-convergenceThreshold;
 
-        assertTrue(SGD.isConverged(weights, newWeights, convergenceThreshold));
+        assertTrue(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
 
         newWeights[0] = weights[0]-convergenceThreshold*2;
         newWeights[1] = weights[1]-convergenceThreshold*2;
         newWeights[2] = weights[2]-convergenceThreshold*2;
 
-        assertFalse(SGD.isConverged(weights, newWeights, convergenceThreshold));
+        assertFalse(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
     }
 
     @Test

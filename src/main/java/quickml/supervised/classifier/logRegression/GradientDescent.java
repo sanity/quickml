@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.classifier.logRegression;
 
 import java.util.List;
 

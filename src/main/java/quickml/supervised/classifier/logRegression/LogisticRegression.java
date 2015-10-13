@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.classifier.logRegression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.classifier.logRegression;
 
 /**
  * Created by alexanderhawk on 10/12/15.
@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils.getNumericClassLabels;
-import static quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils.oneHotEncode;
-import static quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils.populateNameToIndexMap;
+import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.getNumericClassLabels;
+import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.oneHotEncode;
+import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.populateNameToIndexMap;
 
 
 /**
@@ -27,15 +27,18 @@ import static quickml.supervised.classifier.logisticRegression.InstanceTransform
 public class LogisticRegressionBuilder implements PredictiveModelBuilder<LogisticRegression, SparseClassifierInstance> {
     double ridgeRegularizationConstant = 0;
     double lassoRegularizationConstant = 0;
+    boolean normalizeNumericFeatures = true;
     public static final String RIDGE = "ridge";
     public static final String LASSO = "lasso";
-    public static final String MAX_ITS = "maxIts";
+    public static final String NORMALIZE_NUMERIC_FEATURES = "normalizeNumericFeatures";
+
 
     GradientDescent gradientDescent;
 
     public LogisticRegressionBuilder(GradientDescent gradientDescent) {
         this.gradientDescent = gradientDescent;
     }
+
 
 
     public LogisticRegressionBuilder ridgeRegularizationConstant(final double ridgeRegularizationConstant) {
@@ -45,6 +48,11 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
 
     public LogisticRegressionBuilder lassoRegularizationConstant(final double ridgeRegularizationConstant) {
         this.ridgeRegularizationConstant = ridgeRegularizationConstant;
+        return this;
+    }
+
+    public LogisticRegressionBuilder setNormalizeNumericFeatures(boolean normalizeNumericFeatures) {
+        this.normalizeNumericFeatures = normalizeNumericFeatures;
         return this;
     }
 

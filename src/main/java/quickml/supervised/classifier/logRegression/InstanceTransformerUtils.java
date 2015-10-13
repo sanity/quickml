@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.classifier.logRegression;
 
 import com.google.common.collect.Maps;
 
@@ -28,6 +28,11 @@ public class InstanceTransformerUtils {
 
     public static Map<Serializable, Double> getNumericClassLabels(List<SparseClassifierInstance> trainingData) {
         Map<Serializable, Double> classifications = Maps.newHashMap();
+        if (hasOneZeroLabels(trainingData)) {
+            classifications.put(1.0, 1.0);
+            classifications.put(0.0, 0.0);
+            return classifications;
+        }
         double numericClassRepresentation = 0.0;
         for (SparseClassifierInstance instance : trainingData) {
             if (!classifications.containsKey(instance.getLabel())) {
@@ -37,6 +42,15 @@ public class InstanceTransformerUtils {
 
         }
         return classifications;
+    }
+
+    private static boolean hasOneZeroLabels(List<SparseClassifierInstance> trainingData) {
+        for (SparseClassifierInstance sparseClassifierInstance : trainingData) {
+            if (!sparseClassifierInstance.getLabel().equals(Double.valueOf(1.0)) && !sparseClassifierInstance.getLabel().equals(Double.valueOf(0.0))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static String oneHotEncode(String attributeName, Serializable attributeValue) {
