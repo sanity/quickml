@@ -28,13 +28,14 @@ public class SparseClassifierInstance extends ClassifierInstance {
         indices = new int[attributes.size()];
         values = new double[attributes.size()];
         int i = 0;
-        for (String key : attributes.keySet()) {
-            if (!(attributes.get(i) instanceof Double)) {
+        for (Map.Entry<String, Serializable> entry : attributes.entrySet()) {
+            if (!(entry.getValue() instanceof Double)) {
                 throw new RuntimeException("wrong type of values in attributes");
             }
-            int valueIndex = nameToValueIndexMap.get(key);
+            int valueIndex = nameToValueIndexMap.get(entry.getKey());
             indices[i] = valueIndex;
-            values[i] = (Double)attributes.get(i);
+            values[i] = (Double)entry.getValue();
+            i++;
         }
     }
 
