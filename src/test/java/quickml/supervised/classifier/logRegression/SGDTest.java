@@ -25,19 +25,18 @@ public class SGDTest {
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
 
+        double weightConvergenceThreshold = 0.0001;
+
         SGD sgd = new SGD()
                 .maxEpochs(100)
                 .minEpochs(80)
                 .costConvergenceThreshold(0.001)
-                .weightConvergenceThreshold(0.0001)
+                .weightConvergenceThreshold(weightConvergenceThreshold)
                 .learningRate(0.01)
                 .minibatchSize(4);
 
         double[] result = sgd.minimize(instances, 1);
-        //TODO: verify results
-        for(double value : result) {
-            System.out.println(value);
-        }
+        assertEquals(0.0, result[0], weightConvergenceThreshold);
     }
 
     @Test
