@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static quickml.math.Utils.*;
+import static quickml.MathUtils.*;
 
 /**
  * Created by alexanderhawk on 10/12/15.
