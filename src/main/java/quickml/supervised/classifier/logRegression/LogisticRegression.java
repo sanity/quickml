@@ -2,6 +2,7 @@ package quickml.supervised.classifier.logRegression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.MathUtils;
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.Utils;
@@ -17,7 +18,7 @@ import java.util.Set;
  * Created by alexanderhawk on 10/9/15.
  */
 public class LogisticRegression extends AbstractClassifier {
-//make onehot encoder, and mean normalizer live in a class that processes a data set in its init method...and can process raw instances from there on out, let it take a sparse instanceConverter as well
+
     double[] weights;
     private final HashMap<String, Integer> nameToIndexMap;
     private static final Logger logger = LoggerFactory.getLogger(LogisticRegression.class);
@@ -34,7 +35,6 @@ public class LogisticRegression extends AbstractClassifier {
 
     @Override
     public double getProbability(final AttributesMap attributes, final Serializable classification) {
-        //could add a method: getFastProbability, that does everything with arrays.
         double dotProduct = 0;
         for (String attribute : attributes.keySet()) {
             if (meanAndStdMap.containsKey(attribute)) {
@@ -43,7 +43,7 @@ public class LogisticRegression extends AbstractClassifier {
                  dotProduct += weights[index] * LogisticRegressionBuilder.meanNormalize(attributes, attribute, meanAndStd);
         }
         }
-        return  quickml.math.Utils.sigmoid(dotProduct);
+        return MathUtils.sigmoid(dotProduct);
     }
 
 

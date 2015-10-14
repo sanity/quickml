@@ -1,9 +1,9 @@
-package quickml.math;
+package quickml;
 
 /**
  * Created by alexanderhawk on 10/12/15.
  */
-public class Utils {
+public class MathUtils {
     public static double sigmoid(double z) {
         return 1 / (1 + Math.exp(-z));
     }
