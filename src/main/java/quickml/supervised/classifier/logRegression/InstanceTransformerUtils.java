@@ -19,8 +19,7 @@ public class InstanceTransformerUtils {
     public static Map<String, Integer> getAttributeProductCounts(List<? extends InstanceWithAttributesMap> trainingData) {
         Map<String, Integer> map = new HashMap<>();
         for (InstanceWithAttributesMap instance : trainingData) {
-            List<String> keys = Lists.newArrayList(instance.getAttributes().keySet());
-            Collections.sort(keys);
+            List<String> keys = getOrderedKeys(instance);
             for (int i = 0; i < keys.size() - 1; i++) {
                 String firstKey = keys.get(i);
                 if (instance.getAttributes().get(firstKey).equals(0.0)) {
@@ -42,6 +41,12 @@ public class InstanceTransformerUtils {
             }
         }
         return map;
+    }
+
+    public static List<String> getOrderedKeys(InstanceWithAttributesMap instance) {
+        List<String> keys = Lists.newArrayList(instance.getAttributes().keySet());
+        Collections.sort(keys);
+        return keys;
     }
 
     public static <T extends ClassifierInstance> HashMap<String, Integer> populateNameToIndexMap(List<T> trainingData) {
