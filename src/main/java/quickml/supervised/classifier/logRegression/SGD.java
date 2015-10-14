@@ -9,7 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static quickml.MathUtils.*;
+import static quickml.MathUtils.logBase2WithMaxError;
+import static quickml.MathUtils.sigmoid;
 
 /**
  * Created by alexanderhawk on 10/12/15.
@@ -21,7 +22,7 @@ public class SGD implements GradientDescent {
 
     private double weightConvergenceThreshold = 0.001;
     private double costConvergenceThreshold = 0.001;
-    
+
     private int maxEpochs = 8;
     private int minEpochs = 3;
     private double ridge = 0;
@@ -45,7 +46,6 @@ public class SGD implements GradientDescent {
         this.maxEpochs = maxEpochs;
         return this;
     }
-
 
 
     public SGD ridge(double ridge) {
@@ -105,7 +105,7 @@ public class SGD implements GradientDescent {
         double costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity);
 
         for (int i = 0; i < maxEpochs; i++) {
-            if (i%(maxEpochs/10)==0) {
+            if (i % (maxEpochs / 10) == 0) {
                 logger.info("cost {}, prevCost {}, learning rate {}, before epoch {}", costFunctionValue, previousCostFunctionValue, learningRate, i);
 
             }
@@ -123,7 +123,7 @@ public class SGD implements GradientDescent {
             }
             previousCostFunctionValue = costFunctionValue;
             costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity);
-            if (i > minEpochs 
+            if (i > minEpochs
                     && weightsConverged(weights, weightsAtPreviousEpoch, weightConvergenceThreshold)
                     && costsConverged(previousCostFunctionValue, previousCostFunctionValue, costConvergenceThreshold)) {
                 logger.info("breaking after {} epochs with cost {}", i + 1, costFunctionValue);
@@ -155,17 +155,17 @@ public class SGD implements GradientDescent {
         }
         return Math.sqrt(meanSquaredDifference / normSquared) < weightConvergenceThreshold;
     }
-    
-    static boolean costsConverged(double previousCost, double presentCost, double costConvergenceThreshold){
-        return Math.abs(presentCost - previousCost)/presentCost < costConvergenceThreshold;
+
+    static boolean costsConverged(double previousCost, double presentCost, double costConvergenceThreshold) {
+        return Math.abs(presentCost - previousCost) / presentCost < costConvergenceThreshold;
     }
 
     public static double computeCostFunction(List<SparseClassifierInstance> instances, double weights[], double minPredictedProbablity) {
         double cost = 0.0;
         for (SparseClassifierInstance instance : instances) {
-            if ((double)instance.getLabel() == 1.0) {
+            if ((double) instance.getLabel() == 1.0) {
                 cost += -logBase2WithMaxError(sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
-            } else if ((double)instance.getLabel() == 0.0) {
+            } else if ((double) instance.getLabel() == 0.0) {
                 cost += -logBase2WithMaxError(1.0 - sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
             }
         }
@@ -182,8 +182,8 @@ public class SGD implements GradientDescent {
         for (SparseClassifierInstance instance : instances) {
             updateGradientForInstance(weights, ridge, lasso, gradient, instance, minibatchSize);
         }
-        for (int i =0; i< numFeatures;i++) {
-            gradient[i]/=minibatchSize;
+        for (int i = 0; i < numFeatures; i++) {
+            gradient[i] /= minibatchSize;
         }
 
         applyMaxGradientNorm(maxGradientNorm, gradient);
@@ -223,7 +223,7 @@ public class SGD implements GradientDescent {
             if (weights[featureIndex] < 0.0) {
                 lasso *= -1;
             }
-            gradient[featureIndex] += ((double)instance.getLabel() - postiveClassProbability)*values[i]   + 2 * ridge * weights[featureIndex] + lasso;
+            gradient[featureIndex] += ((double) instance.getLabel() - postiveClassProbability) * values[i] + 2 * ridge * weights[featureIndex] + lasso;
         }
     }
 

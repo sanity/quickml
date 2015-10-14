@@ -15,6 +15,8 @@ import static org.junit.Assert.*;
  */
 public class SGDTest {
     private  static final Logger logger = LoggerFactory.getLogger(SGDTest.class);
+
+    @Test
     public void testMinimize() throws Exception {
         List<SparseClassifierInstance> instances = new ArrayList<>();
         AttributesMap attributesMap = new AttributesMap();
@@ -29,7 +31,7 @@ public class SGDTest {
 
         SGD sgd = new SGD()
                 .maxEpochs(10000)
-                .minEpochs(10000)
+                .minEpochs(10)
                 .costConvergenceThreshold(0.001)
                 .weightConvergenceThreshold(0.0001)
                 .learningRate(0.1)

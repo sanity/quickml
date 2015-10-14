@@ -1,6 +1,5 @@
 package quickml.supervised.classifier.logRegression;
 
-import com.beust.jcommander.internal.Lists;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +13,6 @@ import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.
 
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by alexanderhawk on 10/13/15.
  */
@@ -23,7 +20,7 @@ public class LogisticRegressionBuilderTest {
     public static final Logger logger = LoggerFactory.getLogger(LogisticRegressionBuilderTest.class);
 
     @Test
-    public void testAdInstances(){
+    public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
 
         LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder();

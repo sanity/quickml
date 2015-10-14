@@ -5,7 +5,10 @@ import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.tree.constants.AttributeType;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by alexanderhawk on 3/19/15.
@@ -51,18 +54,17 @@ public class BasicTrainingDataSurveyor<T extends InstanceWithAttributesMap<?>> {
         if (considerBooleanAttributes)
             attributesByType.put(AttributeType.BOOLEAN, new HashSet<String>());
 
-        for(String attribute : attributeCharacteristics.keySet()) {
+        for (String attribute : attributeCharacteristics.keySet()) {
             if (attributeCharacteristics.get(attribute).isNumber) {
                 attributesByType.get(AttributeType.NUMERIC).add(attribute);
-            }   else if (considerBooleanAttributes && attributeCharacteristics.get(attribute).isBoolean) {
+            } else if (considerBooleanAttributes && attributeCharacteristics.get(attribute).isBoolean) {
                 attributesByType.get(AttributeType.BOOLEAN).add(attribute);
-            }   else {
+            } else {
                 attributesByType.get(AttributeType.CATEGORICAL).add(attribute);
             }
         }
         return attributesByType;
     }
-
 
 
 }

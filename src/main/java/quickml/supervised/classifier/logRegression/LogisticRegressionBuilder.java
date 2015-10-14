@@ -17,9 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.getNumericClassLabels;
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.oneHotEncode;
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.populateNameToIndexMap;
+import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.*;
 
 
 /**
@@ -31,7 +29,6 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
     boolean normalizeNumericFeatures = true;
     public static final String RIDGE = "ridge";
     public static final String LASSO = "lasso";
-
 
     GradientDescent gradientDescent;
 
@@ -104,7 +101,7 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
     }
 
     public static double meanNormalize(AttributesMap rawAttributes, String key, Utils.MeanAndStd meanAndStd) {
-        return (((Number)rawAttributes.get(key)).doubleValue() - meanAndStd.getMean())/meanAndStd.getStd();
+        return (((Number) rawAttributes.get(key)).doubleValue() - meanAndStd.getMean()) / meanAndStd.getStd();
     }
 
     @Override
@@ -116,11 +113,9 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
         if (config.containsKey(LASSO)) {
             ridgeRegularizationConstant((Double) config.get(LASSO));
         }
-
-
     }
 
-    public static class DataAndDataDescriptors{
+    public static class DataAndDataDescriptors {
         Map<Serializable, Double> nameToIndexMap;
         List<ClassifierInstance> instances;
         Map<String, Utils.MeanAndStd> meanAndStdMap;

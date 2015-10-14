@@ -25,11 +25,11 @@ public class LogisticRegression extends AbstractClassifier {
     private final Map<Serializable, Double> classifications;
     Map<String, Utils.MeanAndStd> meanAndStdMap;
 
-    public LogisticRegression(double [] weights, final HashMap<String, Integer> nameToIndexMap,
+    public LogisticRegression(double[] weights, final HashMap<String, Integer> nameToIndexMap,
                               Map<Serializable, Double> classifications, Map<String, Utils.MeanAndStd> meanAndStdMap) {
         this.weights = weights;
         this.nameToIndexMap = nameToIndexMap;
-        this.classifications= classifications;
+        this.classifications = classifications;
         this.meanAndStdMap = meanAndStdMap;
     }
 
@@ -40,13 +40,11 @@ public class LogisticRegression extends AbstractClassifier {
             if (meanAndStdMap.containsKey(attribute)) {
                 Utils.MeanAndStd meanAndStd = meanAndStdMap.get(attribute);
                 int index = nameToIndexMap.get(attribute);
-                 dotProduct += weights[index] * LogisticRegressionBuilder.meanNormalize(attributes, attribute, meanAndStd);
-        }
+                dotProduct += weights[index] * LogisticRegressionBuilder.meanNormalize(attributes, attribute, meanAndStd);
+            }
         }
         return MathUtils.sigmoid(dotProduct);
     }
-
-
 
 
     @Override
@@ -57,6 +55,7 @@ public class LogisticRegression extends AbstractClassifier {
         }
         return predictionMap;
     }
+
     @Override
     public PredictionMap predictWithoutAttributes(final AttributesMap attributes, final Set<String> attributesToIgnore) {
         throw new RuntimeException("not implemented");

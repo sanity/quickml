@@ -16,7 +16,7 @@ public class AttributeCharacteristics {
         if (!isBoolean || val == null) {
             return;
         }
-        if (observedVals.size()>2 || (observedVals.size() == 2 && !observedVals.contains(val))) {
+        if (observedVals.size() > 2 || (observedVals.size() == 2 && !observedVals.contains(val))) {
             isBoolean = false;
         } else {
             observedVals.add(val);
@@ -29,7 +29,7 @@ public class AttributeCharacteristics {
     private boolean bothValsAreNumbers() {
         boolean bothValsAreNum = true;
 
-        for (Serializable key: observedVals) {
+        for (Serializable key : observedVals) {
             if (!(key instanceof Number))
                 return false;
         }

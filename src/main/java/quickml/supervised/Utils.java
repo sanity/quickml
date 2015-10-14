@@ -5,19 +5,18 @@ import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
+import quickml.data.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
-import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
-import quickml.supervised.tree.dataProcessing.BasicTrainingDataSurveyor;
-import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.nodes.Branch;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
+import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.LeafDepthStats;
+import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.util.*;
 
@@ -200,7 +199,7 @@ public class Utils {
         }
 
         public double getStd() {
-            return std==0.0 ? 1.0 : std;
+            return std == 0.0 ? 1.0 : std;
         }
     }
 

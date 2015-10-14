@@ -24,7 +24,7 @@ public class DataTransformer<I extends Instance, R extends Instance> {
     }
 
     public DataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers, InstanceTransformer<I, R> input2ReturnTypeTransformer, List<InstanceTransformer<R, R>> return2ReturnTypeTransformer) {
-        this(input2InputTypeTransformers,input2ReturnTypeTransformer);
+        this(input2InputTypeTransformers, input2ReturnTypeTransformer);
         this.return2ReturnTypeTransformer = return2ReturnTypeTransformer;
     }
 
