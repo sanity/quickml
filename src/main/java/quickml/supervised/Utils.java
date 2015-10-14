@@ -1,10 +1,13 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
 import quickml.data.Instance;
 import quickml.data.PredictionMap;
+import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.tree.dataProcessing.BasicTrainingDataSurveyor;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 import quickml.supervised.tree.nodes.Branch;
@@ -77,8 +80,8 @@ public class Utils {
         }
         return new PredictionMapResults(results);
     }
-    
-    public static <T extends InstanceWithAttributesMap<?>>void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {
+
+    public static <T extends InstanceWithAttributesMap<?>> void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {
         Collections.sort(trainingData, new Comparator<T>() {
             @Override
             public int compare(T o1, T o2) {
@@ -90,16 +93,15 @@ public class Utils {
     }
 
 
-
-    public static  <T> List<T> iterableToList(Iterable<T> trainingData) {
+    public static <T> List<T> iterableToList(Iterable<T> trainingData) {
         if (trainingData instanceof List) {
             return (List<T>) trainingData;
         }
         return Lists.newArrayList(trainingData);
     }
 
-    public static  <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
-       /**fly weight pattern */
+    public static <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
+        /**fly weight pattern */
         int firstIndexOfFalseSet = trainingData.size();
         int trialFirstIndexOfFalseSet = firstIndexOfFalseSet - 1;
 
@@ -139,7 +141,7 @@ public class Utils {
         trainingData.set(i, temp);
     }
 
-    public static class TrueFalsePair<T extends InstanceWithAttributesMap<?>>  {
+    public static class TrueFalsePair<T extends InstanceWithAttributesMap<?>> {
         public List<T> trueTrainingSet;
         public List<T> falseTrainingSet;
 
@@ -150,13 +152,57 @@ public class Utils {
     }
 
 
-    public static <VC extends ValueCounter<VC>>  double meanDepth(Node<VC> node) {
+    public static <VC extends ValueCounter<VC>> double meanDepth(Node<VC> node) {
         final LeafDepthStats stats = new LeafDepthStats();
         node.calcLeafDepthStats(stats);
         return (double) stats.ttlDepth / stats.ttlSamples;
     }
 
+    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanAndStd> getMeansAndStds(Map<String, AttributeCharacteristics> attributeCharacteristics,
+                                                                                                   List<I> instances) {
+        Map<String, MeanAndStd> meansAndStds = Maps.newHashMap();
+        for (I instance : instances) {
+            AttributesMap attributes = instance.getAttributes();
+            for (String key : attributes.keySet()) {
+                if (attributeCharacteristics.get(key).isNumber) {
+                    if (!meansAndStds.containsKey(key)) {
+                        meansAndStds.put(key, new MeanAndStd());
+                    }
+                    MeanAndStd meanAndStd = meansAndStds.get(key);
+                    meanAndStd.update(((Number) attributes.get(key)).doubleValue());
+                }
+            }
+        }
+        return meansAndStds;
+    }
 
+    public static class MeanAndStd {
+        double runningSum = 0;
+        double runningSumOfSquares = 0;
+        double totalWeight = 0;
+        double mean = 0;
+        double std = 0;
+
+        public void update(double val) {
+            this.update(val, 1.0);
+        }
+
+        public void update(double val, double weight) {
+            runningSum += val;
+            runningSumOfSquares += val * val;
+            totalWeight += weight;
+            mean = runningSum / totalWeight;
+            std = Math.sqrt((runningSumOfSquares - runningSum * runningSum) / (totalWeight));
+        }
+
+        public double getMean() {
+            return mean;
+        }
+
+        public double getStd() {
+            return std==0.0 ? 1.0 : std;
+        }
+    }
 
 }
 

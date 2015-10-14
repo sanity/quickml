@@ -1,6 +1,9 @@
 package quickml.supervised.classifier.logRegression;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
 
 import java.util.*;
@@ -11,8 +14,7 @@ import static org.junit.Assert.*;
  * Created by chrisreeves on 10/13/15.
  */
 public class SGDTest {
-
-    @Test
+    private  static final Logger logger = LoggerFactory.getLogger(SGDTest.class);
     public void testMinimize() throws Exception {
         List<SparseClassifierInstance> instances = new ArrayList<>();
         AttributesMap attributesMap = new AttributesMap();
@@ -26,17 +28,20 @@ public class SGDTest {
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
 
         SGD sgd = new SGD()
-                .maxEpochs(100)
-                .minEpochs(80)
+                .maxEpochs(10000)
+                .minEpochs(10000)
                 .costConvergenceThreshold(0.001)
                 .weightConvergenceThreshold(0.0001)
-                .learningRate(0.01)
+                .learningRate(0.1)
                 .minibatchSize(4);
 
         double[] result = sgd.minimize(instances, 1);
+        Assert.assertEquals(0.0, result[0], 10E-7);
         //TODO: verify results
+        int j= 0;
         for(double value : result) {
-            System.out.println(value);
+           logger.info("value at index {}, {}",j, value);
+            j++;
         }
     }
 

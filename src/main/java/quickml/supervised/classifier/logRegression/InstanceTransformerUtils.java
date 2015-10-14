@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.logRegression;
 
 import com.google.common.collect.Maps;
+import quickml.data.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -12,10 +13,10 @@ import java.util.Map;
  */
 public class InstanceTransformerUtils {
 
-    public static HashMap<String, Integer> populateNameToIndexMap(List<SparseClassifierInstance> trainingData) {
+    public static <T extends ClassifierInstance> HashMap<String, Integer> populateNameToIndexMap(List<T> trainingData) {
         HashMap<String, Integer> nameToIndexMap = Maps.newHashMap();
         int index = 0;
-        for (SparseClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             for (String key : instance.getAttributes().keySet()) {
                 if (!nameToIndexMap.containsKey(key)) {
                     nameToIndexMap.put(key, index);
@@ -26,7 +27,7 @@ public class InstanceTransformerUtils {
         return nameToIndexMap;
     }
 
-    public static Map<Serializable, Double> getNumericClassLabels(List<SparseClassifierInstance> trainingData) {
+    public static <T extends ClassifierInstance> Map<Serializable, Double> getNumericClassLabels(List<T> trainingData) {
         Map<Serializable, Double> classifications = Maps.newHashMap();
         if (hasOneZeroLabels(trainingData)) {
             classifications.put(1.0, 1.0);
@@ -34,7 +35,7 @@ public class InstanceTransformerUtils {
             return classifications;
         }
         double numericClassRepresentation = 0.0;
-        for (SparseClassifierInstance instance : trainingData) {
+        for (T instance : trainingData) {
             if (!classifications.containsKey(instance.getLabel())) {
                 classifications.put(instance.getLabel(), numericClassRepresentation);
                 numericClassRepresentation += 1.0;
@@ -44,8 +45,8 @@ public class InstanceTransformerUtils {
         return classifications;
     }
 
-    private static boolean hasOneZeroLabels(List<SparseClassifierInstance> trainingData) {
-        for (SparseClassifierInstance sparseClassifierInstance : trainingData) {
+    private static <T extends ClassifierInstance> boolean hasOneZeroLabels(List<T> trainingData) {
+        for (T sparseClassifierInstance : trainingData) {
             if (!sparseClassifierInstance.getLabel().equals(Double.valueOf(1.0)) && !sparseClassifierInstance.getLabel().equals(Double.valueOf(0.0))) {
                 return false;
             }

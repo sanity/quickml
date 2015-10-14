@@ -105,7 +105,10 @@ public class SGD implements GradientDescent {
         double costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity);
 
         for (int i = 0; i < maxEpochs; i++) {
-            logger.info("cost {}, prevCost {}, learning rate {}, before epoch {}", costFunctionValue, previousCostFunctionValue, learningRate, i);
+            if (i%(maxEpochs/10)==0) {
+                logger.info("cost {}, prevCost {}, learning rate {}, before epoch {}", costFunctionValue, previousCostFunctionValue, learningRate, i);
+
+            }
             double[] weightsAtPreviousEpoch = Arrays.copyOf(weights, weights.length);
             for (int j = 0; j < sparseClassifierInstances.size(); j += minibatchSize) {
                 double[] newWeights = new double[numFeatures];
@@ -135,7 +138,7 @@ public class SGD implements GradientDescent {
     }
 
     private double adjustLearningRateWithBoldDriver(double previousCost, double currentCost) {
-//        return learningRate;
+//       return learningRate;
         if (previousCost > currentCost) {
             return learningRate * learningRateBoostFactor;
         } else {
@@ -161,9 +164,9 @@ public class SGD implements GradientDescent {
         double cost = 0.0;
         for (SparseClassifierInstance instance : instances) {
             if ((double)instance.getLabel() == 1.0) {
-                cost += logBase2WithMaxError(sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
+                cost += -logBase2WithMaxError(sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
             } else if ((double)instance.getLabel() == 0.0) {
-                cost += logBase2WithMaxError(1.0 - sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
+                cost += -logBase2WithMaxError(1.0 - sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
             }
         }
         return cost;
@@ -178,6 +181,9 @@ public class SGD implements GradientDescent {
         double[] gradient = new double[numFeatures];
         for (SparseClassifierInstance instance : instances) {
             updateGradientForInstance(weights, ridge, lasso, gradient, instance, minibatchSize);
+        }
+        for (int i =0; i< numFeatures;i++) {
+            gradient[i]/=minibatchSize;
         }
 
         applyMaxGradientNorm(maxGradientNorm, gradient);
@@ -198,24 +204,15 @@ public class SGD implements GradientDescent {
         }
     }
 
-    static double getSigmoidPreFactor(double[] weights, int minibatchSize, SparseClassifierInstance instance) {
+    static double getProbabilityOfThePositiveClass(double[] weights, SparseClassifierInstance instance) {
         double dotProduct = instance.dotProduct(weights);
-        double sigmoidPreFactor;
-
-        if (instance.getLabel().equals(0.0)) {
-            sigmoidPreFactor = -sigmoid(dotProduct) / minibatchSize;
-        } else if (instance.getLabel().equals(1.0)) {
-            sigmoidPreFactor = -sigmoid(-dotProduct) / minibatchSize;
-        } else {
-            throw new RuntimeException("label must be 1 or 0");
-        }
-        return sigmoidPreFactor;
+        return sigmoid(-dotProduct);
     }
 
     static void updateGradientForInstance(double[] weights, double ridge, double lasso, double[] gradient,
                                           SparseClassifierInstance instance, int minibatchSize) {
 
-        double sigmoidPreFactor = getSigmoidPreFactor(weights, minibatchSize, instance);
+        double postiveClassProbability = getProbabilityOfThePositiveClass(weights, instance);
 
         Pair<int[], double[]> sparseAttributes = instance.getSparseAttributes();
         int[] indices = sparseAttributes.getKey();
@@ -226,7 +223,7 @@ public class SGD implements GradientDescent {
             if (weights[featureIndex] < 0.0) {
                 lasso *= -1;
             }
-            gradient[featureIndex] += values[i] * sigmoidPreFactor + 2 * ridge * weights[featureIndex] + lasso;
+            gradient[featureIndex] += ((double)instance.getLabel() - postiveClassProbability)*values[i]   + 2 * ridge * weights[featureIndex] + lasso;
         }
     }
 
