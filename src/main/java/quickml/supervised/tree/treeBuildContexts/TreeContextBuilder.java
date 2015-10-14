@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import com.google.common.collect.Maps;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;

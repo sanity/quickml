@@ -1,9 +1,8 @@
 package quickml;
 
 import com.google.common.collect.Sets;
-import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.data.NegativeWeightsFilter;
 
 import java.io.Serializable;

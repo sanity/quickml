@@ -1,6 +1,6 @@
 package quickml.supervised.tree.bagging;
 
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.io.Serializable;
 import java.util.List;

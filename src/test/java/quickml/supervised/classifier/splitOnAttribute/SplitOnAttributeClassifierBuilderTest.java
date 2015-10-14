@@ -10,7 +10,7 @@ import quickml.supervised.crossValidation.attributeImportance.LossFunctionTracke
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.predictiveModelOptimizer.MultiLossModelTester;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.crossValidation.data.OutOfTimeData;

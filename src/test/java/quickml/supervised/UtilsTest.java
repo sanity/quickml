@@ -3,12 +3,10 @@ package quickml.supervised;
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Sets;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import quickml.InstanceLoader;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.branchFinders.SplittingUtils;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.branchFinders.SplittingUtilsTest;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
@@ -16,11 +14,8 @@ import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by alexanderhawk on 6/29/15.

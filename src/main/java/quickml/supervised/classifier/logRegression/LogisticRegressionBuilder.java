@@ -6,7 +6,7 @@ package quickml.supervised.classifier.logRegression;
 
 import com.google.common.collect.Lists;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
@@ -78,20 +78,20 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
         Map<String, AttributeCharacteristics> attributeCharacteristics = btds.getMapOfAttributesToAttributeCharacteristics(trainingData);
         List<ClassifierInstance> instances = Lists.newArrayList();
         Map<Serializable, Double> numericClassLabels = getNumericClassLabels(trainingData);
-        Map<String, Utils.MeanAndStd> meansAndStds = Utils.<ClassifierInstance>getMeansAndStds(attributeCharacteristics, trainingData);
+        Map<String, Utils.MeanStdMaxMin> meansAndStds = Utils.<ClassifierInstance>getMeanStdMaxMins(attributeCharacteristics, trainingData);
 
         meanNormalizeAndOneHotEncode(trainingData, attributeCharacteristics, instances, meansAndStds);
         return new DataAndDataDescriptors(numericClassLabels, instances, meansAndStds);
     }
 
-    private void meanNormalizeAndOneHotEncode(List<ClassifierInstance> trainingData, Map<String, AttributeCharacteristics> attributeCharacteristics, List<ClassifierInstance> normalizedInstances, Map<String, Utils.MeanAndStd> meansAndStds) {
+    private void meanNormalizeAndOneHotEncode(List<ClassifierInstance> trainingData, Map<String, AttributeCharacteristics> attributeCharacteristics, List<ClassifierInstance> normalizedInstances, Map<String, Utils.MeanStdMaxMin> meansAndStds) {
         for (ClassifierInstance instance : trainingData) {
             AttributesMap attributesMap = AttributesMap.newHashMap();
             AttributesMap rawAttributes = instance.getAttributes();
             for (String key : rawAttributes.keySet()) {
                 if (attributeCharacteristics.get(key).isNumber) {
-                    Utils.MeanAndStd meanAndStd = meansAndStds.get(key);
-                    attributesMap.put(key, meanNormalize(rawAttributes, key, meanAndStd));
+                    Utils.MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
+                    attributesMap.put(key, meanNormalize(rawAttributes, key, meanStdMaxMin));
                 } else {
                     attributesMap.put(oneHotEncode(key, rawAttributes.get(key)), 1.0);
                 }
@@ -100,8 +100,8 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
         }
     }
 
-    public static double meanNormalize(AttributesMap rawAttributes, String key, Utils.MeanAndStd meanAndStd) {
-        return (((Number) rawAttributes.get(key)).doubleValue() - meanAndStd.getMean()) / meanAndStd.getStd();
+    public static double meanNormalize(AttributesMap rawAttributes, String key, Utils.MeanStdMaxMin meanStdMaxMin) {
+        return (((Number) rawAttributes.get(key)).doubleValue() - meanStdMaxMin.getMean()) / meanStdMaxMin.getNonZeroStd();
     }
 
     @Override
@@ -118,9 +118,9 @@ public class LogisticRegressionBuilder implements PredictiveModelBuilder<Logisti
     public static class DataAndDataDescriptors {
         Map<Serializable, Double> nameToIndexMap;
         List<ClassifierInstance> instances;
-        Map<String, Utils.MeanAndStd> meanAndStdMap;
+        Map<String, Utils.MeanStdMaxMin> meanAndStdMap;
 
-        public DataAndDataDescriptors(Map<Serializable, Double> nameToIndexMap, List<ClassifierInstance> instances, Map<String, Utils.MeanAndStd> meanAndStdMap) {
+        public DataAndDataDescriptors(Map<Serializable, Double> nameToIndexMap, List<ClassifierInstance> instances, Map<String, Utils.MeanStdMaxMin> meanAndStdMap) {
             this.nameToIndexMap = nameToIndexMap;
             this.instances = instances;
             this.meanAndStdMap = meanAndStdMap;

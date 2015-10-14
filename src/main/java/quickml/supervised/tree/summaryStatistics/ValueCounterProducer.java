@@ -1,6 +1,6 @@
 package quickml.supervised.tree.summaryStatistics;
 
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.util.List;
 

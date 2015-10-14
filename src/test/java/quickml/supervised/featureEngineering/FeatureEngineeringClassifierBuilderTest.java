@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickml.data.*;
 
+import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.featureEngineering1.AttributesEnrichStrategy;

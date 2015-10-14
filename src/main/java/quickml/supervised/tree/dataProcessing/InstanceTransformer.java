@@ -1,6 +1,6 @@
 package quickml.supervised.tree.dataProcessing;
 
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 /**
  * Created by alexanderhawk on 10/14/15.

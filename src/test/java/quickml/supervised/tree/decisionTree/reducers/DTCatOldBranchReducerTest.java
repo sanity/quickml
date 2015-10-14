@@ -5,15 +5,11 @@ import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.branchFinders.SplittingUtilsTest;
-import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by alexanderhawk on 6/29/15.

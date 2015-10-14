@@ -6,9 +6,9 @@ import org.apache.commons.math3.linear.DiagonalMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.javatuples.Pair;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.RidgeInstance;
+import quickml.data.instances.RidgeInstance;
 
 import java.io.Serializable;
 import java.util.Map;

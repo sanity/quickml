@@ -1,4 +1,4 @@
-package quickml.data;
+package quickml.data.instances;
 
 
 import org.joda.time.DateTime;

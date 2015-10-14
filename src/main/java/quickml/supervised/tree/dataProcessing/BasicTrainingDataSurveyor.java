@@ -1,7 +1,7 @@
 package quickml.supervised.tree.dataProcessing;
 
 import com.google.common.collect.Maps;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.constants.AttributeType;
 
 import java.io.Serializable;

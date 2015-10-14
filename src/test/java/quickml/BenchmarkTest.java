@@ -7,7 +7,7 @@ import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.scorers.*;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;

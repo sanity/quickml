@@ -1,9 +1,8 @@
 package quickml.supervised.crossValidation;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;

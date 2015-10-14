@@ -1,7 +1,7 @@
 package quickml.supervised.tree.dataProcessing;
 
 import com.google.common.collect.Lists;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 import java.util.List;
 

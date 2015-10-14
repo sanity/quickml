@@ -1,7 +1,7 @@
 package quickml.supervised.classifier.logRegression;
 
 import com.google.common.collect.Maps;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package quickml.supervised.tree.decisionTree;
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;

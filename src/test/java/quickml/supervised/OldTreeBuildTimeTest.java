@@ -5,12 +5,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import quickml.InstanceLoader;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTreeBuilder;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.oldScorers.GiniImpurityOldScorer;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
 
 import java.util.List;

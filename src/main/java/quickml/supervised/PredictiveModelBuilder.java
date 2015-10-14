@@ -1,6 +1,6 @@
 package quickml.supervised;
 
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 import java.io.Serializable;
 import java.util.Map;

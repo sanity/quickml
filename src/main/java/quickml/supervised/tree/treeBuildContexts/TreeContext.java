@@ -1,7 +1,7 @@
 package quickml.supervised.tree.treeBuildContexts;
 
 import com.google.common.base.Optional;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.bagging.Bagging;
 import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.scorers.ScorerFactory;

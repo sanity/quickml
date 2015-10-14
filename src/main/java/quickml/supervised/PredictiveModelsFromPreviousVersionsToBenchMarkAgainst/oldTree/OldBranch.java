@@ -2,7 +2,7 @@ package quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgains
 
 import com.google.common.base.Predicate;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 import java.io.IOException;
 import java.io.Serializable;

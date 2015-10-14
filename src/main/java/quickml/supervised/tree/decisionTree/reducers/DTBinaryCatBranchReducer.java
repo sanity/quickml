@@ -2,7 +2,7 @@ package quickml.supervised.tree.decisionTree.reducers;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 

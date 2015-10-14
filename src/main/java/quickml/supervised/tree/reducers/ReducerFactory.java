@@ -1,8 +1,6 @@
 package quickml.supervised.tree.reducers;
 
-import com.google.common.base.Optional;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;

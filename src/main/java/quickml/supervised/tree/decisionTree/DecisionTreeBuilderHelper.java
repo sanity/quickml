@@ -2,7 +2,7 @@
 package quickml.supervised.tree.decisionTree;
 
 import org.javatuples.Pair;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.TreeBuilderHelper;
 import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContextBuilder;
 import quickml.supervised.tree.decisionTree.treeBuildContexts.DTreeContext;

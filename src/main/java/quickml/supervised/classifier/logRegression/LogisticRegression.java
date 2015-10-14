@@ -23,10 +23,10 @@ public class LogisticRegression extends AbstractClassifier {
     private final HashMap<String, Integer> nameToIndexMap;
     private static final Logger logger = LoggerFactory.getLogger(LogisticRegression.class);
     private final Map<Serializable, Double> classifications;
-    Map<String, Utils.MeanAndStd> meanAndStdMap;
+    Map<String, Utils.MeanStdMaxMin> meanAndStdMap;
 
     public LogisticRegression(double[] weights, final HashMap<String, Integer> nameToIndexMap,
-                              Map<Serializable, Double> classifications, Map<String, Utils.MeanAndStd> meanAndStdMap) {
+                              Map<Serializable, Double> classifications, Map<String, Utils.MeanStdMaxMin> meanAndStdMap) {
         this.weights = weights;
         this.nameToIndexMap = nameToIndexMap;
         this.classifications = classifications;
@@ -38,9 +38,9 @@ public class LogisticRegression extends AbstractClassifier {
         double dotProduct = 0;
         for (String attribute : attributes.keySet()) {
             if (meanAndStdMap.containsKey(attribute)) {
-                Utils.MeanAndStd meanAndStd = meanAndStdMap.get(attribute);
+                Utils.MeanStdMaxMin meanStdMaxMin = meanAndStdMap.get(attribute);
                 int index = nameToIndexMap.get(attribute);
-                dotProduct += weights[index] * LogisticRegressionBuilder.meanNormalize(attributes, attribute, meanAndStd);
+                dotProduct += weights[index] * LogisticRegressionBuilder.meanNormalize(attributes, attribute, meanStdMaxMin);
             }
         }
         return MathUtils.sigmoid(dotProduct);

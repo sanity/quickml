@@ -1,4 +1,4 @@
-package quickml.data;
+package quickml.data.instances;
 
 /**
  * Created by alexanderhawk on 10/14/15.

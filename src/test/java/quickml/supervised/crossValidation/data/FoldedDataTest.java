@@ -3,8 +3,6 @@ package quickml.supervised.crossValidation.data;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.crossValidation.data.FoldedData;
 
 import java.util.Arrays;
 import java.util.List;

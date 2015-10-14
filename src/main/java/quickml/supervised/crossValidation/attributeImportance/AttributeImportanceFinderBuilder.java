@@ -3,7 +3,7 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;

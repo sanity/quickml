@@ -1,7 +1,6 @@
 package quickml.supervised.ensembles.randomForest;
 
-import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.tree.Tree;
 

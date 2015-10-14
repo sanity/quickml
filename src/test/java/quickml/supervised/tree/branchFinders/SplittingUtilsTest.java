@@ -3,25 +3,19 @@ package quickml.supervised.tree.branchFinders;
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.tree.constants.ForestOptions;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.BinaryClassAttributeValueIgnoringStrategy;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.DTBinaryCatBranchReducer;
 import quickml.supervised.tree.decisionTree.reducers.DTNumBranchReducer;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
-import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**

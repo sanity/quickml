@@ -4,9 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.AttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 

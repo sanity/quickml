@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.Instance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -13,11 +13,13 @@ import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.tree.dataProcessing.BinaryAttributeCharacteristics;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.LeafDepthStats;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -157,29 +159,46 @@ public class Utils {
         return (double) stats.ttlDepth / stats.ttlSamples;
     }
 
-    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanAndStd> getMeansAndStds(Map<String, AttributeCharacteristics> attributeCharacteristics,
-                                                                                                   List<I> instances) {
-        Map<String, MeanAndStd> meansAndStds = Maps.newHashMap();
+    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanStdMaxMin> getMeanStdMaxMins(Map<String, AttributeCharacteristics> attributeCharacteristics,
+                                                                                                        List<I> instances) {
+        Map<String, MeanStdMaxMin> meansAndStds = Maps.newHashMap();
         for (I instance : instances) {
             AttributesMap attributes = instance.getAttributes();
             for (String key : attributes.keySet()) {
                 if (attributeCharacteristics.get(key).isNumber) {
                     if (!meansAndStds.containsKey(key)) {
-                        meansAndStds.put(key, new MeanAndStd());
+                        meansAndStds.put(key, new MeanStdMaxMin());
                     }
-                    MeanAndStd meanAndStd = meansAndStds.get(key);
-                    meanAndStd.update(((Number) attributes.get(key)).doubleValue());
+                    MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
+                    meanStdMaxMin.update(((Number) attributes.get(key)).doubleValue());
                 }
             }
         }
         return meansAndStds;
     }
 
-    public static class MeanAndStd {
+    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanStdMaxMin> getMeanStdMaxMins(List<I> instances) {
+        Map<String, MeanStdMaxMin> meansAndStds = Maps.newHashMap();
+        for (I instance : instances) {
+            AttributesMap attributes = instance.getAttributes();
+            for (String key : attributes.keySet()) {
+                    if (!meansAndStds.containsKey(key)) {
+                        meansAndStds.put(key, new MeanStdMaxMin());
+                    }
+                    MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
+                    meanStdMaxMin.update(((Number) attributes.get(key)).doubleValue());
+            }
+        }
+        return meansAndStds;
+    }
+
+    public static class MeanStdMaxMin {
         double runningSum = 0;
         double runningSumOfSquares = 0;
         double totalWeight = 0;
         double mean = 0;
+        double max = 0;
+        double min = 0;
         double std = 0;
 
         public void update(double val) {
@@ -192,16 +211,46 @@ public class Utils {
             totalWeight += weight;
             mean = runningSum / totalWeight;
             std = Math.sqrt((runningSumOfSquares - runningSum * runningSum) / (totalWeight));
+            if (max < val) {
+                max= val;
+            }
+            if (min > val) {
+                min = val;
+            }
         }
 
         public double getMean() {
             return mean;
         }
 
-        public double getStd() {
-            return std == 0.0 ? 1.0 : std;
+        public double getNonZeroStd() {
+            if (std == 0) {
+                return (getMaxMinMinusMin() == 0) ? 1.0 : getMaxMinMinusMin();
+            } else {
+                return std;
+            }
+        }
+
+        public double getMaxMinMinusMin(){
+            return max-min;
         }
     }
 
+    public static <T extends InstanceWithAttributesMap<?>>  Map<String, BinaryAttributeCharacteristics> getMapOfAttributesToBinaryAttributeCharacteristics(List<T> trainingData) {
+        Map<String, BinaryAttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
+
+        for (T instance : trainingData) {
+            for (Map.Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
+                BinaryAttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
+                if (attributeCharacteristic == null) {
+                    attributeCharacteristic = new BinaryAttributeCharacteristics();
+                    attributeCharacteristics.put(e.getKey(), attributeCharacteristic);
+                }
+
+                attributeCharacteristic.updateBinaryStatus((Double) e.getValue());
+            }
+        }
+        return attributeCharacteristics;
+    }
 }
 

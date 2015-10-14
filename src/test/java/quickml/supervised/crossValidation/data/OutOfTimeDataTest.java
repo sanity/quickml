@@ -2,8 +2,7 @@ package quickml.supervised.crossValidation.data;
 
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 
 import java.util.ArrayList;

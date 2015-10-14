@@ -4,10 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
-import quickml.supervised.rankingModels.RankingInstance;
 
 import java.util.ArrayList;
 import java.util.Collections;

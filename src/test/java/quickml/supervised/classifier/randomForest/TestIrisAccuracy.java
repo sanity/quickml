@@ -4,6 +4,7 @@ package quickml.supervised.classifier.randomForest;
  * Created by alexanderhawk on 4/7/15.
  */
 import quickml.data.*;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.*;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.*;
 import quickml.supervised.tree.attributeIgnoringStrategies.*;

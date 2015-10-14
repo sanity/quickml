@@ -1,6 +1,6 @@
 package quickml.supervised.featureEngineering1;
 
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 /**
  * Created by ian on 5/21/14.

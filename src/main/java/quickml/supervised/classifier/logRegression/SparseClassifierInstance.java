@@ -2,7 +2,7 @@ package quickml.supervised.classifier.logRegression;
 
 import javafx.util.Pair;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.Map;

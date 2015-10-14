@@ -1,7 +1,6 @@
 package quickml.supervised.tree.branchFinders;
 
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.reducers.Reducer;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 

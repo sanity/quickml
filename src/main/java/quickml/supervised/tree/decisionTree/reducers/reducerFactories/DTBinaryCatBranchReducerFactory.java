@@ -1,6 +1,6 @@
 package quickml.supervised.tree.decisionTree.reducers.reducerFactories;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.reducers.DTBinaryCatBranchReducer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.Reducer;

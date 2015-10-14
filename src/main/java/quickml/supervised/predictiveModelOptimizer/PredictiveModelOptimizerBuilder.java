@@ -1,7 +1,7 @@
 package quickml.supervised.predictiveModelOptimizer;
 
 import com.google.common.base.Preconditions;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.CrossValidator;
