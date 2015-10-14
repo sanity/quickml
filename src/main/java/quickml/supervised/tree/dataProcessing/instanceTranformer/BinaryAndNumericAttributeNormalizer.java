@@ -1,9 +1,11 @@
-package quickml.supervised.tree.dataProcessing;
+package quickml.supervised.tree.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.InstanceFactory;
 import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
+import quickml.supervised.tree.dataProcessing.BinaryAttributeCharacteristics;
+import quickml.supervised.tree.dataProcessing.instanceTranformer.InstanceTransformer;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public class BinaryAndNumericAttributeNormalizer<L extends Serializable, I extends InstanceWithAttributesMap<L>, R extends InstanceWithAttributesMap<L>> implements InstanceTransformer<I, R>{
+public class BinaryAndNumericAttributeNormalizer<L extends Serializable, I extends InstanceWithAttributesMap<L>, R extends InstanceWithAttributesMap<L>> implements InstanceTransformer<I, R> {
 
 /**class does min-max normalization of binary attributes and mean normalization of non binary attributes.  All attributes are assumed to have
  * numeric values*/

@@ -23,7 +23,7 @@ public class LogisticRegressionBuilderTest {
     public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
 
-        LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder();
+        LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder(nameToIndexMap);
         CrossValidator crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
                 new OutOfTimeData<ClassifierInstance>(instances, 0.25, 48, new OnespotDateTimeExtractor()));

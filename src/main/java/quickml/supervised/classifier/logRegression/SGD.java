@@ -4,10 +4,8 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.io.Serializable;
+import java.util.*;
 
 import static quickml.MathUtils.logBase2WithMaxError;
 import static quickml.MathUtils.sigmoid;
@@ -16,50 +14,104 @@ import static quickml.MathUtils.sigmoid;
  * Created by alexanderhawk on 10/12/15.
  */
 public class SGD implements GradientDescent {
-    private static final Logger logger = LoggerFactory.getLogger(SGD.class);
-    private double learningRate = 10E-5;
+    public  static final String RIDGE = "ridge";
+    public  static final String LASSO = "lasso";
+
+    public static final Logger logger = LoggerFactory.getLogger(SGD.class);
+    public static final String LEARNING_RATE = "learningRate";
+    public static final String USE_BOLD_DRIVER = "useBoldDriver";
+
+    public static final String MAX_EPOCHS = "maxEpochs";
+    public static final String MIN_EPOCHS = "minEpochs";
+    public static final String MINI_BATCH_SIZE = "miniBatchSize";
+    public static final String COST_CONVERGENCE_THRESHOLD = "costConvergenceThreshold";
+    public static final String LEARNING_RATE_BOOST_FACTOR = "learningRateBoostFactor";
+    public static final String LEARNING_RATE_REDUCTION_FACTOR= "learningRateReductionFactor";
+    public static final String MAX_GRADIENT_NORM = "maxGradientNorm";
+    public static final String WEIGHT_CONVERGENCE_THRESHOLD = "weightConvergenceThreshold";
+    public static final String MIN_PREDICTED_PROBABILITY= "minPredictedProbablity";
+
+    //model hyper-params
+    double ridge = 0;
+    double lasso = 0;
+
+    //training hyper-params
     private int minibatchSize = 1;
+    private int maxEpochs = 8;
+    private int minEpochs = 3;
 
     private double weightConvergenceThreshold = 0.001;
     private double costConvergenceThreshold = 0.001;
 
-    private int maxEpochs = 8;
-    private int minEpochs = 3;
-    private double ridge = 0;
-    private double lasso = 0;
+    private double learningRate = 10E-5;
     private double maxGradientNorm = 0.01;
     private double minPredictedProbablity = 10E-6;
     private double learningRateReductionFactor = 0.5;
     private double learningRateBoostFactor = 1.1;
-
+    private boolean useBoldDriver = true;
 
     public SGD() {
     }
 
+    public void updateBuilderConfig(final Map<String, Serializable> config) {
+        if (config.containsKey(LASSO)) {
+            ridgeRegularizationConstant((Double) config.get(LASSO));
+        }
+        if (config.containsKey(RIDGE)) {
+            lassoRegularizationConstant((Double) config.get(RIDGE));
+        }
+        if (config.containsKey(LEARNING_RATE)) {
+            learningRate((Double) config.get(LEARNING_RATE));
+        }
+
+        if (config.containsKey(USE_BOLD_DRIVER)) {
+            useBoldDriver((Boolean) config.get(USE_BOLD_DRIVER));
+        }
+        if (config.containsKey(MAX_EPOCHS)) {
+            maxEpochs((Integer) config.get(MAX_EPOCHS));
+        }
+        if (config.containsKey(MIN_EPOCHS)) {
+            minEpochs((Integer) config.get(MIN_EPOCHS));
+        }
+        if (config.containsKey(MINI_BATCH_SIZE)) {
+            minibatchSize((Integer) config.get(MINI_BATCH_SIZE));
+        }
+        if (config.containsKey(COST_CONVERGENCE_THRESHOLD)) {
+            costConvergenceThreshold((Double) config.get(COST_CONVERGENCE_THRESHOLD));
+        }
+        if (config.containsKey(LEARNING_RATE_BOOST_FACTOR)) {
+            learningRateBoostFactor((Double) config.get(LEARNING_RATE_BOOST_FACTOR));
+        }
+        if (config.containsKey(LEARNING_RATE_REDUCTION_FACTOR)) {
+            learningRateReductionFactor((Double) config.get(LEARNING_RATE_REDUCTION_FACTOR));
+        }
+        if (config.containsKey(MAX_GRADIENT_NORM)) {
+            maxGradientNorm((Double) config.get(MAX_GRADIENT_NORM));
+        }
+        if (config.containsKey(WEIGHT_CONVERGENCE_THRESHOLD)) {
+            weightConvergenceThreshold((Double) config.get(WEIGHT_CONVERGENCE_THRESHOLD));
+        }
+        if (config.containsKey(MIN_PREDICTED_PROBABILITY)) {
+            minPredictedProbablity((Double) config.get(MIN_PREDICTED_PROBABILITY));
+        }
+
+    }
     public SGD learningRate(double learningRate) {
         this.learningRate = learningRate;
         return this;
     }
 
-
+    public SGD useBoldDriver(boolean useBoldDriver) {
+        this.useBoldDriver = useBoldDriver;
+        return this;
+    }
     public SGD maxEpochs(int maxEpochs) {
         this.maxEpochs = maxEpochs;
         return this;
     }
 
-
-    public SGD ridge(double ridge) {
-        this.ridge = ridge;
-        return this;
-    }
-
     public SGD minPredictedProbablity(double minPredictedProbablity) {
         this.minPredictedProbablity = minPredictedProbablity;
-        return this;
-    }
-
-    public SGD lasso(double lasso) {
-        this.lasso = lasso;
         return this;
     }
 
@@ -98,6 +150,17 @@ public class SGD implements GradientDescent {
         return this;
     }
 
+    public SGD ridgeRegularizationConstant(final double ridgeRegularizationConstant) {
+        this.ridge = ridgeRegularizationConstant;
+        return this;
+    }
+
+    public SGD lassoRegularizationConstant(final double ridgeRegularizationConstant) {
+        this.lasso = ridgeRegularizationConstant;
+        return this;
+    }
+
+
     @Override
     public double[] minimize(List<SparseClassifierInstance> sparseClassifierInstances, int numFeatures) {
         double[] weights = initializeWeights(numFeatures);
@@ -129,8 +192,9 @@ public class SGD implements GradientDescent {
                 logger.info("breaking after {} epochs with cost {}", i + 1, costFunctionValue);
                 break;
             }
-
-            learningRate = adjustLearningRateWithBoldDriver(previousCostFunctionValue, costFunctionValue);
+            if (useBoldDriver) {
+                learningRate = adjustLearningRateWithBoldDriver(previousCostFunctionValue, costFunctionValue);
+            }
             Collections.shuffle(sparseClassifierInstances);
 
         }
@@ -236,4 +300,5 @@ public class SGD implements GradientDescent {
         }
         return weights;
     }
+
 }

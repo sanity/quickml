@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.*;
 
@@ -23,109 +24,48 @@ import static quickml.supervised.classifier.logRegression.InstanceTransformerUti
 /**
  * Created by alexanderhawk on 10/9/15.
  */
-public class LogisticRegressionBuilder implements PredictiveModelBuilder<LogisticRegression, ClassifierInstance> {
-    double ridgeRegularizationConstant = 0;
-    double lassoRegularizationConstant = 0;
-    boolean normalizeNumericFeatures = true;
-    public static final String RIDGE = "ridge";
-    public static final String LASSO = "lasso";
+public class LogisticRegressionBuilder implements PredictiveModelBuilder<LogisticRegression, SparseClassifierInstance> {
+    private  Map<Serializable, Double> classificationToClassNameMap;
 
-    GradientDescent gradientDescent;
+    public final HashMap<String, Integer> nameToIndexMap;
 
-    public LogisticRegressionBuilder() {
+    GradientDescent gradientDescent = new SGD();
 
+    public LogisticRegressionBuilder(HashMap<String, Integer> nameToIndexMap) {
+
+        this.nameToIndexMap = nameToIndexMap;
     }
 
-    public LogisticRegressionBuilder setGradientDescent(GradientDescent gradientDescent) {
+    public LogisticRegressionBuilder gradientDescent(GradientDescent gradientDescent) {
         this.gradientDescent = gradientDescent;
         return this;
     }
 
-    public LogisticRegressionBuilder ridgeRegularizationConstant(final double ridgeRegularizationConstant) {
-        this.ridgeRegularizationConstant = ridgeRegularizationConstant;
+    public LogisticRegressionBuilder classificationToClassNameMap(Map<Serializable, Double> classificationToClassNameMap){
+        this.classificationToClassNameMap = classificationToClassNameMap;
         return this;
     }
 
-    public LogisticRegressionBuilder lassoRegularizationConstant(final double ridgeRegularizationConstant) {
-        this.ridgeRegularizationConstant = ridgeRegularizationConstant;
-        return this;
-    }
 
 
     @Override
-    public LogisticRegression buildPredictiveModel(final Iterable<ClassifierInstance> trainingData) {
-        List<ClassifierInstance> trainingDataList = Utils.iterableToList(trainingData);
-        DataAndDataDescriptors reEncodedData = processData(trainingDataList);
-
-        HashMap<String, Integer> nameToIndexMap = populateNameToIndexMap(trainingDataList);
-        List<SparseClassifierInstance> sparseClassifierInstances = getSparseInstances(reEncodedData.instances, nameToIndexMap);
-
-        double[] weights = gradientDescent.minimize(sparseClassifierInstances, nameToIndexMap.size());
-        return new LogisticRegression(weights, nameToIndexMap, reEncodedData.nameToIndexMap, reEncodedData.meanAndStdMap);
-
-    }
-
-    private List<SparseClassifierInstance> getSparseInstances(Iterable<ClassifierInstance> trainingData, HashMap<String, Integer> nameToIndexMap) {
-        List<SparseClassifierInstance> sparseClassifierInstances = Lists.newArrayList();
-        for (ClassifierInstance instance : trainingData) {
-            sparseClassifierInstances.add(new SparseClassifierInstance(instance.getAttributes(), instance.getLabel(), instance.getWeight(), nameToIndexMap));
+    public LogisticRegression buildPredictiveModel(final Iterable<SparseClassifierInstance> trainingData) {
+        List<SparseClassifierInstance> trainingDataList = Utils.iterableToList(trainingData);
+        double[] weights = gradientDescent.minimize(trainingDataList, nameToIndexMap.size());
+        if (classificationToClassNameMap == null) {
+            Set<Double> classifications = InstanceTransformerUtils.getClassifications(trainingDataList);
+            return new LogisticRegression(weights,nameToIndexMap,classifications);
+        } else {
+            return new LogisticRegression(weights,nameToIndexMap,classificationToClassNameMap);
         }
-        return sparseClassifierInstances;
-    }
 
-    private DataAndDataDescriptors processData(List<ClassifierInstance> trainingData) {
-        BasicTrainingDataSurveyor<ClassifierInstance> btds = new BasicTrainingDataSurveyor<ClassifierInstance>(false);
-        Map<String, AttributeCharacteristics> attributeCharacteristics = btds.getMapOfAttributesToAttributeCharacteristics(trainingData);
-        List<ClassifierInstance> instances = Lists.newArrayList();
-        Map<Serializable, Double> numericClassLabels = getNumericClassLabels(trainingData);
-        Map<String, Utils.MeanStdMaxMin> meansAndStds = Utils.<ClassifierInstance>getMeanStdMaxMins(attributeCharacteristics, trainingData);
-
-        meanNormalizeAndOneHotEncode(trainingData, attributeCharacteristics, instances, meansAndStds);
-        return new DataAndDataDescriptors(numericClassLabels, instances, meansAndStds);
-    }
-
-    private void meanNormalizeAndOneHotEncode(List<ClassifierInstance> trainingData, Map<String, AttributeCharacteristics> attributeCharacteristics, List<ClassifierInstance> normalizedInstances, Map<String, Utils.MeanStdMaxMin> meansAndStds) {
-        for (ClassifierInstance instance : trainingData) {
-            AttributesMap attributesMap = AttributesMap.newHashMap();
-            AttributesMap rawAttributes = instance.getAttributes();
-            for (String key : rawAttributes.keySet()) {
-                if (attributeCharacteristics.get(key).isNumber) {
-                    Utils.MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
-                    attributesMap.put(key, meanNormalize(rawAttributes, key, meanStdMaxMin));
-                } else {
-                    attributesMap.put(oneHotEncode(key, rawAttributes.get(key)), 1.0);
-                }
-            }
-            normalizedInstances.add(new ClassifierInstance(attributesMap, instance.getLabel()));
-        }
-    }
-
-    public static double meanNormalize(AttributesMap rawAttributes, String key, Utils.MeanStdMaxMin meanStdMaxMin) {
-        return (((Number) rawAttributes.get(key)).doubleValue() - meanStdMaxMin.getMean()) / meanStdMaxMin.getNonZeroStd();
     }
 
     @Override
     public void updateBuilderConfig(final Map<String, Serializable> config) {
-        if (config.containsKey(RIDGE)) {
-            ridgeRegularizationConstant((Double) config.get(RIDGE));
-        }
-
-        if (config.containsKey(LASSO)) {
-            ridgeRegularizationConstant((Double) config.get(LASSO));
-        }
+        gradientDescent.updateBuilderConfig(config);
     }
 
-    public static class DataAndDataDescriptors {
-        Map<Serializable, Double> nameToIndexMap;
-        List<ClassifierInstance> instances;
-        Map<String, Utils.MeanStdMaxMin> meanAndStdMap;
-
-        public DataAndDataDescriptors(Map<Serializable, Double> nameToIndexMap, List<ClassifierInstance> instances, Map<String, Utils.MeanStdMaxMin> meanAndStdMap) {
-            this.nameToIndexMap = nameToIndexMap;
-            this.instances = instances;
-            this.meanAndStdMap = meanAndStdMap;
-        }
-    }
 
 
 }
