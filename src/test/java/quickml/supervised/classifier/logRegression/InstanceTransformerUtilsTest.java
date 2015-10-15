@@ -2,7 +2,7 @@ package quickml.supervised.classifier.logRegression;
 
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -78,5 +78,10 @@ public class InstanceTransformerUtilsTest {
         instances.add(new ClassifierInstance(attributesMap, 0.0, 1.0));
 
         return instances;
+    }
+
+    @Test
+    public void testGetAttributeProductCounts1() throws Exception {
+
     }
 }
