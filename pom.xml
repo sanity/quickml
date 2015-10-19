@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
     -->
 
-    <version>0.9.10</version>
+    <version>0.10.1</version>
 
     <repositories>
         <repository>
@@ -62,11 +62,6 @@
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
             <version>7.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>nz.ac.waikato.cms.weka</groupId>
-            <artifactId>weka-stable</artifactId>
-            <version>3.6.13</version>
         </dependency>
         <dependency>
             <groupId>jfree</groupId>

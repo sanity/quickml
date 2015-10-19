@@ -1,4 +1,4 @@
-package quickml.supervised.dataProcessing;
+package quickml.supervised.classifier.logisticRegression;
 
 import com.google.common.collect.Lists;
 import quickml.data.instances.ClassifierInstance;
@@ -6,6 +6,9 @@ import quickml.data.instances.ClassifierInstanceFactory;
 import quickml.supervised.Utils;
 import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
 import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
+import quickml.supervised.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
+import quickml.supervised.dataProcessing.DataTransformer;
 import quickml.supervised.dataProcessing.instanceTranformer.*;
 
 import java.io.Serializable;
@@ -24,10 +27,9 @@ public class LogisticRegressionDataTransformer {
     private LabelToDigitConverter<Serializable, ClassifierInstance, ClassifierInstance> labelToDigitConverter;
     private ClassifierInstance2SparseClassifierInstance<Serializable, ClassifierInstance>  inputType2ReturnTypeTransformer;
 
-    public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData, int minimumCount, boolean approximateOverlap, int minOverlap){
 
+    public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData, int minimumOccurencesOfAttribute, int minOverlap, boolean approximateOverlap, boolean useProductFeatures){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
-
         oneHotEncoder = getOneHotEncoder(trainingData);
         labelToDigitConverter = getLabelToDigitConverter(trainingData);
         input2InputTransformations.add(oneHotEncoder);
@@ -36,26 +38,28 @@ public class LogisticRegressionDataTransformer {
                 input2InputTransformations, null);
         List<ClassifierInstance> oneHotEncoded = dataTransformer.transformInstances(trainingData);
 
+        List<ClassifierInstance> instancesToNormalize;
+        if (useProductFeatures) {
+            productFeatureAppender = getProductFeatureAppender(oneHotEncoded, minimumOccurencesOfAttribute);
+            input2InputTransformations = Lists.newArrayList();
+            input2InputTransformations.add(productFeatureAppender);
+            dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
+                    input2InputTransformations, null);
+            instancesToNormalize = InstanceTransformerUtils.addProductAttributes(oneHotEncoded, minimumOccurencesOfAttribute, minOverlap, approximateOverlap);
+        } else {
+            instancesToNormalize = oneHotEncoded;
+        }
 
-        productFeatureAppender = getProductFeatureAppender(oneHotEncoded, minimumCount);
-        input2InputTransformations = Lists.newArrayList();
-        input2InputTransformations.add(productFeatureAppender);
-        dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
-                input2InputTransformations, null);
-       List<ClassifierInstance> productFeatureAppended = InstanceTransformerUtils.addProductAttributes(oneHotEncoded, minimumCount, minOverlap, approximateOverlap);
-
-
-        normalizer = getNormalizer(productFeatureAppended);
+        normalizer = getNormalizer(instancesToNormalize);
         input2InputTransformations = Lists.newArrayList();
         input2InputTransformations.add(normalizer);
         dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
                 input2InputTransformations, null);
-        List<ClassifierInstance> normalized = dataTransformer.transformInstances(productFeatureAppended);
+        List<ClassifierInstance> normalized = dataTransformer.transformInstances(instancesToNormalize);
 
 
         inputType2ReturnTypeTransformer = getInputType2ReturnTypeTransformer(normalized);
         input2InputTransformations = Lists.newArrayList();
-
         DataTransformer<ClassifierInstance, SparseClassifierInstance> inputType2OutputdataTransformer = new DataTransformer<ClassifierInstance, SparseClassifierInstance>(
                 input2InputTransformations, inputType2ReturnTypeTransformer);
 
