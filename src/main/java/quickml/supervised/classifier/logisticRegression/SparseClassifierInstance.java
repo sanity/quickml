@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logRegression;
+package quickml.supervised.classifier.logisticRegression;
 
 import javafx.util.Pair;
 import quickml.data.AttributesMap;
@@ -24,7 +24,7 @@ public class SparseClassifierInstance extends ClassifierInstance {
         setIndicesAndValues(attributes, nameToValueIndexMap);
     }
 
-    private void setIndicesAndValues(AttributesMap attributes, Map<String, Integer> nameToValueIndexMap) {
+    private void setIndicesAndValues(AttributesMap attributes, Map<String, Integer> nameToIndexMap) {
         indices = new int[attributes.size()];
         values = new double[attributes.size()];
         int i = 0;
@@ -32,7 +32,7 @@ public class SparseClassifierInstance extends ClassifierInstance {
             if (!(entry.getValue() instanceof Double)) {
                 throw new RuntimeException("wrong type of values in attributes");
             }
-            int valueIndex = nameToValueIndexMap.get(entry.getKey());
+            int valueIndex = nameToIndexMap.get(entry.getKey());
             indices[i] = valueIndex;
             values[i] = (Double)entry.getValue();
             i++;

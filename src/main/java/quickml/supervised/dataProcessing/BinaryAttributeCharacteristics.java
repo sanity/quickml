@@ -1,4 +1,4 @@
-package quickml.supervised.tree.dataProcessing;
+package quickml.supervised.dataProcessing;
 
 import java.util.HashSet;
 
@@ -6,8 +6,12 @@ import java.util.HashSet;
  * Created by alexanderhawk on 10/14/15.
  */
 public class BinaryAttributeCharacteristics {
-    boolean isBinary = true;
+    private boolean isBinary = true;
     private HashSet<Double> observedVals = new HashSet();
+
+    public boolean getIsBinary() {
+        return isBinary;
+    }
 
     public void updateBinaryStatus(double val) {
         if (isBinary) {

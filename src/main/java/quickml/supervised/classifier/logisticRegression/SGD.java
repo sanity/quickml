@@ -1,4 +1,4 @@
-package quickml.supervised.classifier.logRegression;
+package quickml.supervised.classifier.logisticRegression;
 
 import javafx.util.Pair;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class SGD implements GradientDescent {
     private double maxGradientNorm = 0.01;
     private double minPredictedProbablity = 10E-6;
     private double learningRateReductionFactor = 0.5;
-    private double learningRateBoostFactor = 1.1;
+    private double learningRateBoostFactor = 1.07;
     private boolean useBoldDriver = true;
 
     public SGD() {
@@ -165,10 +165,10 @@ public class SGD implements GradientDescent {
     public double[] minimize(List<SparseClassifierInstance> sparseClassifierInstances, int numFeatures) {
         double[] weights = initializeWeights(numFeatures);
         double previousCostFunctionValue = 0;
-        double costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity);
+        double costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity, ridge, lasso);
 
         for (int i = 0; i < maxEpochs; i++) {
-            if (i % (maxEpochs / 10) == 0) {
+            if (maxEpochs<10 || i % (maxEpochs / 10) == 0) {
                 logger.info("cost {}, prevCost {}, learning rate {}, before epoch {}", costFunctionValue, previousCostFunctionValue, learningRate, i);
 
             }
@@ -176,7 +176,7 @@ public class SGD implements GradientDescent {
             for (int j = 0; j < sparseClassifierInstances.size(); j += minibatchSize) {
                 double[] newWeights = new double[numFeatures];
                 int miniBatchStartIndex = j;
-                int maxIndex = Math.max(sparseClassifierInstances.size(), miniBatchStartIndex + minibatchSize);
+                int maxIndex = Math.min(sparseClassifierInstances.size(), miniBatchStartIndex + minibatchSize);
                 List<SparseClassifierInstance> miniBatchInstances = sparseClassifierInstances.subList(miniBatchStartIndex, maxIndex);
                 double[] grad = getGradient(miniBatchInstances, weights, numFeatures, minibatchSize, ridge, lasso, maxGradientNorm);
                 for (int k = 0; k < weights.length; k++) {
@@ -185,7 +185,7 @@ public class SGD implements GradientDescent {
                 weights = newWeights;
             }
             previousCostFunctionValue = costFunctionValue;
-            costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity);
+            costFunctionValue = computeCostFunction(sparseClassifierInstances, weights, minPredictedProbablity, ridge, lasso);
             if (i > minEpochs
                     && weightsConverged(weights, weightsAtPreviousEpoch, weightConvergenceThreshold)
                     && costsConverged(previousCostFunctionValue, previousCostFunctionValue, costConvergenceThreshold)) {
@@ -224,17 +224,26 @@ public class SGD implements GradientDescent {
         return Math.abs(presentCost - previousCost) / presentCost < costConvergenceThreshold;
     }
 
-    public static double computeCostFunction(List<SparseClassifierInstance> instances, double weights[], double minPredictedProbablity) {
+    public static double computeCostFunction(List<SparseClassifierInstance> instances, double[] weights, double minPredictedProbablity, double ridge, double lasso) {
         double cost = 0.0;
         for (SparseClassifierInstance instance : instances) {
+            double regularizationCost = getRegularizationCost(weights, ridge, lasso);
             if ((double) instance.getLabel() == 1.0) {
-                cost += -logBase2WithMaxError(sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
+                cost += -logBase2WithMaxError(sigmoid(instance.dotProduct(weights)), minPredictedProbablity) + regularizationCost;
             } else if ((double) instance.getLabel() == 0.0) {
-                cost += -logBase2WithMaxError(1.0 - sigmoid(instance.dotProduct(weights)), minPredictedProbablity);
+                cost += -logBase2WithMaxError(1.0 - sigmoid(instance.dotProduct(weights)), minPredictedProbablity) + regularizationCost;
             }
         }
-        return cost;
+        return cost/instances.size();
 
+    }
+
+    private static double getRegularizationCost(double[] weights, double ridge, double lasso) {
+        double cost = 0;
+        for (int i = 0; i< weights.length; i++) {
+            cost+=weights[i]*weights[i]*ridge/2.0 + Math.abs(weights[i])*lasso;
+        }
+        return cost;
     }
 
     static double[] getGradient(List<SparseClassifierInstance> instances, double[] weights, int numFeatures,
@@ -244,13 +253,13 @@ public class SGD implements GradientDescent {
          */
         double[] gradient = new double[numFeatures];
         for (SparseClassifierInstance instance : instances) {
-            updateGradientForInstance(weights, ridge, lasso, gradient, instance, minibatchSize);
+            updateGradientForInstance(weights, ridge, lasso, gradient, instance, instances.size());
         }
         for (int i = 0; i < numFeatures; i++) {
-            gradient[i] /= minibatchSize;
+            gradient[i] /= instances.size();
         }
 
-        applyMaxGradientNorm(maxGradientNorm, gradient);
+       // applyMaxGradientNorm(maxGradientNorm, gradient);
         return gradient;
     }
 
@@ -270,24 +279,24 @@ public class SGD implements GradientDescent {
 
     static double getProbabilityOfThePositiveClass(double[] weights, SparseClassifierInstance instance) {
         double dotProduct = instance.dotProduct(weights);
-        return sigmoid(-dotProduct);
+        return sigmoid(dotProduct);
     }
 
     static void updateGradientForInstance(double[] weights, double ridge, double lasso, double[] gradient,
                                           SparseClassifierInstance instance, int minibatchSize) {
 
         double postiveClassProbability = getProbabilityOfThePositiveClass(weights, instance);
-
         Pair<int[], double[]> sparseAttributes = instance.getSparseAttributes();
         int[] indices = sparseAttributes.getKey();
         double[] values = sparseAttributes.getValue();
 
         for (int i = 0; i < indices.length; i++) {
             int featureIndex = indices[i];
+            double lassoDerivative = lasso;
             if (weights[featureIndex] < 0.0) {
-                lasso *= -1;
+                lassoDerivative *= -1;
             }
-            gradient[featureIndex] += ((double) instance.getLabel() - postiveClassProbability) * values[i] + 2 * ridge * weights[featureIndex] + lasso;
+            gradient[featureIndex] -= ((double) instance.getLabel() - postiveClassProbability) * values[i] -  (ridge * weights[featureIndex] - lassoDerivative)*minibatchSize;
         }
     }
 

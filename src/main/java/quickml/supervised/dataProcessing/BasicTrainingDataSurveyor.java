@@ -1,4 +1,4 @@
-package quickml.supervised.tree.dataProcessing;
+package quickml.supervised.dataProcessing;
 
 import com.google.common.collect.Maps;
 import quickml.data.instances.InstanceWithAttributesMap;

@@ -1,4 +1,4 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.InstanceFactory;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.determineNumericClassLabels;
+import static quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils.determineNumericClassLabels;
 
 /**
  * Created by alexanderhawk on 10/14/15.

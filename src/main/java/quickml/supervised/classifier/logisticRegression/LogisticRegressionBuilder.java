@@ -1,24 +1,18 @@
-package quickml.supervised.classifier.logRegression;
+package quickml.supervised.classifier.logisticRegression;
 
 /**
  * Created by alexanderhawk on 10/12/15.
  */
 
-import com.google.common.collect.Lists;
-import quickml.data.AttributesMap;
-import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.Utils;
-import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
-import quickml.supervised.tree.dataProcessing.BasicTrainingDataSurveyor;
+
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.*;
 
 
 /**

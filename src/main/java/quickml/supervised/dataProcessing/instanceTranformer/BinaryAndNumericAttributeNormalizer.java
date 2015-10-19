@@ -1,11 +1,10 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.InstanceFactory;
 import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
-import quickml.supervised.tree.dataProcessing.BinaryAttributeCharacteristics;
-import quickml.supervised.tree.dataProcessing.instanceTranformer.InstanceTransformer;
+import quickml.supervised.dataProcessing.BinaryAttributeCharacteristics;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,11 +20,15 @@ public class BinaryAndNumericAttributeNormalizer<L extends Serializable, I exten
     private Map<String, Utils.MeanStdMaxMin> meanStdMaxMins;
     private Map<String,BinaryAttributeCharacteristics> binaryAttributeCharacteristics;
     private InstanceFactory<R, AttributesMap, L> instanceFactory;
+    private NoNormalizationCondition noNormalizationCondition;
 
-    public BinaryAndNumericAttributeNormalizer(List<I> trainingData, InstanceFactory<R, AttributesMap, L> instanceFactory) {
+
+    public BinaryAndNumericAttributeNormalizer(List<I> trainingData, InstanceFactory<R, AttributesMap, L> instanceFactory, NoNormalizationCondition noNormalizationCondition) {
+        this.noNormalizationCondition = noNormalizationCondition;
         this.meanStdMaxMins = Utils.<I>getMeanStdMaxMins(trainingData);
         this.binaryAttributeCharacteristics = Utils.<I>getMapOfAttributesToBinaryAttributeCharacteristics(trainingData);
         this.instanceFactory = instanceFactory;
+
     }
 
     public Map<String, BinaryAttributeCharacteristics> getBinaryAttributeCharacteristics() {
@@ -44,12 +47,15 @@ public class BinaryAndNumericAttributeNormalizer<L extends Serializable, I exten
             //1,0 normalize?
             for (String key : rawAttributes.keySet()) {
                 Utils.MeanStdMaxMin meanStdMaxMin = meanStdMaxMins.get(key);
-                if (binaryAttributeCharacteristics.get(key).isBinary) {
+                if (binaryAttributeCharacteristics.get(key).getIsBinary() && !noNormalizationCondition.noNormalization(key)) {
                     attributesMap.put(key, minMaxNormalize(rawAttributes, key, meanStdMaxMin));
 
+                } else if (!noNormalizationCondition.noNormalization(key)) {
+                        attributesMap.put(key, meanNormalize(rawAttributes, key, meanStdMaxMin));
                 } else {
-                    attributesMap.put(key, meanNormalize(rawAttributes, key, meanStdMaxMin));
+                    attributesMap.put(key, rawAttributes.get(key));
                 }
+
             }
             return instanceFactory.createInstance(attributesMap, instance.getLabel(), instance.getWeight());
     }
@@ -60,4 +66,8 @@ public class BinaryAndNumericAttributeNormalizer<L extends Serializable, I exten
     public static double minMaxNormalize(AttributesMap rawAttributes, String key, Utils.MeanStdMaxMin meanStdMaxMin) {
         return (((Number) rawAttributes.get(key)).doubleValue()) / meanStdMaxMin.getMaxMinMinusMin();
     }
+
+public interface NoNormalizationCondition {
+    boolean noNormalization(String key);
+}
 }

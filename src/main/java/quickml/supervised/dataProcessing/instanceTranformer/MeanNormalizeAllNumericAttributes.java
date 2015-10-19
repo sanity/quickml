@@ -1,10 +1,10 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.InstanceFactory;
 import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
-import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.dataProcessing.AttributeCharacteristics;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,4 +1,4 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.instances.Instance;
 

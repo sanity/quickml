@@ -12,14 +12,15 @@ import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
-import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
-import quickml.supervised.tree.dataProcessing.BinaryAttributeCharacteristics;
+import quickml.supervised.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.dataProcessing.BinaryAttributeCharacteristics;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.LeafDepthStats;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -193,24 +194,29 @@ public class Utils {
     }
 
     public static class MeanStdMaxMin {
-        double runningSum = 0;
-        double runningSumOfSquares = 0;
+        BigDecimal runningSum = new BigDecimal(0);
+        BigDecimal runningSumOfSquares = new BigDecimal(0);
         double totalWeight = 0;
         double mean = 0;
         double max = 0;
         double min = 0;
         double std = 0;
 
+        public MeanStdMaxMin() {
+        }
+
         public void update(double val) {
             this.update(val, 1.0);
         }
 
         public void update(double val, double weight) {
-            runningSum += val;
-            runningSumOfSquares += val * val;
+            BigDecimal bigVal = new BigDecimal(val);
+            runningSum = runningSum.add(bigVal);
+            BigDecimal augendSquared = bigVal.multiply(bigVal);
+            runningSumOfSquares = runningSumOfSquares.add(augendSquared);
             totalWeight += weight;
-            mean = runningSum / totalWeight;
-            std = Math.sqrt((runningSumOfSquares - runningSum * runningSum) / (totalWeight));
+//            mean = runningSum / totalWeight;
+
             if (max < val) {
                 max= val;
             }
@@ -220,15 +226,23 @@ public class Utils {
         }
 
         public double getMean() {
-            return mean;
+            return runningSum.divide(new BigDecimal(totalWeight), 3, BigDecimal.ROUND_HALF_UP).doubleValue();
         }
 
         public double getNonZeroStd() {
-            if (std == 0) {
+
+            if (totalWeight ==0 ) {
                 return (getMaxMinMinusMin() == 0) ? 1.0 : getMaxMinMinusMin();
             } else {
-                return std;
-            }
+                BigDecimal bigTotalWeight = new BigDecimal(totalWeight);
+                BigDecimal secondMoment = (runningSumOfSquares.divide(bigTotalWeight,  3, BigDecimal.ROUND_HALF_UP));
+                BigDecimal firstMoment = (runningSum.divide(bigTotalWeight,  3, BigDecimal.ROUND_HALF_UP));
+                BigDecimal firstMomentSquared  = firstMoment.multiply(firstMoment);
+                if (firstMomentSquared.equals(secondMoment)) {
+                    return getMaxMinMinusMin();
+                }
+                BigDecimal stdSquared = secondMoment.subtract(firstMomentSquared);
+                return (Math.sqrt(stdSquared.doubleValue()) == 0 ) ? 1.0 : Math.sqrt(stdSquared.doubleValue());            }
         }
 
         public double getMaxMinMinusMin(){

@@ -13,7 +13,7 @@ import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBu
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.constants.AttributeType;
 import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.dataProcessing.BasicTrainingDataSurveyor;
+import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;

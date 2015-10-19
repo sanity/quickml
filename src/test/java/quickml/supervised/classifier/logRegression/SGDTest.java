@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
+import quickml.supervised.classifier.logisticRegression.SGD;
+import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 
 import java.util.*;
 
@@ -43,6 +45,39 @@ public class SGDTest {
         int j= 0;
         for(double value : result) {
            logger.info("value at index {}, {}",j, value);
+            j++;
+        }
+    }
+
+    @Test
+    public void testMinimize2Var() throws Exception {
+        List<SparseClassifierInstance> instances = new ArrayList<>();
+        AttributesMap attributesMap = new AttributesMap();
+        attributesMap.put("feature1", 1.0);
+        Map<String, Integer> nameToValueMap = new HashMap<>();
+        nameToValueMap.put("feature1", 0);
+
+        instances.add(new SparseClassifierInstance(attributesMap, 1.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+
+        SGD sgd = new SGD()
+                .maxEpochs(2000)
+                .minEpochs(100)
+                .costConvergenceThreshold(0.001)
+                .weightConvergenceThreshold(0.00001)
+                .learningRate(0.1)
+                .minibatchSize(4)
+                .useBoldDriver(false);
+
+
+        double[] result = sgd.minimize(instances, 1);
+        Assert.assertEquals(-1.098612, result[0], 1E-3);
+        //TODO: verify results
+        int j= 0;
+        for(double value : result) {
+            logger.info("value at index {}, {}",j, value);
             j++;
         }
     }

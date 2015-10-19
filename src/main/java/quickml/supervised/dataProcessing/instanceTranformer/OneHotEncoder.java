@@ -1,14 +1,14 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.InstanceFactory;
 import quickml.data.instances.InstanceWithAttributesMap;
-import quickml.supervised.tree.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.dataProcessing.AttributeCharacteristics;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import static quickml.supervised.classifier.logRegression.InstanceTransformerUtils.oneHotEncode;
+import static quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils.oneHotEncode;
 
 /**
  * Created by alexanderhawk on 10/14/15.

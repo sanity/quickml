@@ -1,8 +1,8 @@
-package quickml.supervised.tree.dataProcessing;
+package quickml.supervised.dataProcessing;
 
 import com.google.common.collect.Lists;
 import quickml.data.instances.Instance;
-import quickml.supervised.tree.dataProcessing.instanceTranformer.InstanceTransformer;
+import quickml.supervised.dataProcessing.instanceTranformer.InstanceTransformer;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class DataTransformer<I extends Instance, R extends Instance> {
         for (I instance : inputInstances) {
             transformedInput = doInput2InputTransformations(instance);
             if (input2ReturnTypeTransformer == null) {
-                transformedOutput = (R) instance;
+                transformedOutput = (R) transformedInput;
             } else {
                 transformedOutput = doInput2ReturnTypeTransformation(transformedInput);
                 transformedOutput = doReturnType2ReturnTypeTransformations(transformedOutput);

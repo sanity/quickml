@@ -3,6 +3,7 @@ package quickml.supervised.classifier.logRegression;
 import org.junit.Test;
 import quickml.data.AttributesMap;
 import quickml.data.instances.ClassifierInstance;
+import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class InstanceTransformerUtilsTest {
 
     @Test
     public void testGetAttributeProductCounts() throws Exception {
-        Map<String, Integer> map = InstanceTransformerUtils.getAttributeProductCounts(getInstances());
+        Map<String, Integer> map = null;//InstanceTransformerUtils.addProductAttributes(getInstances());
         assertEquals(2, (int) map.get("feature1-feature2"));
         assertEquals(1, (int) map.get("feature1-feature3"));
         assertEquals(1, (int) map.get("feature1-feature4"));

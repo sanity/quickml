@@ -1,8 +1,7 @@
 package quickml.data.instances;
 
 import quickml.data.AttributesMap;
-import quickml.data.instances.InstanceFactory;
-import quickml.supervised.classifier.logRegression.SparseClassifierInstance;
+import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 
 import java.io.Serializable;
 import java.util.Map;

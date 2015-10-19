@@ -39,7 +39,9 @@ public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
 
     public double getLossForModel(Map<String, Serializable> config) {
         dataCycler.reset();
-        modelBuilder.updateBuilderConfig(config);
+        if (config.size()!=0) {
+            modelBuilder.updateBuilderConfig(config);
+        }
         double loss = testModel();
         logger.info("Loss {} for config {}", loss, config.toString());
         return loss;

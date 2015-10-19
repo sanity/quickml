@@ -1,10 +1,9 @@
-package quickml.supervised.tree.dataProcessing.instanceTranformer;
+package quickml.supervised.dataProcessing.instanceTranformer;
 
 import quickml.data.AttributesMap;
 
 import quickml.data.instances.InstanceFactory;
 import quickml.data.instances.InstanceWithAttributesMap;
-import quickml.supervised.classifier.logRegression.InstanceTransformerUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -43,7 +42,7 @@ public class ProductFeatureAppender<L extends Serializable, I extends InstanceWi
         for (Map.Entry<String, Serializable> entry : rawAttributes.entrySet()) {
             attributesMap.put(entry.getKey(), entry.getValue());
         }
-        List<String> keys = InstanceTransformerUtils.getOrderedKeys(instance);
+        List<String> keys = null;//InstanceTransformerUtils.getOrderedKeys(instance);
         for (int i = 0; i < keys.size() - 1; i++) {
             String firstKey = keys.get(i);
             for (int j = i + 1; j < keys.size(); j++) {
