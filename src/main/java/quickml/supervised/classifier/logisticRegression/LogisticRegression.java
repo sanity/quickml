@@ -45,6 +45,7 @@ public class LogisticRegression extends AbstractClassifier {
     @Override
     public double getProbability(final AttributesMap attributes, final Serializable classification) {
         double dotProduct = 0;
+        dotProduct+=weights[0];
         for (String attribute : attributes.keySet()) {
                 int index = nameToIndexMap.get(attribute);
                 dotProduct += weights[index] * (Double)attributes.get(attribute);

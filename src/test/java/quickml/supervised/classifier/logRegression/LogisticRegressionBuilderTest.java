@@ -30,24 +30,26 @@ import java.util.List;
 public class LogisticRegressionBuilderTest {
     public static final Logger logger = LoggerFactory.getLogger(LogisticRegressionBuilderTest.class);
 
-    @Ignore //test takes too long
+    //@Ignore //test takes too long
     @Test
     public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
         LogisticRegressionDataTransformer logisticRegressionDataTransformer = new LogisticRegressionDataTransformer();
         boolean approximateOverlap = true;
-        boolean useProductFeatures = true;
+        boolean useProductFeatures = false;
         int minOverlap = 30;
         int minimumOccurencesOfAttribute = 45;
         List<SparseClassifierInstance> sparseClassifierInstances = logisticRegressionDataTransformer.transformInstances(instances, minimumOccurencesOfAttribute, minOverlap, approximateOverlap, useProductFeatures);
         LogisticRegressionBuilder logisticRegressionBuilder =  new LogisticRegressionBuilder(logisticRegressionDataTransformer.getNameToIndexMap());
         logisticRegressionBuilder.gradientDescent(new SGD()
                 .ridgeRegularizationConstant(0.00001)
-                .learningRate(.1).minibatchSize(1000)
+                .learningRate(.02).minibatchSize(1000)
                 .minEpochs(1000)
                 .maxEpochs(1000)
-                .useBoldDriver(true)
-                .learningRateReductionFactor(0.2))
+                .useBoldDriver(false)
+                .learningRateReductionFactor(0.2)
+                .executorThreadCount(4))
+
         ;
         CrossValidator  crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
@@ -75,9 +77,11 @@ public class LogisticRegressionBuilderTest {
         List<SparseClassifierInstance> sparseClassifierInstances = logisticRegressionDataTransformer.transformInstances(instances, 5, 10, approximateOverlap, useProductFeatures);
         LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder(logisticRegressionDataTransformer.getNameToIndexMap());
         logisticRegressionBuilder.gradientDescent(new SGD()
-                .maxGradientNorm(.3)
+                .executorThreadCount(4)
+                .sparseParallelization(true)
+                //.maxGradientNorm(.3)
 ///              .lassoRegularizationConstant(.001)
-                .ridgeRegularizationConstant(.0002)
+                .ridgeRegularizationConstant(1000)
                 .learningRate(.01).minibatchSize(9000)
                 .minEpochs(4000)
                 .maxEpochs(4000)

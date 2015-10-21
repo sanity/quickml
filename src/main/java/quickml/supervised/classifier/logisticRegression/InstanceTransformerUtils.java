@@ -14,6 +14,8 @@ import java.util.*;
  */
 public class InstanceTransformerUtils {
 
+    public static final String BIAS_TERM = "biasTerm";
+
     public static <I extends InstanceWithAttributesMap> List<I> addProductAttributes(List<I> trainingData, int minObservationsOfRawAttribute, int minOverlap, boolean approximateOverlap) {
         Set<String> pairableAttributes = getPairableAttributes(trainingData, minObservationsOfRawAttribute);
         Map<String, List<Integer>> invertedIndex = buildInvertedIndexOfAttributesToInstances(trainingData, pairableAttributes);
@@ -152,6 +154,8 @@ public class InstanceTransformerUtils {
             (List<T> trainingData) {
         HashMap<String, Integer> nameToIndexMap = Maps.newHashMap();
         int index = 0;
+        nameToIndexMap.put(BIAS_TERM, index);
+        index++;
         for (T instance : trainingData) {
             for (String key : instance.getAttributes().keySet()) {
                 if (!nameToIndexMap.containsKey(key)) {

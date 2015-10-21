@@ -11,7 +11,7 @@ import java.util.Map;
  * Created by alexanderhawk on 10/12/15.
  */
 public class SparseClassifierInstance extends ClassifierInstance {
-    private int[] indices;
+    private int[] indicesOfCorrespondingWeights;
     private double[] values;
 
     public SparseClassifierInstance(AttributesMap attributes, Serializable label, Map<String, Integer> nameToValueIndexMap) {
@@ -25,15 +25,19 @@ public class SparseClassifierInstance extends ClassifierInstance {
     }
 
     private void setIndicesAndValues(AttributesMap attributes, Map<String, Integer> nameToIndexMap) {
-        indices = new int[attributes.size()];
-        values = new double[attributes.size()];
-        int i = 0;
+        indicesOfCorrespondingWeights = new int[attributes.size()+1];
+        values = new double[attributes.size()+1];
+        //add bias term
+        indicesOfCorrespondingWeights[0] = 0;
+        values[0] = 1.0;
+        //add non bias terms
+        int i = 1;
         for (Map.Entry<String, Serializable> entry : attributes.entrySet()) {
             if (!(entry.getValue() instanceof Double)) {
                 throw new RuntimeException("wrong type of values in attributes");
             }
             int valueIndex = nameToIndexMap.get(entry.getKey());
-            indices[i] = valueIndex;
+            indicesOfCorrespondingWeights[i] = valueIndex;
             values[i] = (Double)entry.getValue();
             i++;
         }
@@ -45,13 +49,13 @@ public class SparseClassifierInstance extends ClassifierInstance {
     }
 
     public Pair<int[], double[]> getSparseAttributes(){
-        return new Pair<>(indices, values);
+        return new Pair<>(indicesOfCorrespondingWeights, values);
     }
 
     public double dotProduct(double[] omega) {
         double result = 0;
-        for (int i = 0; i< indices.length; i++) {
-            int indexOfFeature = indices[i];
+        for (int i = 0; i< indicesOfCorrespondingWeights.length; i++) {
+            int indexOfFeature = indicesOfCorrespondingWeights[i];
             double valueOfFeature = values[i];
             result+= omega[indexOfFeature]* valueOfFeature;
         }
