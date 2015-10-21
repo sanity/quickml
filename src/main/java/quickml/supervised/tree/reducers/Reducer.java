@@ -1,12 +1,10 @@
 package quickml.supervised.tree.reducers;
 
 import com.google.common.base.Optional;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by alexanderhawk on 4/16/15.

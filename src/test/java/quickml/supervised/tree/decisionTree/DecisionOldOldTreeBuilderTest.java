@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree;
 import com.beust.jcommander.internal.Lists;
 import org.junit.Assert;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.InstanceLoader;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTree;
 import quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgainst.OldTreeBuilder;

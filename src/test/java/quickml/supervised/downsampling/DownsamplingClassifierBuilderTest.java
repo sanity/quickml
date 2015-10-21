@@ -7,6 +7,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import quickml.collections.MapUtils;
 import quickml.data.*;
+import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.Instance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.classifier.Classifier;
@@ -18,7 +21,6 @@ import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDeci
 import quickml.supervised.tree.decisionTree.DecisionTree;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorerFactory;
-import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
 
 import java.io.IOException;
 import java.io.Serializable;

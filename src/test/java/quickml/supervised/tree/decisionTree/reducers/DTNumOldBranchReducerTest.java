@@ -1,24 +1,18 @@
 package quickml.supervised.tree.decisionTree.reducers;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.twitter.common.stats.ReservoirSampler;
 import org.junit.Assert;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
-import quickml.supervised.classifier.Classifier;
-import quickml.supervised.tree.branchFinders.SplittingUtils;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.branchFinders.SplittingUtilsTest;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by alexanderhawk on 6/25/15.

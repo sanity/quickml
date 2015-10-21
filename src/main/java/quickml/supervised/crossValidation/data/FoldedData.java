@@ -1,8 +1,6 @@
 package quickml.supervised.crossValidation.data;
 
 import com.google.common.collect.Lists;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
 
 import java.util.List;
 

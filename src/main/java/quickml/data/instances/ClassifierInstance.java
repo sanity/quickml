@@ -1,4 +1,6 @@
-package quickml.data;
+package quickml.data.instances;
+
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 

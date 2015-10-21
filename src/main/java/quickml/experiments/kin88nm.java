@@ -1,6 +1,6 @@
 package quickml.experiments;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 import quickml.utlities.selectors.NumericSelector;

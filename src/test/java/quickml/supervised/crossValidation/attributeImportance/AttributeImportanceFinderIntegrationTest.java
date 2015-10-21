@@ -4,7 +4,7 @@ package quickml.supervised.crossValidation.attributeImportance;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.InstanceLoader;
 

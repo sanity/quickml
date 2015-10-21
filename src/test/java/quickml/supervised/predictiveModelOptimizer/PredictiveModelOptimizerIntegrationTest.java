@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 
 import static quickml.supervised.tree.constants.ForestOptions.*;

@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree.valueCounters;
 import com.google.common.collect.Maps;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
 import java.io.Serializable;

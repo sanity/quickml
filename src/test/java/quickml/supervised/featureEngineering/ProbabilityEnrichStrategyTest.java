@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.featureEngineering1.AttributesEnricher;
 import quickml.supervised.featureEngineering1.enrichStrategies.probabilityInjector.ProbabilityEnrichStrategy;
 

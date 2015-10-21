@@ -1,21 +1,26 @@
 package quickml.supervised;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
-import quickml.supervised.tree.nodes.Node;
-import quickml.supervised.tree.summaryStatistics.ValueCounter;
-import quickml.supervised.tree.nodes.Branch;
+import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
+import quickml.supervised.dataProcessing.AttributeCharacteristics;
+import quickml.supervised.dataProcessing.BinaryAttributeCharacteristics;
+import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.LeafDepthStats;
+import quickml.supervised.tree.nodes.Node;
+import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -77,8 +82,8 @@ public class Utils {
         }
         return new PredictionMapResults(results);
     }
-    
-    public static <T extends InstanceWithAttributesMap<?>>void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {
+
+    public static <T extends InstanceWithAttributesMap<?>> void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {
         Collections.sort(trainingData, new Comparator<T>() {
             @Override
             public int compare(T o1, T o2) {
@@ -90,17 +95,15 @@ public class Utils {
     }
 
 
-
-    public static  <T> List<T> iterableToList(Iterable<T> trainingData) {
-        List<T> trainingDataList = Lists.newArrayList();
-        for (T instance : trainingData) {
-            trainingDataList.add(instance);
+    public static <T> List<T> iterableToList(Iterable<T> trainingData) {
+        if (trainingData instanceof List) {
+            return (List<T>) trainingData;
         }
-        return trainingDataList;
+        return Lists.newArrayList(trainingData);
     }
 
-    public static  <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
-       /**fly weight pattern */
+    public static <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
+        /**fly weight pattern */
         int firstIndexOfFalseSet = trainingData.size();
         int trialFirstIndexOfFalseSet = firstIndexOfFalseSet - 1;
 
@@ -140,7 +143,7 @@ public class Utils {
         trainingData.set(i, temp);
     }
 
-    public static class TrueFalsePair<T extends InstanceWithAttributesMap<?>>  {
+    public static class TrueFalsePair<T extends InstanceWithAttributesMap<?>> {
         public List<T> trueTrainingSet;
         public List<T> falseTrainingSet;
 
@@ -151,13 +154,117 @@ public class Utils {
     }
 
 
-    public static <VC extends ValueCounter<VC>>  double meanDepth(Node<VC> node) {
+    public static <VC extends ValueCounter<VC>> double meanDepth(Node<VC> node) {
         final LeafDepthStats stats = new LeafDepthStats();
         node.calcLeafDepthStats(stats);
         return (double) stats.ttlDepth / stats.ttlSamples;
     }
 
+    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanStdMaxMin> getMeanStdMaxMins(Map<String, AttributeCharacteristics> attributeCharacteristics,
+                                                                                                        List<I> instances) {
+        Map<String, MeanStdMaxMin> meansAndStds = Maps.newHashMap();
+        for (I instance : instances) {
+            AttributesMap attributes = instance.getAttributes();
+            for (String key : attributes.keySet()) {
+                if (attributeCharacteristics.get(key).isNumber) {
+                    if (!meansAndStds.containsKey(key)) {
+                        meansAndStds.put(key, new MeanStdMaxMin());
+                    }
+                    MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
+                    meanStdMaxMin.update(((Number) attributes.get(key)).doubleValue());
+                }
+            }
+        }
+        return meansAndStds;
+    }
 
+    public static <I extends InstanceWithAttributesMap<?>> Map<String, MeanStdMaxMin> getMeanStdMaxMins(List<I> instances) {
+        Map<String, MeanStdMaxMin> meansAndStds = Maps.newHashMap();
+        for (I instance : instances) {
+            AttributesMap attributes = instance.getAttributes();
+            for (String key : attributes.keySet()) {
+                    if (!meansAndStds.containsKey(key)) {
+                        meansAndStds.put(key, new MeanStdMaxMin());
+                    }
+                    MeanStdMaxMin meanStdMaxMin = meansAndStds.get(key);
+                    meanStdMaxMin.update(((Number) attributes.get(key)).doubleValue());
+            }
+        }
+        return meansAndStds;
+    }
 
+    public static class MeanStdMaxMin {
+        BigDecimal runningSum = new BigDecimal(0);
+        BigDecimal runningSumOfSquares = new BigDecimal(0);
+        double totalWeight = 0;
+        double mean = 0;
+        double max = 0;
+        double min = 0;
+        double std = 0;
+
+        public MeanStdMaxMin() {
+        }
+
+        public void update(double val) {
+            this.update(val, 1.0);
+        }
+
+        public void update(double val, double weight) {
+            BigDecimal bigVal = new BigDecimal(val);
+            runningSum = runningSum.add(bigVal);
+            BigDecimal augendSquared = bigVal.multiply(bigVal);
+            runningSumOfSquares = runningSumOfSquares.add(augendSquared);
+            totalWeight += weight;
+//            mean = runningSum / totalWeight;
+
+            if (max < val) {
+                max= val;
+            }
+            if (min > val) {
+                min = val;
+            }
+        }
+
+        public double getMean() {
+            return runningSum.divide(new BigDecimal(totalWeight), 3, BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+
+        public double getNonZeroStd() {
+
+            if (totalWeight ==0 ) {
+                return (getMaxMinMinusMin() == 0) ? 1.0 : getMaxMinMinusMin();
+            } else {
+                BigDecimal bigTotalWeight = new BigDecimal(totalWeight);
+                BigDecimal secondMoment = (runningSumOfSquares.divide(bigTotalWeight,  3, BigDecimal.ROUND_HALF_UP));
+                BigDecimal firstMoment = (runningSum.divide(bigTotalWeight,  3, BigDecimal.ROUND_HALF_UP));
+                BigDecimal firstMomentSquared  = firstMoment.multiply(firstMoment);
+                if (firstMomentSquared.equals(secondMoment)) {
+                    return getMaxMinMinusMin();
+                }
+                BigDecimal stdSquared = secondMoment.subtract(firstMomentSquared);
+                return (Math.sqrt(stdSquared.doubleValue()) == 0 ) ? 1.0 : Math.sqrt(stdSquared.doubleValue());            }
+        }
+
+        public double getMaxMinMinusMin(){
+            return max-min;
+        }
+    }
+
+    public static <T extends InstanceWithAttributesMap<?>>  Map<String, BinaryAttributeCharacteristics> getMapOfAttributesToBinaryAttributeCharacteristics(List<T> trainingData) {
+        Map<String, BinaryAttributeCharacteristics> attributeCharacteristics = Maps.newHashMap();
+
+        for (T instance : trainingData) {
+            for (Map.Entry<String, Serializable> e : instance.getAttributes().entrySet()) {
+                BinaryAttributeCharacteristics attributeCharacteristic = attributeCharacteristics.get(e.getKey());
+                if (attributeCharacteristic == null) {
+                    attributeCharacteristic = new BinaryAttributeCharacteristics();
+                    attributeCharacteristics.put(e.getKey(), attributeCharacteristic);
+                }
+
+                attributeCharacteristic.updateBinaryStatus((Double) e.getValue());
+            }
+        }
+        return attributeCharacteristics;
+    }
 }
 

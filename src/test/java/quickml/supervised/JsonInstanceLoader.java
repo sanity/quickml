@@ -2,7 +2,7 @@ package quickml.supervised;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.io.IOException;
 import java.io.Serializable;

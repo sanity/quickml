@@ -1,6 +1,6 @@
 package quickml.supervised.predictiveModelOptimizer;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.attributeImportance.LossFunctionTracker;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;

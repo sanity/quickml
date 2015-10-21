@@ -2,8 +2,8 @@ package quickml;
 
 import org.junit.Assert;
 import org.junit.Test;
-import quickml.data.ClassifierInstance;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.util.List;
 

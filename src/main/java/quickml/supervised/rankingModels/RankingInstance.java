@@ -1,10 +1,9 @@
 package quickml.supervised.rankingModels;
 
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * Created by alexanderhawk on 8/13/15.

@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.data.InstanceImpl;
+import quickml.data.instances.Instance;
+import quickml.data.instances.InstanceImpl;
 
 import java.io.Serializable;
 import java.util.List;

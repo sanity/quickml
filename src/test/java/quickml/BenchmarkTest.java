@@ -7,7 +7,7 @@ import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.Test;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.scorers.*;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.CrossValidator;
@@ -79,7 +79,7 @@ public class BenchmarkTest {
         treeBuilder.buildPredictiveModel(instances);
 
         double time1 = System.currentTimeMillis();
-        System.out.println("run time in seconds on numeric data set: " + (time1-time0)/1000);
+        System.out.println("run time in seconds on numeric data set: " + (time1 - time0) / 1000);
 
     }
 
@@ -97,44 +97,58 @@ public class BenchmarkTest {
         }
     }
 
-    private List<ClassifierInstance> loadDiabetesDataset() throws IOException {
+    public static List<ClassifierInstance> loadDiabetesDataset() {
         final InputStream br1 = BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz");
         byte[] byteArr = new byte[16];
-        br1.read(byteArr);
+        try {
+            br1.read(byteArr);
 
-        final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz")))));
-        final List<ClassifierInstance> instances = Lists.newLinkedList();
+            final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("diabetesDataset.txt.gz")))));
+            final List<ClassifierInstance> instances = Lists.newLinkedList();
 
 
-        String line = br.readLine();
-        while (line != null) {
-            String[] splitLine = line.split("\\s");
-            AttributesMap attributes = AttributesMap.newHashMap();
-            for (int x = 0; x < 8; x++) {
-                attributes.put("attr" + x, Double.parseDouble(splitLine[x]));
+            String line = br.readLine();
+            while (line != null) {
+                String[] splitLine = line.split("\\s");
+                AttributesMap attributes = AttributesMap.newHashMap();
+                for (int x = 0; x < 8; x++) {
+                    attributes.put("attr" + x, Double.parseDouble(splitLine[x]));
+                }
+                String stringLabel = splitLine[8];
+                double label = 0.0;
+                if (stringLabel.equals("class1")) {
+                    label = 1.0;
+                }
+                instances.add(new ClassifierInstance(attributes, label));
+                line = br.readLine();
             }
-            instances.add(new ClassifierInstance(attributes, splitLine[8]));
-            line = br.readLine();
-        }
 
-        return instances;
+            return instances;
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    private List<ClassifierInstance> loadMoboDataset() throws IOException {
-        final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("mobo1.json.gz")))));
-        final List<ClassifierInstance> instances = Lists.newLinkedList();
+    public static  List<ClassifierInstance> loadMoboDataset() {
+        try {
+            final BufferedReader br = new BufferedReader(new InputStreamReader((new GZIPInputStream(BenchmarkTest.class.getResourceAsStream("mobo1.json.gz")))));
+            final List<ClassifierInstance> instances = Lists.newLinkedList();
 
-        String line = br.readLine();
-        while (line != null) {
-            final JSONObject jo = (JSONObject) JSONValue.parse(line);
-            AttributesMap a = AttributesMap.newHashMap();
-            a.putAll((JSONObject) jo.get("attributes"));
-            String binaryClassification = jo.get("output").equals("none") ? "none" : "notNone";
-            instances.add(new ClassifierInstance(a, binaryClassification));
-            line = br.readLine();
+            String line = br.readLine();
+            while (line != null) {
+                final JSONObject jo = (JSONObject) JSONValue.parse(line);
+                AttributesMap a = AttributesMap.newHashMap();
+                a.putAll((JSONObject) jo.get("attributes"));
+                String binaryClassification = jo.get("output").equals("none") ? "none" : "notNone";
+                instances.add(new ClassifierInstance(a, binaryClassification));
+                line = br.readLine();
+            }
+            return instances;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return instances;
     }
 
     private DecisionTreeBuilder<ClassifierInstance> createTreeBuilder() {

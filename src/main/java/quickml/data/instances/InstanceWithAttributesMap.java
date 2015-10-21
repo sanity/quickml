@@ -1,46 +1,50 @@
-package quickml.data;
+package quickml.data.instances;
 
-import org.joda.time.DateTime;
+
+import quickml.data.AttributesMap;
 
 import java.io.Serializable;
 
-public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
+public class InstanceWithAttributesMap<L extends Serializable> implements Instance<AttributesMap, L> {
 
-    private static final long serialVersionUID = -932048363529904511L;
+    private AttributesMap attributes;
+    private L label;
+    private double weight;
 
-    protected static final double DEFAULT_WEIGHT = 1.0;
+    private InstanceWithAttributesMap() {
 
-    public InstanceImpl(final R attributes, final L label) {
-        this(attributes, label, DEFAULT_WEIGHT);
     }
 
-    public InstanceImpl(final R attributes, final L label, final double weight) {
+    public InstanceWithAttributesMap(AttributesMap attributes, L label) {
+        this(attributes, label, 1.0);
+    }
+
+    public InstanceWithAttributesMap(AttributesMap attributes, L label, double weight) {
         this.attributes = attributes;
         this.label = label;
         this.weight = weight;
     }
 
-    public R getAttributes() {
+    @Override
+    public AttributesMap getAttributes() {
         return attributes;
     }
 
+    @Override
     public L getLabel() {
         return label;
     }
 
+    @Override
     public double getWeight() {
         return weight;
     }
-
-    private R attributes;
-    private L label;
-    private double weight;
 
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final InstanceImpl instance = (InstanceImpl) o;
+        final InstanceWithAttributesMap<L> instance = (InstanceWithAttributesMap) o;
 
         if (Double.compare(instance.weight, weight) != 0) return false;
         if (!attributes.equals(instance.attributes)) return false;

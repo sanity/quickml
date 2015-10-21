@@ -8,7 +8,7 @@ import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.classifier.Classifier;
 
 import java.io.Serializable;

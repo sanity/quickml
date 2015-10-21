@@ -1,9 +1,8 @@
 package quickml.supervised.crossValidation;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
@@ -40,7 +39,9 @@ public class CrossValidator<PM extends PredictiveModel, T extends Instance> {
 
     public double getLossForModel(Map<String, Serializable> config) {
         dataCycler.reset();
-        modelBuilder.updateBuilderConfig(config);
+        if (config.size()!=0) {
+            modelBuilder.updateBuilderConfig(config);
+        }
         double loss = testModel();
         logger.info("Loss {} for config {}", loss, config.toString());
         return loss;

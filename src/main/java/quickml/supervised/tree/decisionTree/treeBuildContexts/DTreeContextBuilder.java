@@ -3,39 +3,37 @@ package quickml.supervised.tree.decisionTree.treeBuildContexts;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.attributeIgnoringStrategies.AttributeIgnoringStrategy;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
 import quickml.supervised.tree.branchFinders.BranchFinder;
 import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.branchFinders.branchFinderBuilders.BranchFinderBuilder;
-
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.constants.AttributeType;
+import quickml.supervised.tree.constants.BranchType;
+import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTBinaryCatBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTCatBranchFinderBuilder;
-import quickml.supervised.tree.dataExploration.DTreeTrainingDataSurveyor;
 import quickml.supervised.tree.decisionTree.branchFinders.branchFinderBuilders.DTNumBranchFinderBuilder;
 import quickml.supervised.tree.decisionTree.branchingConditions.DTBranchingConditions;
 import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTBinaryCatBranchReducerFactory;
 import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTCatBranchReducerFactory;
 import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTNumBranchReducerFactory;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedGiniImpurityScorerFactory;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounterProducer;
 import quickml.supervised.tree.nodes.LeafBuilder;
 import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.scorers.ScorerFactory;
 import quickml.supervised.tree.treeBuildContexts.TreeContextBuilder;
-import quickml.supervised.tree.constants.BranchType;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.*;
 
-import static quickml.supervised.tree.decisionTree.DecisionTreeBuilder.*;
-
 import static quickml.supervised.tree.constants.ForestOptions.*;
+import static quickml.supervised.tree.decisionTree.DecisionTreeBuilder.*;
 
 /**
  * Created by alexanderhawk on 6/20/15.
@@ -50,15 +48,15 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     @Override
     public DTreeContext<I> buildContext(List<I> trainingData) {
         boolean considerBooleanAttributes = hasBranchFinderBuilder(BranchType.BOOLEAN);
-        DTreeTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new DTreeTrainingDataSurveyor<>(considerBooleanAttributes);
+        BasicTrainingDataSurveyor<I> decTreeTrainingDataSurveyor = new BasicTrainingDataSurveyor<>(considerBooleanAttributes);
         Map<AttributeType, Set<String>> candidateAttributesByType = decTreeTrainingDataSurveyor.groupAttributesByType(trainingData);
         ClassificationCounter classificationCounts = getValueCounterProducer().getValueCounter(trainingData);
         List<BranchFinderAndReducerFactory<I, ClassificationCounter>> branchFinderAndReducers = intializeBranchFindersAndReducers(classificationCounts, candidateAttributesByType);
         return new DTreeContext<I>(classificationCounts.allClassifications(),
-                (BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name()),
-                (ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name()),
+                (BranchingConditions<ClassificationCounter>) config.get(BRANCHING_CONDITIONS.name()),
+                (ScorerFactory<ClassificationCounter>) config.get(SCORER_FACTORY.name()),
                 branchFinderAndReducers,
-                (LeafBuilder<ClassificationCounter>)config.get(LEAF_BUILDER.name()),
+                (LeafBuilder<ClassificationCounter>) config.get(LEAF_BUILDER.name()),
                 getValueCounterProducer());
     }
 
@@ -122,8 +120,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         return true;
     }
 
-    public static <I extends ClassifierInstance> Map<BranchType, ReducerFactory<I, ClassificationCounter>>  getDefaultReducerFactories(Serializable minorityClassification) {
-        Map<BranchType,  ReducerFactory<I, ClassificationCounter>> reducerFactories = Maps.newHashMap();
+    public static <I extends ClassifierInstance> Map<BranchType, ReducerFactory<I, ClassificationCounter>> getDefaultReducerFactories(Serializable minorityClassification) {
+        Map<BranchType, ReducerFactory<I, ClassificationCounter>> reducerFactories = Maps.newHashMap();
         reducerFactories.put(BranchType.BINARY_CATEGORICAL, new DTBinaryCatBranchReducerFactory<I>(minorityClassification));
         reducerFactories.put(BranchType.CATEGORICAL, new DTCatBranchReducerFactory<I>());
         reducerFactories.put(BranchType.NUMERIC, new DTNumBranchReducerFactory<I>());
@@ -186,7 +184,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
         }
     }
 
-    private ScorerFactory<ClassificationCounter> getDefaultScorerFactory(){
+    private ScorerFactory<ClassificationCounter> getDefaultScorerFactory() {
         return new PenalizedGiniImpurityScorerFactory(DEFAULT_DEGREE_OF_GAIN_RATIO_PENALTY, DEFAULT_IMBALANCE_PENALTY_POWER);
     }
 
@@ -204,7 +202,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(MIN_SLPIT_FRACTION.name(), config.get(MIN_SLPIT_FRACTION.name()));
         }
         if (config.containsKey(ATTRIBUTE_IGNORING_STRATEGY.name())) {
-            copiedConfig.put(ATTRIBUTE_IGNORING_STRATEGY.name(), ((AttributeIgnoringStrategy)config.get(ATTRIBUTE_IGNORING_STRATEGY.name())).copy());
+            copiedConfig.put(ATTRIBUTE_IGNORING_STRATEGY.name(), ((AttributeIgnoringStrategy) config.get(ATTRIBUTE_IGNORING_STRATEGY.name())).copy());
         }
         if (config.containsKey(NUM_SAMPLES_PER_NUMERIC_BIN.name())) {
             copiedConfig.put(NUM_SAMPLES_PER_NUMERIC_BIN.name(), config.get(NUM_SAMPLES_PER_NUMERIC_BIN.name()));
@@ -213,10 +211,10 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(NUM_NUMERIC_BINS.name(), config.get(NUM_NUMERIC_BINS.name()));
         }
         if (config.containsKey(BRANCHING_CONDITIONS.name())) {
-            copiedConfig.put(BRANCHING_CONDITIONS.name(), ((BranchingConditions<ClassificationCounter>)config.get(BRANCHING_CONDITIONS.name())).copy());
+            copiedConfig.put(BRANCHING_CONDITIONS.name(), ((BranchingConditions<ClassificationCounter>) config.get(BRANCHING_CONDITIONS.name())).copy());
         }
         if (config.containsKey(SCORER_FACTORY.name())) {
-            copiedConfig.put(SCORER_FACTORY.name(), ((ScorerFactory<ClassificationCounter>)config.get(SCORER_FACTORY.name())).copy());
+            copiedConfig.put(SCORER_FACTORY.name(), ((ScorerFactory<ClassificationCounter>) config.get(SCORER_FACTORY.name())).copy());
         }
         if (config.containsKey(DEGREE_OF_GAIN_RATIO_PENALTY.name())) {
             copiedConfig.put(DEGREE_OF_GAIN_RATIO_PENALTY.name(), config.get(DEGREE_OF_GAIN_RATIO_PENALTY.name()));
@@ -228,7 +226,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
             copiedConfig.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), config.get(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name()));
         }
         if (config.containsKey(LEAF_BUILDER.name())) {
-            copiedConfig.put(LEAF_BUILDER.name(), ((LeafBuilder<ClassificationCounter>)config.get(LEAF_BUILDER.name())).copy());
+            copiedConfig.put(LEAF_BUILDER.name(), ((LeafBuilder<ClassificationCounter>) config.get(LEAF_BUILDER.name())).copy());
         }
 
         if (config.containsKey(MIN_LEAF_INSTANCES.name())) {
@@ -256,7 +254,8 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public void leafBuilder(LeafBuilder<ClassificationCounter> leafBuilder) {
         config.put(LEAF_BUILDER.name(), leafBuilder);
     }
-   //doesn't have default
+
+    //doesn't have default
     public void ignoreAttributeProbability(double ignoreAttributeProbability) {
         config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), new IgnoreAttributesWithConstantProbability(ignoreAttributeProbability));
     }
@@ -277,6 +276,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public void attributeIgnoringStrategy(AttributeIgnoringStrategy attributeIgnoringStrategy) {
         config.put(ATTRIBUTE_IGNORING_STRATEGY.name(), attributeIgnoringStrategy);
     }
+
     //if not specified, the appropriate attrValIgnoringStrategy will be chosen when building BranchFinders
     public void attributeValueIgnoringStrategyBuilder(AttributeValueIgnoringStrategyBuilder<ClassificationCounter> attributeValueIgnoringStrategyBuilder) {
         config.put(ATTRIBUTE_VALUE_IGNORING_STRATEGY_BUILDER.name(), attributeValueIgnoringStrategyBuilder);
@@ -313,6 +313,7 @@ public class DTreeContextBuilder<I extends ClassifierInstance> extends TreeConte
     public void minAttributeValueOccurences(int minAttributeValueOccurences) {
         config.put(MIN_ATTRIBUTE_VALUE_OCCURRENCES.name(), minAttributeValueOccurences);
     }
+
     public void minScore(double minScore) {
         config.put(MIN_SCORE.name(), minScore);
     }

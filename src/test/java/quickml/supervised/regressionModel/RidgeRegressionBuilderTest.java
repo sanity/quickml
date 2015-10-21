@@ -5,8 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.Instance;
-import quickml.data.RidgeInstance;
+import quickml.data.instances.Instance;
+import quickml.data.instances.RidgeInstance;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModel;
 import quickml.supervised.regressionModel.LinearRegression.RidgeLinearModelBuilder;
 

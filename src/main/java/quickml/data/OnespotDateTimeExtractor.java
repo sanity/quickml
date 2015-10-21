@@ -2,6 +2,7 @@ package quickml.data;
 
 
 import org.joda.time.DateTime;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 

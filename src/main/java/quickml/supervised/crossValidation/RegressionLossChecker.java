@@ -1,7 +1,7 @@
 package quickml.supervised.crossValidation;
 
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.Utils;
 import quickml.supervised.crossValidation.lossfunctions.regressionLossFunctions.RegressionLossFunction;

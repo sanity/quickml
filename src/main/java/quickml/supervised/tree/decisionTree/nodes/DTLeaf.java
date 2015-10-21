@@ -3,7 +3,7 @@ package quickml.supervised.tree.decisionTree.nodes;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.Leaf;

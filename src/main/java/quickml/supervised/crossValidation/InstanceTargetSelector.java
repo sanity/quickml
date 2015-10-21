@@ -1,7 +1,7 @@
 
 package quickml.supervised.crossValidation;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.Serializable;
 

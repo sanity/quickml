@@ -3,7 +3,7 @@ package quickml.supervised.ensembles.randomForest.randomDecisionForest;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.PredictionMap;
 import quickml.supervised.ensembles.randomForest.RandomForestBuilder;
 import quickml.supervised.tree.decisionTree.DecisionTree;

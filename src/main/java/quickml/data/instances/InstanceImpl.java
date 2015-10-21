@@ -1,48 +1,44 @@
-package quickml.data;
-
+package quickml.data.instances;
 
 import java.io.Serializable;
 
-public class InstanceWithAttributesMap<L extends Serializable> implements Instance<AttributesMap, L> {
+public class InstanceImpl<R, L> implements Instance<R, L>, Serializable {
 
-    private AttributesMap attributes;
-    private L label;
-    private double weight;
+    private static final long serialVersionUID = -932048363529904511L;
 
-    private InstanceWithAttributesMap() {
+    protected static final double DEFAULT_WEIGHT = 1.0;
 
+    public InstanceImpl(final R attributes, final L label) {
+        this(attributes, label, DEFAULT_WEIGHT);
     }
 
-    public InstanceWithAttributesMap(AttributesMap attributes, L label) {
-        this(attributes, label, 1.0);
-    }
-
-    public InstanceWithAttributesMap(AttributesMap attributes, L label, double weight) {
+    public InstanceImpl(final R attributes, final L label, final double weight) {
         this.attributes = attributes;
         this.label = label;
         this.weight = weight;
     }
 
-    @Override
-    public AttributesMap getAttributes() {
+    public R getAttributes() {
         return attributes;
     }
 
-    @Override
     public L getLabel() {
         return label;
     }
 
-    @Override
     public double getWeight() {
         return weight;
     }
+
+    private R attributes;
+    private L label;
+    private double weight;
 
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final InstanceWithAttributesMap<L> instance = (InstanceWithAttributesMap) o;
+        final InstanceImpl instance = (InstanceImpl) o;
 
         if (Double.compare(instance.weight, weight) != 0) return false;
         if (!attributes.equals(instance.attributes)) return false;

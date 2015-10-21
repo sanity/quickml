@@ -2,7 +2,7 @@
 package quickml.supervised.crossValidation;
 
 import quickml.supervised.Utils;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 

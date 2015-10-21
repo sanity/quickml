@@ -2,10 +2,9 @@ package quickml.supervised.tree;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
 import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
-import quickml.supervised.tree.decisionTree.reducers.reducerFactories.DTBinaryCatBranchReducerFactory;
 import quickml.supervised.tree.reducers.Reducer;
 import quickml.supervised.tree.reducers.ReducerFactory;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;

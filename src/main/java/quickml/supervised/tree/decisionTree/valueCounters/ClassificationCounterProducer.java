@@ -1,6 +1,6 @@
 package quickml.supervised.tree.decisionTree.valueCounters;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
 
 import java.util.List;

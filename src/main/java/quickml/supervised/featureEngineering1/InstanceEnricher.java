@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering1;
 
 import com.google.common.base.Function;
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import javax.annotation.Nullable;
 import java.util.List;

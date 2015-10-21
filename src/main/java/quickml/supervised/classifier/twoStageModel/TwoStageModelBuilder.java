@@ -1,8 +1,7 @@
 package quickml.supervised.classifier.twoStageModel;
 
 import com.google.common.collect.Lists;
-import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 

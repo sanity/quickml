@@ -1,7 +1,6 @@
-package quickml.data;
+package quickml.data.instances;
 
-import org.joda.time.DateTime;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 import java.io.Serializable;
 

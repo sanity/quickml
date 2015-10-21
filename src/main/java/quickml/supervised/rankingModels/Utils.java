@@ -4,11 +4,7 @@ package quickml.supervised.rankingModels;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**

@@ -2,7 +2,7 @@ package quickml.supervised.featureEngineering1.enrichStrategies.probabilityInjec
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.featureEngineering1.AttributesEnrichStrategy;
 import quickml.supervised.featureEngineering1.AttributesEnricher;
 

@@ -1,6 +1,6 @@
 package quickml.supervised.tree.decisionTree.treeBuildContexts;
 
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.branchFinders.BranchFinderAndReducerFactory;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;

@@ -6,11 +6,10 @@ import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
 import quickml.InstanceLoader;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorer;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorerFactory;
 
 import java.util.LinkedList;

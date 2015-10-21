@@ -2,8 +2,7 @@ package quickml.supervised.inspection;
 
 import com.google.common.collect.*;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
-import quickml.supervised.tree.TreeBuilderHelper;
+import quickml.data.instances.Instance;
 import quickml.supervised.tree.constants.MissingValue;
 
 import java.io.Serializable;

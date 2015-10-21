@@ -5,11 +5,8 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
-import quickml.data.Instance;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
 
-import java.io.Serializable;
 import java.text.*;
 import java.util.Date;
 

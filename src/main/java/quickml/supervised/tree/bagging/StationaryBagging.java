@@ -2,8 +2,7 @@ package quickml.supervised.tree.bagging;
 
 import com.google.common.collect.Lists;
 import quickml.collections.MapUtils;
-import quickml.data.InstanceWithAttributesMap;
-import quickml.supervised.tree.bagging.Bagging;
+import quickml.data.instances.InstanceWithAttributesMap;
 
 import java.io.Serializable;
 import java.util.HashSet;

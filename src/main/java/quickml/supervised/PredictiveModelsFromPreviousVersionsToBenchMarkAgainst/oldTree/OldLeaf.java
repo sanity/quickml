@@ -3,7 +3,7 @@ package quickml.supervised.PredictiveModelsFromPreviousVersionsToBenchMarkAgains
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import quickml.data.AttributesMap;
-import quickml.data.ClassifierInstance;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.IOException;
 import java.io.Serializable;
