@@ -45,14 +45,18 @@ public class LogisticRegression extends AbstractClassifier {
     @Override
     public double getProbability(final AttributesMap attributes, final Serializable classification) {
         double dotProduct = 0;
-        dotProduct+=weights[0];
+        dotProduct += weights[0];
         for (String attribute : attributes.keySet()) {
-                int index = nameToIndexMap.get(attribute);
-                dotProduct += weights[index] * (Double)attributes.get(attribute);
-            }
-        return MathUtils.sigmoid(dotProduct);
-    }
+            int index = nameToIndexMap.get(attribute);
+            dotProduct += weights[index] * (Double) attributes.get(attribute);
+        }
+        if ((double)classification == 1.0) {
+            return MathUtils.sigmoid(dotProduct);
+        } else {
+            return 1.0-MathUtils.sigmoid(dotProduct);
 
+        }
+    }
 
     @Override
     public PredictionMap predict(final AttributesMap attributes) {

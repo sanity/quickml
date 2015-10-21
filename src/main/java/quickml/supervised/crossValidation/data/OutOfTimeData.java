@@ -130,6 +130,9 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         }
     }
 
+    public DateTime firstTimeOfValidationSet(){
+        return dateTimeExtractor.extractDateTime(validationSet.get(0));
+    }
 
     private void sortData() {
         Collections.sort(allData, new Comparator<I>() {

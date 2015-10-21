@@ -339,7 +339,7 @@ public class SGD implements GradientDescent {
                 currentStartIndex += lowerSamplesPerThread;
             }
         }
-        threadStartIndices[executorThreadCount] = currentMiniBatchSize + currentMiniBatchSize;
+        threadStartIndices[executorThreadCount] = miniBatchStartIndex + currentMiniBatchSize;
         return threadStartIndices;
 
     }

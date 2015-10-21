@@ -17,6 +17,7 @@ import quickml.supervised.crossValidation.CrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.classifier.logisticRegression.LogisticRegressionDataTransformer;
@@ -30,7 +31,7 @@ import java.util.List;
 public class LogisticRegressionBuilderTest {
     public static final Logger logger = LoggerFactory.getLogger(LogisticRegressionBuilderTest.class);
 
-    //@Ignore //test takes too long
+    @Ignore //test takes too long
     @Test
     public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
@@ -42,15 +43,16 @@ public class LogisticRegressionBuilderTest {
         List<SparseClassifierInstance> sparseClassifierInstances = logisticRegressionDataTransformer.transformInstances(instances, minimumOccurencesOfAttribute, minOverlap, approximateOverlap, useProductFeatures);
         LogisticRegressionBuilder logisticRegressionBuilder =  new LogisticRegressionBuilder(logisticRegressionDataTransformer.getNameToIndexMap());
         logisticRegressionBuilder.gradientDescent(new SGD()
-                .ridgeRegularizationConstant(0.00001)
-                .learningRate(.02).minibatchSize(1000)
-                .minEpochs(1000)
-                .maxEpochs(1000)
-                .useBoldDriver(false)
-                .learningRateReductionFactor(0.2)
-                .executorThreadCount(4))
-
-        ;
+                        .ridgeRegularizationConstant(0.0003)
+                        .learningRate(.0025).minibatchSize(3000)
+                        .minEpochs(8000)
+                        .maxEpochs(8000)
+                        .useBoldDriver(false)
+                        .learningRateReductionFactor(0.2)
+                        .executorThreadCount(8)
+                        .minPredictedProbablity(1E-3)
+                        .sparseParallelization(false)
+        );
         CrossValidator  crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
                         new OutOfTimeData<SparseClassifierInstance>(sparseClassifierInstances, 0.25, 48, new OnespotNormalizedDateTimeExtractor(logisticRegressionDataTransformer.getMeanStdMaxMins())));
@@ -69,25 +71,23 @@ public class LogisticRegressionBuilderTest {
     @Test
     public void testDiabetesInstances() {
         //need a builder
-        List<ClassifierInstance> instances = null;//InstanceLoader.getAdvertisingInstances();
-        instances = BenchmarkTest.loadDiabetesDataset();
+        List<ClassifierInstance> instances = BenchmarkTest.loadDiabetesDataset();
         LogisticRegressionDataTransformer logisticRegressionDataTransformer = new LogisticRegressionDataTransformer();
         boolean approximateOverlap = true;
-        boolean useProductFeatures = false;
+        boolean useProductFeatures = true;
         List<SparseClassifierInstance> sparseClassifierInstances = logisticRegressionDataTransformer.transformInstances(instances, 5, 10, approximateOverlap, useProductFeatures);
         LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder(logisticRegressionDataTransformer.getNameToIndexMap());
         logisticRegressionBuilder.gradientDescent(new SGD()
                 .executorThreadCount(4)
-                .sparseParallelization(true)
-                //.maxGradientNorm(.3)
-///              .lassoRegularizationConstant(.001)
-                .ridgeRegularizationConstant(1000)
-                .learningRate(.01).minibatchSize(9000)
-                .minEpochs(4000)
-                .maxEpochs(4000)
+                .sparseParallelization(false)
+                .ridgeRegularizationConstant(.1)
+                .learningRate(.001)
+                .minibatchSize(600)
+                .minEpochs(16000)
+                .maxEpochs(16000)
                 .useBoldDriver(false)
-                .learningRateReductionFactor(0.2));
-        ClassifierLossFunction lossFunction = new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
+                .learningRateReductionFactor(0.01));
+        ClassifierLossFunction lossFunction = new ClassifierRMSELossFunction();//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
         CrossValidator crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(lossFunction),
                 new FoldedData(sparseClassifierInstances, 4, 4));
