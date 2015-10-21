@@ -1,6 +1,7 @@
 package quickml.supervised.classifier.logisticRegression;
 
-import javafx.util.Pair;
+import org.javatuples.Pair;
+
 import quickml.data.AttributesMap;
 import quickml.data.instances.ClassifierInstance;
 

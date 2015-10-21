@@ -3,7 +3,7 @@ package quickml.supervised.classifier.logisticRegression;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import javafx.util.Pair;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -503,9 +503,11 @@ public class SGD implements GradientDescent {
                                                             SparseClassifierInstance instance) {
         //could do this with a map for truly sparse instances...but
         double postiveClassProbability = probabilityOfThePositiveClass(weights, instance);
+
+
         Pair<int[], double[]> sparseAttributes = instance.getSparseAttributes();
-        int[] indices = sparseAttributes.getKey();
-        double[] values = sparseAttributes.getValue();
+        int[] indices = sparseAttributes.getValue0();
+        double[] values = sparseAttributes.getValue1();
         for (int i = 0; i < indices.length; i++) {
             int featureIndex = indices[i];
             contributionsToTheGradient.addTo(featureIndex, gradientContributionOfAFeatureValue((Double) instance.getLabel(), postiveClassProbability, values[i]));
@@ -521,8 +523,8 @@ public class SGD implements GradientDescent {
         //could do this with a map for truly sparse instances...but
         double postiveClassProbability = probabilityOfThePositiveClass(weights, instance);
         Pair<int[], double[]> sparseAttributes = instance.getSparseAttributes();
-        int[] indices = sparseAttributes.getKey();
-        double[] values = sparseAttributes.getValue();
+        int[] indices = sparseAttributes.getValue0();
+        double[] values = sparseAttributes.getValue1();
         for (int i = 0; i < indices.length; i++) {
             int featureIndex = indices[i];
             contributionsToTheGradient[featureIndex] += gradientContributionOfAFeatureValue((Double) instance.getLabel(), postiveClassProbability, values[i]);
