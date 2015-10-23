@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.ClassifierInstanceFactory;
 import quickml.supervised.Utils;
-import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
-import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 import quickml.supervised.dataProcessing.AttributeCharacteristics;
 import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
 import quickml.supervised.dataProcessing.DataTransformer;
@@ -20,15 +18,46 @@ import java.util.Map;
  * Created by alexanderhawk on 10/14/15.
  */
 public class LogisticRegressionDataTransformer {
+    /**
+     * class provides the method: transformInstances, to convert a set of classifier instances into instances that can be processed by
+     * the LogisticRegressionBuilder.
+     *
+     * it assumes that all attributes with numeric values are numeric, and are not in need of one hot encoding.
+    */
+
 
     private OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance> oneHotEncoder;
-    private ProductFeatureAppender<Serializable, ClassifierInstance, ClassifierInstance> productFeatureAppender;
+    private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
     private BinaryAndNumericAttributeNormalizer<Serializable, ClassifierInstance, ClassifierInstance> normalizer;
     private LabelToDigitConverter<Serializable, ClassifierInstance, ClassifierInstance> labelToDigitConverter;
     private ClassifierInstance2SparseClassifierInstance<Serializable, ClassifierInstance>  inputType2ReturnTypeTransformer;
+    private boolean useProductFeatures = false;
 
+    public void setProductFeatureAppender(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+        this.productFeatureAppender = productFeatureAppender;
+    }
 
-    public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData, int minimumOccurencesOfAttribute, int minOverlap, boolean approximateOverlap, boolean useProductFeatures){
+    public LogisticRegressionDataTransformer() {
+/**one needs to set useProductFeatures if this appender is to be put to use*/         productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>().setMinObservationsOfRawAttribute(10).setAllowCategoricalProductFeatures(true)
+        .setAllowNumericProductFeatures(true)
+        .setApproximateOverlap(true)
+        .setMinOverlap(20);
+    }
+
+    public LogisticRegressionDataTransformer(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+        this.productFeatureAppender = productFeatureAppender;
+    }
+
+    public LogisticRegressionDataTransformer(boolean useProductFeatures) {
+        this.useProductFeatures = useProductFeatures;
+    }
+
+    public LogisticRegressionDataTransformer useProductFeatures(boolean useProductFeatures) {
+        this.useProductFeatures = useProductFeatures;
+        return this;
+    }
+
+    public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
         oneHotEncoder = getOneHotEncoder(trainingData);
         labelToDigitConverter = getLabelToDigitConverter(trainingData);
@@ -40,13 +69,8 @@ public class LogisticRegressionDataTransformer {
 
         List<ClassifierInstance> instancesToNormalize;
         if (useProductFeatures) {
-            productFeatureAppender = getProductFeatureAppender(oneHotEncoded, minimumOccurencesOfAttribute);
-            input2InputTransformations = Lists.newArrayList();
-            input2InputTransformations.add(productFeatureAppender);
-            dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
-                    input2InputTransformations, null);
-            instancesToNormalize = InstanceTransformerUtils.addProductAttributes(oneHotEncoded, minimumOccurencesOfAttribute, minOverlap, approximateOverlap);
-        } else {
+            instancesToNormalize = productFeatureAppender.addProductAttributes(oneHotEncoded);
+        }  else {
             instancesToNormalize = oneHotEncoded;
         }
 
@@ -89,10 +113,6 @@ public class LogisticRegressionDataTransformer {
                 return false;//key.contains("timeOfArrival-");
             }
         });
-    }
-
-    static ProductFeatureAppender<Serializable, ClassifierInstance, ClassifierInstance>  getProductFeatureAppender(List<ClassifierInstance> trainingData, int minimumCount) {
-        return null;//new ProductFeatureAppender<>( productFeatureCounts, new ClassifierInstanceFactory(), minimumCount);
     }
 
     static OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance>  getOneHotEncoder(List<ClassifierInstance> trainingData) {

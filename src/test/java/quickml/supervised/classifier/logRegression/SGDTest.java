@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.MathUtils;
 import quickml.data.AttributesMap;
 import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
 import quickml.supervised.classifier.logisticRegression.SGD;
@@ -26,41 +27,8 @@ import static org.junit.Assert.*;
 public class SGDTest {
     private  static final Logger logger = LoggerFactory.getLogger(SGDTest.class);
 
-    @Ignore("was valid when we had no bias term in the logistic regression implementation. ")
     @Test
-    public void testMinimize() throws Exception {
-        List<SparseClassifierInstance> instances = new ArrayList<>();
-        AttributesMap attributesMap = new AttributesMap();
-        attributesMap.put("feature1", 1.0);
-        Map<String, Integer> nameToValueMap = new HashMap<>();
-        nameToValueMap.put(InstanceTransformerUtils.BIAS_TERM, 0);
-        nameToValueMap.put("feature1", 1);
-
-        instances.add(new SparseClassifierInstance(attributesMap, 1.0, nameToValueMap));
-        instances.add(new SparseClassifierInstance(attributesMap, 1.0, nameToValueMap));
-        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
-        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
-
-        SGD sgd = new SGD()
-                .maxEpochs(10000)
-                .minEpochs(10)
-                .costConvergenceThreshold(0.001)
-                .weightConvergenceThreshold(0.0001)
-                .learningRate(0.1)
-                .minibatchSize(4);
-
-        double[] result = sgd.minimize(instances, 1);
-        Assert.assertEquals(0.0, result[0], 10E-7);
-        //TODO: verify results
-        int j= 0;
-        for(double value : result) {
-           logger.info("value at index {}, {}",j, value);
-            j++;
-        }
-    }
-
-    @Test
-    public void testMinimize2Var() throws Exception {
+    public void testMinimizeNoRegularization() throws Exception {
         List<SparseClassifierInstance> instances = new ArrayList<>();
         AttributesMap attributesMap = new AttributesMap();
         attributesMap.put("feature1", 1.0);
@@ -85,6 +53,44 @@ public class SGDTest {
 
         double[] result = sgd.minimize(instances, 2);
         Assert.assertEquals(-1.098612, result[0]+result[1], 1E-3);
+        //TODO: verify results
+        int j= 0;
+        for(double value : result) {
+            logger.info("value at index {}, {}",j, value);
+            j++;
+        }
+    }
+
+    @Test
+    public void testMinimizeVarWithRidge() throws Exception {
+        List<SparseClassifierInstance> instances = new ArrayList<>();
+        AttributesMap attributesMap = new AttributesMap();
+        attributesMap.put("feature1", 1.0);
+        Map<String, Integer> nameToValueMap = new HashMap<>();
+        nameToValueMap.put(InstanceTransformerUtils.BIAS_TERM, 0);
+        nameToValueMap.put("feature1", 1);
+
+        instances.add(new SparseClassifierInstance(attributesMap, 1.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+        instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
+
+        SGD sgd = new SGD()
+                .maxEpochs(4000)
+                .minEpochs(300)
+                .costConvergenceThreshold(0.001)
+                .weightConvergenceThreshold(0.00001)
+                .learningRate(0.05)
+                .minibatchSize(4)
+                .useBoldDriver(false)
+                .ridgeRegularizationConstant(1)
+                .sparseParallelization(true);
+
+
+
+        double[] result = sgd.minimize(instances, 2);
+        double derivativeOfCostFunction = 4 * MathUtils.sigmoid(result[0] + result[1]) - 1 + result[1];
+        Assert.assertEquals(0.0, derivativeOfCostFunction, 1E-3);
         //TODO: verify results
         int j= 0;
         for(double value : result) {

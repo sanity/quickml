@@ -62,7 +62,7 @@ public class SGD implements GradientDescent {
     private double minPredictedProbablity = 10E-6;
     private double learningRateReductionFactor = 0.5;
     private double learningRateBoostFactor = 1.07;
-    private boolean useBoldDriver = true;
+    private boolean useBoldDriver = false;
     private double expectedFractionOfFeaturesToUpdatePerWorker = 1.0;
     private int minInstancesForParrellization = 100;
     private boolean sparseParallelization = true;
