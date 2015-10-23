@@ -155,6 +155,14 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         return predict(input);
     }
 
+    public double predictIfInterpolation(double input) {
+        if (input < calibrationSet.first().input || input>calibrationSet.last().input) {
+            return input;
+        } else {
+            return predict(input);
+        }
+    }
+
     @Override
     public Double predict(Double input) {
         Preconditions.checkState(!calibrationSet.isEmpty());
@@ -215,8 +223,6 @@ public class PoolAdjacentViolatorsModel implements SingleVariableRealValuedFunct
         double corrected = (floor.output*floorWeight + ceiling.output*ceilingWeight)/(floorWeight + ceilingWeight);
 
 
-     // kProp = (input - floor.input) / (ceiling.input - floor.input);
-     //   double corrected = floor.output + ((ceiling.output - floor.output) * kProp);
         if (Double.isInfinite(corrected) || Double.isNaN(corrected)) {
             logger.info("corrected is NaN or inf");
             return input;
