@@ -25,16 +25,22 @@ public class LogisticRegressionDataTransformer {
      * it assumes that all attributes with numeric values are numeric, and are not in need of one hot encoding.
     */
 
-
     private OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance> oneHotEncoder;
     private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
     private BinaryAndNumericAttributeNormalizer<Serializable, ClassifierInstance, ClassifierInstance> normalizer;
     private LabelToDigitConverter<Serializable, ClassifierInstance, ClassifierInstance> labelToDigitConverter;
     private ClassifierInstance2SparseClassifierInstance<Serializable, ClassifierInstance>  inputType2ReturnTypeTransformer;
     private boolean useProductFeatures = false;
+    private int minObservationsOfAttribute;
 
-    public void setProductFeatureAppender(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+    public LogisticRegressionDataTransformer productFeatureAppender(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
         this.productFeatureAppender = productFeatureAppender;
+        return this;
+    }
+
+    public LogisticRegressionDataTransformer minObservationsOfAttribute(int minObservationsOfAttribute) {
+        this.minObservationsOfAttribute = minObservationsOfAttribute;
+        return this;
     }
 
     public LogisticRegressionDataTransformer() {
@@ -59,13 +65,16 @@ public class LogisticRegressionDataTransformer {
 
     public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
-        oneHotEncoder = getOneHotEncoder(trainingData);
         labelToDigitConverter = getLabelToDigitConverter(trainingData);
-        input2InputTransformations.add(oneHotEncoder);
         input2InputTransformations.add(labelToDigitConverter);
         DataTransformer<ClassifierInstance, ClassifierInstance> dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
                 input2InputTransformations, null);
-        List<ClassifierInstance> oneHotEncoded = dataTransformer.transformInstances(trainingData);
+        List<ClassifierInstance> relabeled = dataTransformer.transformInstances(trainingData);
+
+        oneHotEncoder = getOneHotEncoder(relabeled, minObservationsOfAttribute);
+        List<ClassifierInstance> oneHotEncoded = oneHotEncoder.transformAll(relabeled);
+
+
 
         List<ClassifierInstance> instancesToNormalize;
         if (useProductFeatures) {
@@ -115,10 +124,10 @@ public class LogisticRegressionDataTransformer {
         });
     }
 
-    static OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance>  getOneHotEncoder(List<ClassifierInstance> trainingData) {
+    static OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance>  getOneHotEncoder(List<ClassifierInstance> trainingData, int minObservationsOfAttribute) {
         BasicTrainingDataSurveyor<ClassifierInstance> btds = new BasicTrainingDataSurveyor<ClassifierInstance>(false);
         Map<String, AttributeCharacteristics> attributeCharacteristics = btds.getMapOfAttributesToAttributeCharacteristics(trainingData);
-        return new OneHotEncoder<>(attributeCharacteristics, new ClassifierInstanceFactory());
+        return new OneHotEncoder<>(attributeCharacteristics, new ClassifierInstanceFactory(), minObservationsOfAttribute);
     }
 
 

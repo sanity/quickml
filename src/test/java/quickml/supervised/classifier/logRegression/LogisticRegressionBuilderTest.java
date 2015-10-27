@@ -45,23 +45,27 @@ public class LogisticRegressionBuilderTest {
                 .setMinOverlap(20)
                 .setIgnoreAttributesCommonToAllInsances(true);
 
-        LogisticRegressionDataTransformer logisticRegressionDataTransformer = new LogisticRegressionDataTransformer(productFeatureAppender);
+        LogisticRegressionDataTransformer logisticRegressionDataTransformer = new LogisticRegressionDataTransformer(productFeatureAppender).minObservationsOfAttribute(10).useProductFeatures(false);
         List<SparseClassifierInstance> sparseClassifierInstances = logisticRegressionDataTransformer.transformInstances(instances);
         LogisticRegressionBuilder logisticRegressionBuilder =  new LogisticRegressionBuilder(logisticRegressionDataTransformer.getNameToIndexMap());
         logisticRegressionBuilder.calibrateWithPoolAdjacentViolators(true).gradientDescent(new SGD()
                         .ridgeRegularizationConstant(0.1)
                         .learningRate(.0025)
                         .minibatchSize(3000)
-                        .minEpochs(256000)
-                        .maxEpochs(256000)
+                        .minEpochs(36000)
+                        .maxEpochs(36000)
                         .minPredictedProbablity(1E-3)
                         .sparseParallelization(true)
         );
+        double start = System.nanoTime();
         CrossValidator  crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
                         new OutOfTimeData<SparseClassifierInstance>(sparseClassifierInstances, 0.25, 48, new OnespotNormalizedDateTimeExtractor(logisticRegressionDataTransformer.getMeanStdMaxMins())));
 
-        logger.info("LR out of time loss: {}", crossValidator.getLossForModel());
+        double lossForSGD = crossValidator.getLossForModel();
+        double stop = System.nanoTime();
+
+        logger.info("LR out of time loss: {}, in {} nanoseconds", lossForSGD, stop-start);
 
         RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(new DecisionTreeBuilder<>().minAttributeValueOccurences(2).maxDepth(12).minLeafInstances(0).minSplitFraction(.005).ignoreAttributeProbability(0.5)).numTrees(64);
            crossValidator = new CrossValidator(randomDecisionForestBuilder,
@@ -94,7 +98,7 @@ public class LogisticRegressionBuilderTest {
                 .maxEpochs(32000)
                 .useBoldDriver(false)
                 .learningRateReductionFactor(0.01));
-        ClassifierLossFunction lossFunction = new ClassifierLogCVLossFunction(1E-6);//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
+        ClassifierLossFunction lossFunction = new WeightedAUCCrossValLossFunction(1.0);//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
         CrossValidator crossValidator = new CrossValidator(logisticRegressionBuilder,
                 new ClassifierLossChecker(lossFunction),
                 new FoldedData(sparseClassifierInstances, 4, 4));
