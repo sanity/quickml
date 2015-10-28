@@ -23,6 +23,11 @@ public class LogisticRegressionDataTransformer {
      * the LogisticRegressionBuilder.
      *
      * it assumes that all attributes with numeric values are numeric, and are not in need of one hot encoding.
+     * product feature appendation as well as common co-occurences should be hyper-params within logistic regression.
+     *
+     */
+    /*Options, wrap logistic regression? in a new logistic regression class that has a logistic reg transformer?
+            * Or change sparse classifier instance as the the type of Logistic Regression?  I almost prefer this.  So now to use it...one just passes in a normal list of training instances
     */
 
     private OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance> oneHotEncoder;
@@ -44,7 +49,8 @@ public class LogisticRegressionDataTransformer {
     }
 
     public LogisticRegressionDataTransformer() {
-/**one needs to set useProductFeatures if this appender is to be put to use*/         productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>().setMinObservationsOfRawAttribute(10).setAllowCategoricalProductFeatures(true)
+/**one needs to set useProductFeatures if this appender is to be put to use*/
+        productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>().setMinObservationsOfRawAttribute(10).setAllowCategoricalProductFeatures(true)
         .setAllowNumericProductFeatures(true)
         .setApproximateOverlap(true)
         .setMinOverlap(20);
