@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 7/8/15.
  */
-public class CrossValidatorIntegrationTest {
+public class SimpleCrossValidatorIntegrationTest {
 
     private List<ClassifierInstance> instances;
 
@@ -31,7 +31,7 @@ public class CrossValidatorIntegrationTest {
         System.out.println("\n \n \n new  attrImportanceTest");
         DecisionTreeBuilder<ClassifierInstance> modelBuilder = new DecisionTreeBuilder<ClassifierInstance>().scorerFactory(new GRPenalizedGiniImpurityScorerFactory()).maxDepth(16).minLeafInstances(0).minAttributeValueOccurences(11).attributeIgnoringStrategy(new quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability(0.7));
 
-        CrossValidator<DecisionTree, ClassifierInstance> cv = new CrossValidator<>(modelBuilder,
+        SimpleCrossValidator<DecisionTree, ClassifierInstance> cv = new SimpleCrossValidator<>(modelBuilder,
                 new ClassifierLossChecker<ClassifierInstance, DecisionTree>(new ClassifierLogCVLossFunction(.000001)),
                 new OutOfTimeData<>(instances, .25, 12, new OnespotDateTimeExtractor() ) );
         for (int i =0; i<3; i++) {

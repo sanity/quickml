@@ -3,14 +3,13 @@ package quickml.supervised.classifier.logRegression;
 import com.beust.jcommander.internal.Lists;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.MathUtils;
 import quickml.data.AttributesMap;
 import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
-import quickml.supervised.classifier.logisticRegression.SGD;
+import quickml.supervised.classifier.logisticRegression.SparseSGD;
 import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 
 import java.util.*;
@@ -24,8 +23,8 @@ import static org.junit.Assert.*;
 /**
  * Created by chrisreeves on 10/13/15.
  */
-public class SGDTest {
-    private  static final Logger logger = LoggerFactory.getLogger(SGDTest.class);
+public class SparseSGDTest {
+    private  static final Logger logger = LoggerFactory.getLogger(SparseSGDTest.class);
 
     @Test
     public void testMinimizeNoRegularization() throws Exception {
@@ -41,7 +40,7 @@ public class SGDTest {
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
 
-        SGD sgd = new SGD()
+        SparseSGD sgd = new SparseSGD()
                 .maxEpochs(2000)
                 .minEpochs(800)
                 .costConvergenceThreshold(0.001)
@@ -75,7 +74,7 @@ public class SGDTest {
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
         instances.add(new SparseClassifierInstance(attributesMap, 0.0, nameToValueMap));
 
-        SGD sgd = new SGD()
+        SparseSGD sgd = new SparseSGD()
                 .maxEpochs(4000)
                 .minEpochs(300)
                 .costConvergenceThreshold(0.001)
@@ -109,19 +108,19 @@ public class SGDTest {
 
         double newWeights[] = Arrays.copyOf(weights, 3);
 
-        assertTrue(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
+        assertTrue(SparseSGD.weightsConverged(weights, newWeights, convergenceThreshold));
 
         newWeights[0] = weights[0]-convergenceThreshold;
         newWeights[1] = weights[1]-convergenceThreshold;
         newWeights[2] = weights[2]-convergenceThreshold;
 
-        assertTrue(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
+        assertTrue(SparseSGD.weightsConverged(weights, newWeights, convergenceThreshold));
 
         newWeights[0] = weights[0]-convergenceThreshold*2;
         newWeights[1] = weights[1]-convergenceThreshold*2;
         newWeights[2] = weights[2]-convergenceThreshold*2;
 
-        assertFalse(SGD.weightsConverged(weights, newWeights, convergenceThreshold));
+        assertFalse(SparseSGD.weightsConverged(weights, newWeights, convergenceThreshold));
     }
 
     @Test
@@ -134,7 +133,7 @@ public class SGDTest {
         int totalNumInstances = 13;
         int miniBatchSize = 5;
         int finalMiniBatchStartIndex = miniBatchSize * 2;
-        Assert.assertEquals(3, SGD.getCurrentMiniBatchSize(miniBatchSize, totalNumInstances, finalMiniBatchStartIndex));
+        Assert.assertEquals(3, SparseSGD.getCurrentMiniBatchSize(miniBatchSize, totalNumInstances, finalMiniBatchStartIndex));
 
     }
 
@@ -145,14 +144,14 @@ public class SGDTest {
         int minibatchSize = 3;
         int executorThreadCount = 2;
         int minInstancesForParrallization = 0;
-        int[] startIndices = SGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize,executorThreadCount, minInstancesForParrallization);
+        int[] startIndices = SparseSGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize, executorThreadCount, minInstancesForParrallization);
         //3 instances in miniBatch, the last thread should be assigned 2 instances (at index 11, and 12)
         Assert.assertEquals(10, startIndices[0]);
         Assert.assertEquals(11, startIndices[1]);
 
        //test non parrellization
          minInstancesForParrallization = 100;
-         startIndices = SGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize,executorThreadCount, minInstancesForParrallization);
+         startIndices = SparseSGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize, executorThreadCount, minInstancesForParrallization);
 
         Assert.assertEquals(10, startIndices[0]);
         Assert.assertEquals(13, startIndices[1]);
@@ -160,7 +159,7 @@ public class SGDTest {
         //test executors = minibatch size
         minInstancesForParrallization = 0;
         executorThreadCount = minibatchSize;
-        startIndices = SGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize,executorThreadCount, minInstancesForParrallization);
+        startIndices = SparseSGD.getThreadStartIndices(miniBatchStartIndex, minibatchSize, executorThreadCount, minInstancesForParrallization);
 
         Assert.assertEquals(10, startIndices[0]);
         Assert.assertEquals(11, startIndices[1]);
@@ -176,7 +175,7 @@ public class SGDTest {
         gradient[2] = 0.5;
         gradient[3] = 0.25;
 
-        SGD.applyMaxGradientNorm(0.1, gradient);
+        SparseSGD.applyMaxGradientNorm(0.1, gradient);
 
         assertEquals(0.15, gradient[0], 0.01);
     }
@@ -201,7 +200,7 @@ public class SGDTest {
 
         //expected gradient is -(1.0- 1/(1+e^-3))*1   =-0.04742587317
         double expectedDerivative = -0.04742587317;
-        double[] workerContributionToGradient = SGD.getWorkerContributionToTheGradient(instances, weights);
+        double[] workerContributionToGradient = SparseSGD.getWorkerContributionToTheGradient(instances, weights);
         Assert.assertEquals(workerContributionToGradient[0], expectedDerivative, 1E-5);
         Assert.assertEquals(workerContributionToGradient[1], expectedDerivative, 1E-5);
         Assert.assertEquals(workerContributionToGradient[2], expectedDerivative, 1E-5);
@@ -228,7 +227,7 @@ public class SGDTest {
 
         //expected gradient is -(1.0- 1/(1+e^0.75))*1   =-0.67917869917
         double expectedDerivativePrefactor = -0.67917869917;
-        double[] workerContributionToGradient = SGD.getWorkerContributionToTheGradient(instances, weights);
+        double[] workerContributionToGradient = SparseSGD.getWorkerContributionToTheGradient(instances, weights);
         Assert.assertEquals(workerContributionToGradient[0], expectedDerivativePrefactor, 1E-5);
         Assert.assertEquals(workerContributionToGradient[1], expectedDerivativePrefactor, 1E-5);
         Assert.assertEquals(workerContributionToGradient[2], 0.5*expectedDerivativePrefactor, 1E-5);
@@ -255,7 +254,7 @@ public class SGDTest {
 
         //expected gradient is -(1.0- 1/(1+e^-3))*1   =-0.04742587317
         double expectedDerivative = -0.04742587317;
-        Int2DoubleOpenHashMap workerContributionToGradient = SGD.getSparseWorkerContributionToTheGradient(instances, weights, 0);
+        Int2DoubleOpenHashMap workerContributionToGradient = SparseSGD.getSparseWorkerContributionToTheGradient(instances, weights, 0);
         Assert.assertEquals(workerContributionToGradient.get(0), expectedDerivative, 1E-5);
         Assert.assertEquals(workerContributionToGradient.get(1), expectedDerivative, 1E-5);
         Assert.assertEquals(workerContributionToGradient.get(2), expectedDerivative, 1E-5);
@@ -282,7 +281,7 @@ public class SGDTest {
 
         //expected gradient is -(1.0- 1/(1+e^0.75))*1   =-0.67917869917
         double expectedDerivativePrefactor = -0.67917869917;
-        Int2DoubleOpenHashMap workerContributionToGradient = SGD.getSparseWorkerContributionToTheGradient(instances, weights, 0);
+        Int2DoubleOpenHashMap workerContributionToGradient = SparseSGD.getSparseWorkerContributionToTheGradient(instances, weights, 0);
         Assert.assertEquals(workerContributionToGradient.get(0), expectedDerivativePrefactor, 1E-5);
         Assert.assertEquals(workerContributionToGradient.get(1), expectedDerivativePrefactor, 1E-5);
         Assert.assertEquals(workerContributionToGradient.get(2), 0.5*expectedDerivativePrefactor, 1E-5);
@@ -301,7 +300,7 @@ public class SGDTest {
         int2DoubleOpenHashMap2.put(1, 0.75);
         int2DoubleOpenHashMap2.put(0, 0.5);
         contributions.add(new FakeFuture<Int2DoubleOpenHashMap>(int2DoubleOpenHashMap2));
-       SGD.sparseReductionToTheGradient(gradient, contributions);
+       SparseSGD.sparseReductionToTheGradient(gradient, contributions);
         Assert.assertEquals(gradient[0], 0.5, 1E-5);
         Assert.assertEquals(gradient[1], 1.75, 1E-5);
 
@@ -352,7 +351,7 @@ public class SGDTest {
         grad2[0] = 0.5;
 
         contributions.add(new FakeFuture<double[]>(grad2));
-        SGD.reductionToTheGradient(gradient, contributions);
+        SparseSGD.reductionToTheGradient(gradient, contributions);
         Assert.assertEquals(gradient[0], 0.5, 1E-5);
         Assert.assertEquals(gradient[1], 1.75, 1E-5);
 

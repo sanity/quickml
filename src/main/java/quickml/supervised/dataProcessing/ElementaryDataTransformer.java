@@ -9,22 +9,22 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public class DataTransformer<I extends Instance, R extends Instance> {
+public class ElementaryDataTransformer<I extends Instance, R extends Instance> {
 
     List<InstanceTransformer<I, I>> input2InputTypeTransformers = Lists.newArrayList();
     InstanceTransformer<I, R> input2ReturnTypeTransformer;
     List<InstanceTransformer<R, R>> returnType2ReturnTypeTransformer = Lists.newArrayList();
 
-    public DataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers) {
+    public ElementaryDataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers) {
         this.input2InputTypeTransformers = input2InputTypeTransformers;
     }
 
-    public DataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers, InstanceTransformer<I, R> input2ReturnTypeTransformer) {
+    public ElementaryDataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers, InstanceTransformer<I, R> input2ReturnTypeTransformer) {
         this(input2InputTypeTransformers);
         this.input2ReturnTypeTransformer = input2ReturnTypeTransformer;
     }
 
-    public DataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers, InstanceTransformer<I, R> input2ReturnTypeTransformer, List<InstanceTransformer<R, R>> returnType2ReturnTypeTransformer) {
+    public ElementaryDataTransformer(List<InstanceTransformer<I, I>> input2InputTypeTransformers, InstanceTransformer<I, R> input2ReturnTypeTransformer, List<InstanceTransformer<R, R>> returnType2ReturnTypeTransformer) {
         this(input2InputTypeTransformers, input2ReturnTypeTransformer);
         this.returnType2ReturnTypeTransformer = returnType2ReturnTypeTransformer;
     }

@@ -6,7 +6,7 @@ import quickml.data.instances.ClassifierInstanceFactory;
 import quickml.supervised.Utils;
 import quickml.supervised.dataProcessing.AttributeCharacteristics;
 import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
-import quickml.supervised.dataProcessing.DataTransformer;
+import quickml.supervised.dataProcessing.ElementaryDataTransformer;
 import quickml.supervised.dataProcessing.instanceTranformer.*;
 
 import java.io.Serializable;
@@ -17,7 +17,13 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public class LogisticRegressionDataTransformer {
+public class LogisticRegressionDataTransformer implements DataTransformer<ClassifierInstance, LogisticRegressionDTO> {
+    //to do: get label to digit Map and stick in DTO (and transform to logistic regression eventually)
+    //make LogisticRegressionBuilder use this class and not be tightly coupled to mean normalization (e.g. allow log^2 values)
+    //make cross validator take a datetransformer (specifically, the Logistic regression PMB, and then do the data normalization
+    // and set the date time extractor)
+
+
     /**
      * class provides the method: transformInstances, to convert a set of classifier instances into instances that can be processed by
      * the LogisticRegressionBuilder.
@@ -35,51 +41,62 @@ public class LogisticRegressionDataTransformer {
     private BinaryAndNumericAttributeNormalizer<Serializable, ClassifierInstance, ClassifierInstance> normalizer;
     private LabelToDigitConverter<Serializable, ClassifierInstance, ClassifierInstance> labelToDigitConverter;
     private ClassifierInstance2SparseClassifierInstance<Serializable, ClassifierInstance>  inputType2ReturnTypeTransformer;
-    private boolean useProductFeatures = false;
-    private int minObservationsOfAttribute;
 
-    public LogisticRegressionDataTransformer productFeatureAppender(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+    private boolean useProductFeatures = false;
+    private boolean doLabelToDigitConversion = true;
+    private int minObservationsOfAttribute;
+    private Map<Serializable, Double> numericClassLabels;
+
+    public LogisticRegressionDataTransformer() {}
+
+    public LogisticRegressionDataTransformer productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
         this.productFeatureAppender = productFeatureAppender;
         return this;
     }
+
+    public boolean usingProductFeatures(){
+        return productFeatureAppender!=null;
+    }
+
+    public void doLabelToDigitConversion(boolean doLabelToDigitConversion){
+        this.doLabelToDigitConversion = doLabelToDigitConversion;
+    }
+
 
     public LogisticRegressionDataTransformer minObservationsOfAttribute(int minObservationsOfAttribute) {
         this.minObservationsOfAttribute = minObservationsOfAttribute;
         return this;
     }
 
-    public LogisticRegressionDataTransformer() {
-/**one needs to set useProductFeatures if this appender is to be put to use*/
-        productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>().setMinObservationsOfRawAttribute(10).setAllowCategoricalProductFeatures(true)
-        .setAllowNumericProductFeatures(true)
-        .setApproximateOverlap(true)
-        .setMinOverlap(20);
+
+    public Map<Serializable, Double> getNumericClassLabels() {
+        return numericClassLabels;
     }
 
-    public LogisticRegressionDataTransformer(CommonCoocurrenceProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
-        this.productFeatureAppender = productFeatureAppender;
-    }
 
-    public LogisticRegressionDataTransformer(boolean useProductFeatures) {
-        this.useProductFeatures = useProductFeatures;
-    }
-
-    public LogisticRegressionDataTransformer useProductFeatures(boolean useProductFeatures) {
+    public LogisticRegressionDataTransformer usingProductFeatures(boolean useProductFeatures) {
         this.useProductFeatures = useProductFeatures;
         return this;
     }
 
-    public List<SparseClassifierInstance> transformInstances(List<ClassifierInstance> trainingData){
+    //shouldn't be hard coded as a logistic Regression DTO..or at least it should be an abstract type...or a generic?
+    public LogisticRegressionDTO transformData(List<ClassifierInstance> trainingData){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
-        labelToDigitConverter = getLabelToDigitConverter(trainingData);
-        input2InputTransformations.add(labelToDigitConverter);
-        DataTransformer<ClassifierInstance, ClassifierInstance> dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
-                input2InputTransformations, null);
-        List<ClassifierInstance> relabeled = dataTransformer.transformInstances(trainingData);
+        List<ClassifierInstance> firstStageData;
+        if (doLabelToDigitConversion) {
+            labelToDigitConverter = getLabelToDigitConverter(trainingData);
+            input2InputTransformations.add(labelToDigitConverter);
+            ElementaryDataTransformer<ClassifierInstance, ClassifierInstance> dataTransformer = new ElementaryDataTransformer<ClassifierInstance, ClassifierInstance>(
+                    input2InputTransformations, null);
+            firstStageData = dataTransformer.transformInstances(trainingData);
+            numericClassLabels = labelToDigitConverter.getNumericClassLabels();
+        }
+        else {
+            firstStageData = trainingData;
+        }
 
-        oneHotEncoder = getOneHotEncoder(relabeled, minObservationsOfAttribute);
-        List<ClassifierInstance> oneHotEncoded = oneHotEncoder.transformAll(relabeled);
-
+        oneHotEncoder = getOneHotEncoder(firstStageData, minObservationsOfAttribute);
+        List<ClassifierInstance> oneHotEncoded = oneHotEncoder.transformAll(firstStageData);
 
 
         List<ClassifierInstance> instancesToNormalize;
@@ -92,17 +109,18 @@ public class LogisticRegressionDataTransformer {
         normalizer = getNormalizer(instancesToNormalize);
         input2InputTransformations = Lists.newArrayList();
         input2InputTransformations.add(normalizer);
-        dataTransformer = new DataTransformer<ClassifierInstance, ClassifierInstance>(
+        ElementaryDataTransformer dataTransformer = new ElementaryDataTransformer(
                 input2InputTransformations, null);
         List<ClassifierInstance> normalized = dataTransformer.transformInstances(instancesToNormalize);
 
 
         inputType2ReturnTypeTransformer = getInputType2ReturnTypeTransformer(normalized);
         input2InputTransformations = Lists.newArrayList();
-        DataTransformer<ClassifierInstance, SparseClassifierInstance> inputType2OutputdataTransformer = new DataTransformer<ClassifierInstance, SparseClassifierInstance>(
+        ElementaryDataTransformer<ClassifierInstance, SparseClassifierInstance> inputType2OutputdataTransformer = new ElementaryDataTransformer<ClassifierInstance, SparseClassifierInstance>(
                 input2InputTransformations, inputType2ReturnTypeTransformer);
 
-        return inputType2OutputdataTransformer.transformInstances(normalized);
+        List<SparseClassifierInstance> sparseClassifierInstances = inputType2OutputdataTransformer.transformInstances(normalized);
+        return new LogisticRegressionDTO(sparseClassifierInstances, getNameToIndexMap(), getMeanStdMaxMins(), numericClassLabels);
     }
 
     public HashMap<String, Integer> getNameToIndexMap(){

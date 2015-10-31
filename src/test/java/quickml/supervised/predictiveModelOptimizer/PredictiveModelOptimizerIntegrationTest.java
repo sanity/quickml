@@ -36,7 +36,7 @@ public class PredictiveModelOptimizerIntegrationTest {
     public void setUp() throws Exception {
         List<ClassifierInstance> advertisingInstances = getAdvertisingInstances();
         advertisingInstances = advertisingInstances.subList(0, 3000);
-        optimizer = new PredictiveModelOptimizerBuilder<RandomDecisionForest, ClassifierInstance>()
+        optimizer = new SimplePredictiveModelOptimizerBuilder<RandomDecisionForest, ClassifierInstance>()
                 .modelBuilder(new RandomDecisionForestBuilder<>())
                 .dataCycler(new OutOfTimeData<>(advertisingInstances, 0.2, 12, new OnespotDateTimeExtractor()))
                 .lossChecker(new ClassifierLossChecker<ClassifierInstance, RandomDecisionForest>(new WeightedAUCCrossValLossFunction(1.0)))

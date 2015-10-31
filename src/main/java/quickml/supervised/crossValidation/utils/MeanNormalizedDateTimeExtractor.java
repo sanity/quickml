@@ -1,17 +1,17 @@
-package quickml.data.instances;
+package quickml.supervised.crossValidation.utils;
 
 
 import org.joda.time.DateTime;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.Utils;
-import quickml.supervised.crossValidation.utils.DateTimeExtractor;
-
 import java.util.Map;
 
 
-public class OnespotNormalizedDateTimeExtractor<T extends ClassifierInstance> implements DateTimeExtractor<T> {
+public class MeanNormalizedDateTimeExtractor<T extends InstanceWithAttributesMap> implements DateTimeExtractor<T> {
 
-    private final Map<String, Utils.MeanStdMaxMin> meanStdMaxMinMap;
-    public OnespotNormalizedDateTimeExtractor(Map<String, Utils.MeanStdMaxMin> meanStdMaxMinMap) {
+    private  Map<String, Utils.MeanStdMaxMin> meanStdMaxMinMap;
+
+    public MeanNormalizedDateTimeExtractor(Map<String, Utils.MeanStdMaxMin> meanStdMaxMinMap) {
         this.meanStdMaxMinMap = meanStdMaxMinMap;
     }
 

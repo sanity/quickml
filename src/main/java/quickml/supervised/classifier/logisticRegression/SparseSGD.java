@@ -20,14 +20,14 @@ import static quickml.MathUtils.sigmoid;
 /**
  * Created by alexanderhawk on 10/12/15.
  */
-public class SGD implements GradientDescent {
+public class SparseSGD<I extends SparseClassifierInstance> implements GradientDescent<I> {
 
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
     public static final String RIDGE = "ridge";
     public static final String LASSO = "lasso";
 
-    public static final Logger logger = LoggerFactory.getLogger(SGD.class);
+    public static final Logger logger = LoggerFactory.getLogger(SparseSGD.class);
     public static final String LEARNING_RATE = "learningRate";
     public static final String USE_BOLD_DRIVER = "useBoldDriver";
 
@@ -68,7 +68,7 @@ public class SGD implements GradientDescent {
     private boolean sparseParallelization = true;
 
 
-    public SGD() {
+    public SparseSGD() {
     }
 
     public void updateBuilderConfig(final Map<String, Serializable> config) {
@@ -128,12 +128,12 @@ public class SGD implements GradientDescent {
 
     }
 
-    public SGD sparseParallelization(boolean sparseParallelization) {
+    public SparseSGD sparseParallelization(boolean sparseParallelization) {
         this.sparseParallelization = sparseParallelization;
         return this;
     }
 
-    public SGD executorThreadCount(int executorThreadCount) {
+    public SparseSGD executorThreadCount(int executorThreadCount) {
         if (executorThreadCount < this.executorThreadCount) {
             this.executorThreadCount = executorThreadCount;
         } else {
@@ -142,84 +142,84 @@ public class SGD implements GradientDescent {
         return this;
     }
 
-    public SGD minInstancesForParrellization(int minInstancesForParrellization) {
+    public SparseSGD minInstancesForParrellization(int minInstancesForParrellization) {
         this.minInstancesForParrellization = minInstancesForParrellization;
         return this;
     }
 
-    public SGD expectedFractionOfFeaturesToUpdatePerWorker(double expectedFractionOfFeaturesToUpdatePerWorker) {
+    public SparseSGD expectedFractionOfFeaturesToUpdatePerWorker(double expectedFractionOfFeaturesToUpdatePerWorker) {
         this.expectedFractionOfFeaturesToUpdatePerWorker = expectedFractionOfFeaturesToUpdatePerWorker;
         return this;
     }
 
-    public SGD learningRate(double learningRate) {
+    public SparseSGD learningRate(double learningRate) {
         this.learningRate = learningRate;
         return this;
     }
 
-    public SGD useBoldDriver(boolean useBoldDriver) {
+    public SparseSGD useBoldDriver(boolean useBoldDriver) {
         this.useBoldDriver = useBoldDriver;
         return this;
     }
 
-    public SGD maxEpochs(int maxEpochs) {
+    public SparseSGD maxEpochs(int maxEpochs) {
         this.maxEpochs = maxEpochs;
         return this;
     }
 
-    public SGD minPredictedProbablity(double minPredictedProbablity) {
+    public SparseSGD minPredictedProbablity(double minPredictedProbablity) {
         this.minPredictedProbablity = minPredictedProbablity;
         return this;
     }
 
-    public SGD weightConvergenceThreshold(double weightConvergenceThreshold) {
+    public SparseSGD weightConvergenceThreshold(double weightConvergenceThreshold) {
         this.weightConvergenceThreshold = weightConvergenceThreshold;
         return this;
     }
 
-    public SGD maxGradientNorm(double maxGradientNorm) {
+    public SparseSGD maxGradientNorm(double maxGradientNorm) {
         this.maxGradientNorm = maxGradientNorm;
         return this;
     }
 
-    public SGD learningRateReductionFactor(double learningRateReductionFactor) {
+    public SparseSGD learningRateReductionFactor(double learningRateReductionFactor) {
         this.learningRateReductionFactor = learningRateReductionFactor;
         return this;
     }
 
-    public SGD learningRateBoostFactor(double learningRateBoostFactor) {
+    public SparseSGD learningRateBoostFactor(double learningRateBoostFactor) {
         this.learningRateBoostFactor = learningRateBoostFactor;
         return this;
     }
 
-    public SGD costConvergenceThreshold(double costConvergenceThreshold) {
+    public SparseSGD costConvergenceThreshold(double costConvergenceThreshold) {
         this.costConvergenceThreshold = costConvergenceThreshold;
         return this;
     }
 
-    public SGD minEpochs(int minEpochs) {
+    public SparseSGD minEpochs(int minEpochs) {
         this.minEpochs = minEpochs;
         return this;
     }
 
-    public SGD minibatchSize(int minibatchSize) {
+    public SparseSGD minibatchSize(int minibatchSize) {
         this.minibatchSize = minibatchSize;
         return this;
     }
 
-    public SGD ridgeRegularizationConstant(final double ridgeRegularizationConstant) {
+    public SparseSGD ridgeRegularizationConstant(final double ridgeRegularizationConstant) {
         this.ridge = ridgeRegularizationConstant;
         return this;
     }
 
-    public SGD lassoRegularizationConstant(final double ridgeRegularizationConstant) {
+    public SparseSGD lassoRegularizationConstant(final double ridgeRegularizationConstant) {
         this.lasso = ridgeRegularizationConstant;
         return this;
     }
 
 
     @Override
-    public double[] minimize(final List<SparseClassifierInstance> sparseClassifierInstances, int numRegressors) {
+    public double[] minimize(final List<I> sparseClassifierInstances, int numRegressors) {
         /** minimizes the cross entropy loss function. NumRegressors includes the bias term.
          */
         executorService = Executors.newFixedThreadPool(executorThreadCount);
@@ -266,7 +266,7 @@ public class SGD implements GradientDescent {
         return weights;
     }
 
-    private void sparseCalculationOfGradient(final List<SparseClassifierInstance> sparseClassifierInstances, final double[] fixedWeights, double[] gradient, final int[] threadStartAndStopIndices, int actualNumThreads) {
+    private void sparseCalculationOfGradient(final List<? extends SparseClassifierInstance> sparseClassifierInstances, final double[] fixedWeights, double[] gradient, final int[] threadStartAndStopIndices, int actualNumThreads) {
         List<Future<Int2DoubleOpenHashMap>> contributionsToTheGradient = Lists.newArrayListWithCapacity(actualNumThreads);
         for (int i = 0; i < actualNumThreads; i++) {
             final int index = i;
@@ -288,7 +288,7 @@ public class SGD implements GradientDescent {
         sparseReductionToTheGradient(gradient, contributionsToTheGradient);
     }
 
-    private void nonSparseCalculationOfGradient(final List<SparseClassifierInstance> sparseClassifierInstances, final double[] fixedWeights, double[] gradient, final int[] threadStartAndStopIndices, int actualNumThreads) {
+    private void nonSparseCalculationOfGradient(final List<? extends SparseClassifierInstance> sparseClassifierInstances, final double[] fixedWeights, double[] gradient, final int[] threadStartAndStopIndices, int actualNumThreads) {
         List<Future<double[]>> contributionsToTheGradient = Lists.newArrayListWithCapacity(actualNumThreads);
         for (int i = 0; i < actualNumThreads; i++) {
             final int index = i;
@@ -359,7 +359,7 @@ public class SGD implements GradientDescent {
         }
     }
 
-    public static Int2DoubleOpenHashMap getSparseWorkerContributionToTheGradient(List<SparseClassifierInstance> instances, double[] weights, double expectedFractionOfFeaturesToUpdate) {
+    public static Int2DoubleOpenHashMap getSparseWorkerContributionToTheGradient(List<? extends SparseClassifierInstance> instances, double[] weights, double expectedFractionOfFeaturesToUpdate) {
         Int2DoubleOpenHashMap contributionsToTheGradient = new Int2DoubleOpenHashMap((int) (expectedFractionOfFeaturesToUpdate * weights.length));
         contributionsToTheGradient.defaultReturnValue(0.0);
         for (SparseClassifierInstance instance : instances) {
@@ -385,7 +385,7 @@ public class SGD implements GradientDescent {
         }
     }
 
-    public static double[] getWorkerContributionToTheGradient(List<SparseClassifierInstance> instances, double[] weights) {
+    public static double[] getWorkerContributionToTheGradient(List<? extends SparseClassifierInstance> instances, double[] weights) {
         double[] contributionsToTheGradient = new double[weights.length];
         for (SparseClassifierInstance instance : instances) {
             updateUnnormalizedGradientForInstance(weights, contributionsToTheGradient, instance);
@@ -441,7 +441,7 @@ public class SGD implements GradientDescent {
         return Math.abs(presentCost - previousCost) / presentCost < costConvergenceThreshold;
     }
 
-    public static double computeCrossEntropyCostFunction(List<SparseClassifierInstance> instances, double[] weights, double minPredictedProbablity, double ridge, double lasso) {
+    public static double computeCrossEntropyCostFunction(List<? extends SparseClassifierInstance> instances, double[] weights, double minPredictedProbablity, double ridge, double lasso) {
         double cost = 0.0;
         for (SparseClassifierInstance instance : instances) {
             if ((double) instance.getLabel() == 1.0) {
