@@ -44,7 +44,7 @@ public class NDCG implements RankingLossFunction {
     private double nDCGForInstance(LabelPredictionWeightForRanking lpw) {
         double dcg =dcg(lpw, k);
         double idcg = idcg(lpw, k);
-        return dcg/idcg;
+        return lpw.getWeight()*dcg/idcg;
     }
 
     public static double dcg(LabelPredictionWeightForRanking lpw, int k) {
