@@ -20,7 +20,7 @@ import static quickml.MathUtils.sigmoid;
 /**
  * Created by alexanderhawk on 10/12/15.
  */
-public class SparseSGD<I extends SparseClassifierInstance> implements GradientDescent<I> {
+public class SparseSGD implements GradientDescent<SparseClassifierInstance > {
 
     private int executorThreadCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
@@ -219,7 +219,7 @@ public class SparseSGD<I extends SparseClassifierInstance> implements GradientDe
 
 
     @Override
-    public double[] minimize(final List<I> sparseClassifierInstances, int numRegressors) {
+    public double[] minimize(final List<SparseClassifierInstance > sparseClassifierInstances, int numRegressors) {
         /** minimizes the cross entropy loss function. NumRegressors includes the bias term.
          */
         executorService = Executors.newFixedThreadPool(executorThreadCount);
