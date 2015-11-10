@@ -7,6 +7,6 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/30/15.
  */
-public abstract class Transformed<I extends Instance> {
-    public abstract List<I> getTransformedInstances();
+public interface Transformed<R extends Instance> {
+    public abstract List<R> getTransformedInstances();
 }

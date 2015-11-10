@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public class LogisticRegressionDataTransformer implements DataTransformer<ClassifierInstance, LogisticRegressionDTO> {
+public class DatedAndMeanNormalizedLogisticRegressionDataTransformer<D extends LogisticRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, TransformedDataWithDates<SparseClassifierInstance, ?>> {
     //to do: get label to digit Map and stick in DTO (and transform to logistic regression eventually)
     //make LogisticRegressionBuilder use this class and not be tightly coupled to mean normalization (e.g. allow log^2 values)
     //make cross validator take a datetransformer (specifically, the Logistic regression PMB, and then do the data normalization
@@ -47,9 +47,9 @@ public class LogisticRegressionDataTransformer implements DataTransformer<Classi
     private int minObservationsOfAttribute;
     private Map<Serializable, Double> numericClassLabels;
 
-    public LogisticRegressionDataTransformer() {}
+    public DatedAndMeanNormalizedLogisticRegressionDataTransformer() {}
 
-    public LogisticRegressionDataTransformer productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+    public DatedAndMeanNormalizedLogisticRegressionDataTransformer productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
         this.productFeatureAppender = productFeatureAppender;
         return this;
     }
@@ -63,7 +63,7 @@ public class LogisticRegressionDataTransformer implements DataTransformer<Classi
     }
 
 
-    public LogisticRegressionDataTransformer minObservationsOfAttribute(int minObservationsOfAttribute) {
+    public DatedAndMeanNormalizedLogisticRegressionDataTransformer minObservationsOfAttribute(int minObservationsOfAttribute) {
         this.minObservationsOfAttribute = minObservationsOfAttribute;
         return this;
     }
@@ -74,13 +74,15 @@ public class LogisticRegressionDataTransformer implements DataTransformer<Classi
     }
 
 
-    public LogisticRegressionDataTransformer usingProductFeatures(boolean useProductFeatures) {
+    public DatedAndMeanNormalizedLogisticRegressionDataTransformer usingProductFeatures(boolean useProductFeatures) {
         this.useProductFeatures = useProductFeatures;
         return this;
     }
 
+
     //shouldn't be hard coded as a logistic Regression DTO..or at least it should be an abstract type...or a generic?
-    public LogisticRegressionDTO transformData(List<ClassifierInstance> trainingData){
+    @Override
+    public D transformData(List<ClassifierInstance> trainingData){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
         List<ClassifierInstance> firstStageData;
         if (doLabelToDigitConversion) {
@@ -120,7 +122,7 @@ public class LogisticRegressionDataTransformer implements DataTransformer<Classi
                 input2InputTransformations, inputType2ReturnTypeTransformer);
 
         List<SparseClassifierInstance> sparseClassifierInstances = inputType2OutputdataTransformer.transformInstances(normalized);
-        return new LogisticRegressionDTO(sparseClassifierInstances, getNameToIndexMap(), getMeanStdMaxMins(), numericClassLabels);
+        return (D) new LogisticRegressionDTO<D>(sparseClassifierInstances, getNameToIndexMap(), getMeanStdMaxMins(), numericClassLabels);
     }
 
     public HashMap<String, Integer> getNameToIndexMap(){

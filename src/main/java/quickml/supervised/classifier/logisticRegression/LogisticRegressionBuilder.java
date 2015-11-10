@@ -20,66 +20,73 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 10/9/15.
  */
+// what really has to be generic here?
+//what is the simplest interface without type safety.
 
-public class LogisticRegressionBuilder<I extends ClassifierInstance, R extends SparseClassifierInstance, D extends LogisticRegressionDTO<R,D>> implements EnhancedPredictiveModelBuilder<LogisticRegression, I, R, D> {
+public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> implements EnhancedPredictiveModelBuilder<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> {
     public boolean calibrateWithPoolAdjacentViolators = false;
     public static final String MIN_OBSERVATIONS_OF_ATTRIBUTE= "minObservationsOfAttribute";
     public static final String PRODUCT_FEATURE_APPENDER = "productFeatureAppender";
     public static final String CALIBRATE_WITH_POOL_ADJACENT_VIOLATORS = "calibrateWithPoolAdjacentViolators";
     public static final String POOL_ADJACENT_VIOLATORS_MIN_WEIGHT = "poolAdjacentViolatorsMinWeight";
 
-    public LogisticRegressionDataTransformer logisticRegressionDataTransformer = new LogisticRegressionDataTransformer();
+    public DatedAndMeanNormalizedLogisticRegressionDataTransformer<D> logisticRegressionDataTransformer = new DatedAndMeanNormalizedLogisticRegressionDataTransformer();
 
-    private int minObservationsOfAttribute = 0;
+    private int minObservationsOfAttribute;
     private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
-    private DataTransformer<I, R, D> dataTransformer;
-    GradientDescent<R> gradientDescent = new SparseSGD();
+    private DataTransformer<ClassifierInstance, SparseClassifierInstance, D> dataTransformer;
+    GradientDescent<SparseClassifierInstance> gradientDescent = new SparseSGD();
     private int minWeightForPavBuckets =2;
 
-    public LogisticRegressionBuilder(DataTransformer<I, R, D> dataTransformer) {
+    public LogisticRegressionBuilder(DataTransformer<ClassifierInstance, SparseClassifierInstance, D> dataTransformer) {
         this.dataTransformer = dataTransformer;
     }
 
-    public LogisticRegressionBuilder<I, R, D> productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
+    public LogisticRegressionBuilder<D> productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
         this.productFeatureAppender = productFeatureAppender;
         logisticRegressionDataTransformer.productFeatureAppender(productFeatureAppender);
         return this;
     }
 
-    public LogisticRegressionBuilder<I, R, D> minObservationsOfAttribute(int minObservationsOfAttribute) {
+    public LogisticRegressionBuilder<D> minObservationsOfAttribute(int minObservationsOfAttribute) {
         this.minObservationsOfAttribute = minObservationsOfAttribute;
         logisticRegressionDataTransformer.minObservationsOfAttribute(minObservationsOfAttribute);
         return this;
     }
 
-    public LogisticRegressionBuilder gradientDescent(GradientDescent gradientDescent) {
+    public LogisticRegressionBuilder<D> gradientDescent(GradientDescent gradientDescent) {
         this.gradientDescent = gradientDescent;
         return this;
     }
 
-    public LogisticRegressionBuilder calibrateWithPoolAdjacentViolators(boolean calibrateWithPoolAdjacentViolators) {
+    public LogisticRegressionBuilder<D> calibrateWithPoolAdjacentViolators(boolean calibrateWithPoolAdjacentViolators) {
         this.calibrateWithPoolAdjacentViolators = calibrateWithPoolAdjacentViolators;
         return this;
     }
 
-    public LogisticRegressionBuilder poolAdjacentViolatorsMinWeight(int minWeightForPavBuckets) {
+    public LogisticRegressionBuilder<D> poolAdjacentViolatorsMinWeight(int minWeightForPavBuckets) {
         this.minWeightForPavBuckets = minWeightForPavBuckets;
         return this;
     }
 
     @Override
-    public D transformData(List<I> instances){
-        return dataTransformer.transformData(instances);
+    public D transformData(List<ClassifierInstance> rawInstances){
+        if (dataTransformer != null) {
+            return dataTransformer.transformData(rawInstances);
+        } else {
+            return logisticRegressionDataTransformer.transformData(rawInstances);
+        }
     }
+
 
     @Override
     public LogisticRegression buildPredictiveModel(D logisticRegressionDTO) {
-        List<R> sparseClassifierInstances =logisticRegressionDTO.getTransformedInstances();
+        List<SparseClassifierInstance> sparseClassifierInstances =logisticRegressionDTO.getTransformedInstances();
         double[] weights = gradientDescent.minimize(sparseClassifierInstances, logisticRegressionDTO.getNameToIndexMap().size());
         LogisticRegression uncalibrated = getUncalibratedModel(logisticRegressionDTO, weights);
         if (calibrateWithPoolAdjacentViolators) {
             PoolAdjacentViolatorsModel poolAdjacentViolatorsModel =
-                    new PoolAdjacentViolatorsModel(LogisticRegressionBuilder.<R>getPavPredictions(logisticRegressionDTO.getTransformedInstances(),
+                    new PoolAdjacentViolatorsModel(LogisticRegressionBuilder.<SparseClassifierInstance>getPavPredictions(logisticRegressionDTO.getTransformedInstances(),
                             uncalibrated), minWeightForPavBuckets);
             return new LogisticRegression(uncalibrated, poolAdjacentViolatorsModel);
         }
@@ -91,7 +98,8 @@ public class LogisticRegressionBuilder<I extends ClassifierInstance, R extends S
         return logisticRegressionDataTransformer.transformData(trainingDataList);
     }
 
-    //modify to take the dto and the weight
+    // Could have a model factory that has no generics on D store all the information that the DTO stores...have an object specific setter, and a "getModelMethod. This factory it would consume the
+    // model builder...and then finush off the build. Would it have to be generic?
     private LogisticRegression getUncalibratedModel(LogisticRegressionDTO logisticRegressionDTO, double[] weights) {
         LogisticRegression uncalibrated;
         if (logisticRegressionDTO.getNumericClassLabels() == null) {

@@ -9,5 +9,5 @@ import java.util.List;
  * Created by alexanderhawk on 10/30/15.
  */
 public interface TrainingDataCyclerFactory<R extends Instance, D extends TransformedData<R,D>> {
-    TrainingDataCycler<R> getTrainingDataCycler(D instances);//also depends on the Date Time extractor
+    TrainingDataCycler<R> getTrainingDataCycler(D dataDTO);//also depends on the Date Time extractor
 }

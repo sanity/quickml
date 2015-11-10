@@ -7,6 +7,6 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/28/15.
  */
-public interface DataTransformer<I extends Instance, R extends Instance, D extends TransformedData<R, D>> {
-    D transformData(List<I> instances);
+public interface DataTransformer<I extends Instance, R extends Instance, D extends TransformedData<R, D>>{//TransformedData<R, D>> {
+    D transformData(List<I> rawInstance);
 }

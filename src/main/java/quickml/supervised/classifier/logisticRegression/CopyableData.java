@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Created by alexanderhawk on 10/30/15.
  */
-public interface CopyableData<T extends Transformed, I extends Instance> {
-    T copyWithJustTraniningSet(List<I> trainingSet);
+public interface CopyableData<R extends Instance, T extends Transformed<R>> {
+    T copyWithJustTrainingSet(List<R> trainingSet);
 }
 
 
