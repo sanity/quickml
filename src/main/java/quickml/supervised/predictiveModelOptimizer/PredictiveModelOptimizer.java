@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.SimpleCrossValidator;
 
 import java.io.Serializable;
 import java.util.*;
@@ -27,7 +28,7 @@ public class PredictiveModelOptimizer {
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> fieldsToOptimize, CrossValidator crossValidator, int iterations) {
+    protected PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> fieldsToOptimize, SimpleCrossValidator crossValidator, int iterations) {
         this.fieldsToOptimize = fieldsToOptimize;
         this.crossValidator = crossValidator;
         this.iterations = iterations;

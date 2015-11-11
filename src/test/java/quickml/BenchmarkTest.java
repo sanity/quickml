@@ -10,7 +10,7 @@ import quickml.data.AttributesMap;
 import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.tree.decisionTree.scorers.*;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.SimpleCrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLogCVLossFunction;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
@@ -90,9 +90,9 @@ public class BenchmarkTest {
         for (final GRImbalancedScorerFactory<ClassificationCounter> scorerFactory : scorerFactories) {
             Map<String, Serializable> cfg = Maps.newHashMap();
             cfg.put(ForestOptions.SCORER_FACTORY.name(), scorerFactory);
-            CrossValidator< DecisionTree, ClassifierInstance> validator = new CrossValidator< DecisionTree, ClassifierInstance>(treeBuilder, classifierLossCheckerT, data);
+            SimpleCrossValidator< DecisionTree, ClassifierInstance> validator = new SimpleCrossValidator< DecisionTree, ClassifierInstance>(treeBuilder, classifierLossCheckerT, data);
             System.out.println(dsName + ", single-oldTree, " + scorerFactory + ", " + validator.getLossForModel(cfg));
-            CrossValidator<RandomDecisionForest, ClassifierInstance> validator2 = new CrossValidator<RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossCheckerF, data);
+            SimpleCrossValidator<RandomDecisionForest, ClassifierInstance> validator2 = new SimpleCrossValidator<RandomDecisionForest, ClassifierInstance>(randomDecisionForestBuilder, classifierLossCheckerF, data);
             System.out.println(dsName + ", random-forest, " + scorerFactory + ", " + validator2.getLossForModel(cfg));
         }
     }

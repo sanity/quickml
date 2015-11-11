@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.SimpleCrossValidator;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PredictiveModelOptimizerTest {
 
     @Mock
-    CrossValidator mockCrossValidator;
+    SimpleCrossValidator mockSimpleCrossValidator;
 
     @Mock
     ClassifierLossChecker mockLossChecker;
@@ -42,7 +42,7 @@ public class PredictiveModelOptimizerTest {
         fields.put("penalize_splits", new FixedOrderRecommender(true, false));
         fields.put("scorerFactory", new FixedOrderRecommender("A", "B", "C"));
 
-        modelOptimizer = new PredictiveModelOptimizer(fields, mockCrossValidator, 10);
+        modelOptimizer = new PredictiveModelOptimizer(fields, mockSimpleCrossValidator, 10);
     }
 
     @Test
@@ -53,10 +53,10 @@ public class PredictiveModelOptimizerTest {
         bestConfig = createMap(5, false, "C");
 
 
-        when(mockCrossValidator.getLossForModel(anyMap())).thenReturn(0.5);
-        when(mockCrossValidator.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
-        when(mockCrossValidator.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
-        when(mockCrossValidator.getLossForModel(eq(bestConfig))).thenReturn(0.1);
+        when(mockSimpleCrossValidator.getLossForModel(anyMap())).thenReturn(0.5);
+        when(mockSimpleCrossValidator.getLossForModel(eq(thirdBestConfig))).thenReturn(0.4);
+        when(mockSimpleCrossValidator.getLossForModel(eq(secondBestConfig))).thenReturn(0.2);
+        when(mockSimpleCrossValidator.getLossForModel(eq(bestConfig))).thenReturn(0.1);
 
         assertEquals(bestConfig, modelOptimizer.determineOptimalConfig());
     }

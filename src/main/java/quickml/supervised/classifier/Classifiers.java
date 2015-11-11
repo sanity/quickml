@@ -21,7 +21,7 @@ import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDeci
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.predictiveModelOptimizer.FieldValueRecommender;
 import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
-import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizerBuilder;
+import quickml.supervised.predictiveModelOptimizer.SimplePredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
@@ -47,7 +47,7 @@ public class Classifiers {
         FoldedData<T> foldedData = new FoldedData<>(trainingData, 10, 2);
         ClassifierLossChecker<T, RandomDecisionForest> classifierInstanceClassifierLossChecker = new ClassifierLossChecker<>(new ClassifierRMSELossFunction());
         RandomDecisionForestBuilder<T> modelBuilder = new RandomDecisionForestBuilder<T>();
-        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<RandomDecisionForest, T>()
+        PredictiveModelOptimizer optimizer=  new SimplePredictiveModelOptimizerBuilder<RandomDecisionForest, T>()
                 .modelBuilder(modelBuilder)
                 .dataCycler(foldedData)
                 .lossChecker(classifierInstanceClassifierLossChecker)
@@ -73,7 +73,7 @@ public class Classifiers {
         TrainingDataCycler<T> outOfTimeData = new OutOfTimeData<T>(trainingData, crossValidationFraction, timeSliceHours, dateTimeExtractor);
         ClassifierLossChecker<T, DownsamplingClassifier> classifierInstanceClassifierLossChecker = new ClassifierLossChecker<>(lossFunction);
 
-        PredictiveModelOptimizer optimizer=  new PredictiveModelOptimizerBuilder<DownsamplingClassifier, T>()
+        PredictiveModelOptimizer optimizer=  new SimplePredictiveModelOptimizerBuilder<DownsamplingClassifier, T>()
                 .modelBuilder(modelBuilder)
                 .dataCycler(outOfTimeData)
                 .lossChecker(classifierInstanceClassifierLossChecker)

@@ -10,7 +10,7 @@ import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.crossValidation.ClassifierLossChecker;
-import quickml.supervised.crossValidation.CrossValidator;
+import quickml.supervised.crossValidation.SimpleCrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
@@ -34,7 +34,7 @@ public class PredictiveAccuracyTests {
 
         final FoldedData<ClassifierInstance> data = new FoldedData<ClassifierInstance>(loadIrisDataset(), 4, 4);
 
-        final CrossValidator<RandomDecisionForest, ClassifierInstance> validator = new CrossValidator<RandomDecisionForest, ClassifierInstance>(
+        final SimpleCrossValidator<RandomDecisionForest, ClassifierInstance> validator = new SimpleCrossValidator<RandomDecisionForest, ClassifierInstance>(
                 new RandomDecisionForestBuilder<ClassifierInstance>(new DecisionTreeBuilder<>().minAttributeValueOccurences(10).maxDepth(12)), new ClassifierLossChecker<ClassifierInstance, RandomDecisionForest>(new ClassifierRMSELossFunction()), data);
 
         final double crossValidatedLoss = validator.getLossForModel();

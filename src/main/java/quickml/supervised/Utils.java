@@ -1,13 +1,16 @@
 package quickml.supervised;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.Instance;
 import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
 import quickml.supervised.classifier.Classifier;
+import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 import quickml.supervised.crossValidation.PredictionMapResult;
 import quickml.supervised.crossValidation.PredictionMapResults;
 import quickml.supervised.crossValidation.lossfunctions.LabelPredictionWeight;
@@ -101,6 +104,23 @@ public class Utils {
         }
         return Lists.newArrayList(trainingData);
     }
+
+    public static <T extends ClassifierInstance> List<ClassifierInstance> iterableToListOfClassifierInstances(Iterable<T> trainingData) {
+        List<ClassifierInstance> returnList = Lists.newArrayListWithCapacity(Iterables.size(trainingData));
+        for (T instance : trainingData) {
+            returnList.add(instance);
+        }
+        return returnList;
+    }
+
+    public static <T extends SparseClassifierInstance> List<SparseClassifierInstance> iterableToListOfSparseClassifierInstances(Iterable<T> trainingData) {
+        List<SparseClassifierInstance> returnList = Lists.newArrayListWithCapacity(Iterables.size(trainingData));
+        for (T instance : trainingData) {
+            returnList.add(instance);
+        }
+        return returnList;
+    }
+
 
     public static <T extends InstanceWithAttributesMap<?>> TrueFalsePair<T> setTrueAndFalseTrainingSets(List<T> trainingData, Branch bestNode) {
         /**fly weight pattern */
