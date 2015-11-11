@@ -1,5 +1,6 @@
 package quickml.supervised.classifier.logRegression;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ import java.util.List;
 public class LogisticRegressionBuilderTest {
     public static final Logger logger = LoggerFactory.getLogger(LogisticRegressionBuilderTest.class);
 
-    //@Ignore //test takes too long, but is illustrative of how to build a model
+    @Ignore //test takes too long, but is illustrative of how to build a model
     @Test
     public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
@@ -77,6 +78,7 @@ public class LogisticRegressionBuilderTest {
         logger.info("RF out of time loss: {}", simpleCrossValidator.getLossForModel());
 
     }
+    
     @Test
     public void testDiabetesInstances() {
         //need a builder
