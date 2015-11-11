@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public class DatedAndMeanNormalizedLogisticRegressionDataTransformer<D extends LogisticRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, TransformedDataWithDates<SparseClassifierInstance, ?>> {
+public class DatedAndMeanNormalizedLogisticRegressionDataTransformer extends StandardDataTransformer<MeanNormalizedAndDatedLogisticRegressionDTO> {
     //to do: get label to digit Map and stick in DTO (and transform to logistic regression eventually)
     //make LogisticRegressionBuilder use this class and not be tightly coupled to mean normalization (e.g. allow log^2 values)
     //make cross validator take a datetransformer (specifically, the Logistic regression PMB, and then do the data normalization
@@ -37,15 +37,10 @@ public class DatedAndMeanNormalizedLogisticRegressionDataTransformer<D extends L
     */
 
     private OneHotEncoder<Serializable, ClassifierInstance, ClassifierInstance> oneHotEncoder;
-    private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
     private BinaryAndNumericAttributeNormalizer<Serializable, ClassifierInstance, ClassifierInstance> normalizer;
     private LabelToDigitConverter<Serializable, ClassifierInstance, ClassifierInstance> labelToDigitConverter;
     private ClassifierInstance2SparseClassifierInstance<Serializable, ClassifierInstance>  inputType2ReturnTypeTransformer;
 
-    private boolean useProductFeatures = false;
-    private boolean doLabelToDigitConversion = true;
-    private int minObservationsOfAttribute;
-    private Map<Serializable, Double> numericClassLabels;
 
     public DatedAndMeanNormalizedLogisticRegressionDataTransformer() {}
 
@@ -82,7 +77,7 @@ public class DatedAndMeanNormalizedLogisticRegressionDataTransformer<D extends L
 
     //shouldn't be hard coded as a logistic Regression DTO..or at least it should be an abstract type...or a generic?
     @Override
-    public D transformData(List<ClassifierInstance> trainingData){
+    public MeanNormalizedAndDatedLogisticRegressionDTO transformData(List<ClassifierInstance> trainingData){
         List<InstanceTransformer<ClassifierInstance, ClassifierInstance>> input2InputTransformations = Lists.newArrayList();
         List<ClassifierInstance> firstStageData;
         if (doLabelToDigitConversion) {
@@ -122,7 +117,7 @@ public class DatedAndMeanNormalizedLogisticRegressionDataTransformer<D extends L
                 input2InputTransformations, inputType2ReturnTypeTransformer);
 
         List<SparseClassifierInstance> sparseClassifierInstances = inputType2OutputdataTransformer.transformInstances(normalized);
-        return (D) new LogisticRegressionDTO<D>(sparseClassifierInstances, getNameToIndexMap(), getMeanStdMaxMins(), numericClassLabels);
+        return new MeanNormalizedAndDatedLogisticRegressionDTO(sparseClassifierInstances, getNameToIndexMap(), getMeanStdMaxMins(), numericClassLabels);
     }
 
     public HashMap<String, Integer> getNameToIndexMap(){

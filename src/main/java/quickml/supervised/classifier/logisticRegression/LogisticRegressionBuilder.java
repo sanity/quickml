@@ -20,8 +20,7 @@ import java.util.Set;
 /**
  * Created by alexanderhawk on 10/9/15.
  */
-// what really has to be generic here?
-//what is the simplest interface without type safety.
+
 
 public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> implements EnhancedPredictiveModelBuilder<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> {
     public boolean calibrateWithPoolAdjacentViolators = false;
@@ -30,26 +29,23 @@ public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> imple
     public static final String CALIBRATE_WITH_POOL_ADJACENT_VIOLATORS = "calibrateWithPoolAdjacentViolators";
     public static final String POOL_ADJACENT_VIOLATORS_MIN_WEIGHT = "poolAdjacentViolatorsMinWeight";
 
-    public DatedAndMeanNormalizedLogisticRegressionDataTransformer<D> logisticRegressionDataTransformer = new DatedAndMeanNormalizedLogisticRegressionDataTransformer();
+    public StandardDataTransformer<D> logisticRegressionDataTransformer;
 
-    private int minObservationsOfAttribute;
     private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
     private DataTransformer<ClassifierInstance, SparseClassifierInstance, D> dataTransformer;
     GradientDescent<SparseClassifierInstance> gradientDescent = new SparseSGD();
     private int minWeightForPavBuckets =2;
 
-    public LogisticRegressionBuilder(DataTransformer<ClassifierInstance, SparseClassifierInstance, D> dataTransformer) {
+    public LogisticRegressionBuilder(StandardDataTransformer<D> dataTransformer) {
         this.dataTransformer = dataTransformer;
     }
 
     public LogisticRegressionBuilder<D> productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
-        this.productFeatureAppender = productFeatureAppender;
         logisticRegressionDataTransformer.productFeatureAppender(productFeatureAppender);
         return this;
     }
 
     public LogisticRegressionBuilder<D> minObservationsOfAttribute(int minObservationsOfAttribute) {
-        this.minObservationsOfAttribute = minObservationsOfAttribute;
         logisticRegressionDataTransformer.minObservationsOfAttribute(minObservationsOfAttribute);
         return this;
     }
@@ -71,11 +67,7 @@ public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> imple
 
     @Override
     public D transformData(List<ClassifierInstance> rawInstances){
-        if (dataTransformer != null) {
             return dataTransformer.transformData(rawInstances);
-        } else {
-            return logisticRegressionDataTransformer.transformData(rawInstances);
-        }
     }
 
 
@@ -100,7 +92,7 @@ public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> imple
 
     // Could have a model factory that has no generics on D store all the information that the DTO stores...have an object specific setter, and a "getModelMethod. This factory it would consume the
     // model builder...and then finush off the build. Would it have to be generic?
-    private LogisticRegression getUncalibratedModel(LogisticRegressionDTO logisticRegressionDTO, double[] weights) {
+    private LogisticRegression getUncalibratedModel(D logisticRegressionDTO, double[] weights) {
         LogisticRegression uncalibrated;
         if (logisticRegressionDTO.getNumericClassLabels() == null) {
             Set<Double> classifications = InstanceTransformerUtils.getClassifications(logisticRegressionDTO.getTransformedInstances());

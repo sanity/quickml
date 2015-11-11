@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/28/15.
  */
-public abstract class LogisticRegressionDTO<D extends LogisticRegressionDTO<D>> implements TransformedDataWithDates<SparseClassifierInstance, D>{
+public  abstract class LogisticRegressionDTO<D extends LogisticRegressionDTO<D>> implements TransformedDataWithDates<SparseClassifierInstance, D> {
 
     protected List<SparseClassifierInstance> instances;
     protected HashMap<String, Integer> nameToIndexMap;

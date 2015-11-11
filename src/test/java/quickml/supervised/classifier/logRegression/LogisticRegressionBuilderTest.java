@@ -31,7 +31,7 @@ public class LogisticRegressionBuilderTest {
 
     //@Ignore //test takes too long, but is illustrative of how to build a model
     @Test
-    public <D extends LogisticRegressionDTO<D>>void testAdInstances() {
+    public void testAdInstances() {
         List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
         logger.info("got instances");
         CommonCoocurrenceProductFeatureAppender productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>()
@@ -42,24 +42,24 @@ public class LogisticRegressionBuilderTest {
                 .setMinOverlap(20)
                 .setIgnoreAttributesCommonToAllInsances(true);
 
-        DatedAndMeanNormalizedLogisticRegressionDataTransformer<D> lrdt = new DatedAndMeanNormalizedLogisticRegressionDataTransformer<>()
+        DatedAndMeanNormalizedLogisticRegressionDataTransformer lrdt = new DatedAndMeanNormalizedLogisticRegressionDataTransformer()
                 .minObservationsOfAttribute(35)
                 .usingProductFeatures(true)
                 .productFeatureAppender(productFeatureAppender);
 
-        LogisticRegressionBuilder<D> logisticRegressionBuilder =  new LogisticRegressionBuilder(lrdt)
+        LogisticRegressionBuilder<MeanNormalizedAndDatedLogisticRegressionDTO> logisticRegressionBuilder =  new LogisticRegressionBuilder<MeanNormalizedAndDatedLogisticRegressionDTO>(lrdt)
                         .calibrateWithPoolAdjacentViolators(false)
                         .gradientDescent(new SparseSGD()
                                         .ridgeRegularizationConstant(0.1)
                                         .learningRate(.0025)
-                                        .minibatchSize(3000)
+                                        .minibatchSize(1000)
                                         .minEpochs(1000)
                                         .maxEpochs(1000)
                                         .minPredictedProbablity(1E-3)
                                         .sparseParallelization(true)
                         );
         double start = System.nanoTime();
-        EnhancedCrossValidator<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> enhancedCrossValidator = new EnhancedCrossValidator<>(logisticRegressionBuilder,
+        EnhancedCrossValidator<LogisticRegression, ClassifierInstance, SparseClassifierInstance, MeanNormalizedAndDatedLogisticRegressionDTO> enhancedCrossValidator = new EnhancedCrossValidator<>(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
                         new OutOfTimeDataFactory(0.25, 48), instances);
 
@@ -78,19 +78,19 @@ public class LogisticRegressionBuilderTest {
 
     }
     @Test
-    public <D extends LogisticRegressionDTO<D>>  void testDiabetesInstances() {
+    public void testDiabetesInstances() {
         //need a builder
         List<ClassifierInstance> instances = BenchmarkTest.loadDiabetesDataset();
         CommonCoocurrenceProductFeatureAppender productFeatureAppender = new CommonCoocurrenceProductFeatureAppender<>().setMinObservationsOfRawAttribute(1)
                 .setAllowNumericProductFeatures(true)
                 .setApproximateOverlap(true)
                 .setMinOverlap(0);
-        DatedAndMeanNormalizedLogisticRegressionDataTransformer<D> lrdt = new DatedAndMeanNormalizedLogisticRegressionDataTransformer<>()
+        DatedAndMeanNormalizedLogisticRegressionDataTransformer lrdt = new DatedAndMeanNormalizedLogisticRegressionDataTransformer()
                 .minObservationsOfAttribute(1)
                 .usingProductFeatures(true)
                 .productFeatureAppender(productFeatureAppender);
 
-        LogisticRegressionBuilder logisticRegressionBuilder = new LogisticRegressionBuilder(lrdt);
+        LogisticRegressionBuilder<MeanNormalizedAndDatedLogisticRegressionDTO> logisticRegressionBuilder = new LogisticRegressionBuilder<MeanNormalizedAndDatedLogisticRegressionDTO>(lrdt);
         logisticRegressionBuilder.gradientDescent(new SparseSGD()
                 .executorThreadCount(3)
                 .sparseParallelization(false)
@@ -103,7 +103,7 @@ public class LogisticRegressionBuilderTest {
                 .learningRateReductionFactor(0.01));
         ClassifierLossFunction lossFunction = new WeightedAUCCrossValLossFunction(1.0);//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
 
-        EnhancedCrossValidator<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> enhancedCrossValidator = new EnhancedCrossValidator<>(logisticRegressionBuilder,
+        EnhancedCrossValidator<LogisticRegression, ClassifierInstance, SparseClassifierInstance, MeanNormalizedAndDatedLogisticRegressionDTO> enhancedCrossValidator = new EnhancedCrossValidator<>(logisticRegressionBuilder,
                 new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
                 new FoldedDataFactory(4, 4), instances);
 
