@@ -78,7 +78,7 @@ public class LogisticRegressionBuilderTest {
         logger.info("RF out of time loss: {}", simpleCrossValidator.getLossForModel());
 
     }
-    
+
     @Test
     public void testDiabetesInstances() {
         //need a builder
