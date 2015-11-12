@@ -28,7 +28,7 @@ public class PredictiveModelOptimizer {
      * @param crossValidator - Model tester takes a configuration and returns the loss
      */
 
-    public PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> fieldsToOptimize, SimpleCrossValidator crossValidator, int iterations) {
+    public PredictiveModelOptimizer(Map<String, ? extends FieldValueRecommender> fieldsToOptimize, CrossValidator crossValidator, int iterations) {
         this.fieldsToOptimize = fieldsToOptimize;
         this.crossValidator = crossValidator;
         this.iterations = iterations;
