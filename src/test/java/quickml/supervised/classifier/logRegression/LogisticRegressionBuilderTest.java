@@ -17,6 +17,7 @@ import quickml.supervised.crossValidation.SimpleCrossValidator;
 import quickml.supervised.crossValidation.data.FoldedData;
 import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.WeightedAUCCrossValLossFunction;
 import quickml.supervised.dataProcessing.instanceTranformer.CommonCoocurrenceProductFeatureAppender;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
@@ -103,10 +104,10 @@ public class LogisticRegressionBuilderTest {
                 .maxEpochs(16000)
                 .useBoldDriver(false)
                 .learningRateReductionFactor(0.01));
-        ClassifierLossFunction lossFunction = new WeightedAUCCrossValLossFunction(1.0);//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
+        ClassifierLossFunction lossFunction = new ClassifierRMSELossFunction();//);//new ClassifierRMSELossFunction();//new WeightedAUCCrossValLossFunction(1.0);//new ClassifierRMSELossFunction();//new ClassifierLogCVLossFunction(1E-5);//new WeightedAUCCrossValLossFunction(1.0);
 
         EnhancedCrossValidator<LogisticRegression, ClassifierInstance, SparseClassifierInstance, MeanNormalizedAndDatedLogisticRegressionDTO> enhancedCrossValidator = new EnhancedCrossValidator<>(logisticRegressionBuilder,
-                new ClassifierLossChecker(new WeightedAUCCrossValLossFunction(1.0)),
+                new ClassifierLossChecker(lossFunction),
                 new FoldedDataFactory(4, 4), instances);
 
 
