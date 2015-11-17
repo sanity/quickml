@@ -18,12 +18,6 @@ import java.util.Map;
  * Created by alexanderhawk on 10/14/15.
  */
 public abstract class StandardDataTransformer<D extends LogisticRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, D> {
-    //to do: get label to digit Map and stick in DTO (and transform to logistic regression eventually)
-    //make LogisticRegressionBuilder use this class and not be tightly coupled to mean normalization (e.g. allow log^2 values)
-    //make cross validator take a datetransformer (specifically, the Logistic regression PMB, and then do the data normalization
-    // and set the date time extractor)
-
-
     /**
      * class provides the method: transformInstances, to convert a set of classifier instances into instances that can be processed by
      * the LogisticRegressionBuilder.
@@ -32,9 +26,7 @@ public abstract class StandardDataTransformer<D extends LogisticRegressionDTO<D>
      * product feature appendation as well as common co-occurences should be hyper-params within logistic regression.
      *
      */
-    /*Options, wrap logistic regression? in a new logistic regression class that has a logistic reg transformer?
-            * Or change sparse classifier instance as the the type of Logistic Regression?  I almost prefer this.  So now to use it...one just passes in a normal list of training instances
-    */
+
 
     protected ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
 
