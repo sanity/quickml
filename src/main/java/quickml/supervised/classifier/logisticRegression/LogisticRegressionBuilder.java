@@ -32,12 +32,11 @@ public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> imple
     public StandardDataTransformer<D> logisticRegressionDataTransformer;
 
     private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
-    private DataTransformer<ClassifierInstance, SparseClassifierInstance, D> dataTransformer;
     GradientDescent<SparseClassifierInstance> gradientDescent = new SparseSGD();
     private int minWeightForPavBuckets =2;
 
     public LogisticRegressionBuilder(StandardDataTransformer<D> dataTransformer) {
-        this.dataTransformer = dataTransformer;
+        this.logisticRegressionDataTransformer = dataTransformer;
     }
 
     public LogisticRegressionBuilder<D> productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
@@ -67,7 +66,7 @@ public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> imple
 
     @Override
     public D transformData(List<ClassifierInstance> rawInstances){
-            return dataTransformer.transformData(rawInstances);
+            return logisticRegressionDataTransformer.transformData(rawInstances);
     }
 
 
