@@ -130,6 +130,7 @@ public class LogisticRegressionBuilderTest {
         logger.info("RF out of time loss: {}", simpleCrossValidator.getLossForModel());
     }
 
+    @Ignore
     @Test
     public void optimizerTest(){
 
@@ -165,7 +166,6 @@ public class LogisticRegressionBuilderTest {
 
 
 
-        final int timeSliceHours =48;
 
 
         Map<String, FieldValueRecommender> sgdParams = Maps.newHashMap();
