@@ -1,11 +1,7 @@
 package quickml.supervised.tree.regressionTree.attributeValueIgnoringStrategies;
 
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.regressionTree.valueCounters.MeanValueCounter;
-
-import java.io.Serializable;
-import java.util.Map;
 
 /**
  * Created by alexanderhawk on 3/18/15.
@@ -18,7 +14,7 @@ public class RegTreeAttributeValueIgnoringStrategy implements AttributeValueIgno
     }
 
     public boolean shouldWeIgnoreThisValue(final MeanValueCounter termStatistics) {
-        if (termStatistics.getWeightedNumValues() < minOccurancesOfAttributeValue) {
+        if (termStatistics.getTotal() < minOccurancesOfAttributeValue) {
             return true;
         }
         return false;

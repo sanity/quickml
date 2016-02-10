@@ -9,9 +9,6 @@ import quickml.data.PredictionMap;
 import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.ensembles.randomForest.RandomForest;
 import quickml.supervised.tree.decisionTree.DecisionTree;
-import quickml.supervised.tree.decisionTree.nodes.DTLeaf;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
-import quickml.supervised.tree.nodes.Leaf;
 
 import java.io.Serializable;
 import java.util.*;

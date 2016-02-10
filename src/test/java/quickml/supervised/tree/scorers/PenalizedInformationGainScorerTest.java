@@ -1,10 +1,8 @@
 package quickml.supervised.tree.scorers;
 
 import org.junit.Assert;
-import org.junit.Before;
 
 import org.junit.Test;
-import quickml.supervised.tree.decisionTree.scorers.GRPenalizedGiniImpurityScorer;
 import quickml.supervised.tree.decisionTree.scorers.PenalizedInformationGainScorer;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;

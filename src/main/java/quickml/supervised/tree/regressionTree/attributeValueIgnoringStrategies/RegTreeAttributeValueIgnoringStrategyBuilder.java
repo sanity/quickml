@@ -3,9 +3,9 @@ package quickml.supervised.tree.regressionTree.attributeValueIgnoringStrategies;
 
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategy;
 import quickml.supervised.tree.attributeValueIgnoringStrategies.AttributeValueIgnoringStrategyBuilder;
-import quickml.supervised.tree.decisionTree.attributeValueIgnoringStrategies.BinaryClassAttributeValueIgnoringStrategy;
-import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.regressionTree.valueCounters.MeanValueCounter;
+
+import javax.annotation.Nullable;
 
 public class RegTreeAttributeValueIgnoringStrategyBuilder implements AttributeValueIgnoringStrategyBuilder<MeanValueCounter> {
 

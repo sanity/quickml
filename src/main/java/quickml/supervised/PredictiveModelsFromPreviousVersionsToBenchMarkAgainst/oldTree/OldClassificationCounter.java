@@ -6,6 +6,7 @@ import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.collections.ValueSummingMap;
 import quickml.data.instances.ClassifierInstance;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -25,7 +26,7 @@ public class OldClassificationCounter implements Serializable {
         this.counts.putAll(classificationCounter.counts);
     }
 
-    public OldClassificationCounter(quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter classificationCounter) {
+    public OldClassificationCounter(ClassificationCounter classificationCounter) {
         this.counts.putAll(classificationCounter.getCounts());
     }
 

@@ -2,7 +2,6 @@ package quickml.supervised.tree.regressionTree.valueCounters;
 
 import org.javatuples.Pair;
 
-import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.RegressionInstance;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
@@ -13,7 +12,8 @@ import java.io.Serializable;
 public class MeanValueCounter extends ValueCounter<MeanValueCounter> implements Serializable {
     private static final long serialVersionUID = -6821237234748044623L;
     private double accumulatedValue = 0;
-    private double weightedNumValues = 0;
+    private double accumulatedSquares = 0;
+    private double accumulatedWeight = 0;
 
 
     private boolean hasSufficientData = true;
@@ -22,22 +22,27 @@ public class MeanValueCounter extends ValueCounter<MeanValueCounter> implements 
         this.hasSufficientData = hasSufficientData;
     }
 
-    public double getWeightedNumValues() {
-        return weightedNumValues;
+
+    public double getAccumulatedValue() {
+        return accumulatedValue;
+    }
+    public double getAccumulatedSquares() {
+        return accumulatedSquares;
     }
 
     public static MeanValueCounter accumulateAll(final Iterable<? extends RegressionInstance> instances){
         final MeanValueCounter result = new MeanValueCounter();
         for (RegressionInstance instance : instances) {
-            result.add(instance.getLabel(), instance.getWeight());
+            result.update(instance.getLabel(), instance.getWeight());
         }
         return result;
 
     }
 
-    private void add(double value, double weight) {
+    public void update(double value, double weight) {
         this.accumulatedValue+=value*weight;
-        this.weightedNumValues +=weight;
+        this.accumulatedSquares+=value*value*weight;
+        this.accumulatedWeight +=weight;
     }
 
 
@@ -50,39 +55,41 @@ public class MeanValueCounter extends ValueCounter<MeanValueCounter> implements 
         super(attrVal);
     }
 
-    public MeanValueCounter(Serializable attrVal, double weightedNumValues, double accumulatedValue) {
+    public MeanValueCounter(Serializable attrVal, double accumulatedWeight, double accumulatedValue, double accumulatedSquares) {
         this(attrVal);
-        this.weightedNumValues = weightedNumValues;
+        this.accumulatedWeight = accumulatedWeight;
+        this.accumulatedSquares = accumulatedSquares;
         this.accumulatedValue = accumulatedValue;
     }
 
     public boolean isEmpty() {
-        return weightedNumValues ==0;
+        return accumulatedWeight ==0;
     }
 
     public MeanValueCounter(MeanValueCounter meanValueCounter) {
         super(meanValueCounter.attrVal);
-        this.weightedNumValues += meanValueCounter.weightedNumValues;
+        this.accumulatedWeight += meanValueCounter.accumulatedWeight;
         this.accumulatedValue += meanValueCounter.accumulatedValue;
+        this.accumulatedSquares += meanValueCounter.accumulatedSquares;
     }
 
     @Override
     public MeanValueCounter add(final MeanValueCounter other) {
-        double weightedNumValues = this.weightedNumValues + other.weightedNumValues;
-
-        return new MeanValueCounter(this.attrVal, weightedNumValues, this.accumulatedValue + other.accumulatedValue);
+        double weightedNumValues = this.accumulatedWeight + other.accumulatedWeight;
+        double accumulatedValue = this.accumulatedValue + other.accumulatedValue;
+        double accumulatedSquares = this.accumulatedSquares + other.accumulatedSquares;
+        return new MeanValueCounter(this.attrVal, weightedNumValues, accumulatedValue, accumulatedSquares);
     }
 
     public MeanValueCounter subtract(final MeanValueCounter other) {
-        double weightedNumValues = this.weightedNumValues - other.weightedNumValues;
-        if ( weightedNumValues < 0)
-            throw new RuntimeException("shouldn't have neg values");
-        return new MeanValueCounter(this.attrVal,  weightedNumValues, this.accumulatedValue - other.accumulatedValue);
-    }
+        double weightedNumValues = this.accumulatedWeight - other.accumulatedWeight;
+        double accumulatedValue = this.accumulatedValue - other.accumulatedValue;
+        double accumulatedSquares = this.accumulatedSquares - other.accumulatedSquares;
+        return new MeanValueCounter(this.attrVal, weightedNumValues, accumulatedValue, accumulatedSquares);  }
 
     @Override
     public double getTotal() {
-        return accumulatedValue;
+        return accumulatedWeight;
     }
 
 
@@ -93,18 +100,19 @@ public class MeanValueCounter extends ValueCounter<MeanValueCounter> implements 
 
         MeanValueCounter that = (MeanValueCounter) o;
 
-        if (this.accumulatedValue != that.accumulatedValue || this.weightedNumValues !=that.weightedNumValues) return false;
+        if (this.accumulatedValue != that.accumulatedValue || this.accumulatedWeight !=that.accumulatedWeight) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return new Pair<Double, Double>(weightedNumValues, accumulatedValue).hashCode();
+        return new Pair<Double, Double>(accumulatedWeight, accumulatedValue).hashCode();
     }
 
     @Override
     public String toString() {
-        return "weightedNumValues: " + weightedNumValues + ", accumulatedValue: " + accumulatedValue;
+        return "accumulatedWeight: " + accumulatedWeight + ", accumulatedValue: " + accumulatedValue
+               + ", accumulatedSquares: " + accumulatedSquares;
     }
 }

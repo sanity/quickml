@@ -2,7 +2,6 @@ package quickml.supervised.tree.decisionTree.scorers;
 
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
-import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.scorers.GRScorer;
 
 import java.io.Serializable;

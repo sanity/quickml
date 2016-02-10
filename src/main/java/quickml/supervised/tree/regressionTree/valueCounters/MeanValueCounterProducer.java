@@ -1,6 +1,5 @@
 package quickml.supervised.tree.regressionTree.valueCounters;
 
-import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.RegressionInstance;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.summaryStatistics.ValueCounterProducer;
