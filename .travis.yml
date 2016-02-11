@@ -1,4 +1,4 @@
 language: java
 sudo: false
 after_success:
-  - mvn clean coveralls:report
+  - mvn clean cobertura:cobertura coveralls:report
