@@ -30,7 +30,8 @@ public class PenalizedMSEScorer extends GRImbalancedScorer<MeanValueCounter> {
     }
 
     private double getTotalError(MeanValueCounter mvc) {
-        double totalError = mvc.getAccumulatedSquares() - mvc.getAccumulatedValue()*mvc.getAccumulatedValue()*mvc.getTotal();
+        //below: total MSE for using the mvc as a leaf is Sum( (yi- mean)^2 ) = accumulatedSquares - mean^2 *numSamples
+        double totalError = (mvc.getAccumulatedSquares() - mvc.getAccumulatedValue()*mvc.getAccumulatedValue()/mvc.getTotal());
         return totalError;
     }
 

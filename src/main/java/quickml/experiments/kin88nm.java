@@ -1,6 +1,10 @@
 package quickml.experiments;
 
 import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.RegressionInstance;
+import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
+import quickml.supervised.tree.regressionTree.RegressionTree;
+import quickml.supervised.tree.regressionTree.RegressionTreeBuilder;
 import quickml.utlities.CSVToInstanceReader;
 import quickml.utlities.CSVToInstanceReaderBuilder;
 import quickml.utlities.selectors.NumericSelector;
@@ -23,10 +27,21 @@ public class kin88nm {
             public String cleanValue(String value) {
                 return value;
             }
-        }).delimiter(',').collumnNameForLabel("y");
+        }).delimiter(',').collumnNameForLabel("x0").hasHeader(false);
         CSVToInstanceReader csvToInstanceReader =csvToInstanceReaderBuilder.buildCsvReader();
         try {
-            List<ClassifierInstance> allTrainingData = csvToInstanceReader.readCsv("");
+            List<RegressionInstance> allTrainingData = csvToInstanceReader.readRegressionInstancesFromCsv("uci-20070111-kin8nm.csv");
+            RegressionTreeBuilder<RegressionInstance> regressionTreeBuilder
+                    = new RegressionTreeBuilder<>()
+                    .degreeOfGainRatioPenalty(1.0)
+                    .attributeIgnoringStrategy(new IgnoreAttributesWithConstantProbability(0.0))
+                    .maxDepth(4)
+                    .minAttributeValueOccurences(0)
+                    .numNumericBins(5)
+                    .numSamplesPerNumericBin(5);
+
+            RegressionTree regressionTree = regressionTreeBuilder.buildPredictiveModel(allTrainingData);
+            System.out.println("here");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

@@ -86,8 +86,8 @@ public class RegressionTree implements Tree<Double> {
         } else if (node instanceof Leaf) {
             Leaf<MeanValueCounter> leaf = (Leaf<MeanValueCounter>) node;
             MeanValueCounter meanValueCounter = leaf.getValueCounter();
-            double prob = meanValueCounter.getAccumulatedValue()/ meanValueCounter.getTotal();
-            return prob;
+            double expectedValue = meanValueCounter.getAccumulatedValue()/ meanValueCounter.getTotal();
+            return expectedValue;
         }
         else {
             throw new RuntimeException("node not a branch or a leaf");
