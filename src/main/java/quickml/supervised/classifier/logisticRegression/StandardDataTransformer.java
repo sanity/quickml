@@ -1,23 +1,19 @@
 package quickml.supervised.classifier.logisticRegression;
 
-import com.google.common.collect.Lists;
 import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.ClassifierInstanceFactory;
-import quickml.supervised.Utils;
 import quickml.supervised.dataProcessing.AttributeCharacteristics;
 import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
-import quickml.supervised.dataProcessing.ElementaryDataTransformer;
 import quickml.supervised.dataProcessing.instanceTranformer.*;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public abstract class StandardDataTransformer<D extends LogisticRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, D> {
+public abstract class StandardDataTransformer<D extends LinearRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, D> {
     /**
      * class provides the method: transformInstances, to convert a set of classifier instances into instances that can be processed by
      * the LogisticRegressionBuilder.

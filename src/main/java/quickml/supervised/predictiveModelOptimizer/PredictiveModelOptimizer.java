@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.supervised.crossValidation.CrossValidator;
-import quickml.supervised.crossValidation.SimpleCrossValidator;
 
 import java.io.Serializable;
 import java.util.*;
@@ -16,10 +15,11 @@ public class PredictiveModelOptimizer {
 
     private Map<String, ? extends FieldValueRecommender> fieldsToOptimize; //should pass in
     private final CrossValidator crossValidator;
+    private HashMap<String, Serializable> localBestConfig;  //should be a param: not be stateful
     private HashMap<String, Serializable> bestConfig;  //should be a param: not be stateful
     private final int iterations;//should be param
     private int iteration; //should not be a field
-    private List<ConfigWithLoss> configsWithLosses;
+    private List<ConfigWithLoss> configsWithLosses = Lists.newArrayList();
 
 
     /**
@@ -32,7 +32,7 @@ public class PredictiveModelOptimizer {
         this.fieldsToOptimize = fieldsToOptimize;
         this.crossValidator = crossValidator;
         this.iterations = iterations;
-        this.bestConfig = setBestConfigToFirstValues(fieldsToOptimize);
+        this.localBestConfig = setBestConfigToFirstValues(fieldsToOptimize);
     }
 
 
@@ -44,24 +44,34 @@ public class PredictiveModelOptimizer {
     public Map<String, Serializable> determineOptimalConfig() {
         for (iteration = 0; iteration < iterations; iteration++) {
             logger.info("Starting iteration - {}", iteration);
-            HashMap<String, Serializable> previousConfig = copyOf(bestConfig);
+            HashMap<String, Serializable> previousConfig = copyOf(localBestConfig);
             updateBestConfig();
-            if (bestConfig.equals(previousConfig))
+            if (localBestConfig.equals(previousConfig))
                 break;
         }
-        return bestConfig;
+        sortConfigsWithLosses();
+        return configsWithLosses.get(0).config;
     }
 
     public List<ConfigWithLoss> exploreConfigs() {
         configsWithLosses = Lists.newArrayList();
         for (iteration = 0; iteration < iterations; iteration++) {
             logger.info("Starting iteration - {}", iteration);
-            HashMap<String, Serializable> previousConfig = copyOf(bestConfig);
+            HashMap<String, Serializable> previousConfig = copyOf(localBestConfig);
             updateBestConfig();
-            if (bestConfig.equals(previousConfig))
+            if (localBestConfig.equals(previousConfig))
                 break;
         }
         return configsWithLosses;
+    }
+
+    private void sortConfigsWithLosses() {
+        Collections.sort(configsWithLosses, new Comparator<ConfigWithLoss>() {
+            @Override
+            public int compare(ConfigWithLoss o1, ConfigWithLoss o2) {
+                return Double.compare(o1.loss, o2.loss);
+            }
+        });
     }
 
     private void updateBestConfig() {
@@ -77,27 +87,27 @@ public class PredictiveModelOptimizer {
         if (fieldValueRecommender.getValues().size() == 1) {
             return;
         }
-        //bestConfig is not actually bestConfig inth for loop
+        //localBestConfig is not actually localBestConfig inth for loop
         logger.info("values to try: {} ", fieldValueRecommender.getValues().toString());
         for (Serializable value : fieldValueRecommender.getValues()) {
             //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
-            if (bestConfig.get(field).equals(value) && iteration > 0) {
+            if (localBestConfig.get(field).equals(value) && iteration > 0) {
                 logger.info("skipping field value {} bc value {} already tried ", field, value );
                 continue;  //safe to continue bc everything else about the config is the same.
             }
-            bestConfig.put(field, value);
-            double lossForModel = crossValidator.getLossForModel(bestConfig);
-            logger.info("loss: {}, for field {}, config {}", lossForModel, field, bestConfig );
+            localBestConfig.put(field, value);
+            double lossForModel = crossValidator.getLossForModel(localBestConfig);
+            logger.info("loss: {}, for field {}, config {}", lossForModel, field, localBestConfig);
             losses.addFieldLoss(value, lossForModel);
             if (configsWithLosses!=null) {
-                configsWithLosses.add(new ConfigWithLoss(lossForModel, copyOf(bestConfig)));
+                configsWithLosses.add(new ConfigWithLoss(lossForModel, copyOf(localBestConfig)));
             }
 
             if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }
 
-        bestConfig.put(field, losses.valueWithLowestLoss());
+        localBestConfig.put(field, losses.valueWithLowestLoss());
     }
 
     private HashMap<String, Serializable> setBestConfigToFirstValues(Map<String, ? extends FieldValueRecommender> config) {
