@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/14/15.
  */
-public abstract class StandardDataTransformer<D extends LinearRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, D> {
+public abstract class StandardDataTransformer<D extends LogisticRegressionDTO<D>> implements DataTransformer<ClassifierInstance, SparseClassifierInstance, D> {
     /**
      * class provides the method: transformInstances, to convert a set of classifier instances into instances that can be processed by
      * the LogisticRegressionBuilder.

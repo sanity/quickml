@@ -4,106 +4,120 @@ package quickml.supervised.regressionModel.LinearRegression2;
  * Created by alexanderhawk on 10/12/15.
  */
 
-import quickml.data.instances.ClassifierInstance;
+import com.google.common.collect.Lists;
+import org.ejml.alg.dense.decomposition.chol.CholeskyDecompositionBlock;
+import org.ejml.alg.dense.decomposition.chol.CholeskyDecompositionCommon;
+import org.ejml.alg.dense.linsol.chol.LinearSolverChol;
+import org.ejml.data.D1Matrix64F;
+import org.ejml.data.DenseMatrix64F;
+import quickml.data.instances.RegressionInstance;
 import quickml.data.instances.SparseRegressionInstance;
-import quickml.supervised.EnhancedPredictiveModelBuilder;
-import quickml.supervised.Utils;
-import quickml.supervised.classifier.logisticRegression.LinearRegressionDTO;
-import quickml.supervised.dataProcessing.instanceTranformer.ProductFeatureAppender;
-import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
+import quickml.supervised.PredictiveModelBuilder;
+import quickml.supervised.classifier.logisticRegression.InstanceTransformerUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.ejml.alg.dense.linsol.*;
+import static org.ejml.ops.CommonOps.*;
 
 /**
  * Created by alexanderhawk on 10/9/15.
  */
 
 
-public class SimpleRidgeRegressionBuilder<D extends LinearRegressionDTO<D>> implements EnhancedPredictiveModelBuilder<LinearModel, ClassifierInstance, SparseRegressionInstance, D> {
-    public boolean calibrateWithPoolAdjacentViolators = false;
+public class SimpleRidgeRegressionBuilder<T extends RegressionInstance> implements PredictiveModelBuilder<LinearModel, RegressionInstance> {
     public static final String MIN_OBSERVATIONS_OF_ATTRIBUTE= "minObservationsOfAttribute";
-    public static final String PRODUCT_FEATURE_APPENDER = "productFeatureAppender";
-    public static final String CALIBRATE_WITH_POOL_ADJACENT_VIOLATORS = "calibrateWithPoolAdjacentViolators";
-    public static final String POOL_ADJACENT_VIOLATORS_MIN_WEIGHT = "poolAdjacentViolatorsMinWeight";
+    public static final String RIDGE_REGULARIZATION_CONSTANT = "ridgeRegularizationConstant";
+    public static final String USE_BIAS = "useBias";
 
-    public StandardDataTransformer<D> logisticRegressionDataTransformer;
 
-    private ProductFeatureAppender<ClassifierInstance> productFeatureAppender;
-    GradientDescent<SparseRegressionInstance> gradientDescent = new SparseSGD();
-    private int minWeightForPavBuckets =2;
 
-    public SimpleRidgeRegressionBuilder(StandardDataTransformer<D> dataTransformer) {
-        this.logisticRegressionDataTransformer = dataTransformer;
-    }
+    private int minObservationsOfAttribute;
+    private double ridgeRegularizationConstant;
+    private boolean useBias = true;
 
-    public SimpleRidgeRegressionBuilder<D> productFeatureAppender(ProductFeatureAppender<ClassifierInstance> productFeatureAppender) {
-        logisticRegressionDataTransformer.productFeatureAppender(productFeatureAppender);
+    public SimpleRidgeRegressionBuilder<T> minObservationsOfAttribute(int minObservationsOfAttribute) {
+        this.minObservationsOfAttribute = minObservationsOfAttribute;
         return this;
     }
 
-    public SimpleRidgeRegressionBuilder<D> minObservationsOfAttribute(int minObservationsOfAttribute) {
-        logisticRegressionDataTransformer.minObservationsOfAttribute(minObservationsOfAttribute);
+    public SimpleRidgeRegressionBuilder<T> ridgeRegularizationConstant(double ridgeConstant) {
+        this.ridgeRegularizationConstant = ridgeConstant;
         return this;
     }
 
-    public SimpleRidgeRegressionBuilder<D> gradientDescent(GradientDescent gradientDescent) {
-        this.gradientDescent = gradientDescent;
-        return this;
-    }
-
-    public SimpleRidgeRegressionBuilder<D> calibrateWithPoolAdjacentViolators(boolean calibrateWithPoolAdjacentViolators) {
-        this.calibrateWithPoolAdjacentViolators = calibrateWithPoolAdjacentViolators;
-        return this;
-    }
-
-    public SimpleRidgeRegressionBuilder<D> poolAdjacentViolatorsMinWeight(int minWeightForPavBuckets) {
-        this.minWeightForPavBuckets = minWeightForPavBuckets;
+    public SimpleRidgeRegressionBuilder<T> useBias(boolean useBias) {
+        this.useBias = useBias;
         return this;
     }
 
     @Override
-    public D transformData(List<ClassifierInstance> rawInstances){
-            return logisticRegressionDataTransformer.transformData(rawInstances);
-    }
+    public LinearModel buildPredictiveModel(Iterable<RegressionInstance> trainingData) {
+        List<RegressionInstance> trainingDataList = Lists.newArrayList(trainingData);
+        Map<String, Integer> nameToIndexMap = InstanceTransformerUtils.populateNameToIndexMap(trainingDataList, useBias);
+        int numVariables = nameToIndexMap.size();
 
-
-    @Override
-    public LogisticRegression buildPredictiveModel(D logisticRegressionDTO) {
-        List<SparseRegressionInstance> sparseClassifierInstances =logisticRegressionDTO.getTransformedInstances();
-        double[] weights = gradientDescent.minimize(sparseClassifierInstances, logisticRegressionDTO.getNameToIndexMap().size());
-        LogisticRegression uncalibrated = getUncalibratedModel(logisticRegressionDTO, weights);
-        if (calibrateWithPoolAdjacentViolators) {
-            PoolAdjacentViolatorsModel poolAdjacentViolatorsModel =
-                    new PoolAdjacentViolatorsModel(SimpleRidgeRegressionBuilder.<SparseRegressionInstance>getPavPredictions(logisticRegressionDTO.getTransformedInstances(),
-                            uncalibrated), minWeightForPavBuckets);
-            return new LogisticRegression(uncalibrated, poolAdjacentViolatorsModel);
+        double[][] data =          new double[trainingDataList.size()][numVariables];
+        double[][] responseArray = new double[trainingDataList.size()][1];
+        for (int row = 0; row < trainingDataList.size(); row++) {
+            RegressionInstance regressionInstance = trainingDataList.get(row);
+            data[row] = SparseRegressionInstance.getArrayOfValues(regressionInstance, nameToIndexMap, useBias);
+            responseArray[row][0] = regressionInstance.getLabel();
         }
-        return uncalibrated;
+
+        DenseMatrix64F dataMatrix = new DenseMatrix64F(data);
+        DenseMatrix64F dataMatrixTranspose = getTranspose(dataMatrix);
+        DenseMatrix64F symmetricMatrix=getSymmetricMatrix(numVariables, dataMatrix, dataMatrixTranspose);
+        DenseMatrix64F response =  new DenseMatrix64F(responseArray);
+     //   transpose(response);
+
+        LinearSolverChol linearSolverChol = new LinearSolverChol(new CholeskyDecompositionBlock(numVariables));// new CholeskyDecompositionCommon(true));
+        linearSolverChol.setA(symmetricMatrix);
+
+        DenseMatrix64F dataMatrixTransposeTimesResponse = getDataMatrixTransposeTimesResponse(numVariables, dataMatrixTranspose, response);
+        DenseMatrix64F coefficients = new DenseMatrix64F(numVariables);
+        linearSolverChol.solve(dataMatrixTransposeTimesResponse, coefficients);
+
+        return new LinearModel(coefficients.getData(), nameToIndexMap, useBias);
     }
 
-    private LinearRegressionDTO getLogisticRegressionDTO(Iterable<? extends ClassifierInstance> trainingData) {
-        List<ClassifierInstance> trainingDataList = Utils.iterableToListOfClassifierInstances(trainingData);
-        return logisticRegressionDataTransformer.transformData(trainingDataList);
+    private DenseMatrix64F getDataMatrixTransposeTimesResponse(int numVariables, DenseMatrix64F dataMatrixTranspose, DenseMatrix64F response) {
+        DenseMatrix64F multipliedResponse = new DenseMatrix64F(numVariables,1);
+        mult(dataMatrixTranspose, response, multipliedResponse);
+        return multipliedResponse;
     }
 
+
+    private DenseMatrix64F getSymmetricMatrix(int numVariables, DenseMatrix64F dataMatrix, DenseMatrix64F dataMatrixTranspose) {
+        DenseMatrix64F symmetricMatrix = new DenseMatrix64F(numVariables, numVariables);
+        mult(dataMatrixTranspose, dataMatrix, symmetricMatrix);
+        for (int i = 0; i<dataMatrix.getNumCols(); i++) {
+            double diagonalElement = ridgeRegularizationConstant + symmetricMatrix.get(i, i);
+            symmetricMatrix.set(i, i, diagonalElement);
+        }
+        return symmetricMatrix;
+    }
+
+    private DenseMatrix64F getTranspose(DenseMatrix64F dataMatrix) {
+        DenseMatrix64F dataMatrixTranspose = dataMatrix.copy();
+        transpose(dataMatrixTranspose);
+        return dataMatrixTranspose;
+    }
 
 
     @Override
     public void updateBuilderConfig(final Map<String, Serializable> config) {
-        gradientDescent.updateBuilderConfig(config);
         if (config.containsKey(MIN_OBSERVATIONS_OF_ATTRIBUTE)) {
             minObservationsOfAttribute((Integer) config.get(MIN_OBSERVATIONS_OF_ATTRIBUTE));
         }
-        if (config.containsKey(PRODUCT_FEATURE_APPENDER)) {
-            productFeatureAppender((ProductFeatureAppender<ClassifierInstance>) config.get(PRODUCT_FEATURE_APPENDER));
+        if (config.containsKey(RIDGE_REGULARIZATION_CONSTANT)) {
+            ridgeRegularizationConstant((Double) config.get(RIDGE_REGULARIZATION_CONSTANT));
         }
-        if (config.containsKey(CALIBRATE_WITH_POOL_ADJACENT_VIOLATORS)) {
-            calibrateWithPoolAdjacentViolators((Boolean) config.get(CALIBRATE_WITH_POOL_ADJACENT_VIOLATORS));
+        if (config.containsKey(USE_BIAS)) {
+            useBias((Boolean) config.get(USE_BIAS));
         }
-        if (config.containsKey(POOL_ADJACENT_VIOLATORS_MIN_WEIGHT)) {
-            poolAdjacentViolatorsMinWeight((Integer) config.get(POOL_ADJACENT_VIOLATORS_MIN_WEIGHT));
-        }
+
     }
 }

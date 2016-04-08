@@ -6,7 +6,7 @@ import java.util.Set;
  * Created by alexanderhawk on 10/4/14.
  */
 public class ExplicitNumericSelector implements NumericSelector {
-    private Set<String> selectionSet;
+    protected Set<String> selectionSet;
     public ExplicitNumericSelector(Set<String> selectionSet) {
         this.selectionSet = selectionSet;
     }

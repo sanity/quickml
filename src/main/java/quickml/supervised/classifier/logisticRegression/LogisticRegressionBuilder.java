@@ -22,7 +22,7 @@ import java.util.Set;
  */
 
 
-public class LogisticRegressionBuilder<D extends LinearRegressionDTO<D>> implements EnhancedPredictiveModelBuilder<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> {
+public class LogisticRegressionBuilder<D extends LogisticRegressionDTO<D>> implements EnhancedPredictiveModelBuilder<LogisticRegression, ClassifierInstance, SparseClassifierInstance, D> {
     public boolean calibrateWithPoolAdjacentViolators = false;
     public static final String MIN_OBSERVATIONS_OF_ATTRIBUTE= "minObservationsOfAttribute";
     public static final String PRODUCT_FEATURE_APPENDER = "productFeatureAppender";
@@ -84,7 +84,7 @@ public class LogisticRegressionBuilder<D extends LinearRegressionDTO<D>> impleme
         return uncalibrated;
     }
 
-    private LinearRegressionDTO getLogisticRegressionDTO(Iterable<? extends ClassifierInstance> trainingData) {
+    private LogisticRegressionDTO getLogisticRegressionDTO(Iterable<? extends ClassifierInstance> trainingData) {
         List<ClassifierInstance> trainingDataList = Utils.iterableToListOfClassifierInstances(trainingData);
         return logisticRegressionDataTransformer.transformData(trainingDataList);
     }

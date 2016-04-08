@@ -20,7 +20,7 @@ public class ClassifierInstance2SparseClassifierInstance<L extends Serializable,
     private  HashMap<String, Integer> nameToIndexMap;
 
     public ClassifierInstance2SparseClassifierInstance(List<I> trainingData) {
-        this.nameToIndexMap = populateNameToIndexMap(trainingData);
+        this.nameToIndexMap = populateNameToIndexMap(trainingData, true);
         this.instanceFactory = new SparseClassifierInstanceFactory(nameToIndexMap);
     }
 

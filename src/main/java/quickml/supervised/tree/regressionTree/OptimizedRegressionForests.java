@@ -46,7 +46,7 @@ import static quickml.supervised.tree.constants.ForestOptions.*;
 public class OptimizedRegressionForests {
     private static final Logger logger = LoggerFactory.getLogger(OptimizedRegressionForests.class);
 
-    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData) {
+    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData,  Map<String, FieldValueRecommender> config) {
         FoldedData<T> foldedData = new FoldedData<>(trainingData, 6, 2);
         RegressionLossChecker<RandomRegressionForest, T> lossChecker = new RegressionLossChecker<>(new RegressionRMSELossFunction());
         RandomRegressionForestBuilder<T> modelBuilder = new RandomRegressionForestBuilder<T>();
@@ -54,13 +54,17 @@ public class OptimizedRegressionForests {
                 .modelBuilder(modelBuilder)
                 .dataCycler(foldedData)
                 .lossChecker(lossChecker)
-                .valuesToTest(OptimizedRegressionForests.createConfig())
+                .valuesToTest(config)
                 .iterations(2).build();
 
         Map<String, Serializable> optimalConfig = optimizer.determineOptimalConfig();
 
         modelBuilder.updateBuilderConfig(optimalConfig);
         return Pair.with(optimalConfig, modelBuilder.buildPredictiveModel(trainingData));
+    }
+    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData) {
+        Map<String, FieldValueRecommender> config = OptimizedRegressionForests.createConfig();
+        return getOptimizedRandomForest(trainingData, config);
     }
 
 

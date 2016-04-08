@@ -71,7 +71,9 @@ public class CSVToInstanceReader {
        List<ClassifierInstance> classifierInstances = readClassifierInstancesFromCsv(fileName);
         List<RegressionInstance> regressionInstances = Lists.newArrayList();
         for (ClassifierInstance instance : classifierInstances ) {
-            regressionInstances.add(new RegressionInstance(instance.getAttributes(), (Double)instance.getLabel(), instance.getWeight()));
+            if (instance.getLabel() instanceof Double) {
+                regressionInstances.add(new RegressionInstance(instance.getAttributes(), (Double) instance.getLabel(), instance.getWeight()));
+            }
         }
         return regressionInstances;
     }

@@ -4,6 +4,7 @@ import org.javatuples.Pair;
 import quickml.data.AttributesMap;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -40,6 +41,26 @@ public class SparseRegressionInstance extends RegressionInstance {
             values[i] = (Double)entry.getValue();
             i++;
         }
+    }
+
+    public static double[] getArrayOfValues(RegressionInstance regressionInstance, Map<String, Integer> nameToIndexMap, boolean useBias){
+        int numAttributes = regressionInstance.getAttributes().size();
+        AttributesMap attributesMap = regressionInstance.getAttributes();
+        double[] valuesArray;
+        int attributeIndex = 0;
+
+        if (useBias) {
+            valuesArray = new double[numAttributes + 1];
+            valuesArray[0] = 1.0;
+            attributeIndex++;
+        } else {
+            valuesArray = new double[numAttributes];
+        }
+        for (Map.Entry<String, Serializable> attributeEntry : attributesMap.entrySet()) {
+            attributeIndex = nameToIndexMap.get(attributeEntry.getKey());
+            valuesArray[attributeIndex] = (Double)attributeEntry.getValue();
+        }
+        return valuesArray;
     }
 
     @Override

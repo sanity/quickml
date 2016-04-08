@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by alexanderhawk on 10/28/15.
  */
-public  class MeanNormalizedAndDatedLogisticRegressionDTO extends LinearRegressionDTO<MeanNormalizedAndDatedLogisticRegressionDTO> {
+public  class MeanNormalizedAndDatedLogisticRegressionDTO extends LogisticRegressionDTO<MeanNormalizedAndDatedLogisticRegressionDTO> {
 
 
     private Map<String, Utils.MeanStdMaxMin> meanStdMaxMins;

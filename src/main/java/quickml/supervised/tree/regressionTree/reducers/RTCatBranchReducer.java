@@ -1,10 +1,12 @@
 package quickml.supervised.tree.regressionTree.reducers;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import org.javatuples.Pair;
 import quickml.data.instances.RegressionInstance;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.regressionTree.valueCounters.MeanValueCounter;
 
@@ -27,7 +29,7 @@ public class RTCatBranchReducer<I extends RegressionInstance> extends RTreeReduc
 
     @Override
     public Optional<AttributeStats<MeanValueCounter>> getAttributeStats(String attribute) {
-        Optional<AttributeStats<MeanValueCounter>> attributeStatsOptional = getAttributeStats(attribute);
+        Optional<AttributeStats<MeanValueCounter>> attributeStatsOptional = getUnsortedAttributeStats(attribute);
         if (!attributeStatsOptional.isPresent()) {
             return Optional.absent();
         }
@@ -43,6 +45,21 @@ public class RTCatBranchReducer<I extends RegressionInstance> extends RTreeReduc
         });
         return Optional.of(attributeStats);
     }
+
+
+    private Optional<AttributeStats<MeanValueCounter>> getUnsortedAttributeStats(String attribute) {
+        Pair<MeanValueCounter, Map<Serializable, MeanValueCounter>> aggregateAndAttributeValueMeanValueCounters = getAggregateAndAttributeValueMeanValueCounters(attribute);
+        MeanValueCounter aggregateStats = aggregateAndAttributeValueMeanValueCounters.getValue0();
+        Map<Serializable, MeanValueCounter> result = aggregateAndAttributeValueMeanValueCounters.getValue1();
+        List<MeanValueCounter> attributesWithMeanValueCounters= Lists.newArrayList(result.values());
+        if (attributesWithMeanValueCounters.size() <=1) {
+            return Optional.absent();
+        }
+        return  Optional.of(new AttributeStats<>(attributesWithMeanValueCounters, aggregateStats, attribute));
+    }
+
+
+
     protected Pair<MeanValueCounter, Map<Serializable, MeanValueCounter>> getAggregateAndAttributeValueMeanValueCounters(String attribute) {
         final Map<Serializable, MeanValueCounter> result = Maps.newHashMap();
         final MeanValueCounter totals = new MeanValueCounter();

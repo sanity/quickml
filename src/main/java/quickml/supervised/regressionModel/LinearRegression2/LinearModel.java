@@ -1,12 +1,19 @@
 package quickml.supervised.regressionModel.LinearRegression2;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import quickml.MathUtils;
 import quickml.data.AttributesMap;
+import quickml.data.PredictionMap;
 import quickml.supervised.PredictiveModel;
+import quickml.supervised.classifier.AbstractClassifier;
+import quickml.supervised.regressionModel.IsotonicRegression.PoolAdjacentViolatorsModel;
 
-import java.util.HashMap;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Created by alexanderhawk on 8/12/14.
@@ -14,16 +21,16 @@ import java.util.Set;
 public class LinearModel implements PredictiveModel<AttributesMap, Double> {
     private static final Logger logger = LoggerFactory.getLogger(LinearModel.class);
     double[] weights;
-    private final HashMap<String, Integer> nameToIndexMap;
+    private final Map<String, Integer> nameToIndexMap;
     boolean useBias = true;
 
 
-    public LinearModel(double[] weights, final HashMap<String, Integer> nameToIndexMap) {
+    public LinearModel(double[] weights, final Map<String, Integer> nameToIndexMap) {
         this.weights = weights;
         this.nameToIndexMap = nameToIndexMap;
     }
 
-    public LinearModel(double[] weights, final HashMap<String, Integer> nameToIndexMap,
+    public LinearModel(double[] weights, final Map<String, Integer> nameToIndexMap,
                        boolean useBias) {
         this.weights = weights;
         this.nameToIndexMap = nameToIndexMap;
@@ -57,3 +64,5 @@ public class LinearModel implements PredictiveModel<AttributesMap, Double> {
 
 
 }
+
+

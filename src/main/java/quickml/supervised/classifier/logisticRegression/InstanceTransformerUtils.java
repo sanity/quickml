@@ -16,12 +16,14 @@ public class InstanceTransformerUtils {
 
     public static final String BIAS_TERM = "biasTerm";
 
-    public static <T extends ClassifierInstance> HashMap<String, Integer> populateNameToIndexMap
-            (List<T> trainingData) {
+    public static <T extends InstanceWithAttributesMap> HashMap<String, Integer> populateNameToIndexMap
+            (List<T> trainingData, boolean useBias) {
         HashMap<String, Integer> nameToIndexMap = Maps.newHashMap();
         int index = 0;
-        nameToIndexMap.put(BIAS_TERM, index);
-        index++;
+        if (useBias) {
+            nameToIndexMap.put(BIAS_TERM, index);
+            index++;
+        }
         for (T instance : trainingData) {
             for (String key : instance.getAttributes().keySet()) {
                 if (!nameToIndexMap.containsKey(key)) {

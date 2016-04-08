@@ -32,7 +32,7 @@ public class InstanceTransformerUtilsTest {
 
     @Test
     public void testPopulateNameToIndexMap() throws Exception {
-        HashMap<String, Integer> map = InstanceTransformerUtils.populateNameToIndexMap(getInstances());
+        HashMap<String, Integer> map = InstanceTransformerUtils.populateNameToIndexMap(getInstances(), true);
         //order isn't deterministic, verify map contains every feature and index
         assertTrue(map.containsKey("feature1"));
         assertTrue(map.containsKey("feature2"));

@@ -1,15 +1,10 @@
-package quickml.supervised.classifier.logisticRegression;
+package quickml.supervised.regressionModel.LinearRegression2;
 
-import quickml.data.OnespotDateTimeExtractor;
-import quickml.data.instances.SparseRegressionInstance;
-import quickml.supervised.Utils;
-import quickml.supervised.crossValidation.utils.DateTimeExtractor;
-import quickml.supervised.crossValidation.utils.MeanNormalizedDateTimeExtractor;
+        import quickml.data.instances.SparseRegressionInstance;
+        import quickml.supervised.classifier.logisticRegression.TransformedDataWithDates;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+        import java.util.HashMap;
+        import java.util.List;
 
 /**
  * Created by alexanderhawk on 10/28/15.

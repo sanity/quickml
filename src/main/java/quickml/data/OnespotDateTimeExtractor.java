@@ -3,10 +3,11 @@ package quickml.data;
 
 import org.joda.time.DateTime;
 import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
 
-public class OnespotDateTimeExtractor<T extends ClassifierInstance> implements DateTimeExtractor<T> {
+public class OnespotDateTimeExtractor<T extends InstanceWithAttributesMap> implements DateTimeExtractor<T> {
 
     @Override
     public DateTime extractDateTime(T instance) {
