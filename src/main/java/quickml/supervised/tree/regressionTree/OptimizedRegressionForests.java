@@ -8,15 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickml.data.instances.RegressionInstance;
 import quickml.supervised.Utils;
-import quickml.supervised.classifier.downsampling.DownsamplingClassifier;
-import quickml.supervised.classifier.downsampling.DownsamplingClassifierBuilder;
-import quickml.supervised.crossValidation.ClassifierLossChecker;
 import quickml.supervised.crossValidation.RegressionLossChecker;
 import quickml.supervised.crossValidation.data.FoldedData;
-import quickml.supervised.crossValidation.data.OutOfTimeData;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
-import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 import quickml.supervised.crossValidation.lossfunctions.regressionLossFunctions.RegressionRMSELossFunction;
 import quickml.supervised.crossValidation.utils.DateTimeExtractor;
 
@@ -27,7 +21,6 @@ import quickml.supervised.predictiveModelOptimizer.PredictiveModelOptimizer;
 import quickml.supervised.predictiveModelOptimizer.SimplePredictiveModelOptimizerBuilder;
 import quickml.supervised.predictiveModelOptimizer.fieldValueRecommenders.FixedOrderRecommender;
 import quickml.supervised.tree.attributeIgnoringStrategies.IgnoreAttributesWithConstantProbability;
-import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -45,14 +38,17 @@ import static quickml.supervised.tree.constants.ForestOptions.*;
  */
 public class OptimizedRegressionForests {
     private static final Logger logger = LoggerFactory.getLogger(OptimizedRegressionForests.class);
+    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData, Map<String, FieldValueRecommender> config) {
+        TrainingDataCycler<T> dataCycler = new FoldedData<>(trainingData, 6, 2);
+        return getOptimizedRandomForest(trainingData, config, dataCycler);
+    }
 
-    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData,  Map<String, FieldValueRecommender> config) {
-        FoldedData<T> foldedData = new FoldedData<>(trainingData, 6, 2);
+    public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData, Map<String, FieldValueRecommender> config, TrainingDataCycler<T> trainingDataCycler) {
         RegressionLossChecker<RandomRegressionForest, T> lossChecker = new RegressionLossChecker<>(new RegressionRMSELossFunction());
         RandomRegressionForestBuilder<T> modelBuilder = new RandomRegressionForestBuilder<T>();
         PredictiveModelOptimizer optimizer=  new SimplePredictiveModelOptimizerBuilder<RandomRegressionForest, T>()
                 .modelBuilder(modelBuilder)
-                .dataCycler(foldedData)
+                .dataCycler(trainingDataCycler)
                 .lossChecker(lossChecker)
                 .valuesToTest(config)
                 .iterations(2).build();
@@ -62,9 +58,14 @@ public class OptimizedRegressionForests {
         modelBuilder.updateBuilderConfig(optimalConfig);
         return Pair.with(optimalConfig, modelBuilder.buildPredictiveModel(trainingData));
     }
+
+
+
+
+
     public static <T extends RegressionInstance> Pair<Map<String, Serializable>, RandomRegressionForest>  getOptimizedRandomForest(List<T> trainingData) {
         Map<String, FieldValueRecommender> config = OptimizedRegressionForests.createConfig();
-        return getOptimizedRandomForest(trainingData, config);
+        return getOptimizedRandomForest(trainingData, config, new FoldedData<>(trainingData, 6, 2));
     }
 
 

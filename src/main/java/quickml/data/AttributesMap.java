@@ -15,7 +15,8 @@ public class AttributesMap implements Map<String, Serializable>, Serializable {
     private final Map<String, Serializable> map;
 
     public AttributesMap(Map<String, Serializable> map) {
-        this.map = map;
+        this.map = new HashMap<String, Serializable>();
+        this.map.putAll(map);
     }
 
     public AttributesMap() {

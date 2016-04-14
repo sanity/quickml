@@ -1,9 +1,6 @@
 package quickml.supervised.tree.regressionTree;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import quickml.data.AttributesMap;
-import quickml.supervised.classifier.AbstractClassifier;
 import quickml.supervised.tree.Tree;
 import quickml.supervised.tree.nodes.Branch;
 import quickml.supervised.tree.nodes.Leaf;
@@ -12,7 +9,6 @@ import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.regressionTree.valueCounters.MeanValueCounter;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,22 +61,22 @@ public class RegressionTree implements Tree<Double> {
 
     @Override
     public Double predictWithoutAttributes(AttributesMap attributes, Set<String> attributesToIgnore) {
-        return getProbabilityWithoutAttributesHelper(root, attributes, attributesToIgnore);
+        return getPredictionWithoutAttributesHelper(root, attributes, attributesToIgnore);
     }
 
-    private double getProbabilityWithoutAttributesHelper(Node<MeanValueCounter> node, AttributesMap attributes, Set<String> attributesToIgnore) {
+    private double getPredictionWithoutAttributesHelper(Node<MeanValueCounter> node, AttributesMap attributes, Set<String> attributesToIgnore) {
        //return getProbabilityOfPositiveClassification(attributes, classification);
 
         if (node instanceof Branch) {
             Branch branch = (Branch) node;
             if (attributesToIgnore.contains(branch.attribute)) {
-                return branch.getProbabilityOfTrueChild() * getProbabilityWithoutAttributesHelper(branch.getTrueChild(), attributes,attributesToIgnore) +
-                        (1.0 - branch.getProbabilityOfTrueChild()) * getProbabilityWithoutAttributesHelper(branch.getFalseChild(), attributes,  attributesToIgnore);
+                return branch.getProbabilityOfTrueChild() * getPredictionWithoutAttributesHelper(branch.getTrueChild(), attributes, attributesToIgnore) +
+                        (1.0 - branch.getProbabilityOfTrueChild()) * getPredictionWithoutAttributesHelper(branch.getFalseChild(), attributes, attributesToIgnore);
             } else {
                 if (branch.decide(attributes)) {
-                    return getProbabilityWithoutAttributesHelper(branch.getTrueChild(), attributes, attributesToIgnore);
+                    return getPredictionWithoutAttributesHelper(branch.getTrueChild(), attributes, attributesToIgnore);
                 } else {
-                    return getProbabilityWithoutAttributesHelper(branch.getFalseChild(), attributes,  attributesToIgnore);
+                    return getPredictionWithoutAttributesHelper(branch.getFalseChild(), attributes, attributesToIgnore);
                 }
             }
         } else if (node instanceof Leaf) {

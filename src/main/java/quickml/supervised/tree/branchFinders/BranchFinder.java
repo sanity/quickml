@@ -56,7 +56,7 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>> {
         if (ignoreProb == 0.0) {
         return candidates;
     }
-        int numTrialAttributes = (int)(ignoreProb*candidates.size());
+        int numTrialAttributes = (int)((1.0-ignoreProb)*candidates.size());
 
         //p_of_a_single_colision at i= frac_in_return_set (fi).  The expected num collisions at point i is ei.
         // ei = p of just 1 collision = p(1-p), prob of just 2 collisions: = (1-p)p^2, n collisions = (1-p)p^n
@@ -77,7 +77,7 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>> {
     public Optional<? extends Branch<VC>> findBestBranch(Branch<VC> parent, AttributeStatisticsProducer<VC> attributeStatisticsProducer) {
         double bestScore = 0;
         Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
-        //for (String attribute : getCandidateAttributesWithIgnoringApplied(parent)) {
+       // for (String attribute : getCandidateAttributesWithIgnoringApplied(parent)) {
         for (String attribute : alternativeGetCandidateAttributesWithIgnoringApplied(parent)) {
             Optional<AttributeStats<VC>> attributeStatsOptional = attributeStatisticsProducer.getAttributeStats(attribute);
             if (!attributeStatsOptional.isPresent()) {

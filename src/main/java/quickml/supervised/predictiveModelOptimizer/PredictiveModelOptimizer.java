@@ -50,6 +50,7 @@ public class PredictiveModelOptimizer {
                 break;
         }
         sortConfigsWithLosses();
+        logger.info("best loss: is {} for: \n{}", configsWithLosses.get(0).loss, configsWithLosses.get(0).config);
         return configsWithLosses.get(0).config;
     }
 
@@ -92,22 +93,23 @@ public class PredictiveModelOptimizer {
         for (Serializable value : fieldValueRecommender.getValues()) {
             //TODO: make so it does not repeat a conf already seen in present iteration (e.g. keep a set of configs)
             if (localBestConfig.get(field).equals(value) && iteration > 0) {
-                logger.info("skipping field value {} bc value {} already tried ", field, value );
+                logger.info("skipping field value {} bc value {} already tried ", field, value);
                 continue;  //safe to continue bc everything else about the config is the same.
             }
             localBestConfig.put(field, value);
             double lossForModel = crossValidator.getLossForModel(localBestConfig);
             logger.info("loss: {}, for field {}, config {}", lossForModel, field, localBestConfig);
             losses.addFieldLoss(value, lossForModel);
-            if (configsWithLosses!=null) {
+            if (configsWithLosses != null) {
                 configsWithLosses.add(new ConfigWithLoss(lossForModel, copyOf(localBestConfig)));
             }
 
             if (!fieldValueRecommender.shouldContinue(losses.getLosses()))
                 break;
         }
-
-        localBestConfig.put(field, losses.valueWithLowestLoss());
+        if (!losses.getLosses().isEmpty()) {
+            localBestConfig.put(field, losses.valueWithLowestLoss());
+        }
     }
 
     private HashMap<String, Serializable> setBestConfigToFirstValues(Map<String, ? extends FieldValueRecommender> config) {

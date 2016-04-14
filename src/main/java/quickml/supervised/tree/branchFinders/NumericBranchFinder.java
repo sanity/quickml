@@ -32,6 +32,8 @@ public abstract class NumericBranchFinder<VC extends ValueCounter<VC>> extends B
            return Optional.absent();
         }
         SplittingUtils.SplitScore splitScore = splitScoreOptional.get();
+        //TODO: make this 2 a hyper-parameter as it is leads to better performance in cases tested, but may not generalize
+        splitScore.score=splitScore.score*2; //2.3 1.7
         double bestThreshold = (Double)attributeStats.getStatsOnEachValue().get(splitScore.indexOfLastValueCounterInTrueSet).getAttrVal();
         return createBranch(parent, attributeStats, splitScore, bestThreshold);
     }

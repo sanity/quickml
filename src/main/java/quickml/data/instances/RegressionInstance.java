@@ -14,6 +14,11 @@ public class RegressionInstance extends InstanceWithAttributesMap<Double> {
     public RegressionInstance(AttributesMap attributes, Double label, double weight) {
         super(attributes, label, weight);
     }
+    public RegressionInstance(AttributesMap attributes, Double label, double weight, double alternativeTarget) {
+        super(attributes, label, weight);
+        this.alternativeTarget = alternativeTarget;
+    }
+    public double alternativeTarget;
 
 }
 
