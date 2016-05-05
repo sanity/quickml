@@ -23,6 +23,8 @@ import quickml.supervised.tree.nodes.LeafDepthStats;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.DoubleBuffer;
@@ -67,6 +69,21 @@ public class Utils {
         ArrayList<LabelPredictionWeight<Double, Double>> results = new ArrayList<>();
         for (Instance<AttributesMap, Double> instance : validationSet) {
             results.add(new LabelPredictionWeight<Double, Double>(instance.getLabel(), predictiveModel.predict(instance.getAttributes()), instance.getWeight()));
+        }
+        return results;
+    }
+
+    public static List<LabelPredictionWeight<Double, Double>> getRegLabelsPredictionsWeights(PredictiveModel<AttributesMap, Double> predictiveModel, List<? extends Instance<AttributesMap, Double>> validationSet, BufferedWriter bw) {
+        ArrayList<LabelPredictionWeight<Double, Double>> results = new ArrayList<>();
+        for (Instance<AttributesMap, Double> instance : validationSet) {
+            Double prediction = predictiveModel.predict(instance.getAttributes());
+            Long id = ((RegressionInstance)instance).id;
+            results.add(new LabelPredictionWeight<Double, Double>(instance.getLabel(), prediction, instance.getWeight()));
+            try {
+                bw.write(""+id + "," + instance.getLabel() + "," + prediction + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return results;
     }

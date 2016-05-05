@@ -19,6 +19,7 @@ public class RegressionInstance extends InstanceWithAttributesMap<Double> {
         this.alternativeTarget = alternativeTarget;
     }
     public double alternativeTarget;
+    public long id;
 
 }
 
