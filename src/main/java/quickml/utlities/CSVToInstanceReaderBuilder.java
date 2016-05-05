@@ -35,6 +35,7 @@ public class CSVToInstanceReaderBuilder {
     private Optional<CategoricalSelector> categoricalSelector = Optional.absent();
     private Optional<NumericSelector> numericSelector = Optional.absent();
     private char delimiter = ',';
+    private boolean hasHeader = true;
 
 
     public CSVToInstanceReaderBuilder categoricalSelector(CategoricalSelector categoricalSelector) {
@@ -72,8 +73,13 @@ public class CSVToInstanceReaderBuilder {
         return this;
     }
 
+    public CSVToInstanceReaderBuilder hasHeader(boolean hasHeader) {
+        this.hasHeader = hasHeader;
+        return this;
+    }
+
     public CSVToInstanceReader buildCsvReader(){
-        return new CSVToInstanceReader(delimiter, columnNameForLabel, columnNameForWeight, categoricalSelector, numericSelector);
+        return new CSVToInstanceReader(delimiter, columnNameForLabel, columnNameForWeight, categoricalSelector, numericSelector, hasHeader);
     }
 
 }

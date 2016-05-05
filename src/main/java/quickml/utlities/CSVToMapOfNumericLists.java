@@ -84,7 +84,7 @@ public class CSVToMapOfNumericLists {
 
         CSVToMapOfNumericLists csvReader = new CSVToMapOfNumericLists(',', true);
         try {
-            Map<String, List<Double>> mapOfinstances = csvReader.readCsv("wfRes");
+            Map<String, List<Double>> mapOfinstances = csvReader.readCsv("/Users/alexanderhawk/Downloads/20150526-181451.csv");
             for (String key : mapOfinstances.keySet()) {
                 System.out.println("list key: " + key + "list Vals" + mapOfinstances.get(key).toString());
             }

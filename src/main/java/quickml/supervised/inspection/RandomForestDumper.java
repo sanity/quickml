@@ -1,11 +1,14 @@
 package quickml.supervised.inspection;
 
+import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
+import quickml.supervised.tree.decisionTree.nodes.DTNumBranch;
+import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
+import quickml.supervised.tree.nodes.Node;
 import quickml.utlities.SerializationUtility;
-import quickml.supervised.classifier.tree.DecisionTree;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.CategoricalBranch;
-import quickml.supervised.classifier.tree.decisionTree.tree.Node;
-import quickml.supervised.classifier.tree.decisionTree.tree.nodes.NumericBranch;
-import quickml.supervised.classifier.randomForest.RandomForest;
+import quickml.supervised.tree.decisionTree.DecisionTree;
+
+import quickml.supervised.tree.nodes.NumBranch;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
 
 import java.io.*;
 import java.util.*;
@@ -13,17 +16,17 @@ import java.util.*;
 
 public class RandomForestDumper {
 
-    public void summarizeForest(PrintStream out, RandomForest randomForest) {
-        summarizeModel(out, randomForest);
+    public void summarizeForest(PrintStream out, RandomDecisionForest randomDecisionForest) {
+        summarizeModel(out, randomDecisionForest);
     }
 
     public void summarizeForest(PrintStream out, String file) {
-        SerializationUtility<RandomForest> serializationUtility = new SerializationUtility<>();
-        RandomForest randomForest = serializationUtility.loadObjectFromGZIPFile(file);
-        summarizeModel(out, randomForest);
+        SerializationUtility<RandomDecisionForest> serializationUtility = new SerializationUtility<>();
+        RandomDecisionForest randomDecisionForest = serializationUtility.loadObjectFromGZIPFile(file);
+        summarizeModel(out, randomDecisionForest);
     }
 
-    public void summarizeModel(PrintStream out, RandomForest forest) {
+    public void summarizeModel(PrintStream out, RandomDecisionForest forest) {
 
         List<TreeSummary> summaries = new ArrayList<>();
         for (DecisionTree t : forest.decisionTrees) {
@@ -65,16 +68,16 @@ public class RandomForestDumper {
 
     }
 
-    private static class TreeSummary {
+    public static class TreeSummary {
         private int splits;
         private Map<String, AttributeSummary> attributes = new HashMap<>();
 
-        private void summarizeNode(Node node, int currentDepth) {
-            if (node instanceof CategoricalBranch) {
-                summarizeCategoricalNode((CategoricalBranch)node, currentDepth);
+        private void summarizeNode(Node<ClassificationCounter> node, int currentDepth) {
+            if (node instanceof DTCatBranch) {
+                summarizeCategoricalNode((DTCatBranch)node, currentDepth);
             }
-            else if (node instanceof NumericBranch) {
-                summarizeNumericNode((NumericBranch) node, currentDepth);
+            else if (node instanceof NumBranch) {
+                summarizeNumericNode((DTNumBranch) node, currentDepth);
             }
         }
 
@@ -90,18 +93,18 @@ public class RandomForestDumper {
             attrSummary.depths[depth]++;
         }
 
-        private void summarizeCategoricalNode(CategoricalBranch node, int currentDepth) {
+        private void summarizeCategoricalNode(DTCatBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
-            summarizeNode(node.trueChild, currentDepth+1);
-            summarizeNode(node.falseChild, currentDepth+1);
+            summarizeNode(node.getTrueChild(), currentDepth+1);
+            summarizeNode(node.getFalseChild(), currentDepth+1);
         }
 
-        private void summarizeNumericNode(NumericBranch node, int currentDepth) {
+        private void summarizeNumericNode(DTNumBranch node, int currentDepth) {
             splits++;
             addAttribute(node.attribute, currentDepth);
-            summarizeNode(node.trueChild, currentDepth+1);
-            summarizeNode(node.falseChild, currentDepth + 1);
+            summarizeNode(node.getTrueChild(), currentDepth+1);
+            summarizeNode(node.getFalseChild(), currentDepth + 1);
         }
     }
 

@@ -15,7 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.RegressionInstance;
 import quickml.utlities.selectors.*;
 
 /**
@@ -44,38 +45,53 @@ public class CSVToInstanceReader {
     private Optional<CategoricalSelector> categoricalSelector = Optional.absent();
     private Optional<NumericSelector> numericSelector = Optional.absent();
     private char delimiter = ',';
+    private boolean hasHeader = true;
 
     public CSVToInstanceReader() {
     }
 
     public CSVToInstanceReader(char delimiter, String columnNameForLabel, String columnNameForWeight, Optional<CategoricalSelector> categoricalSelector,
-                               Optional<NumericSelector> numericSelector) {
+                               Optional<NumericSelector> numericSelector, boolean hasHeader) {
         this.delimiter = delimiter;
         this.columnNameForLabel = columnNameForLabel;
         this.columnNameForWeight = columnNameForWeight;
         this.categoricalSelector = categoricalSelector;
         this.numericSelector = numericSelector;
+        this.hasHeader = hasHeader;
     }
 
-    public List<InstanceWithAttributesMap> readCsv(String fileName) throws Exception {
+
+    public List<ClassifierInstance> readClassifierInstancesFromCsv(String fileName) throws Exception {
 
         CSVReader reader = new CSVReader(new FileReader(fileName), delimiter, '"');
         return getInstancesFromReader(reader);
     }
 
-    public List<InstanceWithAttributesMap> readCsvFromReader(Reader reader) throws Exception {
+    public List<RegressionInstance> readRegressionInstancesFromCsv(String fileName) throws Exception {
+       List<ClassifierInstance> classifierInstances = readClassifierInstancesFromCsv(fileName);
+        List<RegressionInstance> regressionInstances = Lists.newArrayList();
+        for (ClassifierInstance instance : classifierInstances ) {
+            if (instance.getLabel() instanceof Double) {
+                regressionInstances.add(new RegressionInstance(instance.getAttributes(), (Double) instance.getLabel(), instance.getWeight()));
+            }
+        }
+        return regressionInstances;
+    }
+
+
+
+        public List<ClassifierInstance> readCsvFromReader(Reader reader) throws Exception {
 
         CSVReader csvReader = new CSVReader(reader, delimiter, '"');
         return getInstancesFromReader(csvReader);
     }
 
-    private List<InstanceWithAttributesMap> getInstancesFromReader(CSVReader reader) throws IOException {
+    private List<ClassifierInstance> getInstancesFromReader(CSVReader reader) throws IOException {
         List<String[]> csvLines = reader.readAll();
 
-        List<InstanceWithAttributesMap> instances = Lists.newArrayList();
+        List<ClassifierInstance> instances = Lists.newArrayList();
         try {
-            header = new ArrayList<>();
-            Collections.addAll(header, csvLines.get(0));
+            setHeader(csvLines);
             for (int i = 1; i < csvLines.size(); i++) {
                 instances.add(instanceConverter(csvLines.get(i)));
             }
@@ -85,7 +101,18 @@ public class CSVToInstanceReader {
         return instances;
     }
 
-    private InstanceWithAttributesMap instanceConverter(String[] instanceArray) {
+    private void setHeader(List<String[]> csvLines) {
+        header = new ArrayList<>();
+        if (hasHeader) {
+            Collections.addAll(header, csvLines.get(0));
+        }  else {
+            for (int i = 0; i< csvLines.get(0).length; i++) {
+                header.add("x" + i); //variables named x1 through xn
+            }
+        }
+    }
+
+    private ClassifierInstance instanceConverter(String[] instanceArray) {
 
         AttributesMap attributesMap = AttributesMap.newHashMap();
         Serializable label = null;
@@ -119,7 +146,7 @@ public class CSVToInstanceReader {
             containsUnLabeledInstances = true;
         }
 
-        return new InstanceWithAttributesMap(attributesMap, label, weight);
+        return new ClassifierInstance(attributesMap, label, weight);
     }
 
     private Serializable convertToNumberOrCleanedString(String varName, String varValue) {
@@ -159,15 +186,14 @@ public class CSVToInstanceReader {
         }
     }
 
-
     public static void main(String[] args) {
         Set<String> catVariables = Sets.newHashSet();
         catVariables.add("eap");
         CSVToInstanceReaderBuilder csvReaderBuilder = new CSVToInstanceReaderBuilder().collumnNameForLabel("campaignId").categoricalSelector(new ExplicitCategoricalSelector(catVariables));
         CSVToInstanceReader csvReader = csvReaderBuilder.buildCsvReader();
         try {
-            List<InstanceWithAttributesMap> instances = csvReader.readCsv("test3");
-            for (InstanceWithAttributesMap instance : instances)
+            List<ClassifierInstance> instances = csvReader.readClassifierInstancesFromCsv("test3");
+            for (ClassifierInstance instance : instances)
                 System.out.println("label: " + instance.getLabel() + "attributes: " + instance.getAttributes().toString());
 
         } catch (Exception e) {

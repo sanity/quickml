@@ -1,11 +1,13 @@
 package quickml.supervised.crossValidation.attributeImportance;
 
 import com.google.common.collect.Lists;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.AttributesMap;
+import quickml.data.instances.InstanceWithAttributesMap;
+import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.crossValidation.data.TrainingDataCycler;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,21 +18,21 @@ import static java.lang.Math.max;
 import static quickml.supervised.Utils.calcResultPredictions;
 import static quickml.supervised.Utils.calcResultpredictionsWithoutAttrs;
 
-public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
-    private final PredictiveModelBuilder<Classifier, T> modelBuilder;
-    private final TrainingDataCycler<T> dataCycler;
+public class AttributeImportanceFinder <I extends InstanceWithAttributesMap<?>> {
+    private final PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder;
+    private final TrainingDataCycler<I> dataCycler;
     private final int numAttributesToRemovePerIteration;
     private final int numberOfIterations;
     private Set<String> attributesToNotRemove;
     private final List<ClassifierLossFunction> lossFunctions;
     private final ClassifierLossFunction primaryLossFunction;
 
-
+   //TODO: upgrade class to work for non classifiers. 2 static methods presently assume a classifier is being used.
     /**
      * Protected, use AttributeImportanceFinderBuilder to create a new instance
      */
-    protected AttributeImportanceFinder(PredictiveModelBuilder<Classifier, T> modelBuilder,
-                                     TrainingDataCycler<T> dataCycler, double percentToRemovePerIteration,
+    protected AttributeImportanceFinder(PredictiveModelBuilder<? extends PredictiveModel<AttributesMap, ?>, I> modelBuilder,
+                                     TrainingDataCycler< I> dataCycler, double percentToRemovePerIteration,
                                      int numberOfIterations, Set<String> attributesToNotRemove,
                                      List<ClassifierLossFunction> lossFunctions, ClassifierLossFunction primaryLossFunction) {
         this.modelBuilder = modelBuilder;
@@ -77,9 +79,11 @@ public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
         AttributeLossTracker lossTracker = new AttributeLossTracker(allAttributes, lossFunctions, primaryLossFunction);
 
         do {
-            Classifier model = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
+            PredictiveModel<AttributesMap, ?> model = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
             trackLossForEachAttribute(allAttributes, lossTracker, model);
-            trackLossForNoMissingAttribute(lossTracker, model);
+            if (model instanceof Classifier) {
+                trackLossForNoMissingAttribute(lossTracker, (Classifier)model);
+            }
             dataCycler.nextCycle();
         } while (dataCycler.hasMore());
 
@@ -90,17 +94,19 @@ public class AttributeImportanceFinder <T extends InstanceWithAttributesMap> {
         lossTracker.noMissingAttributeLoss(calcResultPredictions(model, dataCycler.getValidationSet()));
     }
 
-    private void trackLossForEachAttribute(Set<String> allAttributes, AttributeLossTracker lossTracker, Classifier model) {
-        for (String attribute : allAttributes) {
-            lossTracker.updateAttribute(attribute,
-                    calcResultpredictionsWithoutAttrs(model, dataCycler.getValidationSet(), newHashSet(attribute)));
-        }
+    private void trackLossForEachAttribute(Set<String> allAttributes, AttributeLossTracker lossTracker, PredictiveModel<AttributesMap, ?> model) {
+       if (model instanceof Classifier) {
+           for (String attribute : allAttributes) {
+               lossTracker.updateAttribute(attribute,
+                       calcResultpredictionsWithoutAttrs((Classifier)model, dataCycler.getValidationSet(), newHashSet(attribute)));
+           }
+       }
     }
 
-    private Set<String> getAllAttributes(TrainingDataCycler<T> dataCycler) {
+    private Set<String> getAllAttributes(TrainingDataCycler<I> dataCycler) {
         Set<String> attributes = newHashSet();
 
-        for (T instance : dataCycler.getAllData()) {
+        for (I instance : dataCycler.getAllData()) {
             attributes.addAll(instance.getAttributes().keySet());
         }
         return attributes;

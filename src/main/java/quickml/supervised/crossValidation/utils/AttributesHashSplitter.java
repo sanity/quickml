@@ -4,10 +4,9 @@ import com.google.common.base.Predicate;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import quickml.data.AttributesMap;
-import quickml.data.Instance;
+import quickml.data.instances.Instance;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
 * Created by ian on 2/28/14.

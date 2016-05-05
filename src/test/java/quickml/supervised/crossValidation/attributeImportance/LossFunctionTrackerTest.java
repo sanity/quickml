@@ -2,10 +2,10 @@ package quickml.supervised.crossValidation.attributeImportance;
 
 import org.junit.Before;
 import org.junit.Test;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLogCVLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierLossFunction;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierMSELossFunction;
-import quickml.supervised.crossValidation.lossfunctions.ClassifierRMSELossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLogCVLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierLossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierMSELossFunction;
+import quickml.supervised.crossValidation.lossfunctions.classifierLossFunctions.ClassifierRMSELossFunction;
 
 import java.util.ArrayList;
 

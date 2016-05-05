@@ -4,13 +4,13 @@ import org.junit.Ignore;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import quickml.data.AttributesMap;
-import quickml.supervised.InstanceLoader;
+import quickml.InstanceLoader;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 import quickml.supervised.classifier.TreeBuilderTestUtils;
-import quickml.supervised.classifier.tree.TreeBuilder;
-import quickml.supervised.classifier.tree.decisionTree.scorers.SplitDiffScorer;
+import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
+import quickml.supervised.tree.decisionTree.scorers.PenalizedSplitDiffScorerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,13 +22,13 @@ public class TemporallyReweightedClassifierBuilderTest {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testError3ClassificationsInDataSet() throws Exception {
-        final List<InstanceWithAttributesMap> instances = new LinkedList<>();
+        final List<ClassifierInstance> instances = new LinkedList<>();
         AttributesMap map = AttributesMap.newHashMap();
         map.put("2", "2");
-        instances.add(new InstanceWithAttributesMap(map, "1"));
-        instances.add(new InstanceWithAttributesMap(map, "2"));
-        instances.add(new InstanceWithAttributesMap(map, "3"));
-        PredictiveModelBuilder predictiveModelBuilder = new TreeBuilder();
+        instances.add(new ClassifierInstance(map, "1"));
+        instances.add(new ClassifierInstance(map, "2"));
+        instances.add(new ClassifierInstance(map, "3"));
+        PredictiveModelBuilder predictiveModelBuilder = new DecisionTreeBuilder();
         final TemporallyReweightedClassifierBuilder cpmb = new TemporallyReweightedClassifierBuilder(predictiveModelBuilder, 1.0, new OnespotDateTimeExtractor());
         cpmb.buildPredictiveModel(instances);
     }
@@ -36,8 +36,8 @@ public class TemporallyReweightedClassifierBuilderTest {
     @Ignore("Reweighting implementation is broken currently")
     @Test
     public void simpleAdTest() throws Exception {
-        final List<InstanceWithAttributesMap> instances = InstanceLoader.getAdvertisingInstances();
-        final PredictiveModelBuilder tb = new TreeBuilder(new SplitDiffScorer());
+        final List<ClassifierInstance> instances = InstanceLoader.getAdvertisingInstances();
+        final PredictiveModelBuilder tb = new DecisionTreeBuilder().scorerFactory(new PenalizedSplitDiffScorerFactory());
         final TemporallyReweightedClassifierBuilder builder = new TemporallyReweightedClassifierBuilder(tb, 1.0, new OnespotDateTimeExtractor());
         final long startTime = System.currentTimeMillis();
         final TemporallyReweightedClassifier model = builder.buildPredictiveModel(instances);

@@ -2,6 +2,7 @@ package quickml.data;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import quickml.data.instances.Instance;
 
 import java.util.HashSet;
 

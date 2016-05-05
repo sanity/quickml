@@ -4,6 +4,6 @@ import org.joda.time.DateTime;
 /**
  * Created by alexanderhawk on 5/6/14.
  */
-public interface DateTimeExtractor <T> {
-    DateTime extractDateTime(T instance);
+public interface DateTimeExtractor <I> {
+    DateTime extractDateTime(I instance);
 }

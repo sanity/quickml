@@ -2,7 +2,7 @@ package quickml.supervised.classifier;
 
 import org.joda.time.DateTime;
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ import static quickml.collections.MapUtils.random;
  */
 public class TreeBuilderTestUtils {
 
-    public static List<InstanceWithAttributesMap> getInstances(int numInstances) {
-        final List<InstanceWithAttributesMap> instances = new ArrayList<>();
+    public static List<ClassifierInstance> getInstances(int numInstances) {
+        final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + random.nextInt(3 * 12);
             final double weight = 120 + random.nextInt(110);
@@ -25,13 +25,13 @@ public class TreeBuilderTestUtils {
             attributes.put("height", height);
             attributes.put("gender", random.nextInt(2));
             attributes.put("other", random.nextInt(2));
-            instances.add(new InstanceWithAttributesMap(attributes, bmiHealthy(weight, height)));
+            instances.add(new ClassifierInstance(attributes, bmiHealthy(weight, height)));
         }
         return instances;
     }
 
-    public static List<InstanceWithAttributesMap> getIntegerInstances(int numInstances) {
-        final List<InstanceWithAttributesMap> instances = new ArrayList<>();
+    public static List<ClassifierInstance> getIntegerInstances(int numInstances) {
+        final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + random.nextInt(3 * 12);
             final double weight = 120 + random.nextInt(110);
@@ -40,14 +40,14 @@ public class TreeBuilderTestUtils {
             addDateAttributes(attributes, date.getYear(), date.getMonthOfYear(), (random.nextInt(28) + 1), random.nextInt(24));
             attributes.put("weight", weight);
             attributes.put("height", height);
-            instances.add(new InstanceWithAttributesMap(attributes, bmiHealthyInteger(weight, height)));
+            instances.add(new ClassifierInstance(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;
     }
 
-    public static List<InstanceWithAttributesMap> getInstancesOneEveryHour(int numInstances) {
+    public static List<ClassifierInstance> getInstancesOneEveryHour(int numInstances) {
         DateTime date = new DateTime().minusHours(numInstances + 10);
-        final List<InstanceWithAttributesMap> instances = new ArrayList<>();
+        final List<ClassifierInstance> instances = new ArrayList<>();
         for (int x = 0; x < numInstances; x++) {
             final double height = (4 * 12) + random.nextInt(3 * 12);
             final double weight = 120 + random.nextInt(110);
@@ -58,7 +58,7 @@ public class TreeBuilderTestUtils {
 
             attributes.put("weight", weight);
             attributes.put("height", height);
-            instances.add(new InstanceWithAttributesMap(attributes, bmiHealthyInteger(weight, height)));
+            instances.add(new ClassifierInstance(attributes, bmiHealthyInteger(weight, height)));
         }
         return instances;
     }

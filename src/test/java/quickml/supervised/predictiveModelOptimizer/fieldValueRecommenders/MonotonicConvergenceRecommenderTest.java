@@ -16,7 +16,7 @@ public class MonotonicConvergenceRecommenderTest {
 
     @Before
     public void setUp() throws Exception {
-        recommender = new MonotonicConvergenceRecommender(Arrays.asList(1, 5, 10, 20, 40));
+        recommender = new MonotonicConvergenceRecommender(Arrays.asList(1, 5, 10, 20, 40), 0.1);
     }
 
 
@@ -24,11 +24,12 @@ public class MonotonicConvergenceRecommenderTest {
     public void testWeStopIfThresholdIsNotReached() throws Exception {
         List<Double> losses = Lists.newArrayList();
         for (int i = 0; i < recommender.getValues().size(); i++) {
-            losses.add(Math.random());
+            double prevLoss = (i>0) ? losses.get(i-1) : 1.0;
+            losses.add(prevLoss*2);
             if (!recommender.shouldContinue(losses))
                 break;
         }
-
+//
         assertEquals(5, losses.size());
     }
 

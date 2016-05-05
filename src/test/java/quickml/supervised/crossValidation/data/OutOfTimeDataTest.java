@@ -2,7 +2,7 @@ package quickml.supervised.crossValidation.data;
 
 import org.junit.Before;
 import org.junit.Test;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
 import quickml.data.OnespotDateTimeExtractor;
 
 import java.util.ArrayList;
@@ -14,13 +14,13 @@ import static quickml.TestUtils.createClassifierInstance;
 
 public class OutOfTimeDataTest {
 
-    private OutOfTimeData<InstanceWithAttributesMap> outOfTimeData;
-    private OnespotDateTimeExtractor dateTimeExtractor;
+    private OutOfTimeData<ClassifierInstance> outOfTimeData;
+    private OnespotDateTimeExtractor<ClassifierInstance> dateTimeExtractor;
 
     @Before
     public void setUp() throws Exception {
         dateTimeExtractor = new OnespotDateTimeExtractor();
-        List<InstanceWithAttributesMap> instances = new ArrayList<>();
+        List<ClassifierInstance> instances = new ArrayList<>();
 
         // Create an instance for 6 consecutive days
         instances.add(createClassifierInstance(1));
@@ -37,7 +37,7 @@ public class OutOfTimeDataTest {
     @Test
     public void testOutOfTimeData() throws Exception {
 
-        List<InstanceWithAttributesMap> trainingSet = outOfTimeData.getTrainingSet();
+        List<ClassifierInstance> trainingSet = outOfTimeData.getTrainingSet();
 
 
         // Verifiy the inital data is split up - half for the training set, and one entry in the validation set
@@ -46,18 +46,18 @@ public class OutOfTimeDataTest {
         assertDayOfMonthMatches(trainingSet.get(1), 2);
         assertDayOfMonthMatches(trainingSet.get(2), 3);
 
-        List<InstanceWithAttributesMap> validationSet = outOfTimeData.getValidationSet();
+        List<ClassifierInstance> validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 4);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(4, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, validationSet.size());
         assertDayOfMonthMatches(validationSet.get(0), 5);
 
-        // Verify that we have increased the training set size and moved on to the next validation set
+        // Verify that we have increased the training set getSize and moved on to the next validation set
         outOfTimeData.nextCycle();
         assertEquals(5, outOfTimeData.getTrainingSet().size());
         validationSet = outOfTimeData.getValidationSet();
@@ -72,19 +72,19 @@ public class OutOfTimeDataTest {
     @Test
     public void testValidateIfThereIsABreakInTheDataWeMoveOnToTheNextPeriod() throws Exception {
 
-        List<InstanceWithAttributesMap> instances = new ArrayList<>();
+        List<ClassifierInstance> instances = new ArrayList<>();
 
         // Create an instance for 3 days, with a gap after the first two
         instances.add(createClassifierInstance(1));
         instances.add(createClassifierInstance(2));
         instances.add(createClassifierInstance(4));
 
-        OutOfTimeData<InstanceWithAttributesMap> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
+        OutOfTimeData<ClassifierInstance> outOfTimeData = new OutOfTimeData<>(instances, 0.5, 24, dateTimeExtractor);
 
 
         // Verifiy the inital data is split up - half for the training set, and one entry in the validation set
-        List<InstanceWithAttributesMap> trainingSet = outOfTimeData.getTrainingSet();
-        List<InstanceWithAttributesMap> validationSet = outOfTimeData.getValidationSet();
+        List<ClassifierInstance> trainingSet = outOfTimeData.getTrainingSet();
+        List<ClassifierInstance> validationSet = outOfTimeData.getValidationSet();
         assertEquals(1, trainingSet.size());
         assertDayOfMonthMatches(trainingSet.get(0), 1);
         assertEquals(1, validationSet.size());
@@ -97,7 +97,7 @@ public class OutOfTimeDataTest {
 
     }
 
-    private void assertDayOfMonthMatches(final InstanceWithAttributesMap instance, final int expected) {
+    private void assertDayOfMonthMatches(final ClassifierInstance instance, final int expected) {
         assertEquals(expected, dateTimeExtractor.extractDateTime(instance).dayOfMonth().get());
     }
 

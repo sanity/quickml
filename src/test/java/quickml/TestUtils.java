@@ -1,7 +1,7 @@
 package quickml;
 
 import quickml.data.AttributesMap;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.data.instances.ClassifierInstance;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
@@ -10,8 +10,8 @@ import static org.hamcrest.Matchers.hasEntry;
 public class TestUtils {
 
 
-    public static InstanceWithAttributesMap createClassifierInstance(final int day) {
-        return new InstanceWithAttributesMap(createAttributes(day), 1.0D, 0.5);
+    public static ClassifierInstance createClassifierInstance(final int day) {
+        return new ClassifierInstance(createAttributes(day), 1.0D, 0.5);
     }
 
     private static AttributesMap createAttributes(final double day) {

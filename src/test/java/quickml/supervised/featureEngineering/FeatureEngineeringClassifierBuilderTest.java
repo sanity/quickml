@@ -4,9 +4,14 @@ import com.google.common.collect.Lists;
 import org.testng.annotations.Test;
 import quickml.data.*;
 
+import quickml.data.instances.ClassifierInstance;
+import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.supervised.PredictiveModel;
 import quickml.supervised.PredictiveModelBuilder;
-import quickml.data.InstanceWithAttributesMap;
+import quickml.supervised.featureEngineering1.AttributesEnrichStrategy;
+import quickml.supervised.featureEngineering1.AttributesEnricher;
+import quickml.supervised.featureEngineering1.FeatureEngineeredClassifier;
+import quickml.supervised.featureEngineering1.FeatureEngineeringClassifierBuilder;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -21,8 +26,8 @@ public class FeatureEngineeringClassifierBuilderTest {
 
     @Test
     public void simpleTest() {
-        List<InstanceWithAttributesMap> trainingData = Lists.newArrayList();
-        trainingData.add(new InstanceWithAttributesMap(AttributesMap.newHashMap(), 1));
+        List<InstanceWithAttributesMap<?>> trainingData = Lists.newArrayList();
+        trainingData.add(new ClassifierInstance(AttributesMap.newHashMap(), 1));
         PredictiveModelBuilder testPMB = new TestPMBuilder();
         FeatureEngineeringClassifierBuilder feBuilder = new FeatureEngineeringClassifierBuilder(testPMB, Lists.newArrayList(new TestAEBS()));
         final FeatureEngineeredClassifier predictiveModel = feBuilder.buildPredictiveModel(trainingData);
@@ -32,7 +37,7 @@ public class FeatureEngineeringClassifierBuilderTest {
     public static class TestAEBS implements AttributesEnrichStrategy {
 
         @Override
-        public AttributesEnricher build(final Iterable<InstanceWithAttributesMap> trainingData) {
+        public AttributesEnricher build(final Iterable<InstanceWithAttributesMap<?>> trainingData) {
             return new AttributesEnricher() {
                 private static final long serialVersionUID = -4851048617673142530L;
 
@@ -46,10 +51,10 @@ public class FeatureEngineeringClassifierBuilderTest {
         }
     }
 
-    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, InstanceWithAttributesMap> {
+    public static class TestPMBuilder implements PredictiveModelBuilder<TestPM, InstanceWithAttributesMap<?>> {
         @Override
-        public TestPM buildPredictiveModel(Iterable<InstanceWithAttributesMap> trainingData) {
-            for (InstanceWithAttributesMap instance : trainingData) {
+        public TestPM buildPredictiveModel(Iterable<InstanceWithAttributesMap<?>> trainingData) {
+            for (InstanceWithAttributesMap<?> instance : trainingData) {
                 if (!instance.getAttributes().containsKey("enriched")) {
                     throw new IllegalArgumentException("Predictive model training data must contain enriched instances");
                 }
@@ -58,7 +63,7 @@ public class FeatureEngineeringClassifierBuilderTest {
         }
 
         @Override
-        public void updateBuilderConfig(Map<String, Object> config) {
+        public void updateBuilderConfig(Map<String, Serializable> config) {
 
         }
     }
