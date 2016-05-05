@@ -1,6 +1,5 @@
 package quickml.supervised.classifier.logRegression;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,8 +36,8 @@ import static quickml.supervised.classifier.logisticRegression.SparseSGD.*;
 /**
  * Created by alexanderhawk on 10/13/15.
  */
-public class LogisticRegressionBuilderTest {
-    public static final Logger logger = LoggerFactory.getLogger(LogisticRegressionBuilderTest.class);
+public class RidgeRegressionBuilderTest {
+    public static final Logger logger = LoggerFactory.getLogger(RidgeRegressionBuilderTest.class);
 
     @Ignore //test takes too long, but is illustrative of how to build a model
     @Test

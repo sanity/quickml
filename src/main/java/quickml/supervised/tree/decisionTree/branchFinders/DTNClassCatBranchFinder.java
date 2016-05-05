@@ -12,7 +12,6 @@ import quickml.supervised.tree.constants.MissingValue;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.*;
-import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.scorers.Scorer;
 import quickml.supervised.tree.scorers.ScorerFactory;

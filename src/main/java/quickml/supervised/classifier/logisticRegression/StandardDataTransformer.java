@@ -1,16 +1,12 @@
 package quickml.supervised.classifier.logisticRegression;
 
-import com.google.common.collect.Lists;
 import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.ClassifierInstanceFactory;
-import quickml.supervised.Utils;
 import quickml.supervised.dataProcessing.AttributeCharacteristics;
 import quickml.supervised.dataProcessing.BasicTrainingDataSurveyor;
-import quickml.supervised.dataProcessing.ElementaryDataTransformer;
 import quickml.supervised.dataProcessing.instanceTranformer.*;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

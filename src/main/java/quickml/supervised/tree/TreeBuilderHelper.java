@@ -68,6 +68,7 @@ public class TreeBuilderHelper<I extends InstanceWithAttributesMap<?>, VC extend
         double bestScore = 0;
         Optional<? extends Branch<VC>> bestBranchOptional = Optional.absent();
         List<? extends BranchFinderAndReducerFactory<I, VC>> branchFindersAndReducers = tc.getBranchFindersAndReducers();
+        //check how RT cat branch getting added twice?
         for (BranchFinderAndReducerFactory<I, VC> branchFinderAndReducerFactory : branchFindersAndReducers) {
             //important to keep the reduction of instances to ValueCounters separate from branchFinders, which don't need to know anything about the form of the instances
             ReducerFactory<I, VC> reducerFactory = branchFinderAndReducerFactory.getReducerFactory();

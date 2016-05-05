@@ -52,7 +52,7 @@ public class DecisionOldOldTreeBuilderTest {
     //    RandomDecisionForestBuilder<ClassifierInstance> randomDecisionForestBuilder = new RandomDecisionForestBuilder<>(decisionTreeBuilder).numTrees(5);
     //    RandomDecisionForest randomDecisionForest = randomDecisionForestBuilder.buildPredictiveModel(instances);
 
-     //   for (DecisionTree forestTree : randomDecisionForest.decisionTrees) {
+     //   for (DecisionTree forestTree : randomDecisionForest.regressionTrees) {
        //     recurseTree(forestTree.root, conditions);
         // }
         for (ClassifierInstance instance: instances) {

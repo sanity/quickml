@@ -54,15 +54,15 @@ public class SimpleCrossValidator<PM extends PredictiveModel, T extends Instance
     private double testModel() {
         double runningLoss = 0;
         double runningWeightOfValidationSet = 0;
-
-        do {
+        boolean gotNextCycle= false;
+        while (dataCycler.hasMore() || gotNextCycle){
             List<T> validationSet = dataCycler.getValidationSet();
             double validationSetWeight = getInstanceWeights(validationSet);
             PM predictiveModel = modelBuilder.buildPredictiveModel(dataCycler.getTrainingSet());
             runningLoss += lossChecker.calculateLoss(predictiveModel, validationSet) * validationSetWeight;
             runningWeightOfValidationSet += validationSetWeight;
-            dataCycler.nextCycle();
-        } while (dataCycler.hasMore());
+            gotNextCycle = dataCycler.nextCycle();
+        }
 
         return runningLoss / runningWeightOfValidationSet;
     }

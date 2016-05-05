@@ -1,6 +1,8 @@
 package quickml.supervised.crossValidation.data;
 
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +22,12 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     private final double crossValidationFraction;
     private final int timeSliceHours;
     private DateTimeExtractor<I> dateTimeExtractor;
+    private  int offSetForValidation =0;
     private List<I> trainingSet;
     private List<I> validationSet;
     private static Logger logger = LoggerFactory.getLogger(OutOfTimeData.class);
     private DateTime endValidationPeriod;
+    private int ignoredInstances=0;
 
     public OutOfTimeData(List<I> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor) {
         this.allData = allData;
@@ -34,12 +38,22 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         reset();
     }
 
+    public OutOfTimeData(List<I> allData, double crossValidationFraction, int timeSliceHours, DateTimeExtractor dateTimeExtractor, int offSetForValidation) {
+        this.allData = allData;
+        this.crossValidationFraction = crossValidationFraction;
+        this.timeSliceHours = timeSliceHours;
+        this.dateTimeExtractor = dateTimeExtractor;
+        this.offSetForValidation = offSetForValidation;
+        sortData();
+        reset();
+    }
 
     @Override
     public void reset() {
         endValidationPeriod = null;
         setTrainingSetBasedOnFraction();
         updateValidationSet();
+
     }
 
     @Override
@@ -58,22 +72,34 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
     }
 
     @Override
-    public void nextCycle() {
+    public boolean nextCycle() {
         if (hasMore()) {
-            trainingSet.addAll(validationSet);
+            //TODO the method in the if should be general for both cases but need to verify
+            if (offSetForValidation!=0) {
+                setNextTrainingSet();
+            } else {
+                trainingSet.addAll(validationSet);
+            }
             updateValidationSet();
+            return true;
         }
+        return false;
+
     }
 
     @Override
     public boolean hasMore() {
-        return trainingSet.size() + validationSet.size() < allData.size();
+        return trainingSet.size() + validationSet.size() + ignoredInstances < allData.size();
     }
 
 
     private void updateValidationSet() {
         logger.info("re-entering update validation set");
-        List<I> potentialValidationSet = allData.subList(trainingSet.size(), allData.size());
+        List<I> potentialValidationSet = getCandidateValidationSet();
+        if (getCandidateValidationSet().isEmpty()) {
+            validationSet = Lists.newArrayList();
+            return;
+        }
         if (endValidationPeriod == null) {
             endValidationPeriod = dateTimeExtractor.extractDateTime(potentialValidationSet.get(0)).plusHours(timeSliceHours);
         } else {
@@ -114,6 +140,41 @@ public class OutOfTimeData<I> implements TrainingDataCycler<I> {
         } else {
             logger.info("no more insntances potential val set.");
         }
+    }
+
+    private List<I> getCandidateValidationSet() {
+        List<I> potentialValidationSet = Lists.newArrayList();
+        DateTime validationStartTime = dateTimeExtractor.extractDateTime(allData.get(trainingSet.size() - 1));
+        validationStartTime = validationStartTime.plusHours(offSetForValidation);
+        ignoredInstances = 0;
+        for (int i = trainingSet.size(); i<allData.size(); i++) {
+            DateTime instanceTime = dateTimeExtractor.extractDateTime(allData.get(i));
+            if (instanceTime.isAfter(validationStartTime)) {
+                break;
+            }
+            ignoredInstances++;
+
+        }
+        if (ignoredInstances + trainingSet.size() < allData.size()) {
+            potentialValidationSet = allData.subList(trainingSet.size() + ignoredInstances, allData.size());
+        }
+        return potentialValidationSet;
+
+    }
+
+    private void setNextTrainingSet() {
+        DateTime lastTrainingTime = dateTimeExtractor.extractDateTime(allData.get(trainingSet.size() - 1));
+        lastTrainingTime = lastTrainingTime.plusHours(timeSliceHours);
+        int initialTrainingSize = trainingSet.size();
+        for (int i = initialTrainingSize; i<allData.size(); i++) {
+            DateTime instanceTime = dateTimeExtractor.extractDateTime(allData.get(i));
+            if (instanceTime.isBefore(lastTrainingTime)) {
+                trainingSet.add(allData.get(i));
+            } else {
+                break;
+            }
+        }
+
     }
 
     private void addRemainderOfPotentialValidationSetIfNecessary(List<I> potentialValidationSet, int instancesAddedToTheValidationSet) {

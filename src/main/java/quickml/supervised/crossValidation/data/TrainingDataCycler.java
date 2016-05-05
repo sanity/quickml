@@ -13,7 +13,7 @@ public interface TrainingDataCycler<I> {
 
     List<I> getValidationSet();
 
-    void nextCycle();
+    boolean nextCycle();
 
     void reset();
 

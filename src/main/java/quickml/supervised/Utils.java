@@ -9,6 +9,7 @@ import quickml.data.instances.ClassifierInstance;
 import quickml.data.instances.Instance;
 import quickml.data.instances.InstanceWithAttributesMap;
 import quickml.data.PredictionMap;
+import quickml.data.instances.RegressionInstance;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.classifier.logisticRegression.SparseClassifierInstance;
 import quickml.supervised.crossValidation.PredictionMapResult;
@@ -22,8 +23,11 @@ import quickml.supervised.tree.nodes.LeafDepthStats;
 import quickml.supervised.tree.nodes.Node;
 import quickml.supervised.tree.summaryStatistics.ValueCounter;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.DoubleBuffer;
 import java.util.*;
 
 /**
@@ -69,6 +73,21 @@ public class Utils {
         return results;
     }
 
+    public static List<LabelPredictionWeight<Double, Double>> getRegLabelsPredictionsWeights(PredictiveModel<AttributesMap, Double> predictiveModel, List<? extends Instance<AttributesMap, Double>> validationSet, BufferedWriter bw) {
+        ArrayList<LabelPredictionWeight<Double, Double>> results = new ArrayList<>();
+        for (Instance<AttributesMap, Double> instance : validationSet) {
+            Double prediction = predictiveModel.predict(instance.getAttributes());
+            Long id = ((RegressionInstance)instance).id;
+            results.add(new LabelPredictionWeight<Double, Double>(instance.getLabel(), prediction, instance.getWeight()));
+            try {
+                bw.write(""+id + "," + instance.getLabel() + "," + prediction + "\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return results;
+    }
+
     public static PredictionMapResults calcResultPredictions(Classifier predictiveModel, List<? extends InstanceWithAttributesMap<?>> validationSet) {
         ArrayList<PredictionMapResult> results = new ArrayList<>();
         for (InstanceWithAttributesMap<?> instance : validationSet) {
@@ -84,6 +103,15 @@ public class Utils {
             results.add(new PredictionMapResult(prediction, instance.getLabel(), instance.getWeight()));
         }
         return new PredictionMapResults(results);
+    }
+
+    public static List<LabelPredictionWeight<Double, Double>> calcLabelPredictionsWeightsWithoutAttrs(PredictiveModel<AttributesMap, Double> predictiveModel, List<? extends RegressionInstance> validationSet, Set<String> attributesToIgnore) {
+        ArrayList<LabelPredictionWeight<Double, Double>> results = new ArrayList<>();
+        for (RegressionInstance instance : validationSet) {
+            Double prediction = predictiveModel.predictWithoutAttributes(instance.getAttributes(), attributesToIgnore);
+            results.add(new LabelPredictionWeight<Double, Double>(prediction, instance.getLabel(), instance.getWeight()));
+        }
+        return results;
     }
 
     public static <T extends InstanceWithAttributesMap<?>> void sortTrainingInstancesByTime(List<T> trainingData, final DateTimeExtractor<T> dateTimeExtractor) {

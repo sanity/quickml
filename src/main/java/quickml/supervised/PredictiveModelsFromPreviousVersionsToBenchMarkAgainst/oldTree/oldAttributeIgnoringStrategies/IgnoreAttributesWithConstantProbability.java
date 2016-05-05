@@ -29,6 +29,10 @@ public class IgnoreAttributesWithConstantProbability implements AttributeIgnorin
         return false;
     }
 
+    public double getIgnoreAttributeProbability() {
+        return ignoreAttributeProbability;
+    }
+
     @Override
     public String toString(){
         return "ignoreAttributeProbability = " + ignoreAttributeProbability;

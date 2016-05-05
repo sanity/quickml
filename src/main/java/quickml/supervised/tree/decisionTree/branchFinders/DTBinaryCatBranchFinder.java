@@ -9,7 +9,6 @@ import quickml.supervised.tree.constants.BranchType;
 import quickml.supervised.tree.decisionTree.nodes.DTCatBranch;
 import quickml.supervised.tree.decisionTree.valueCounters.ClassificationCounter;
 import quickml.supervised.tree.nodes.*;
-import quickml.supervised.tree.scorers.GRImbalancedScorer;
 import quickml.supervised.tree.branchingConditions.BranchingConditions;
 import quickml.supervised.tree.reducers.AttributeStats;
 import quickml.supervised.tree.scorers.ScorerFactory;

@@ -47,11 +47,13 @@ public class FoldedData<I> implements TrainingDataCycler<I> {
     }
 
     @Override
-    public void nextCycle() {
+    public boolean nextCycle() {
+        currentFold++;
         if (hasMore()) {
-            currentFold++;
             setTrainingAndValidationSets();
+            return true;
         }
+        return false;
     }
 
     @Override

@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
    0.10.1 -->
 
-    <version> 0.10.9</version>
+    <version> 0.10.10</version>
 
     <properties>
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,6 +55,11 @@
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
             <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.23</version>
         </dependency>
         <dependency>
             <groupId>net.sf.opencsv</groupId>
