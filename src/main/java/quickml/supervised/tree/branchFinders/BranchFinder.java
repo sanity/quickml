@@ -58,12 +58,6 @@ public abstract class BranchFinder<VC extends ValueCounter<VC>> {
     }
         int numTrialAttributes = (int)((1.0-ignoreProb)*candidates.size());
 
-        //p_of_a_single_colision at i= frac_in_return_set (fi).  The expected num collisions at point i is ei.
-        // ei = p of just 1 collision = p(1-p), prob of just 2 collisions: = (1-p)p^2, n collisions = (1-p)p^n
-        //e_i = expected num collisions sum(n*p(1-p)^n, n=0, n=N), N=in collection.=>  e_ = p/(1-p) *d/dB( sum B^n, n=1, n=N+1), B=1-p
-        //p/(1-p)*d/dB[(1-B^(N+1))/(1-B)]=
-        //sum(ei, i=1, num_elements_to_be_returned),
-
         //O(N) way of shuffling the attributes to make all permutations equally likely.
     Collections.shuffle(candidates);
 

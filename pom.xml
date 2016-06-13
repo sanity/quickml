@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
    0.10.1 -->
 
-    <version> 0.10.11</version>
+    <version> 0.10.12</version>
 
     <properties>
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

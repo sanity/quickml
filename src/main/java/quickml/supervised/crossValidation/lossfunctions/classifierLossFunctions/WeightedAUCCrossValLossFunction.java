@@ -63,7 +63,8 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         double falseNegatives = 0;
 
         ArrayList<AUCPoint> aucPoints = new ArrayList<>();
-        double threshold = 0.0;
+        double thresholdForPositiveClassification = 0.0;
+        //start at upper right of ROC CURVE where everything is a positive
         for (AUCData aucData : aucDataList) {
             if (aucData.getClassification().equals(positiveClassification)) {
                 truePositives += aucData.getWeight();
@@ -71,7 +72,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
                 falsePositives += aucData.getWeight();
             }
         }
-        //add 0,0 since we won't get it if we always predict 0.0
+        //add 1,1 since we won't get it if we always predict 0.0
         aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
         //iterate through each data point updating all points that are changed by the threshold
         int startIndex = 0;
@@ -93,13 +94,24 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
             probabilityOfNext = aucData.getProbabilityOfPositiveClassification();
         }
 
-        //now compute the non 0,0 ROC curve points
+        //now compute the non endpoint ROC curve points
         for (int i = startIndex; i< aucDataList.size(); i++) {
+            //each computed probability of positive classification is used as a threshold (in ascending order
+            //which maps to the the upper right of the ROC curve.
+
+            // At each threshold, we know that at most one data point changed to be classified
+            // as a negative (and thus know the complete count of TPs FPs, TN, FN at that ROC point
+
+            //note, we make the threshold inclusive, in the sense that points are labeled positives if they are
+            //less than the threshold
+
             AUCData aucData = aucDataList.get(i);
              double probability = aucData.getProbabilityOfPositiveClassification();
-            if (threshold != probability && probability!=0.0) {
+
+            //no need to double count
+            if (thresholdForPositiveClassification != probability && probability!=0.0) {
                 aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
-                threshold = probability;
+                thresholdForPositiveClassification = probability;
             }
             //point is a positive but with the new threshold, we predict it is negative
             if (aucData.getClassification().equals(positiveClassification)) {
@@ -119,7 +131,7 @@ public class WeightedAUCCrossValLossFunction extends ClassifierLossFunction {
         if (truePositives !=0 && falsePositives !=0) {
             aucPoints.add(getAUCPoint(truePositives, falsePositives, trueNegatives, falseNegatives));
         }
-        // (0,0)
+        // (1,1)
         aucPoints.add(getAUCPoint(0, 0, trueNegatives, falseNegatives));
         return aucPoints;
     }
