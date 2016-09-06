@@ -32,7 +32,7 @@
         be accompanied by a bump in version number, regardless of how minor the change.
    0.10.1 -->
 
-    <version>0.10.14</version>
+    <version>0.10.15</version>
 
     <properties>
          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -89,7 +89,8 @@
         <dependency>
             <groupId>com.twitter.common</groupId>
             <artifactId>stats-util</artifactId>
-            <version>0.0.58</version>
+            <version>0.0.15</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -227,6 +228,7 @@
                           <maxmem>256m</maxmem>
                           <!-- aggregated reports for multi-module projects -->
                           <aggregate>true</aggregate>
+                      <check/>
                   </configuration>
             </plugin>
             <plugin>
