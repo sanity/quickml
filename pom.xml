@@ -41,12 +41,12 @@
         <repository>
             <id>sanity-maven-repo</id>
             <name>Sanity's Maven repository on GitHub</name>
-            <url>http://sanity.github.com/maven-repo/repository/</url>
+            <url>https://sanity.github.com/maven-repo/repository/</url>
         </repository>
         <repository>
             <id>twitter</id>
             <name>twitter</name>
-            <url>http://maven.twttr.com</url>
+            <url>https://maven.twttr.com</url>
         </repository>
     </repositories>
 
